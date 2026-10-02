@@ -1,11 +1,11 @@
 import { detectIntent, updateWorkingPremise } from '../intent/intent.js';
 import { interpretProfile } from '../profile/interpret.js';
-import { forProfile, search } from '../knowledge/index.js';
+import { answerFromLibrary, forProfile, search } from '../knowledge/index.js';
 import { appendMessage } from '../project/memory.js';
 import { addToBoard, boardToChat, emptyBrainstorm, ideaId } from '../project/board.js';
 import { scan, scanWithModel } from '../analysis/scan.js';
 import { composeMessages, ideaRequestBlock } from './prompt.js';
-import { builtinReply, DECLINE_EDIT, DECLINE_WRITE } from './builtin.js';
+import { builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply } from './guard.js';
 import { ideaSuggestions, nextSuggestions, STARTER } from './suggestions.js';
 import { ASKS_FOR_IDEAS, WANTS_MORE } from '../brainstorm/commands.js';
@@ -14,6 +14,12 @@ import { composeDevelopReply, composeIdeaReply, generateIdeas, leadNoun, markSho
 import { clip, words } from '../util/text.js';
 
 export { STARTER };
+
+// A general question about craft, style, usage, a form/genre or a work (as opposed to talk about the writer's own story).
+const GENERAL_Q = /^\s*(?:what(?:'s|\s+is|\s+are|\s+does|\s+do)\b|how\s+(?:do|should|can|would|does)\s+(?:i|you|one|we|a|an|the)\b|how\s+(?:to|is|are)\b|who\s+(?:wrote|is|was|are|were|invented|coined)\b|which\s+(?:is|one|style|form|genre|guide)\b|when\s+(?:do|should|is|does)\b|(?:explain|define|describe|tell\s+me\s+about)\b|(?:is|are)\s+it\b|difference\s+between|should\s+i\s+(?:use|capitali[sz]e|italici[sz]e|hyphenate|spell|write|format|cite)\b)/i;
+const STORY_TALK = /\b(?:my|our|his|her|their|the)\s+(?:story|novel|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|draft|ending|opening|twist|narrator|manuscript)\b|\b(?:he|she|him|they|them)\b/i;
+const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they cover the question, answer from them and say which style guide or source they come from, and mention when practice varies. If they do not cover it, say so plainly. Never invent citations, section numbers, titles, dates or quotations.";
+const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
 
 /**
  * NIE's orchestrator: one identity, regardless of what answers underneath.
@@ -67,7 +73,20 @@ export class Orchestrator {
       return this.#finish(project, intent, reply, 'builtin', true);
     }
 
-    project.conversation.workingPremise = updateWorkingPremise(project.conversation.workingPremise, text, intent);
+    // A general question about craft, style, usage, a form, genre or work: answer from the offline library, with its sources.
+    // (Not a premise: it must not become the story's working premise.)
+    let lib = null;
+    let libMiss = false;
+    const libraryCandidate = intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
+    if (libraryCandidate) {
+      const general = GENERAL_Q.test(text) && !STORY_TALK.test(text);
+      const a = answerFromLibrary(text);
+      if (a.strength === 'strong' || (a.strength === 'weak' && general)) lib = a;
+      else if (general && words(text).length >= 3) libMiss = true;
+    }
+    if (lib || libMiss) intent.type = 'library-question';
+
+    if (intent.type !== 'library-question') project.conversation.workingPremise = updateWorkingPremise(project.conversation.workingPremise, text, intent);
 
     // ── What is being brainstormed, and is this a request for ideas? ──────────
     const asks = ASKS_FOR_IDEAS.test(text);
@@ -99,7 +118,7 @@ export class Orchestrator {
 
     // ── Conversation (not an idea request) ───────────────────────────────────
     const interp = interpretProfile(project.profile, { text: project.storyText });
-    const retrieved = this.retrieve(project, text);
+    const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, text)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, text);
     const passage = intent.type === 'share-passage' ? text : '';
     const report = passage ? scan({ text: passage, project }) : null;
 
@@ -111,7 +130,7 @@ export class Orchestrator {
       passage: intent.type === 'feedback-request' ? project.storyText.slice(-1800) : '',
       history: history.slice(0, -1),
       retrieved,
-      extra: report ? `The writer's rules and offline checks found: ${report.headline}` : '',
+      extra: report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : '',
     });
 
     let res;
@@ -135,7 +154,7 @@ export class Orchestrator {
         route = 'builtin';
       }
     } else {
-      reply = builtinReply({ intent, project, message: text, report });
+      reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: text, report });
       route = 'builtin';
       // Starting from nothing is where a few sparks help most: offer some to react to, never a draft.
       if (intent.type === 'start-from-zero') {

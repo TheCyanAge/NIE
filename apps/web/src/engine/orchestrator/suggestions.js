@@ -34,6 +34,8 @@ export function nextSuggestions({ intent, project }) {
       return [add, who ? { label: `What does the ${who} want?`, text: `The ${who} wants ` } : { label: 'Who is it about?', text: 'It is about ' }, { label: 'What goes wrong?', text: 'What goes wrong is ' }, send('Give me some complications', 'complication', 'Give me some complications.'), send('Surprise me with a twist', 'twist', 'Give me some twists.')];
     case 'direction-change':
       return [{ label: 'Keep the earlier emotional core', text: 'I want to keep the emotional core: ' }, { label: 'Who knows first?', text: 'Who should find out first, the character or the reader?' }, add];
+    case 'library-question':
+      return [{ label: 'How would that work in my project?', text: 'How would that work in my project?' }, { label: 'Ask about something else', text: 'What is ' }];
     case 'craft-question':
       return [{ label: 'How would that work in my story?', text: 'How would that work in my story?' }, { label: 'When is it a bad idea?', text: 'When is that a bad idea?' }];
     case 'request-edit':

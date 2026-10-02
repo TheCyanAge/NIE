@@ -1,5 +1,5 @@
 {
-  "name": "narrative-integrity-engine",
+  "name": "nie-desktop",
   "productName": "Narrative Integrity Engine",
   "version": "0.1.0",
   "description": "NIE: an offline-capable narrative intelligence environment for writers.",
@@ -34,16 +34,45 @@
       "preload.cjs",
       "package.json",
       "updater-config.json",
-      "src/**/*"
+      "src/**/*",
+      "!**/dist-desktop/**",
+      "!**/*.gguf"
     ],
     "extraResources": [
-      { "from": "../web", "to": "web", "filter": ["**/*", "!**/*.md"] },
-      { "from": "bin", "to": "bin", "filter": ["**/*", "!README.md"] },
-      { "from": "models", "to": "models", "filter": ["**/*.gguf"] }
+      {
+        "from": "../web",
+        "to": "web",
+        "filter": [
+          "**/*",
+          "!**/*.md"
+        ]
+      },
+      {
+        "from": "bin",
+        "to": "bin",
+        "filter": [
+          "**/*",
+          "!README.md"
+        ]
+      },
+      {
+        "from": "models",
+        "to": "models",
+        "filter": [
+          "**/*.gguf"
+        ]
+      }
     ],
     "asar": true,
     "win": {
-      "target": [{ "target": "dir", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "../../assets/icon.ico"
     },
     "publish": null

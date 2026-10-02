@@ -5,6 +5,7 @@ import { createBridgeOnline, createDirectOnline } from '../engine/ai/online.js';
 import { Orchestrator } from '../engine/orchestrator/index.js';
 import { createIngestClient } from '../engine/ingest/client.js';
 import { debounce } from './dom.js';
+import { loadLibrary, libraryStats } from '../engine/knowledge/index.js';
 
 /**
  * The application controller: owns the project store, the single NIE engine and the active project.
@@ -81,6 +82,10 @@ export function createApp() {
     on,
     emit,
   };
+
+  // The big offline library loads in the background after first paint, so startup never waits for it.
+  const idle = window.requestIdleCallback ? (f) => window.requestIdleCallback(f, { timeout: 3000 }) : (f) => setTimeout(f, 800);
+  idle(() => loadLibrary().then(() => emit('library', libraryStats())));
 
   engine.onChange((s) => emit('status', s));
   online.refresh?.().then(() => emit('status', engine.status())).catch(() => {});

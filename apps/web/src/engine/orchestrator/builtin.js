@@ -1,4 +1,4 @@
-import { search, getEntry } from '../knowledge/index.js';
+import { search, getEntry, KIND_LABELS, libraryStatus } from '../knowledge/index.js';
 import { pick, clip } from '../util/text.js';
 
 /**
@@ -154,4 +154,48 @@ export function conversationalSummary(report) {
   for (const f of obs) bits.push(sentenceCase(f.message));
   for (const f of good) bits.push(`Something that's working: ${f.message.charAt(0).toLowerCase()}${f.message.slice(1)}`);
   return bits.length ? bits.join(' ') : "Nothing jumps out from the checks I can run offline, which isn't the same as it being finished.";
+}
+
+// ── Answers from the offline library ────────────────────────────────────────
+
+const workLine = (w) => `${w.title} (${w.author}${w.year ? `, ${w.year}` : ''})`;
+
+/** One entry rendered as a short, sourced answer. Reference only: it says when a writer may depart from it. */
+function renderEntry(e) {
+  const head = `**${e.name}**  ·  ${KIND_LABELS[e.kind] ?? e.kind}${e.guide ? `  ·  ${e.guide}${e.asOf ? `, ${e.asOf}` : ''}` : ''}`;
+  const lines = [head, e.summary];
+  if (e.kind === 'work' && e.author) lines.push(`By ${e.author}${e.year ? `, ${e.year}` : ''}${e.language ? ` (${e.language})` : ''}.`);
+  if (e.conventions.length) lines.push(e.conventions.slice(0, 4).map((c) => `- ${c}`).join('\n'));
+  if (e.example) lines.push(`Example: ${e.example}`);
+  if (e.watchFor[0]) lines.push(`Watch for: ${e.watchFor[0]}`);
+  if (e.confidence === 'varies') lines.push('This varies by publisher, house style or region, so check the guide your project follows.');
+  if (e.confidence === 'contested') lines.push('Informed writers and editors disagree about this one.');
+  if (e.deliberateWhen[0]) lines.push(`Departing from it can be legitimate: ${e.deliberateWhen[0].replace(/\.$/, '')}.`);
+  if (e.works?.length) lines.push(`Works to look at: ${e.works.slice(0, 4).map(workLine).join('; ')}.`);
+  if (e.refs?.length) lines.push(`Read more: ${e.refs.slice(0, 2).join('; ')}.`);
+  return lines.join('\n\n');
+}
+
+/**
+ * Answer a question from the offline library: sourced, honest about edition and variation, and never presented as a rule
+ * NIE enforces.
+ * @param {{ strength: string, entries: object[], related: object[] }} answer  from answerFromLibrary()
+ */
+export function libraryReply(answer) {
+  const body = answer.entries.slice(0, 2).map(renderEntry).join('\n\n---\n\n');
+  const rest = [...answer.entries.slice(2), ...answer.related].slice(0, 4).map((e) => e.name);
+  const tail = [];
+  if (rest.length) tail.push(`Related in the library: ${rest.join(', ')}.`);
+  tail.push(answer.strength === 'weak' ? "This is the closest I have, so tell me if it isn't what you meant." : 'This comes from my built-in library, so it works with no internet. Style guides are revised, so check the current edition for formal submissions.');
+  return [`From NIE's built-in library:`, body, tail.join(' ')].join('\n\n');
+}
+
+/** Honest "not in my library", used when nothing relevant was found. */
+export function libraryMissReply(answer) {
+  const loading = !libraryStatus().loaded;
+  const near = answer.related?.length ? ` The nearest entries I have are: ${answer.related.map((e) => e.name).join(', ')}.` : '';
+  return [
+    loading ? "My full library is still loading, so I can only answer from my core craft notes right now. Try again in a moment." : "That isn't in my built-in library, and I won't guess, because I can't look things up offline.",
+    `${near} Try naming the form, genre, style guide or word you mean. If it is something you want kept consistent in your own text, add it as a rule in Full Scan and I'll mark every place that breaks it.`.trim(),
+  ].join('\n\n');
 }

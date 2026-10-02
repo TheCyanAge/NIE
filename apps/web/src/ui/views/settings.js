@@ -1,4 +1,5 @@
 import { h, $, clear, toast, pageHead } from '../dom.js';
+import { KIND_LABELS, answerFromLibrary, libraryStats, libraryStatus, loadLibrary, searchScored } from '../../engine/knowledge/index.js';
 
 /**
  * Settings: where the writer chooses NIE's model, checks for updates, controls the tour and manages data.
@@ -36,6 +37,41 @@ export function mountSettings(root, app, { startTour }) {
   const obs = h('input', { type: 'checkbox', id: 'settings-obs', onchange: (e) => app.setPref('showObservations', e.target.checked) });
   const diag = h('input', { type: 'checkbox', id: 'diag-toggle', onchange: (e) => app.setPref('diagnostics', e.target.checked) });
 
+  // ── Knowledge library ─────────────────────────────────────────────────────
+  const libSummary = h('p', { id: 'library-summary', class: 'status-line', 'aria-live': 'polite' }, 'Loading NIE\'s library…');
+  const libCoverage = h('div', { id: 'library-coverage', class: 'library-coverage' });
+  const libInput = h('input', { class: 'input', id: 'library-search', type: 'search', placeholder: 'Search the library: a style rule, a form, a genre, a word, a work…', 'aria-label': 'Search NIE\'s built-in library', autocomplete: 'off' });
+  const libResults = h('ul', { id: 'library-results', class: 'library-results' });
+  let libTimer = null;
+  libInput.addEventListener('input', () => { clearTimeout(libTimer); libTimer = setTimeout(paintLibraryResults, 150); });
+
+  function paintLibrary() {
+    const st = libraryStats();
+    const status = libraryStatus();
+    libSummary.dataset.state = status.error ? 'failed' : status.loaded ? 'ready' : 'starting';
+    libSummary.textContent = status.error
+      ? `NIE's full library could not be loaded (${status.error}). Core craft notes still work.`
+      : status.loaded
+        ? `${st.total.toLocaleString()} entries are built in and work with no internet.`
+        : `${st.total.toLocaleString()} core entries are ready; the full library is loading…`;
+    clear(libCoverage).append(...Object.entries(st.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => h('span', { class: 'tag', title: KIND_LABELS[k] ?? k }, `${KIND_LABELS[k] ?? k}: ${n.toLocaleString()}`)));
+    if (st.ruleGuides.length) libCoverage.append(h('p', { class: 'muted small library-guides' }, `Style rules from: ${st.ruleGuides.join(', ')}.`));
+    paintLibraryResults();
+  }
+  function paintLibraryResults() {
+    clear(libResults);
+    const q = libInput.value.trim();
+    if (q.length < 2) return;
+    const hits = searchScored(q, { limit: 8 }).map((x) => x.entry);
+    if (!hits.length) return void libResults.append(h('li', { class: 'muted small' }, 'Nothing in the built-in library matches that. NIE will say so rather than guess.'));
+    for (const e of hits) {
+      libResults.append(h('li', { class: 'library-hit' },
+        h('div', { class: 'row' }, h('strong', {}, e.name), h('span', { class: 'tag' }, KIND_LABELS[e.kind] ?? e.kind), e.guide ? h('span', { class: 'tag' }, `${e.guide}${e.asOf ? `, ${e.asOf}` : ''}`) : null),
+        h('p', { class: 'small' }, e.summary),
+        e.works?.length ? h('p', { class: 'muted small' }, `Works: ${e.works.slice(0, 4).map((w) => `${w.title} (${w.author}${w.year ? `, ${w.year}` : ''})`).join('; ')}`) : null));
+    }
+  }
+
   root.append(h('div', { class: 'settings' },
     pageHead({ eyebrow: 'Settings', title: 'Make NIE yours', sub: 'Choose how NIE thinks offline, check for updates, and control the tour.' }),
     section('AI', h('p', { class: 'muted' }, 'You always talk to NIE. Online, it can use an online model; offline, it automatically uses the model installed with the app.'), aiStatus,
@@ -47,6 +83,8 @@ export function mountSettings(root, app, { startTour }) {
       h('div', { class: 'grid2' }, h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Base URL (OpenAI-compatible)'), onUrl), h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Model'), onModel)),
       h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'API key'), onKey),
       h('div', { class: 'row' }, h('button', { class: 'btn btn-primary', id: 'online-save', onclick: saveOnline }, 'Save'), h('button', { class: 'btn', id: 'online-test', onclick: testOnline }, 'Test connection'), onMsg)),
+    section("NIE's library", h('p', { class: 'muted' }, 'Style guides and rules, usage, manuscript formats, genres with example works, forms, devices, movements, traditions and publishing norms. It is built in, so NIE can answer from it with no internet. It is reference material: NIE explains it, and only ever enforces your own rules.'),
+      libSummary, libCoverage, h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Look something up'), libInput), libResults),
     section('Updates', upMsg, h('div', { class: 'row' }, upCheck, upInstall)),
     section('Tour', h('label', { class: 'check' }, tourToggle, ' Show this tour on startup'), h('div', { class: 'row' }, h('button', { class: 'btn', id: 'start-tour', onclick: () => startTour() }, 'Start the tour'))),
     section('Application', h('div', { class: 'row' }, h('label', { class: 'field inline' }, h('span', { class: 'field-label' }, 'Theme'), theme)),
@@ -123,6 +161,9 @@ export function mountSettings(root, app, { startTour }) {
 
   app.on('status', refreshModel);
   app.on('prefs', syncPrefs);
+  app.on('library', paintLibrary);
+  paintLibrary();
+  loadLibrary().then(paintLibrary);
   app.on('view', (v) => { if (v === 'settings') { refreshModel(); refreshOnline(); syncPrefs(); } });
   if (window.NIE_UPDATER) {
     window.NIE_UPDATER.onStatus(paintUpdate);

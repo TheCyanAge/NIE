@@ -100,6 +100,15 @@ async function launch(userData) {
   };
 }
 
+/** A first run shows the tour (by design). A person would press Escape or Skip; so does the test. */
+async function dismissTour(page) {
+  for (let i = 0; i < 3; i++) {
+    if (!(await page.$('#tour-root .tour-dim'))) return;
+    await page.keyboard.press('Escape');
+    await sleep(500);
+  }
+}
+
 let app = null;
 const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'nie-smoke-'));
 try {
@@ -109,6 +118,12 @@ try {
     const rt = validateRuntime(path.join(resources, 'bin'), process.platform);
     step('llama.cpp runtime is complete next to llama-server', rt.ok, rt.ok ? `${rt.files.length} files, CPU backend present` : rt.problems.map((p) => p.message).join(' | '));
   }
+  // The app's own files must be small and must not contain a copy of the repository (a packaging mistake that bloats the installer).
+  const asarUnpacked = path.join(resources, 'app.asar.unpacked');
+  const nested = fs.existsSync(path.join(asarUnpacked, 'node_modules', 'narrative-integrity-engine')) || fs.existsSync(path.join(asarUnpacked, 'node_modules', 'nie-desktop'));
+  const top = fs.readdirSync(resources).map((n) => { const f = path.join(resources, n); const st = fs.statSync(f); return `${n}${st.isDirectory() ? '/' : ''}`; });
+  report.resourcesTop = top;
+  step('the package does not contain a copy of the repository', !nested, `resources: ${top.join(', ')}`);
   step('web UI is bundled', fs.existsSync(path.join(resources, 'web', 'index.html')) && fs.existsSync(path.join(resources, 'web', 'src', 'engine', 'knowledge', 'index.js')), 'resources/web');
   if (!skipModel) {
     const modelPath = path.join(resources, 'models', DEFAULT_MODEL.fileName);

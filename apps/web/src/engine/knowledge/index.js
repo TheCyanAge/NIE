@@ -131,6 +131,24 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
 
 const PROFILE_KINDS = ['genre', 'structure', 'style', 'form', 'technique', 'movement', 'tradition'];
 
+/**
+ * How well does the library answer a question? 'strong' = an entry is clearly about it; 'weak' = related entries only;
+ * 'none' = nothing relevant. NIE uses this to answer from the library with its sources, or to say plainly that it does not
+ * have the answer instead of guessing.
+ */
+export const STRONG_SCORE = 11;
+export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
+  const scored = searchScored(query, { limit: Math.max(limit, 6), minScore: 1.2, kinds });
+  if (!scored.length) return { strength: 'none', entries: [], related: [] };
+  const top = scored[0].score;
+  const strength = top >= STRONG_SCORE ? 'strong' : top >= STRONG_SCORE * 0.55 ? 'weak' : 'none';
+  if (strength === 'none') return { strength, entries: [], related: scored.slice(0, 3).map((x) => x.entry) };
+  // Entries close in score to the best one belong to the answer; the rest are only "related".
+  const entries = scored.filter((x) => x.score >= top * 0.72).slice(0, limit).map((x) => x.entry);
+  const related = scored.map((x) => x.entry).filter((e) => !entries.includes(e)).slice(0, 4);
+  return { strength, entries, related };
+}
+
 /** Resolve free-text profile values (genre, style, form…) to library entries by name, alias or keyword. */
 export function resolveTerms(terms) {
   const out = [];
@@ -170,9 +188,14 @@ export function describeForPrompt(entries, budgetChars = 1400) {
     const bits = [`${k.name}${k.guide ? ` [${k.guide}${k.asOf ? `, ${k.asOf}` : ''}]` : ''} — ${k.summary}`];
     if (k.kind === 'work' && k.author) bits.push(`By ${k.author}${k.year ? `, ${k.year}` : ''}.`);
     if (k.confidence === 'varies') bits.push('Varies by publisher or house style.');
+    if (['rule', 'usage', 'format', 'guide', 'market', 'process'].includes(k.kind)) {
+      if (k.conventions[0]) bits.push(k.conventions.slice(0, 2).join(' '));
+      if (k.example) bits.push(`Example: ${k.example}`);
+    }
+    if (k.kind === 'genre' && k.works?.length) bits.push(`Works: ${k.works.slice(0, 3).map((w) => `${w.title} (${w.author})`).join('; ')}.`);
     if (k.deliberateWhen[0]) bits.push(`Often deliberate: ${k.deliberateWhen[0]}.`);
     if (k.questions[0]) bits.push(`Useful question: ${k.questions[0]}`);
-    const line = '- ' + clip(bits.join(' '), 330);
+    const line = '- ' + clip(bits.join(' '), ['rule', 'usage', 'format'].includes(k.kind) ? 440 : 330);
     if (used + line.length > budgetChars) break;
     lines.push(line);
     used += line.length + 1;
