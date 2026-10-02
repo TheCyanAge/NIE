@@ -153,3 +153,26 @@ export function pick(list, seed = '') {
 export function deepClone(v) {
   return v === undefined ? v : JSON.parse(JSON.stringify(v));
 }
+
+/** Small deterministic PRNG (mulberry32) so "random" idea picks are reproducible in tests and stable for a given seed. */
+export function seededRandom(seed) {
+  let a = parseInt(fnv1a(String(seed)), 16) >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Deterministic shuffle (Fisher–Yates) using a seeded generator. */
+export function seededShuffle(list, seed) {
+  const rnd = seededRandom(seed);
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}

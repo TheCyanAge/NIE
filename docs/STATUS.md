@@ -13,6 +13,7 @@ Legend: ✅ built and tested here · 🟡 built, needs verification on Windows /
 | 13–14, 57–61 | Full Scan: classes, no meaningless score, patterns, intent-aware | ✅ **Now centred on the writer's own rules** (see below) |
 | **new** | NIE never creates/edits text; finds rule violations, highlights WHERE, explains briefly why | ✅ |
 | 15, 44, 62–64 | Brainstorm, helps from zero, starter hint only once, contextual suggestions | ✅ |
+| **new** | Brainstorm as an idea partner for any literary project (stories, characters, worlds, articles, essays, poems, scripts): kind picker, quick lenses, offline idea banks, genre blends, develop-an-idea, per-project Idea Board, "remember this" / "show my idea board" | ✅ unit + UI tests. 🟡 the offline banks are hand-written seed content (hundreds of ideas), not a model: with the language model running, ideas are far more specific to the project |
 | 18, 77 | "NIE is thinking 🪶📜..." with waving dots | ✅ |
 | 19–22, 65–68 | Read mode: any supported format → Story Text → scan | ✅ TXT/MD/HTML/RTF/DOCX/ODT/EPUB; PDF basic (text PDFs; no OCR) |
 | 66 | Read aloud (pause/resume/section navigation) | ✅ logic + UI against a mock synthesiser; 🟡 real Windows voices |

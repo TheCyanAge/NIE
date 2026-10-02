@@ -1,6 +1,7 @@
 import { createEmptyProfile, normalizeProfile } from '../profile/profile.js';
 import { emptyWorkingPremise } from '../intent/intent.js';
 import { uid } from '../util/text.js';
+import { emptyBrainstorm, normalizeBrainstorm } from './board.js';
 
 /**
  * Project storage with hard isolation.
@@ -75,6 +76,7 @@ export function createProjectData({ title = 'Untitled project', profile, storyTe
       dismissed: [], // finding fingerprints the writer dismissed
     },
     conversation: { messages: [], workingPremise: emptyWorkingPremise(), suggestionShown: false },
+    brainstorm: emptyBrainstorm(), // kind, what was already shown, and the Idea Board the writer keeps
     scans: { history: [] },
     source: null, // { name, format, importedAt } when story text came from Read mode
   };
@@ -110,6 +112,7 @@ function migrate(raw) {
       workingPremise: { ...emptyWorkingPremise(), ...(raw.conversation?.workingPremise ?? {}) },
       suggestionShown: Boolean(raw.conversation?.suggestionShown),
     },
+    brainstorm: normalizeBrainstorm(raw.brainstorm),
     scans: { history: Array.isArray(raw.scans?.history) ? raw.scans.history.slice(-20) : [] },
     source: raw.source && typeof raw.source === 'object' ? raw.source : null,
   };

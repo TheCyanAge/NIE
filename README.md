@@ -7,7 +7,11 @@ helps you brainstorm, and reads documents aloud, with a local language model (Qw
 - **Full Scan**: write your rules ("Samantha never lies", "No adverbs", "Stay in third person"); NIE highlights each place that
   breaks one, in your own text, and says why. Exact checks are exact; meaning-based rules are judged by the language model
   (by sentence number, so it can only ever point at your words) or, offline, approximated by keywords and labelled as such.
-- **Brainstorm**: conversation about ideas, genre and structure. It asks questions and follows your lead. It will not draft or rewrite.
+- **Brainstorm**: an idea partner for anything literary: stories, characters, worlds, articles, essays and memoir, poems, scripts.
+  Pick what you are making (or just talk), tap a lens (twists, complications, angles, hooks, images…) or ask in your own words, and
+  NIE throws concept-level ideas at you and asks the question that sharpens them. Star the ones that pull; they live on your
+  project's **Idea Board** ("remember this", "show my idea board", "let's develop this idea…" all work in the chat). It works
+  with no model at all, from a built-in idea library, and says so. It will never draft, continue or rewrite your text.
 - **Read**: import TXT, Markdown, HTML, RTF, DOCX, ODT, EPUB or PDF; it becomes your Story Text; have NIE read it aloud.
 - **Projects**: every project is its own world. New means fresh; delete means gone.
 

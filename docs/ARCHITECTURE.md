@@ -22,6 +22,8 @@ continuity. Intent / style / pattern interpretation is the reading. NIE is the u
 | **Rules**: plain-language rule parsing, exact span checking, model judging by sentence number | `engine/rules/` |
 | Full Scan: classified findings, observations, honest accounting (no score) | `engine/analysis/` |
 | Orchestrator: brainstorm, built-in guidance, prompt budgeting, no-write guard | `engine/orchestrator/` |
+| Brainstorm idea partner: kinds (story, character, world, article, essay, poem, script), lenses, offline idea banks, genre blends, develop-an-idea, model-reply parsing | `engine/brainstorm/` |
+| Idea Board (kept ideas, notes, export), per project | `engine/project/board.js`, `ui/views/board.js` |
 | AI routing, OpenAI-compatible client with streaming, bridges | `engine/ai/` |
 | File ingestion (zero-dependency ZIP/DOCX/ODT/EPUB/RTF/HTML/MD/PDF) in a Web Worker | `engine/ingest/` |
 | Read-aloud (chunking, pause/resume, section navigation) | `engine/readaloud/` |
@@ -35,6 +37,9 @@ continuity. Intent / style / pattern interpretation is the reading. NIE is the u
    to a range in the writer's own text, so a hallucinated quote cannot even be highlighted (`rules/judge.js`).
 3. Brainstorm requests to write/rewrite are recognised (`intent/intent.js`) and declined without calling a model; the system prompt forbids drafting;
    `orchestrator/guard.js` strips any long composed passage from a reply that isn't the writer's own words.
+4. Brainstorm ideas are concepts by construction: the offline banks are linted (`tests/brainstorm-banks.test.js`: no quotation marks, digits or
+   narration, 12-40 word concepts), a model's idea list is parsed into cards and any item over 60 words is dropped (never edited), and
+   the idea instruction goes in the user turn so the system prompt stays identical between turns and llama.cpp can reuse its prompt cache.
 
 ## Project isolation
 

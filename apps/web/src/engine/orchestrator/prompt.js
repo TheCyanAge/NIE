@@ -1,5 +1,8 @@
 import { profileToPromptBlock } from '../profile/profile.js';
 import { memoryToPromptBlock } from '../project/memory.js';
+import { boardToPromptBlock } from '../project/board.js';
+import { LENSES, kindLabel, kindPhrase } from '../brainstorm/lenses.js';
+import { leadNoun } from '../brainstorm/ideas.js';
 import { rulesToPromptBlock } from '../rules/rules.js';
 import { describeForPrompt } from '../knowledge/index.js';
 import { clip, estimateTokens } from '../util/text.js';
@@ -22,12 +25,12 @@ Always follow these rules:
 Keep replies short unless they ask for more.`;
 
 const MODES = {
-  brainstorm: `Mode: brainstorming. Respond to what the writer just said. Build on it, offer a few concrete ideas or angles when useful (as ideas, not as drafted text), and end with a question that moves the idea forward. If they change direction, follow the new direction and say what it changes.`,
+  brainstorm: `Mode: brainstorming partner for any literary project: stories, characters, worlds, articles, essays, memoir, poems, scripts. Be generous with ideas and keep the conversation going. Respond to what the writer just said and build on it. When ideas would help, give 3 to 5 numbered ideas, one or two sentences each: concepts, angles, complications or questions, never drafted prose, dialogue or scene text. Make them different from each other, specific to this project when it has a premise, and surprising rather than safe. Do not repeat ideas already given or kept. End with one question that moves the idea forward. If they change direction, follow the new direction and say what it changes.`,
 };
 
 export const MODE_NAMES = Object.keys(MODES);
 
-const BUDGET = { profile: 1200, rules: 1000, memory: 1100, knowledge: 1300, passage: 3600, history: 2600 };
+const BUDGET = { profile: 1200, rules: 1000, memory: 1100, board: 800, knowledge: 1300, passage: 3600, history: 2600 };
 
 function section(title, body) {
   return body ? `\n\n## ${title}\n${body}` : '';
@@ -37,6 +40,7 @@ export function buildSystem({ mode = 'brainstorm', project, interp }) {
   const profile = profileToPromptBlock(project.profile, BUDGET.profile);
   const rules = rulesToPromptBlock(project, BUDGET.rules);
   const memory = memoryToPromptBlock(project, BUDGET.memory);
+  const board = boardToPromptBlock(project, BUDGET.board);
   const reading = [];
   if (interp) {
     reading.push(`Form: ${interp.form.label}${interp.form.source === 'text' ? ' (inferred from the text)' : ''}.`);
@@ -52,6 +56,7 @@ export function buildSystem({ mode = 'brainstorm', project, interp }) {
     section('Project profile', profile || '(Nothing declared yet. Start from what the writer tells you; do not invent a genre.)') +
     section("The writer's rules for this project", rules) +
     section('Project memory', memory) +
+    section('Idea Board', board) +
     section('How to read this writing', reading.join(' '))
   );
 }
@@ -86,4 +91,23 @@ export function composeMessages({ mode = 'brainstorm', project, interp, userMess
 
   const messages = [{ role: 'system', content: system }, ...trimHistory(history), { role: 'user', content: userParts.join('\n\n') }];
   return { messages, tokens: messages.reduce((a, m) => a + estimateTokens(m.content), 0) };
+}
+
+/**
+ * The per-turn instruction for an idea request. It goes in the USER part (not the system prompt) so the system prompt stays
+ * identical between turns and llama.cpp can reuse its prompt cache. `seeds` are example ideas from the offline library: they
+ * show the size and kind of idea wanted and are explicitly not to be copied.
+ */
+export function ideaRequestBlock({ kind, lens, seeds = [], develop = null, note = '' }) {
+  if (develop) {
+    return [
+      `The writer wants to develop this idea (${kindLabel(kind).toLowerCase()}): "${develop}"`,
+      'Ask 2 or 3 sharp questions about it, then offer 2 or 3 directions it could take as short numbered ideas (concepts, not drafted text). End with one question.',
+    ].join('\n');
+  }
+  const what = lens ? leadNoun(lens) : 'ideas';
+  const lines = [`The writer wants ${what} for ${kindPhrase(kind)}${lens ? ` (${LENSES[lens]?.label ?? lens})` : ''}. Give 3 to 5 numbered ideas, one or two sentences each, then one question.`];
+  if (note) lines.push(note);
+  if (seeds.length) lines.push(`Examples of the size and kind of idea wanted. Do not copy them; be more specific to this writer's project:\n${seeds.map((s, i) => `${i + 1}. ${s}`).join('\n')}`);
+  return lines.join('\n');
 }

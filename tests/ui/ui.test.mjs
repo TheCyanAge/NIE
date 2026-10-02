@@ -878,3 +878,218 @@ test('Settings → online model is optional, saved locally and tested honestly',
     assert.match(await page.textContent('.msg-assistant:not(.msg-pending)'), /let's hear the idea/i);
   }, { allow: /ERR_CONNECTION_REFUSED/ });
 });
+
+// ── Brainstorm as an idea partner ────────────────────────────────────────────
+
+const openBrainstorm = (page) => page.click('.nav-btn[data-view=brainstorm]');
+const say = async (page, text) => {
+  const before = await page.$$eval('.msg-assistant:not(.msg-pending)', (m) => m.length);
+  await page.fill('#brainstorm-input', text);
+  await page.press('#brainstorm-input', 'Enter');
+  await page.waitForFunction((n) => document.querySelectorAll('.msg-assistant:not(.msg-pending)').length > n, before);
+};
+
+test('Brainstorm offers a kind picker, quick idea buttons for what you are making, and an empty Idea Board', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    const kinds = await page.$$eval('#kind-row .kind-chip', (b) => b.map((x) => x.textContent));
+    assert.deepEqual(kinds, ['Anything', 'Story', 'Characters', 'World', 'Article', 'Essay & memoir', 'Poem', 'Script']);
+    assert.equal(await page.getAttribute('#kind-row [data-kind=auto]', 'aria-checked'), 'true');
+    assert.ok((await page.$$('#lens-row .lens-chip')).length >= 6, 'quick idea buttons are there from the start');
+    assert.match(await page.textContent('#idea-board'), /Nothing kept yet/);
+    assert.equal(await page.textContent('#board-count'), '0');
+    assert.match(await page.textContent('#understands'), /Working on\s*Not sure yet/);
+    assert.equal(await page.isDisabled('#board-copy'), true, 'nothing to copy yet');
+    // The idea partner still says plainly what it will not do.
+    assert.match(await page.textContent('.page-sub'), /never writes or edits your text/);
+
+    await page.click('#kind-row [data-kind=article]');
+    const lenses = await page.$$eval('#lens-row .lens-chip', (b) => b.map((x) => x.textContent));
+    assert.ok(lenses.includes('Angles') && lenses.includes('Hooks') && lenses.includes('Counter-arguments'), lenses.join(', '));
+    assert.ok(!lenses.includes('Twists'), 'story-only buttons are gone for an article');
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await openBrainstorm(page);
+    assert.equal(await page.getAttribute('#kind-row [data-kind=article]', 'aria-checked'), 'true', 'the choice is kept with the project');
+  });
+});
+
+test('tapping an idea button sends it, NIE answers with idea cards and a question, and nothing is written for you', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.click('#kind-row [data-kind=article]');
+    await page.click('#lens-row [data-lens=angle]');
+    await page.waitForSelector('.msg-assistant:not(.msg-pending) .idea');
+    assert.equal(await page.textContent('.msg-user .bubble-body'), 'Give me some angles.');
+    const cards = await page.$$eval('.msg-assistant .idea', (c) => c.map((x) => ({ lens: x.querySelector('.idea-lens').textContent, text: x.querySelector('.idea-text').textContent })));
+    assert.equal(cards.length, 3);
+    assert.ok(cards.every((c) => c.lens === 'Angles' && c.text.length > 25));
+    assert.match(await page.textContent('.msg-assistant .bubble-body'), /\?/);
+    assert.match(await page.textContent('.msg-assistant .bubble-body'), /built-in guidance/i, 'honest about where the ideas come from when no model is running');
+    assert.ok(!/NIE has identified|NIE recommends|NIE flagged/.test(await page.textContent('.msg-assistant')));
+    const chips = await page.$$eval('#chat-chips .chip', (c) => c.map((x) => x.textContent));
+    assert.ok(chips.includes('More like these') && chips.includes('Flip it') && chips.includes('Develop the first one'), chips.join(', '));
+    // "More like these" sends straight away and gives different ideas.
+    await page.click('#chat-chips >> text=More like these');
+    await page.waitForFunction(() => document.querySelectorAll('.msg-assistant:not(.msg-pending) .idea').length >= 6);
+    const all = await page.$$eval('.msg-assistant .idea-text', (c) => c.map((x) => x.textContent));
+    assert.equal(new Set(all).size, 6, 'six different ideas');
+    // Typed requests work the same way, and prose is still declined.
+    await say(page, 'Write me a scene with three twists');
+    assert.match(await page.textContent('.msg-assistant >> nth=2'), /I don't write or continue the story for you/);
+  });
+});
+
+test('keeping ideas: star a card, it lands on the Idea Board, survives a reload, and un-starring or removing clears it everywhere', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.click('#lens-row [data-lens=twist]');
+    await page.waitForSelector('.msg-assistant .idea');
+    const first = await page.textContent('.msg-assistant .idea >> nth=0 >> .idea-text');
+    await page.click('.msg-assistant .idea >> nth=0 >> .idea-keep');
+    assert.equal(await page.getAttribute('.msg-assistant .idea >> nth=0 >> .idea-keep', 'aria-pressed'), 'true');
+    assert.equal(await page.textContent('#board-count'), '1');
+    assert.equal(await page.textContent('#board-list .board-item .board-text'), first);
+    assert.match(await page.textContent('#board-list .board-item .board-meta'), /From NIE/);
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await openBrainstorm(page);
+    assert.equal(await page.textContent('#board-count'), '1', 'the board is part of the project, so it persists');
+    assert.equal(await page.getAttribute('.msg-assistant .idea >> nth=0 >> .idea-keep', 'aria-pressed'), 'true', 'the star is restored on the card');
+    assert.equal(await page.getAttribute('.msg-assistant .idea >> nth=1 >> .idea-keep', 'aria-pressed'), 'false');
+    await page.click('.msg-assistant .idea >> nth=0 >> .idea-keep');
+    assert.equal(await page.textContent('#board-count'), '0');
+    // Keep again, then remove from the board: the star clears.
+    await page.click('.msg-assistant .idea >> nth=0 >> .idea-keep');
+    await page.click('#board-list .board-item >> text=Remove');
+    assert.equal(await page.textContent('#board-count'), '0');
+    assert.equal(await page.getAttribute('.msg-assistant .idea >> nth=0 >> .idea-keep', 'aria-pressed'), 'false');
+  });
+});
+
+test('the Idea Board is the writer\'s: add, edit, note, develop, copy-ready export, remove', async () => {
+  await run({}, async ({ page, ctx }) => {
+    await openBrainstorm(page);
+    await page.fill('#board-add', 'A clock that runs backwards.');
+    await page.press('#board-add', 'Enter');
+    assert.equal(await page.textContent('#board-count'), '1');
+    assert.match(await page.textContent('#board-list .board-meta'), /Yours/);
+    await page.click('#board-list .board-item >> text=Edit');
+    await page.fill('#board-list textarea', 'A clock that runs backwards, but only on Sundays.');
+    await page.click('#board-list .board-edit >> text=Save');
+    assert.equal(await page.textContent('#board-list .board-text'), 'A clock that runs backwards, but only on Sundays.');
+    await page.click('#board-list .board-item >> text=Note');
+    await page.fill('#board-list .board-note-input', 'maybe the opening image');
+    await page.press('#board-list .board-note-input', 'Enter');
+    assert.match(await page.textContent('#board-list .board-note'), /maybe the opening image/);
+    await page.fill('#board-add', 'a clock that runs backwards, but only on sundays.');
+    await page.press('#board-add', 'Enter');
+    assert.equal(await page.textContent('#board-count'), '1', 'the same idea is not added twice');
+
+    const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#board-download')]);
+    assert.match(dl.suggestedFilename(), /idea-board\.md$/);
+    const body = fs.readFileSync(await dl.path(), 'utf8');
+    assert.match(body, /# Idea Board: Untitled project/);
+    assert.match(body, /- A clock that runs backwards, but only on Sundays\./);
+    assert.match(body, /_Note: maybe the opening image_/);
+
+    await page.click('#board-list .board-item >> text=Develop');
+    await page.waitForSelector('.msg-assistant:not(.msg-pending)');
+    assert.match(await page.textContent('.msg-user .bubble-body'), /^Let's develop this idea: A clock that runs backwards, but only on Sundays\.$/);
+    assert.match(await page.textContent('.msg-assistant .bubble-body'), /Good one to dig into/);
+    assert.equal((await page.$$('.msg-assistant .idea')).length, 0, 'questions, not more cards');
+    await page.click('#board-list .board-item >> text=Remove');
+    assert.equal(await page.textContent('#board-count'), '0');
+    void ctx;
+  });
+});
+
+test('"remember this", "remember: …" and "show my idea board" work in the chat without a model', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.click('#lens-row [data-lens=spark]');
+    await page.waitForSelector('.msg-assistant .idea');
+    await say(page, 'remember this');
+    assert.match(await page.textContent('.msg-assistant >> nth=1'), /Kept on your Idea Board/);
+    assert.equal(await page.textContent('#board-count'), '3');
+    await say(page, 'Remember: the cat can talk, but only to the tenant downstairs.');
+    assert.equal(await page.textContent('#board-count'), '4');
+    assert.match(await page.textContent('#board-list .board-item >> nth=0'), /the cat can talk/);
+    await say(page, 'bring up memory');
+    assert.match(await page.textContent('.msg-assistant >> nth=3'), /on your Idea Board/);
+    assert.match(await page.textContent('.msg-assistant >> nth=3'), /the cat can talk/);
+  });
+});
+
+test('"what NIE understands" follows the conversation, can be cleared, and each project has its own board and kind', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    await say(page, 'A homeless man befriends a cat.');
+    const u = await page.textContent('#understands');
+    assert.match(u, /Premise\s*A homeless man befriends a cat\./);
+    assert.match(u, /Cast\s*homeless man/);
+    assert.match(u, /Themes[^]*loneliness/);
+    await page.click('#kind-row [data-kind=poem]');
+    await page.fill('#board-add', 'PROJECT-A-ONLY idea');
+    await page.press('#board-add', 'Enter');
+    const idA = await page.evaluate(() => window.NIE_APP.project.id);
+
+    await page.click('#understands-reset');
+    assert.match(await page.textContent('#understands'), /Nothing yet|Poem/);
+    assert.ok(!/homeless/.test(await page.textContent('#understands')));
+
+    // A new project starts clean: no board, no kind, no premise.
+    await page.click('.nav-btn[data-view=projects]');
+    await page.click('#new-project');
+    await page.waitForSelector('#setup-dialog');
+    await page.click('#setup-cancel');
+    await openBrainstorm(page);
+    assert.equal(await page.textContent('#board-count'), '0');
+    assert.equal(await page.getAttribute('#kind-row [data-kind=auto]', 'aria-checked'), 'true');
+    assert.match(await page.textContent('#understands'), /Working on\s*Not sure yet/);
+    assert.ok(!(await page.evaluate((id) => localStorage.getItem(`nie.v1.project.${window.NIE_APP.project.id}`).includes('PROJECT-A-ONLY'), idA)));
+
+    // Go back to the first project: its board and kind are exactly as they were left.
+    await page.evaluate((id) => window.NIE_APP.openProject(id), idA);
+    assert.equal(await page.textContent('#board-count'), '1');
+    assert.equal(await page.getAttribute('#kind-row [data-kind=poem]', 'aria-checked'), 'true');
+
+    // Deleting that project takes its board with it.
+    await page.evaluate((id) => window.NIE_APP.deleteProject(id), idA);
+    const dump = await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(localStorage))));
+    assert.ok(!dump.includes('PROJECT-A-ONLY'));
+  });
+});
+
+test('with the offline model running, NIE asks it for ideas, shows them as cards, and gives it the Idea Board', async () => {
+  await run({ init: BRIDGE }, async ({ page }) => {
+    await bridgeReady(page);
+    await page.evaluate(() => { window.__bridge.reply = 'A few angles to try.\n\n1. What the experts quietly avoid saying.\n2. A reader who already disagrees with you.\n3. The cost nobody counts.\n\nWhich one would you spend a week on?'; });
+    await openBrainstorm(page);
+    await page.fill('#board-add', 'KEPT-FOR-THE-MODEL idea');
+    await page.press('#board-add', 'Enter');
+    await page.click('#kind-row [data-kind=article]');
+    await page.click('#lens-row [data-lens=angle]');
+    await page.waitForSelector('.msg-assistant:not(.msg-pending) .idea');
+    const texts = await page.$$eval('.msg-assistant .idea-text', (c) => c.map((x) => x.textContent));
+    assert.deepEqual(texts, ['What the experts quietly avoid saying.', 'A reader who already disagrees with you.', 'The cost nobody counts.']);
+    assert.match(await page.textContent('.msg-assistant .bubble-body'), /A few angles to try\./);
+    assert.match(await page.textContent('.msg-assistant .bubble-body'), /Which one would you spend a week on\?/);
+    assert.ok(!/built-in guidance/i.test(await page.textContent('.msg-assistant')), 'no built-in note when the model answered');
+    const sent = await page.evaluate(() => JSON.stringify(window.__bridge.calls.at(-1)));
+    assert.match(sent, /KEPT-FOR-THE-MODEL idea/);
+    assert.match(sent, /for an article/);
+  });
+});
+
+test('Brainstorm stays usable on a narrow window: one column, board below the chat, nothing overflowing', async () => {
+  await run({ viewport: { width: 820, height: 900 } }, async ({ page }) => {
+    await openBrainstorm(page);
+    const chat = await page.locator('.brain-main').boundingBox();
+    const board = await page.locator('#idea-board').boundingBox();
+    assert.ok(board.y >= chat.y + chat.height - 2, 'board sits below the chat on a narrow window');
+    const overflow = await page.evaluate(() => { const w = document.querySelector('.workspace'); return w.scrollWidth - w.clientWidth; });
+    assert.ok(overflow <= 1, `no horizontal overflow (${overflow}px)`);
+    assert.ok(await page.isVisible('#brainstorm-input'));
+  });
+});

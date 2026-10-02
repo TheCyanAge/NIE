@@ -3,8 +3,11 @@
 ## Non-negotiable product rules
 1. **NIE never writes or edits the writer's text.** No rewrites, no replacement wording, no drafted prose or dialogue.
    Full Scan only *locates* (exact character ranges) and *explains briefly* where text breaks the writer's own rules.
-   Brainstorm is conversation about ideas; requests to write/rewrite are declined deterministically before any model call
-   (`engine/orchestrator/builtin.js`, `guard.js`). Tests enforce this: do not weaken them.
+   Brainstorm is an idea partner: it offers *concepts* (a what-if, an angle, a complication, a question), never manuscript prose,
+   dialogue, a ready-to-paste headline/line, or an edit. Requests to write/rewrite are declined deterministically before any model
+   call (`engine/orchestrator/builtin.js`, `guard.js`); "give me twists/ideas/premises" is *not* such a request, "write a scene with
+   twists" is (`intent/intent.js`, `brainstorm/commands.js`). The idea banks (`engine/brainstorm/banks/*.js`) are validated by
+   `tests/brainstorm-banks.test.js` (no quotes, no digits, no narration, length limits). Do not weaken any of this.
 2. **One NIE.** Online model, offline model and built-in guidance are routing, never separate assistants (`engine/ai/engine.js`).
    The model chooser lives in Settings only. Offline status strings are exact and must stay truthful.
 3. **Project isolation.** New project = factory-fresh; delete = every key under the project prefix removed; transient session state is
@@ -14,6 +17,9 @@
 5. **Never fake readiness.** A file existing is not a working model; offline rule checks that need meaning say "needs the language model".
 
 ## Layout
+- Brainstorm: `engine/brainstorm/` (lenses = what to push on, kinds = what is being made, offline idea banks + seeded selection that never
+  repeats until a lens is exhausted, `ideas.js` also parses a model's numbered list into cards and drops over-long "ideas"). The Idea
+  Board is project data (`project.brainstorm`, `project/board.js`): isolated, deleted with the project, never edited by NIE.
 - `apps/web`: UI (native ES modules, no bundler) and the shared engine in `apps/web/src/engine` (also imported by the desktop main process).
 - `apps/desktop`: Electron main, preload bridge, llama-server service, model manager/downloader, updater.
 - `tests/`: `npm test` (node:test; engine + desktop services against a fake llama-server), `npm run test:ui` (Playwright, real UI).

@@ -69,15 +69,22 @@ export function mdLite(text) {
     if (last < s.length) out.push(s.slice(last));
     return out;
   };
+  const BULLET = /^\s*[-•]\s+/;
+  const NUMBERED = /^\s*\d{1,2}[.)]\s+/;
   for (const block of String(text).split(/\n{2,}/)) {
-    const lines = block.split('\n');
-    const bullets = lines.filter((l) => /^\s*[-•]\s+/.test(l));
-    if (bullets.length && bullets.length === lines.filter((l) => l.trim()).length) {
-      frag.append(h('ul', {}, ...lines.filter((l) => l.trim()).map((l) => h('li', {}, ...inline(l.replace(/^\s*[-•]\s+/, ''))))));
-    } else if (bullets.length) {
-      const head = lines.filter((l) => !/^\s*[-•]\s+/.test(l)).join(' ');
+    const lines = block.split('\n').filter((l) => l.trim());
+    const isItem = (l) => BULLET.test(l) || NUMBERED.test(l);
+    const items = lines.filter(isItem);
+    const list = () => {
+      const ordered = NUMBERED.test(items[0]);
+      return h(ordered ? 'ol' : 'ul', {}, ...items.map((l) => h('li', {}, ...inline(l.replace(ordered ? NUMBERED : BULLET, '')))));
+    };
+    if (items.length && items.length === lines.length) {
+      frag.append(list());
+    } else if (items.length) {
+      const head = lines.filter((l) => !isItem(l)).join(' ');
       frag.append(h('p', {}, ...inline(head)));
-      frag.append(h('ul', {}, ...bullets.map((l) => h('li', {}, ...inline(l.replace(/^\s*[-•]\s+/, ''))))));
+      frag.append(list());
     } else {
       frag.append(h('p', {}, ...inline(lines.join(' '))));
     }

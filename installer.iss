@@ -18,8 +18,9 @@
 #define BundledModel    FileExists(SourcePath + BuildDir + "\resources\models\" + ModelFile)
 
 [Setup]
-; Keep this GUID forever: it is how Windows recognises upgrades of the same app.
-AppId={{A3B8F1E2-6C4D-4E7A-9F21-5D0B7C3E8A64}
+; Keep this GUID forever: it is how Windows recognises upgrades of the same app. It is the same AppId as the earlier
+; NIE installer, so installing this over that one upgrades it instead of leaving two entries in Add/Remove Programs.
+AppId={{9F0D8580-3877-4D07-A618-69C2AE30C566}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}

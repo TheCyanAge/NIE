@@ -1,5 +1,7 @@
 import { search } from '../knowledge/index.js';
 import { WORD_RE, stem } from '../util/text.js';
+import { EXPLICIT_ASK, IDEA_OBJECT, PROSE_OBJECT, parseDevelop, parseMemoryCommand } from '../brainstorm/commands.js';
+import { detectLens } from '../brainstorm/lenses.js';
 
 /**
  * Intent recognition: what is the writer trying to do with this message?
@@ -70,6 +72,14 @@ export function detectIntent(message, { project = null, mode = 'brainstorm', has
   const types = [];
   if (!text) return { type: 'empty', secondary: [], confidence: 0, signals: [], direction: { changed: false }, premiseCues: emptyCues(), topics: [] };
 
+  // Idea Board commands and "develop this idea" are exact, so they never reach the model or the premise heuristics.
+  const memory = parseMemoryCommand(text);
+  const develop = memory ? null : parseDevelop(text);
+  if (memory || develop) {
+    const type = memory ? memory.type : 'develop-idea';
+    return { type, memory, idea: develop, secondary: [], confidence: 0.95, signals: [type], mode, direction: { changed: false }, premiseCues: emptyCues(), topics: [] };
+  }
+
   for (const [type, patterns] of RULES) {
     for (const re of patterns) {
       const m = text.match(re);
@@ -79,6 +89,22 @@ export function detectIntent(message, { project = null, mode = 'brainstorm', has
         break;
       }
     }
+  }
+
+  // "Write/create/generate me some ideas, twists, premises…" asks for IDEAS, which is exactly what NIE is for. It stays a
+  // request to write when what is being asked for is prose ("write a scene with three twists").
+  if (types.includes('request-write') && IDEA_OBJECT.test(text)) {
+    const withoutIdeaPhrases = text.replace(new RegExp(`(?:[\\w'-]+\\s+){0,2}${IDEA_OBJECT.source}`, 'gi'), ' ');
+    if (!PROSE_OBJECT.test(withoutIdeaPhrases)) {
+      types.splice(types.indexOf('request-write'), 1);
+      if (!types.includes('request-ideas')) types.push('request-ideas');
+    }
+  }
+
+  // "Give me some twists for my story" is a request, not a premise, even on a first message with no history.
+  // (A lens word alone, like "secrets?", only counts when the message is short enough to be a request.)
+  if (!types.includes('request-ideas') && !types.includes('request-write') && !types.includes('request-edit') && detectLens(text)) {
+    if (EXPLICIT_ASK.test(text) || (wordsOf(text) <= 4 && !PREMISE_SHAPES.some((re) => re.test(text)))) types.push('request-ideas');
   }
 
   const wc = wordsOf(text);
