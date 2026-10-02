@@ -25,6 +25,20 @@
 - `tests/`: `npm test` (node:test; engine + desktop services against a fake llama-server), `npm run test:ui` (Playwright, real UI).
 - `scripts/`: runtime fetch, icon/logo generation, dev server. `docs/`: building, signing, architecture, status.
 
+## The offline library (`engine/knowledge/`)
+- Core entries (~180, `genres.js` etc.) load instantly; the large library (`knowledge/library/**`, thousands of records) loads in the background
+  with `loadLibrary()` so first paint is never slowed. Records are plain data written to `library/README.md`'s spec and linted by
+  `scripts/library-lint.mjs` / `tests/library.test.js` (no URLs, no section/page numbers, no quotes over 14 words, `asOf` + `confidence` on rules,
+  real `works` on genres). `node scripts/build-library-index.mjs` regenerates `library/index.js` (the test fails if it is stale).
+- NIE answers general craft/style/usage/work questions from it with the guide and edition, flags `varies`/`contested`, and when nothing matches says
+  so instead of guessing (`answerFromLibrary`, `libraryReply`, `libraryMissReply`). Library knowledge is reference only: only the writer's own rules are enforced.
+- It cannot be exhaustive; never claim it is. Coverage is shown in Settings (`libraryStats`).
+
+## Windows package
+`.github/workflows/windows-package.yml` builds on a real Windows runner, smoke-tests the packaged exe with the real runtime + real Qwen
+(`scripts/smoke-windows.mjs`), compiles the Inno Setup installer, silently installs it, smoke-tests the installed copy and uninstalls.
+CI runs a NEWER Chromium than a dev container: it has caught real bugs (e.g. `File.bytes` is now a method). Read its logs before assuming a failure is flaky.
+
 ## Commands
 `npm test` · `npm run test:ui` · `npm run dev:web` · `npm run icons` · `npm run fetch:runtime` · `npm run desktop` · `npm run build:desktop`
 

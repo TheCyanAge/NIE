@@ -6,7 +6,7 @@ Legend: ✅ built and tested here · 🟡 built, needs verification on Windows /
 | --- | --- | --- |
 | 1–2, 5–7 | Narrative knowledge library (genres, structures, styles, forms, techniques) | ✅ ≈180 entries, searchable; **seed content, to be grown** |
 | 3, 28 | One NIE identity; model chooser only in Settings | ✅ |
-| 4 | "Wiki of storytelling" depth | 🟡 seed library only; large-scale content is future work |
+| 4 | "Wiki of storytelling" depth | ✅ a large offline library (style-guide rules, usage, formats, genres with example works, forms, devices, movements, traditions, works, publishing) written to a strict spec and linted; 🟡 it can never be literally exhaustive, so NIE cites guide + edition and says when something is not covered |
 | 8, 16–17 | Intent recognition; adaptive, conversational Brainstorm | ✅ rule-based intent + working premise; richer with the model |
 | 9–12 | Project / profile contexts, profile-driven interpretation | ✅ |
 | 10, 52–56 | Project isolation, New/Delete project | ✅ (unit + UI tests) |
@@ -17,10 +17,10 @@ Legend: ✅ built and tested here · 🟡 built, needs verification on Windows /
 | 18, 77 | "NIE is thinking 🪶📜..." with waving dots | ✅ |
 | 19–22, 65–68 | Read mode: any supported format → Story Text → scan | ✅ TXT/MD/HTML/RTF/DOCX/ODT/EPUB; PDF basic (text PDFs; no OCR) |
 | 66 | Read aloud (pause/resume/section navigation) | ✅ logic + UI against a mock synthesiser; 🟡 real Windows voices |
-| 23–25, 29–32 | Electron app, llama runtime packaging, validation | ✅ services tested against a fake llama-server; 🟡 real Electron + real llama-server on Windows |
+| 23–25, 29–32 | Electron app, llama runtime packaging, validation | ✅ services tested against a fake llama-server; ✅ the packaged exe, real llama.cpp runtime and real Qwen model start and answer on a real Windows runner (CI smoke test) |
 | 26–27, 70–72 | Offline-first, persistent server, non-blocking startup, auto download | ✅ logic; 🟡 end-to-end on a real install |
 | 33 | Honest Starting / Ready / Failed wording | ✅ exact strings, tested |
-| 34–36 | Inno Setup installer, shortcuts | 🟡 `installer.iss` written, **not compiled here** (needs Windows + Inno) |
+| 34–36 | Inno Setup installer, shortcuts | 🟡 built and tested by the `windows-package` workflow on a real Windows runner (see the latest run); not yet tested on a clean consumer PC |
 | 37–38 | Multi-size icon, new latte-cream logo | ✅ ICO verified (256/128/64/48/32/16, small sizes simplified) |
 | 39 | Code signing | 🟡 documented (`docs/WINDOWS_SIGNING.md`); needs a certificate |
 | 40–41 | Updater with honest "not configured" | ✅ logic tested; 🟡 live updates need GitHub owner/repo + signed releases |

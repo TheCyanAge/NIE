@@ -761,7 +761,7 @@ export default [
   },
   {
     id: 'work-play-a-flea-in-her-ear', kind: 'work', name: 'A Flea in Her Ear', author: 'Georges Feydeau', year: 1907, language: 'French', region: 'France', confidence: 'established',
-    summary: 'A farce of suspicion and mistaken identity built on a lookalike and a hotel with revolving doors and rooms; a standard of precise comic mechanics.',
+    summary: 'A farce of suspicion and mistaken identity built on a lookalike and a disreputable hotel where the cast keep converging; a standard of precise comic mechanics.',
     kw: ['la puce a loreille', 'feydeau', 'bedroom farce', 'farce construction', 'door farce'], genres: ['farce', 'bedroom farce'],
   },
   // ---- Twentieth-century European drama: modernist, epic and absurdist ----
