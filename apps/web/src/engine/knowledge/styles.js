@@ -1,0 +1,34 @@
+import { entry as e } from './entry.js';
+
+const S = 'style';
+
+// Prose styles, voice and point-of-view. Descriptions of a manner, never a grade.
+export const styles = [
+  e('minimalist-prose', S, 'Minimalist prose', 'Spare, restrained language where meaning sits in what is left unsaid.', { conv: ['Short declaratives', 'Understatement', 'Subtext carries emotion'], intent: ['Flatness and omission are the method'], q: ['What are the characters not saying?'], kw: ['minimal', 'sparse', 'spare', 'terse', 'carver', 'hemingway'] }),
+  e('maximalist-prose', S, 'Maximalist prose', 'Expansive, ornate, accumulating language.', { conv: ['Long sentences', 'Dense imagery', 'Digression'], intent: ['Excess is the point; length is not automatically a flaw'], kw: ['maximal', 'ornate', 'baroque', 'lush', 'dense', 'purple'] }),
+  e('lyrical-prose', S, 'Lyrical prose', 'Prose shaped by sound, rhythm and image, close to poetry.', { conv: ['Cadence', 'Figurative language'], watch: ['Beauty can blur what is actually happening'], kw: ['lyric', 'musical', 'poetic', 'cadence'] }),
+  e('literary-prose', S, 'Literary prose', 'Attentive, carefully voiced prose in which language and interiority matter as much as event.', { kw: ['literary', 'voice', 'interior'] }),
+  e('conversational-prose', S, 'Conversational prose', 'Prose that sounds like a person talking.', { conv: ['Contractions, asides, direct address'], intent: ['Loose grammar can be voice'], kw: ['casual', 'chatty', 'voicey', 'colloquial'] }),
+  e('clinical-prose', S, 'Clinical prose', 'Detached, precise, observational language.', { conv: ['Neutral diction', 'Observation over interpretation'], watch: ['Ornate or emotive language may break the register'], kw: ['clinical', 'detached', 'objective', 'forensic', 'dispassionate', 'deadpan'] }),
+  e('surreal-prose', S, 'Surreal prose', 'Prose that embraces dream logic and impossible juxtaposition.', { intent: ['Non-sequitur and impossible events are the point'], kw: ['surreal', 'dreamlike', 'absurd', 'uncanny'] }),
+  e('poetic-prose', S, 'Poetic prose', 'Prose using poetic devices without lineation.', { aka: ['prose poetry'], kw: ['prose poem', 'imagery', 'metaphor'] }),
+  e('cinematic-prose', S, 'Cinematic prose', 'Visual, scene-forward prose that frames action like camera shots.', { conv: ['Concrete visual detail', 'Cut-like transitions'], kw: ['visual', 'camera', 'scene', 'cinematic'] }),
+  e('stream-of-consciousness', S, 'Stream of consciousness', 'Prose that follows thought as it unspools, with associative leaps and loosened syntax.', { conv: ['Run-ons', 'Associative transitions', 'Shifting tense and reference'], intent: ['Syntax breakdown and tense shifts are expected'], kw: ['interior monologue', 'free association', 'unpunctuated'] }),
+  e('fragmented-prose', S, 'Fragmented prose', 'Broken, incomplete or collage-like syntax.', { intent: ['Sentence fragments are the style'], kw: ['fragments', 'broken sentences', 'staccato'] }),
+  e('dense-description', S, 'Dense description', 'Heavily detailed description of place, body or object.', { watch: ['Can stall momentum if every detail has equal weight'], kw: ['detailed', 'descriptive', 'worldbuilding'] }),
+  e('sparse-description', S, 'Sparse description', 'Selective description that lets the reader fill the gaps.', { kw: ['selective', 'implication'] }),
+  e('dialogue-heavy', S, 'Dialogue-heavy writing', 'Scene work carried largely through speech.', { conv: ['Subtext', 'Distinct voices', 'White space'], watch: ['Talking heads without anchoring action or setting'], kw: ['dialogue', 'conversation', 'talky'] }),
+  e('internal-monologue', S, 'Internal monologue', 'Direct presentation of a character\'s thoughts.', { kw: ['thoughts', 'inner voice', 'interiority'] }),
+  e('first-person', S, 'First person', 'Narration by "I" (or "we"), anchored in one consciousness.', { conv: ['Voice carries character', 'Knowledge limited to narrator'], watch: ['Narrator cannot know what they have not witnessed unless the narrator reports it'], kw: ['I', 'narrator', 'my', 'me'] }),
+  e('second-person', S, 'Second person', 'Narration addressed to "you".', { intent: ['The addressed "you" may be the reader, the narrator or another person'], kw: ['you', 'your', 'address'] }),
+  e('third-person-limited', S, 'Third person limited', 'Narration in he/she/they that stays inside one character\'s perception at a time.', { conv: ['Consistent viewpoint within a scene'], watch: ['Head-hopping inside a scene'], kw: ['limited', 'close third', 'deep pov'] }),
+  e('third-person-omniscient', S, 'Third person omniscient', 'A narrator who can move between minds and see beyond any one character.', { conv: ['Guided movement between perspectives'], intent: ['Movement between minds is expected'], kw: ['omniscient', 'god narrator', 'head-hopping'] }),
+  e('objective-narration', S, 'Objective narration', 'External narration that reports behavior without access to thoughts.', { aka: ['camera-eye', 'dramatic mode'], conv: ['Only observable action and speech'], watch: ['Interior statements break the mode'], kw: ['objective', 'behaviorist', 'camera-eye'] }),
+  e('unreliable-narration', S, 'Unreliable narration', 'A narrator whose account the reader has reason to doubt.', { conv: ['Gap between what is told and what is shown', 'Clues that the narrator is wrong, lying or self-deceived'], intent: ['Contradictions are often deliberate'], q: ['Does the reader eventually catch the narrator, and how?'], kw: ['unreliable', 'liar', 'self-deception', 'contradiction', 'untrustworthy'] }),
+  e('free-indirect', S, 'Free indirect discourse', 'Third-person narration that slides into a character\'s voice without tags.', { conv: ['Merging narrator and character voice'], kw: ['free indirect', 'close narration', 'interior third'] }),
+  e('present-tense', S, 'Present tense narration', 'Events told as they happen.', { conv: ['Immediacy'], watch: ['Memory and backstory need clear handling'], kw: ['present tense', 'immediacy'] }),
+  e('past-tense', S, 'Past tense narration', 'Events told as already happened.', { kw: ['past tense', 'retrospective'] }),
+  e('mixed-tense', S, 'Mixed-tense narration', 'Tense that deliberately shifts to mark memory, dissociation or time slip.', { intent: ['Shifts are the technique'], kw: ['tense shift', 'time slip'] }),
+  e('detached-observational', S, 'Detached observational voice', 'A narrator who watches without commenting.', { conv: ['Restraint', 'Little interpretation'], kw: ['observational', 'detached', 'witness'] }),
+  e('experimental-form', S, 'Experimental form', 'Writing that challenges conventional rules of structure, typography or grammar.', { intent: ['Unconventional formatting, punctuation or order is probably intentional'], q: ['What does the form do that a conventional version could not?'], kw: ['experimental', 'avant-garde', 'oulipo', 'unconventional formatting'] }),
+];

@@ -1,0 +1,16 @@
+node_modules/
+dist-desktop/
+dist-installer/
+*.log
+.DS_Store
+
+# Runtime payload — fetched by `npm run fetch:runtime`, never committed.
+apps/desktop/bin/*
+!apps/desktop/bin/README.md
+apps/desktop/models/*
+!apps/desktop/models/README.md
+
+# Signing material
+*.pfx
+*.p12
+*.pem

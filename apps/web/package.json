@@ -1,0 +1,7 @@
+{
+  "name": "nie-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "NIE interface and shared narrative engine (native ES modules, no bundler)."
+}
