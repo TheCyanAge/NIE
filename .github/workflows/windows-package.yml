@@ -1,0 +1,124 @@
+name: windows-package
+
+# Builds the real Windows package on a real Windows machine and proves it works:
+#   app build -> smoke test of the packaged exe with the real llama.cpp runtime and real Qwen model
+#   -> Inno Setup installer -> silent install -> smoke test of the INSTALLED copy (+ desktop shortcut) -> uninstall.
+# Download the result from the run's "Artifacts" (NIE-Windows-Setup is the installer; NIE-Windows-portable needs no install).
+on:
+  workflow_dispatch:
+    inputs:
+      bundle_model:
+        description: 'Put the offline model inside the installer (about 2.2 GB, works with no internet at all)'
+        type: boolean
+        default: true
+      portable:
+        description: 'Also upload a portable folder (no installer needed)'
+        type: boolean
+        default: true
+  push:
+    tags: ['v*']
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 150
+    defaults:
+      run:
+        shell: bash
+    env:
+      NIE_BUNDLE_MODEL: ${{ github.event_name == 'push' || inputs.bundle_model }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npm --prefix apps/desktop install --no-audit --no-fund
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Fetch the llama.cpp runtime (llama-server and every library it needs)
+        run: node scripts/fetch-runtime.mjs --no-model
+
+      - name: Restore the offline model from cache
+        if: env.NIE_BUNDLE_MODEL == 'true'
+        id: model-cache
+        uses: actions/cache@v4
+        with:
+          path: apps/desktop/models
+          key: qwen2.5-3b-instruct-q4_k_m-v1
+
+      - name: Download the offline model (Qwen2.5 3B Instruct, Q4_K_M, about 1.9 GB)
+        if: env.NIE_BUNDLE_MODEL == 'true' && steps.model-cache.outputs.cache-hit != 'true'
+        run: node scripts/fetch-runtime.mjs --no-runtime
+
+      - name: Build the app (electron-builder, Windows x64)
+        run: npm run build:desktop
+
+      - name: Smoke test the packaged app (real exe, real runtime, real model)
+        run: node scripts/smoke-windows.mjs dist-desktop/win-unpacked --out smoke-out/unpacked ${{ env.NIE_BUNDLE_MODEL != 'true' && '--no-model' || '' }}
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Compile the installer
+        run: |
+          ISCC="/c/Program Files (x86)/Inno Setup 6/ISCC.exe"
+          if [ ! -f "$ISCC" ]; then ISCC="$(command -v ISCC.exe || command -v iscc)"; fi
+          "$ISCC" installer.iss
+          ls -la dist-installer
+
+      - name: Install it silently, like a user would
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem dist-installer -Filter *.exe | Select-Object -First 1
+          Write-Host "Installing $($setup.Name) ($([math]::Round($setup.Length/1MB)) MB)"
+          $p = Start-Process -FilePath $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/TASKS=desktopicon','/DIR=C:\NIE-installed','/LOG=install.log' -Wait -PassThru
+          Get-Content install.log -Tail 30
+          if ($p.ExitCode -ne 0) { throw "Installer exited with $($p.ExitCode)" }
+          $exe = 'C:\NIE-installed\Narrative Integrity Engine.exe'
+          if (-not (Test-Path $exe)) { throw "The installed program is missing: $exe" }
+          $lnk = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Narrative Integrity Engine.lnk'
+          if (-not (Test-Path $lnk)) { throw "No desktop shortcut was created at $lnk" }
+          Write-Host "Installed program and desktop shortcut are in place."
+
+      - name: Smoke test the INSTALLED copy
+        run: node scripts/smoke-windows.mjs "C:/NIE-installed" --out smoke-out/installed ${{ env.NIE_BUNDLE_MODEL != 'true' && '--no-model' || '' }}
+
+      - name: Uninstall cleanly
+        shell: pwsh
+        run: |
+          $u = Get-ChildItem C:\NIE-installed -Filter 'unins*.exe' | Select-Object -First 1
+          Start-Process -FilePath $u.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+          Start-Sleep -Seconds 3
+          if (Test-Path 'C:\NIE-installed\Narrative Integrity Engine.exe') { throw 'Uninstall left the program behind.' }
+          Write-Host 'Uninstalled cleanly.'
+
+      - name: Upload the installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: NIE-Windows-Setup
+          path: dist-installer/*.exe
+          compression-level: 0
+          retention-days: 30
+
+      - name: Upload the portable folder
+        if: inputs.portable != false
+        uses: actions/upload-artifact@v4
+        with:
+          name: NIE-Windows-portable
+          path: dist-desktop/win-unpacked
+          compression-level: 0
+          retention-days: 30
+
+      - name: Upload the smoke-test report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NIE-smoke-report
+          path: smoke-out
+          if-no-files-found: ignore

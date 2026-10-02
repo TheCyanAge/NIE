@@ -2,6 +2,7 @@
 //   npm run fetch:runtime                       # Windows CPU runtime + model
 //   node scripts/fetch-runtime.mjs --no-model   # runtime only
 //   node scripts/fetch-runtime.mjs --tag b9085 --asset win-cpu-x64
+//   node scripts/fetch-runtime.mjs --all-tools                  # also keep llama-cli, llama-bench… (not needed by NIE)
 //
 // The whole runtime must travel with llama-server: llama.dll, ggml.dll, ggml-base.dll, a ggml-cpu*.dll backend, ...
 // (a missing CPU backend is what produced "no backends are loaded" / "failed to load model").
@@ -31,13 +32,17 @@ async function fetchRuntime() {
   const zip = await readZip(new Uint8Array(await res.arrayBuffer()));
   fs.mkdirSync(binDir, { recursive: true });
   let n = 0;
+  let skipped = 0;
+  // NIE only runs llama-server. Ship it with every library it loads, not the other command-line tools in the release.
+  const NEEDED = /^(?:llama-server(?:\.exe)?|.+\.(?:dll|dylib)|.+\.so(?:\.\d+)*|LICENSE.*|NOTICE.*|.+\.txt|.+\.md)$/i;
   for (const name of zip.names()) {
     if (name.endsWith('/')) continue;
+    if (!flag('--all-tools') && !NEEDED.test(path.basename(name))) { skipped++; continue; }
     const bytes = await zip.read(name);
     fs.writeFileSync(path.join(binDir, path.basename(name)), bytes); // flatten: every file next to llama-server
     n++;
   }
-  console.log(`Extracted ${n} files into ${path.relative(root, binDir)}`);
+  console.log(`Extracted ${n} files into ${path.relative(root, binDir)}${skipped ? ` (left out ${skipped} command-line tools NIE does not use)` : ''}`);
   const check = validateRuntime(binDir, platform);
   if (!check.ok) {
     console.error('Runtime is INCOMPLETE:\n - ' + check.problems.map((p) => p.message).join('\n - '));
