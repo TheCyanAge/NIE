@@ -151,3 +151,21 @@ test('markup helpers are safe on hostile input', () => {
   assert.equal(markdownToText('**unclosed and `tick'), '**unclosed and `tick');
   assert.equal(rtfToText('{\\rtf1 {\\fonttbl{\\f0 X;}} plain }'), ' plain ');
 });
+
+test('a browser File has a bytes() METHOD in current Chromium; it must not be mistaken for the desktop bridge\'s bytes', async () => {
+  const { bytesOf, createIngestClient } = await import('../apps/web/src/engine/ingest/client.js');
+  const data = new TextEncoder().encode('Imported words.');
+  // What a File looks like in Chromium 133+: bytes is a function, arrayBuffer() gives the data.
+  const browserFile = { name: 'a.txt', bytes: () => Promise.resolve(data), arrayBuffer: async () => data.buffer.slice(0) };
+  assert.equal(new Uint8Array(await bytesOf(browserFile)).length, data.length);
+  // What the desktop bridge returns: real bytes, no arrayBuffer().
+  const bridgeFile = { name: 'a.txt', bytes: data };
+  assert.equal((await bytesOf(bridgeFile)).length, data.length);
+  assert.equal(new Uint8Array(await bytesOf({ name: 'b.txt', bytes: data.buffer })).length, data.length, 'an ArrayBuffer works too');
+  // End to end through the client (no Worker in Node, so it parses on the current thread).
+  const client = createIngestClient();
+  const viaBrowserFile = await client.read({ name: 'a.txt', bytes: () => Promise.resolve(data), arrayBuffer: async () => data.buffer.slice(0) });
+  assert.equal(viaBrowserFile.text, 'Imported words.');
+  const viaBridge = await client.read({ name: 'a.txt', bytes: new Uint8Array(data) });
+  assert.equal(viaBridge.text, 'Imported words.');
+});

@@ -1,6 +1,17 @@
 import { extractText, IngestError } from './extract.js';
 
 /**
+ * The bytes of a picked/dropped File, or of the { name, bytes } object the desktop bridge returns.
+ * NOTE: current Chromium gives every File/Blob a `bytes()` METHOD, so `file.bytes` being truthy proves nothing:
+ * only real binary data counts as "already has its bytes".
+ */
+export async function bytesOf(file) {
+  const b = file?.bytes;
+  if (b instanceof Uint8Array || b instanceof ArrayBuffer || ArrayBuffer.isView(b)) return b;
+  return file.arrayBuffer();
+}
+
+/**
  * Parse a file in a Web Worker when available (browser/Electron renderer); otherwise on the current thread (tests, old runtimes).
  */
 export function createIngestClient({ workerUrl = new URL('./worker.js', import.meta.url) } = {}) {
@@ -32,7 +43,7 @@ export function createIngestClient({ workerUrl = new URL('./worker.js', import.m
 
   return {
     async read(file) {
-      const bytes = new Uint8Array(file.bytes ?? (await file.arrayBuffer()));
+      const bytes = new Uint8Array(await bytesOf(file));
       const name = file.name;
       const w = ensure();
       if (!w) return extractText({ name, bytes });

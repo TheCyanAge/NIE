@@ -1,4 +1,5 @@
 import { h, toast } from '../dom.js';
+import { bytesOf } from '../../engine/ingest/client.js';
 import { IngestError } from '../../engine/ingest/extract.js';
 
 /**
@@ -8,8 +9,7 @@ import { IngestError } from '../../engine/ingest/extract.js';
  */
 export async function snapshotFile(file) {
   if (!file) return null;
-  if (file.bytes) return file;
-  return { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) };
+  return { name: file.name, bytes: new Uint8Array(await bytesOf(file)) };
 }
 
 /**
