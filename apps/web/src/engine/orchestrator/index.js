@@ -1,4 +1,4 @@
-import { detectIntent, updateWorkingPremise } from '../intent/intent.js';
+import { detectIntent, extractPremiseCues, updateWorkingPremise } from '../intent/intent.js';
 import { interpretProfile } from '../profile/interpret.js';
 import { answerFromLibrary, forProfile, search } from '../knowledge/index.js';
 import { appendMessage } from '../project/memory.js';
@@ -79,7 +79,11 @@ export class Orchestrator {
     let libMiss = false;
     const libraryCandidate = intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
     if (libraryCandidate) {
-      const general = GENERAL_Q.test(text) && !STORY_TALK.test(text);
+      // Naming a character or role ('the detective', 'Samantha') means the writer is talking about their story, not asking the library.
+      const lower = text.toLowerCase();
+      const known = [...(project.conversation.workingPremise?.characters ?? []), ...(project.memory?.characters ?? []).map((c) => c.name)];
+      const storyTalk = STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || known.some((n) => n && lower.includes(String(n).toLowerCase()));
+      const general = GENERAL_Q.test(text) && !storyTalk;
       const a = answerFromLibrary(text);
       if (a.strength === 'strong' || (a.strength === 'weak' && general)) lib = a;
       else if (general && words(text).length >= 3) libMiss = true;
