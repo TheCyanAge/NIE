@@ -276,7 +276,10 @@ test('offline: the kind follows what the writer is making, and a button forces t
   assert.equal(art.kind, 'article');
   assert.equal(art.lens, 'angle');
   assert.equal(project.brainstorm.detectedKind, 'article');
-  assert.match(art.ideas.map((i) => i.text).join(' '), /small towns|your topic|how small towns decide who belongs/i);
+  assert.equal(art.ideas.length, 3);
+  // The writer's own topic reaches the ideas: across the whole set of angles, some use it (which ones are drawn varies).
+  const allAngles = generateIdeas({ project, message: "I'm writing an article about how small towns decide who belongs.", kind: 'article', lens: 'angle', count: 60 }).ideas.map((i) => i.text);
+  assert.ok(allAngles.some((t) => /how small towns decide who belongs/.test(t)), 'topic slot is filled from what the writer said');
   const next = await ask(o, project, 'Give me some ideas'); // no kind words: stay in the same lane
   assert.equal(next.kind, 'article');
   const btn = await ask(o, project, 'Surprise me with a few sparks.', { lens: 'spark' });

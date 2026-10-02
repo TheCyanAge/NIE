@@ -141,7 +141,13 @@ export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
   const scored = searchScored(query, { limit: Math.max(limit, 6), minScore: 1.2, kinds });
   if (!scored.length) return { strength: 'none', entries: [], related: [] };
   const top = scored[0].score;
-  const strength = top >= STRONG_SCORE ? 'strong' : top >= STRONG_SCORE * 0.55 ? 'weak' : 'none';
+  // A weak match only counts when the question actually names the entry's topic ("how do I punctuate dialogue" names
+  // "dialogue"); otherwise a keyword accident ("the detective wants…" -> mystery) would hijack talk about the writer's story.
+  const q = new Set((String(query).match(WORD_RE) ?? []).map(stem));
+  const nameStems = tokens([scored[0].entry.name, ...scored[0].entry.aka].join(' '));
+  const nameHit = nameStems.some((t) => q.has(t) && t.length > 2 && !STOPWORDS.has(t));
+  let strength = top >= STRONG_SCORE ? 'strong' : top >= STRONG_SCORE * 0.55 ? 'weak' : 'none';
+  if (strength === 'weak' && !nameHit) strength = 'none';
   if (strength === 'none') return { strength, entries: [], related: scored.slice(0, 3).map((x) => x.entry) };
   // Entries close in score to the best one belong to the answer; the rest are only "related".
   const entries = scored.filter((x) => x.score >= top * 0.72).slice(0, limit).map((x) => x.entry);
