@@ -901,7 +901,7 @@ test('Brainstorm offers a kind picker, quick idea buttons for what you are makin
     assert.match(await page.textContent('#understands'), /Working on\s*Not sure yet/);
     assert.equal(await page.isDisabled('#board-copy'), true, 'nothing to copy yet');
     // The idea partner still says plainly what it will not do.
-    assert.match(await page.textContent('.page-sub'), /never writes or edits your text/);
+    assert.match(await page.textContent('[data-view=brainstorm] .page-sub'), /never writes or edits your text/);
 
     await page.click('#kind-row [data-kind=article]');
     const lenses = await page.$$eval('#lens-row .lens-chip', (b) => b.map((x) => x.textContent));

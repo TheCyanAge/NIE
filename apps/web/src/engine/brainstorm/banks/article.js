@@ -17,7 +17,7 @@ export default [
   ['spark', "A piece in which {theme} is never named but explains every odd choice people make around {topic}."],
 
   // ── angle ───────────────────────────────────────────────────────────────────
-  ['angle', "Maintenance instead of launch: not the announcement but the unglamorous upkeep that keeps everything around {topic} working, and whoever does it."],
+  ['angle', "Maintenance instead of launch: skip the announcement and look at the unglamorous upkeep behind {topic}, and at whoever does it."],
   ['angle', "Waiting as an angle: where people are made to wait around {topic}, and what the queue reveals about whose time counts."],
   ['angle', "The near miss as an angle: the time something almost went wrong, and what the almost reveals that a clean success never would."],
   ['angle', "Seeing {topic} as a negotiation between two groups who each sincerely believe they are the reasonable ones."],
@@ -32,9 +32,9 @@ export default [
   ['angle', "An angle that asks what {theme} has to do with {topic}, since the odd pairing may turn out to be the whole piece."],
 
   // ── hook ────────────────────────────────────────────────────────────────────
-  ['hook', "A hook from the procedure: the ordinary steps of a routine laid out in calm order, until one step turns out to hold the whole story."],
+  ['hook', "The procedure as a hook: the ordinary steps of a routine laid out in calm order, until one step turns out to hold the whole story."],
   ['hook', "A tiny, specific failure, a missed bus, a wrong form, a ruined batch, that widens until it is plainly about {topic}."],
-  ['hook', "A hook that begins with the writer admitting a belief the reporting later took apart, so the reader enters as a fellow sceptic rather than a student."],
+  ['hook', "An opening where the writer admits a belief the reporting later took apart, so the reader enters as a fellow sceptic rather than a student."],
   ['hook', "A question a child would ask about {topic}, taken seriously, since the honest answer may be harder than the question sounds."],
   ['hook', "A puzzle hook: two facts that cannot both be true as they stand, set side by side, with a promise to reconcile them."],
   ['hook', "An opening set somewhere readers rarely see, a back office, a loading bay or a waiting room, chosen because the place itself already makes half the argument."],
@@ -42,7 +42,7 @@ export default [
   ['hook', "A hook from absence: begin with what is conspicuously missing, a silent room, an empty shelf, a form with no complaints, and make the reader want the reason."],
   ['hook', "A quiet-stakes opening: a small decision the reader will face this week, followed by a slow reveal of how much hangs on it."],
   ['hook', "The last ordinary minute before something changed, held still long enough for the reader to spot what everyone at the time missed."],
-  ['hook', "A hook that flips authority by leading with the most junior or least credentialled voice in the story and promising the experts will have to answer them."],
+  ['hook', "Authority flipped by leading with the most junior or least credentialled voice in the story, and promising that the experts will have to answer them."],
   ['hook', "A competent person confidently doing the wrong thing for good reasons, so the reader slowly realises they would have done the same."],
 
   // ── headline ────────────────────────────────────────────────────────────────
@@ -51,8 +51,8 @@ export default [
   ['headline', "Plain and literal over something surprising: a calm headline that lets the content do all the startling."],
   ['headline', "The question headline, on one condition: the piece answers it honestly, and the answer is more interesting than a plain no."],
   ['headline', "The reader's specific worry, named in their own vocabulary rather than the industry's, so the headline sounds like a thought they were already having."],
-  ['headline', "A proverb or house rule with its rhythm kept and its meaning bent just enough to point at {topic}, used as the model for a headline."],
-  ['headline', "A gain set against the loss that comes with it in a single headline, the thing won and the thing given up, with the reader left to weigh them."],
+  ['headline', "A headline modelled on a proverb or house rule, keeping its rhythm and bending its meaning just enough to point at {topic}."],
+  ['headline', "A headline that holds a gain and its cost side by side, the thing won and the thing given up, and leaves the reader to weigh them."],
   ['headline', "Result or mystery as a headline promise: which one could the finished piece honestly keep, and which would only pull the reader in?"],
   ['headline', "The unexpected person or object leading the headline instead of the subject, with the connection saved for the subhead."],
   ['headline', "A deliberately small headline for a large subject, narrowing to one street, one tool or one afternoon, so the scale itself is the intrigue."],
@@ -108,17 +108,17 @@ export default [
   ['counter', "An opponent may accept every fact you gather and still reject what the central word is allowed to mean, so where does your definition carry the argument?"],
 
   // ── reader ──────────────────────────────────────────────────────────────────
-  ['reader', "A reader who already half-agrees and mostly wants permission, who is best served by the clearest reasons rather than the loudest ones."],
+  ['reader', "The reader who already half-agrees and mostly wants permission, and who is best served by the clearest reasons rather than the loudest ones."],
   ['reader', "A newcomer afraid of looking foolish, who needs the embarrassing basics handled without condescension and the jargon explained exactly once."],
   ['reader', "The expert who is tired of being explained to, and will stay only if the piece shows them something they have not already filed away."],
-  ['reader', "A reader making a real decision this week, who needs the trade-offs and the hidden cost far more than the backstory."],
-  ['reader', "Someone reading in the gap between two tasks. What is the single thing that must survive if they stop at the end of the first section?"],
+  ['reader', "Someone making a real decision this week, who needs the trade-offs and the hidden cost far more than the backstory."],
+  ['reader', "Reading in the gap between two tasks: what is the single thing that must survive if the reader stops at the end of the first section?"],
   ['reader', "A reader who was personally burned by {topic} and arrives braced for being told it was their own fault."],
-  ['reader', "A reader who comes back months later to look one thing up: what would they hope to find again, and how would they know where to look?"],
+  ['reader', "The reader who returns months later to look one thing up: what would they hope to find again, and how would they know where to look?"],
   ['reader', "A reader who will pass this on to someone who has to act on it, the manager, the relative or the committee. What does that second person need on the page?"],
-  ['reader', "A smart outsider with plenty of curiosity and no background: if you were explaining {topic} to them over dinner, where would you reach for a comparison?"],
+  ['reader', "A smart outsider with plenty of curiosity and no background: over dinner, where would you reach for a comparison to explain {topic}?"],
   ['reader', "The reader's mood on arrival: anxious, bored, defensive or hopeful. The same material needs a different pace for each, so pick one honestly."],
-  ['reader', "A reader who will pull one claim out of the piece and carry it into an argument elsewhere: which claim is most exposed, and what context has to travel with it?"],
+  ['reader', "One claim pulled out of the piece and carried into an argument elsewhere: which claim is most exposed, and what context has to travel with it?"],
   ['reader', "Someone from the group the piece is about, reading over everyone else's shoulder. Would they recognise themselves, or feel studied from a distance?"],
   ['reader', "A reader who has heard this argument before from a source they distrust, and who arrives assuming the piece is more of the same. What would convince them it is not?"],
 
@@ -131,16 +131,16 @@ export default [
   ['case', "An account from the least involved witness, the neighbour, the temp, the person who happened to be standing nearby, whose small details survive when official versions blur."],
   ['case', "A before-and-after pair, the same place or routine at two different moments, so the change can be seen without a single adjective."],
   ['case', "Where the subject allows it, an experiment the reader can run in an afternoon with things they already own, so they leave with a result rather than an opinion."],
-  ['case', "A case that sits right on the border between two categories people usually keep apart, showing why the border is harder to draw than it looks."],
+  ['case', "The borderline case, sitting between two categories people usually keep apart, showing why the line is harder to draw than it looks."],
   ['case', "A success that was copied somewhere else and failed there, exposing what the original depended on without anyone noticing."],
   ['case', "An example drawn from your own mistake, told without flattering anyone, including yourself."],
-  ['case', "A cautionary case about {topic} where the warning signs were visible to everyone and acted on by no one, and what kept all those eyes from moving."],
-  ['case', "A case where someone ignored the standard advice and it worked, examined for what was special about their situation."],
+  ['case', "A cautionary case about {topic} in which the warning signs were visible to everyone and acted on by no one, and what kept all those eyes from moving."],
+  ['case', "The person who ignored the standard advice and found it worked, examined for what was special about their situation."],
 
   // ── myth ────────────────────────────────────────────────────────────────────
   ['myth', "Hunt for the assumption about {topic} that everyone repeats and nobody has traced back to a source. The tracing itself may be the story."],
   ['myth', "The comforting story that one bad actor is behind the trouble, tested by asking whether the setup would produce the same behaviour from anyone who stepped into the role."],
-  ['myth', "The belief that the experts must have settled the question already, tested by finding out who actually asked it and when the asking stopped."],
+  ['myth', "The idea that the experts must have settled the question already, tested by finding out who actually asked it and when the asking stopped."],
   ['myth', "The belief that the choice is between two sides, tested by finding the people who fit neither camp and asking why neither side speaks for them."],
   ['myth', "The story of a single turning point, tested by listing the smaller decisions around that moment and asking whether the famous one was the hinge or just the part that got noticed."],
   ['myth', "A myth that persists because it flatters whoever repeats it. Ask whom it makes feel clever, safe or innocent."],
@@ -150,7 +150,7 @@ export default [
   ['myth', "Sorting the folk wisdom around {topic} into three piles, what holds, what is half true and what only sounds wise, and letting the middle pile become the piece."],
   ['myth', "The assumption that someone would have fixed it by now, examined by asking who would have to act, what it would cost them and what they would lose by fixing it."],
   ['myth', "The golden-age belief that things used to work better, tested against what the people who lived through those years actually complained about."],
-  ['myth', "The belief that a new tool or method will fix everything, or ruin everything, set beside what happened the last time the same promise was made."],
+  ['myth', "The prediction that a new tool or method will fix everything, or ruin everything, set beside what happened the last time a prediction like it was made."],
 
   // ── scope ───────────────────────────────────────────────────────────────────
   ['scope', "Shrink the piece to a single decision: the one moment where someone chose between two reasonable options, and everything that pressed on that choice."],
@@ -183,7 +183,7 @@ export default [
 
   // ── question ────────────────────────────────────────────────────────────────
   ['question', "What do you want the reader to do differently on Monday morning, and is that something the piece can actually earn?"],
-  ['question', "What is the one claim you would defend even if every example you have collected turned out to be unrepresentative?"],
+  ['question', "Which single claim would you still defend if every example you have collected turned out to be unrepresentative?"],
   ['question', "Who would be unhappy to read the finished piece about {topic}, and would they be unhappy because it is unfair or because it is accurate?"],
   ['question', "What would you need to see to change your mind about {topic}, and have you actually gone looking for it?"],
   ['question', "Why this piece, and why now? Set aside the deadline or the assignment: what makes it matter to someone who never heard of either?"],
@@ -192,7 +192,7 @@ export default [
   ['question', "If the piece could keep only a single example, which one, and what does that choice reveal about your real argument?"],
   ['question', "What are you assuming the reader already knows, and could a friend outside the subject confirm it in a single phone call?"],
   ['question', "What is your own stake in {topic}, and does the reader deserve to know it before deciding how far to trust you?"],
-  ['question', "What is the most boring true version of this piece, and what does it have that the exciting version lacks?"],
+  ['question', "Strip the piece down to its most boring true version: what does that version have that the exciting one lacks?"],
   ['question', "Where would a fair-minded sceptic stop reading, and is that exactly the spot where your evidence is thinnest?"],
   ['question', "Which part of the material do you keep wanting to leave out, and is that because it is dull or because it complicates your argument?"],
   ['question', "Where does {theme} show up in {topic}, and are you reporting it or projecting it?"],
