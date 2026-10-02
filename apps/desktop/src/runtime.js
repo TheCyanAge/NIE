@@ -38,8 +38,8 @@ export function resolveLayout({ isPackaged, resourcesPath, desktopDir, userDataD
 
 const REQUIRED = {
   win32: { exact: ['llama-server.exe', 'llama.dll', 'ggml.dll', 'ggml-base.dll'], cpu: /^ggml-cpu.*\.dll$/i, recommended: ['llama-common.dll', 'mtmd.dll'] },
-  linux: { exact: ['llama-server'], any: [/^libllama\.so/, /^libggml\.so/, /^libggml-base\.so/], cpu: /^libggml-cpu.*\.so/, recommended: [] },
-  darwin: { exact: ['llama-server'], any: [/^libllama.*\.dylib$/, /^libggml\.dylib$|^libggml\..*\.dylib$/, /^libggml-base.*\.dylib$/], cpu: /^libggml-cpu.*\.(dylib|so)$/, recommended: [] },
+  linux: { exact: ['llama-server'], any: [/^libllama\.so(?:\.\d+)*$/, /^libggml\.so(?:\.\d+)*$/, /^libggml-base\.so(?:\.\d+)*$/], cpu: /^libggml-cpu.*\.so(?:\.\d+)*$/, recommended: [] },
+  darwin: { exact: ['llama-server'], any: [/^libllama.*\.dylib$/, /^libggml(?:\.[\d.]+)?\.dylib$/, /^libggml-base.*\.dylib$/], cpu: /^libggml-cpu.*\.(dylib|so)$/, recommended: [] },
 };
 
 /**

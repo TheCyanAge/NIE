@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' http://127.0.0.1:* http://localhost:* https:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Narrative Integrity Engine</title>
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <meta name="theme-color" content="#17120e">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <a class="brand" href="#" id="brand" aria-label="Narrative Integrity Engine">
+        <span class="mark" aria-hidden="true"></span>
+        <span class="brand-name">NIE</span>
+      </a>
+      <button class="project-chip" id="project-chip" type="button" title="Switch or manage projects">
+        <span class="muted small">Project</span> <strong id="project-name">Untitled project</strong>
+      </button>
+      <div class="topbar-spacer"></div>
+      <button class="ai-chip" id="ai-chip" type="button" data-tour="ai-status" aria-label="NIE status">
+        <span class="ai-dot" id="ai-dot" data-tone="wait"></span><span id="ai-label">NIE</span>
+      </button>
+      <button class="btn btn-quiet" id="help-tour" type="button" title="Help → Tour">Help → Tour</button>
+    </header>
+
+    <div id="recovery-banner" class="recovery" popover="manual" hidden role="alert">
+      <strong>NIE detected something blocking the editor.</strong>
+      <span>It tried to clear it automatically but couldn't.</span>
+      <button class="btn btn-sm btn-primary" id="recovery-restore" type="button">Restore workspace</button>
+    </div>
+
+    <nav class="sidebar" aria-label="Modes">
+      <button class="nav-btn" data-view="scan" data-tour="nav-scan" type="button"><span class="nav-ico" aria-hidden="true">◧</span> Full Scan</button>
+      <button class="nav-btn" data-view="brainstorm" data-tour="nav-brainstorm" type="button"><span class="nav-ico" aria-hidden="true">✦</span> Brainstorm</button>
+      <button class="nav-btn" data-view="read" data-tour="nav-read" type="button"><span class="nav-ico" aria-hidden="true">❡</span> Read</button>
+      <div class="nav-sep"></div>
+      <button class="nav-btn" data-view="projects" data-tour="nav-projects" type="button"><span class="nav-ico" aria-hidden="true">▤</span> Projects</button>
+      <button class="nav-btn" data-view="settings" data-tour="nav-settings" type="button"><span class="nav-ico" aria-hidden="true">⚙</span> Settings</button>
+      <div class="sidebar-foot"><p id="ai-banner" class="muted small" aria-live="polite"></p></div>
+    </nav>
+
+    <main id="workspace" class="workspace">
+      <section id="view-scan" class="view" data-view="scan" aria-label="Full Scan"></section>
+      <section id="view-brainstorm" class="view" data-view="brainstorm" aria-label="Brainstorm" hidden></section>
+      <section id="view-read" class="view" data-view="read" aria-label="Read" hidden></section>
+      <section id="view-projects" class="view" data-view="projects" aria-label="Projects" hidden></section>
+      <section id="view-settings" class="view" data-view="settings" aria-label="Settings" hidden></section>
+    </main>
+  </div>
+
+  <!-- The tour owns its own overlay. It is emptied and hidden whenever the tour is not running. -->
+  <div id="tour-root" hidden></div>
+  <div id="toast-root" aria-live="polite"></div>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

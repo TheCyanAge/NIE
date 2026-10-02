@@ -137,6 +137,22 @@ export function runScan({ ctx, reading, project, observations = true }) {
   return summarize({ ...base, findings: sortFindings(kept), rules: { items }, checked, dismissedCount });
 }
 
+/**
+ * Apply a writer decision to an existing report without re-running anything (so model-judged results are kept).
+ * @param {'intentional'|'dismiss'} action
+ */
+export function reportAfterDecision(report, finding, action) {
+  const findings = [];
+  let dismissedCount = report.dismissedCount ?? 0;
+  for (const f of report.findings) {
+    if (f.id !== finding.id) findings.push(f);
+    else if (action === 'dismiss') dismissedCount++;
+    else findings.push({ ...f, class: 'intentional-possibility', confirmed: true, question: null, message: f.confirmed ? f.message : `You marked this as an exception. ${f.message}` });
+  }
+  const items = report.rules.items.map((i) => ({ ...i, count: findings.filter((f) => f.meta?.ruleId === i.id).length }));
+  return summarize({ ...report, findings: sortFindings(findings), rules: { ...report.rules, items }, dismissedCount });
+}
+
 /** Deterministic scan (works offline, instantly). */
 export function scan({ text, project = null, interp = null, observations = true }) {
   const { ctx, reading } = prepare({ text, project, interp });

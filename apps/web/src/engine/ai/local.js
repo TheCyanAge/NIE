@@ -1,4 +1,5 @@
-import { OpenAICompatClient, AIError } from './openai-client.js';
+import { OpenAICompatClient } from './openai-client.js';
+import { makeBridgeChat } from './bridge.js';
 
 /**
  * Local-provider adapters. All expose the same small interface to AIEngine:
@@ -10,15 +11,12 @@ export function createDesktopLocal(bridge) {
   let current = { state: 'starting', detail: null };
   const listeners = new Set();
   const set = (s) => {
-    current = { state: s.state, detail: s.detail ?? null };
+    current = { state: s.state, detail: s.detail ?? null, percent: s.percent ?? null };
     listeners.forEach((cb) => cb(current));
   };
   bridge.status().then(set).catch(() => set({ state: 'failed', detail: 'Could not reach the desktop service.' }));
   bridge.onStatus(set);
-
-  let seq = 0;
-  const handlers = new Map();
-  bridge.onChunk(({ id, delta }) => handlers.get(id)?.(delta));
+  const chat = makeBridgeChat(bridge);
 
   return {
     kind: 'desktop',
@@ -28,24 +26,8 @@ export function createDesktopLocal(bridge) {
       return () => listeners.delete(cb);
     },
     restart: () => bridge.restart?.(),
-    async chat(messages, { onToken, signal, maxTokens, temperature } = {}) {
-      const id = `c${Date.now().toString(36)}${++seq}`;
-      let full = '';
-      handlers.set(id, (delta) => {
-        full += delta;
-        onToken?.(delta, full);
-      });
-      const onAbort = () => bridge.abort(id);
-      signal?.addEventListener('abort', onAbort, { once: true });
-      try {
-        const res = await bridge.chat({ id, messages, options: { maxTokens, temperature } });
-        if (res?.error) throw new AIError(res.error, { kind: res.aborted ? 'abort' : 'error' });
-        return res.text ?? full;
-      } finally {
-        handlers.delete(id);
-        signal?.removeEventListener('abort', onAbort);
-      }
-    },
+    info: () => bridge.info?.(),
+    chat,
   };
 }
 

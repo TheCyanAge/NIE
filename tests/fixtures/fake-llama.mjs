@@ -32,7 +32,10 @@ fs.writeFileSync(process.env.FAKE_LLAMA_CWD_FILE ?? process.cwd() + '/.fake-llam
 let ready = false;
 setTimeout(() => (ready = true), loadMs);
 
+const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
 const server = http.createServer((req, res) => {
+  for (const [k, v] of Object.entries(CORS)) res.setHeader(k, v);
+  if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
   if (req.url === '/health') {
     res.writeHead(ready ? 200 : 503, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify(ready ? { status: 'ok' } : { error: { message: 'Loading model' } }));

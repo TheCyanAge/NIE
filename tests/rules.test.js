@@ -350,3 +350,20 @@ test('exact-pattern rules never call the model', async () => {
   assert.equal(calls, 0);
   assert.equal(r.findings.length, 3);
 });
+
+test('reportAfterDecision applies an exception or dismissal in place, keeping model-judged results', async () => {
+  const { reportAfterDecision } = await import('../apps/web/src/engine/analysis/scan.js');
+  const project = withRules(projectWith(), ['Samantha never lies']);
+  const text = 'Samantha lied to the guard about the pass. She also lied to Joss about the key.';
+  const judged = await scanWithModel({ text, project, observations: false, chat: async () => '1 | lies to the guard\n2 | lies to Joss' });
+  assert.equal(judged.findings.length, 2);
+  const a = reportAfterDecision(judged, judged.findings[0], 'intentional');
+  assert.equal(a.findings.length, 2);
+  assert.equal(a.findings.find((f) => f.id === judged.findings[0].id).class, 'intentional-possibility');
+  assert.equal(a.rules.items[0].state, 'judged', 'model verdicts are not thrown away');
+  assert.match(a.headline, /1 place breaks your rules/);
+  const b = reportAfterDecision(a, judged.findings[1], 'dismiss');
+  assert.equal(b.findings.length, 1);
+  assert.equal(b.dismissedCount, 1);
+  assert.match(b.headline, /No rule violations found/);
+});

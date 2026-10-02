@@ -226,3 +226,10 @@ test('stop() ends the process, and restart() brings a fresh one up', async () =>
   assert.equal(s.state, 'ready');
   await svc.stop();
 });
+
+test('backup or renamed files are not mistaken for runtime libraries (Linux/macOS patterns are anchored)', () => {
+  const dir = runtimeDir(['llama-server', 'libllama.so', 'libggml.so', 'libggml-base.so', 'libggml-cpu-x64.so.off']);
+  assert.equal(validateRuntime(dir, 'linux').problems[0]?.code, 'cpu-backend-missing');
+  assert.equal(validateRuntime(runtimeDir(['llama-server', 'libllama.so.1', 'libggml.so.0', 'libggml-base.so.0', 'libggml-cpu-haswell.so']), 'linux').ok, true, 'versioned library names are fine');
+  assert.equal(validateRuntime(runtimeDir(['llama-server', 'libllama.so.bak', 'libggml.so', 'libggml-base.so', 'libggml-cpu.so']), 'linux').ok, false);
+});
