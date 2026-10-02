@@ -24,10 +24,16 @@ const RULES = [
     /\bchange (?:of )?(?:direction|plans?)\b/i,
     /\bactually,?\s+(?:the|he|she|it|they|his|her|their|what|maybe|i)\b/i,
   ]],
-  ['request-rewrite', [
-    /\b(?:rewrite|rephrase|reword|redo|polish|tighten|smooth out|punch up)\b/i,
-    /\bmake (?:this|it|that) (?:sound|read|feel|flow)\b/i,
-    /\bfix (?:this|it|that|the (?:wording|sentence|paragraph|line))\b/i,
+  // NIE never writes or edits the writer's text. These are recognised so they can be declined clearly, not half-answered.
+  ['request-edit', [
+    /^\s*(?:please\s+)?(?:rewrite|rephrase|reword|redo|edit|proofread|fix|polish|tighten|improve|correct|revise|punch up|smooth out)\b/i,
+    /\b(?:can|could|would|will) you\b[^.?!]{0,30}\b(?:rewrite|rephrase|reword|edit|proofread|fix|polish|tighten|improve|correct|revise)\b/i,
+    /\bmake (?:this|it|that) (?:sound|read|feel|flow|better)\b/i,
+  ]],
+  ['request-write', [
+    /^\s*(?:please\s+)?(?:write|draft|compose|generate|continue|finish|complete|expand|create)\s+(?:me\s+|us\s+)?(?:a|an|the|my|this|that|some|it|one|more|another|about)\b/i,
+    /\b(?:can|could|would|will) you\b[^.?!]{0,30}\b(?:write|draft|compose|generate|continue|finish|complete|expand)\b/i,
+    /\bwrite (?:me|us|it for)\b|\b(?:write|draft|finish)\b[^.?!]{0,40}\bfor me\b|\bhelp me (?:write|draft)\b/i,
   ]],
   ['feedback-request', [
     /\b(?:does|do|is|are|would|will|can) (?:this|that|it|my|the|these)\b.*\b(?:work|feel|read|sound|land|too|predictable|clear|believable|boring|slow|rushed|confusing|cliche|cliché|obvious)\b/i,
@@ -89,8 +95,9 @@ export function detectIntent(message, { project = null, mode = 'brainstorm', has
 
   let type;
   if (types.includes('start-from-zero')) type = 'start-from-zero';
+  else if (types.includes('request-write')) type = 'request-write';
+  else if (types.includes('request-edit')) type = 'request-edit';
   else if (directionCue) type = 'direction-change';
-  else if (types.includes('request-rewrite')) type = 'request-rewrite';
   else if (types.includes('what-if')) type = 'what-if';
   else if (types.includes('craft-question') && isQuestion) type = 'craft-question';
   else if (types.includes('feedback-request')) type = 'feedback-request';
@@ -103,7 +110,6 @@ export function detectIntent(message, { project = null, mode = 'brainstorm', has
   else type = 'discuss';
 
   const secondary = types.filter((t) => t !== type);
-  const wantsSubstantialRewrite = /\b(?:rewrite (?:it |this )?(?:completely|entirely|fully|heavily|from scratch)|(?:substantial|major|full|big) rewrite|rework (?:it|this) (?:completely|entirely))\b/i.test(text);
 
   const premiseCues = extractPremiseCues(text);
   const topics = search(text, { limit: 4 }).map((e) => e.id);
@@ -116,7 +122,6 @@ export function detectIntent(message, { project = null, mode = 'brainstorm', has
     signals,
     mode,
     direction: { changed: Boolean(directionCue), cue: directionCue },
-    wantsSubstantialRewrite,
     premiseCues,
     topics,
   };

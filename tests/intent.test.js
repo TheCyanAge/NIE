@@ -28,7 +28,6 @@ test('the spec\'s brainstorming examples route sensibly', () => {
   assert.equal(T('Does this ending feel too predictable?'), 'feedback-request');
   assert.equal(T('I want something emotionally devastating but not melodramatic.'), 'request-ideas');
   assert.equal(T('What is an unreliable narrator?'), 'craft-question');
-  assert.equal(T('Rewrite this paragraph so it flows better'), 'request-rewrite');
 });
 
 test('"Actually…" is a change of direction only when there is something to change from', () => {
@@ -70,4 +69,15 @@ test('form sniffing reads reports, journals, scripts and poems on their own term
   assert.equal(inferForm('WASHINGTON (AP) — Officials said Tuesday that the bridge would reopen, according to a statement.').id, 'news-narrative');
   assert.equal(inferForm('The river holds\nits breath\nbefore the bridge\n\nand lets it go\nin small grey stones\nthat do not sink').id, 'poetry');
   assert.equal(inferForm('She opened the door. "Hello," he said. The room smelled of rain and old paper, and neither of them moved.').id, 'prose-fiction');
+});
+
+test('requests for NIE to write or edit are recognised so they can be declined, not half-answered', () => {
+  for (const m of ['Rewrite this paragraph so it flows better', 'Can you fix the wording here?', 'Please proofread my chapter', 'make it sound better']) assert.equal(T(m), 'request-edit', m);
+  for (const m of ['Write me a scene where they meet', 'Can you write the opening for me?', 'Continue the story from here', 'Help me write the ending', 'draft a poem about the sea']) assert.equal(T(m), 'request-write', m);
+});
+
+test('talking about their own writing is not a request for NIE to write', () => {
+  for (const m of ['What if I write the ending first?', 'I want to rewrite the second chapter eventually', 'I keep wanting to edit as I go, how do I stop?']) {
+    assert.ok(!['request-write', 'request-edit'].includes(T(m)), m);
+  }
 });

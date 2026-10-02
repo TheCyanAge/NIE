@@ -1,0 +1,51 @@
+{
+  "name": "narrative-integrity-engine",
+  "productName": "Narrative Integrity Engine",
+  "version": "0.1.0",
+  "description": "NIE: an offline-capable narrative intelligence environment for writers.",
+  "author": "TheCyanAge",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win dir --x64",
+    "build:linux-dir": "electron-builder --linux dir --x64"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "devDependencies": {
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.thecyanage.nie",
+    "productName": "Narrative Integrity Engine",
+    "executableName": "Narrative Integrity Engine",
+    "copyright": "TheCyanAge",
+    "directories": {
+      "output": "../../dist-desktop",
+      "buildResources": "../../assets"
+    },
+    "files": [
+      "main.js",
+      "preload.cjs",
+      "package.json",
+      "updater-config.json",
+      "src/**/*"
+    ],
+    "extraResources": [
+      { "from": "../web", "to": "web", "filter": ["**/*", "!**/*.md"] },
+      { "from": "bin", "to": "bin", "filter": ["**/*", "!README.md"] },
+      { "from": "models", "to": "models", "filter": ["**/*.gguf"] }
+    ],
+    "asar": true,
+    "win": {
+      "target": [{ "target": "dir", "arch": ["x64"] }],
+      "icon": "../../assets/icon.ico"
+    },
+    "publish": null
+  }
+}
