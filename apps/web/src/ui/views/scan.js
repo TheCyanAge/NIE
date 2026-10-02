@@ -7,7 +7,7 @@ import { parseRule } from '../../engine/rules/parse.js';
 import { markIntentional, dismissFinding } from '../../engine/project/memory.js';
 import { words } from '../../engine/util/text.js';
 import { ACCEPT } from '../../engine/ingest/extract.js';
-import { importFileIntoStory } from './import.js';
+import { importFileIntoStory, snapshotFile } from './import.js';
 
 const EXAMPLES = ['Never use the word "suddenly"', 'No adverbs', 'No sentence longer than 25 words', 'Stay in third person', 'Samantha never lies', 'Magic cannot resurrect the dead'];
 const SEVERITY = ['hard-conflict', 'likely-issue', 'possible-issue', 'stylistic-observation', 'intentional-possibility', 'strength'];
@@ -35,7 +35,7 @@ export function mountScan(root, app) {
   const modeReview = h('button', { class: 'seg-btn', 'data-mode': 'review', onclick: () => setMode('review') }, 'Highlights');
   const fileInput = h('input', { type: 'file', accept: ACCEPT, hidden: true, id: 'import-input', 'aria-label': 'Import a file' });
   fileInput.addEventListener('change', async () => {
-    const f = fileInput.files?.[0];
+    const f = await snapshotFile(fileInput.files?.[0]);
     fileInput.value = '';
     if (f) await importFileIntoStory(app, f);
   });

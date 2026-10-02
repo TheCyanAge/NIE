@@ -2,7 +2,7 @@ import { h, $, $$, clear, pageHead } from '../dom.js';
 import { ACCEPT, SUPPORTED_FORMATS } from '../../engine/ingest/extract.js';
 import { Narrator } from '../../engine/readaloud/narrator.js';
 import { inferForm } from '../../engine/intent/form.js';
-import { importFileIntoStory } from './import.js';
+import { importFileIntoStory, snapshotFile } from './import.js';
 import { words } from '../../engine/util/text.js';
 
 /**
@@ -14,7 +14,7 @@ export function mountRead(root, app) {
   let tab = 'listen'; // 'listen' | 'edit'
 
   const fileInput = h('input', { type: 'file', accept: ACCEPT, hidden: true, id: 'read-input', 'aria-label': 'Choose a document' });
-  fileInput.addEventListener('change', async () => { const f = fileInput.files?.[0]; fileInput.value = ''; if (f) await importFileIntoStory(app, f); });
+  fileInput.addEventListener('change', async () => { const f = await snapshotFile(fileInput.files?.[0]); fileInput.value = ''; if (f) await importFileIntoStory(app, f); });
   const drop = h('div', { class: 'dropzone', id: 'dropzone', tabindex: '0', role: 'button', 'aria-label': 'Choose or drop a document', onclick: () => pick(), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } } },
     h('strong', {}, 'Drop a document here, or choose one'),
     h('span', { class: 'muted' }, SUPPORTED_FORMATS.map((f) => f.label).join(' · ')));
@@ -23,7 +23,7 @@ export function mountRead(root, app) {
   }
   ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('is-over'); }));
   ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('is-over'); }));
-  drop.addEventListener('drop', async (e) => { const f = e.dataTransfer?.files?.[0]; if (f) await importFileIntoStory(app, f); });
+  drop.addEventListener('drop', async (e) => { const f = await snapshotFile(e.dataTransfer?.files?.[0]); if (f) await importFileIntoStory(app, f); });
 
   const info = h('div', { class: 'read-info', id: 'read-info' });
   const listenBtn = h('button', { class: 'seg-btn is-active', onclick: () => setTab('listen') }, 'Listen');

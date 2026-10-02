@@ -882,6 +882,7 @@ test('Settings → online model is optional, saved locally and tested honestly',
 // ── Brainstorm as an idea partner ────────────────────────────────────────────
 
 const openBrainstorm = (page) => page.click('.nav-btn[data-view=brainstorm]');
+const boardCount = (page, n) => page.waitForFunction((n) => document.querySelector('#board-count')?.textContent === String(n), n);
 const say = async (page, text) => {
   const before = await page.$$eval('.msg-assistant:not(.msg-pending)', (m) => m.length);
   await page.fill('#brainstorm-input', text);
@@ -972,7 +973,7 @@ test('the Idea Board is the writer\'s: add, edit, note, develop, copy-ready expo
     await openBrainstorm(page);
     await page.fill('#board-add', 'A clock that runs backwards.');
     await page.press('#board-add', 'Enter');
-    assert.equal(await page.textContent('#board-count'), '1');
+    await boardCount(page, 1);
     assert.match(await page.textContent('#board-list .board-meta'), /Yours/);
     await page.click('#board-list .board-item >> text=Edit');
     await page.fill('#board-list textarea', 'A clock that runs backwards, but only on Sundays.');
@@ -984,6 +985,7 @@ test('the Idea Board is the writer\'s: add, edit, note, develop, copy-ready expo
     assert.match(await page.textContent('#board-list .board-note'), /maybe the opening image/);
     await page.fill('#board-add', 'a clock that runs backwards, but only on sundays.');
     await page.press('#board-add', 'Enter');
+    await page.waitForFunction(() => document.querySelector('#board-add').value === '');
     assert.equal(await page.textContent('#board-count'), '1', 'the same idea is not added twice');
 
     const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#board-download')]);

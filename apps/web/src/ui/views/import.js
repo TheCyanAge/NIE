@@ -2,6 +2,17 @@ import { h, toast } from '../dom.js';
 import { IngestError } from '../../engine/ingest/extract.js';
 
 /**
+ * Read a picked or dropped file into memory NOW. A File taken from an <input type="file"> can stop being readable once the
+ * input is cleared (newer Chromium, which Electron ships), which showed up as "This file is empty." Desktop files already
+ * carry their bytes.
+ */
+export async function snapshotFile(file) {
+  if (!file) return null;
+  if (file.bytes) return file;
+  return { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) };
+}
+
+/**
  * File → extraction → Story Text. The imported text becomes ordinary Story Text, so it can be scanned, discussed
  * and read aloud like anything the writer typed. Nothing is replaced without asking.
  */
