@@ -1,5 +1,21 @@
 # Building NIE for Windows
 
+## The easy way: GitHub Actions (no tools needed on your PC)
+
+`.github/workflows/windows-package.yml` does everything below on a Windows runner and proves the result works:
+build → **smoke test of the packaged exe with the real llama.cpp runtime and the real Qwen model** → Inno Setup installer →
+silent install (checks the program and the desktop shortcut) → smoke test of the *installed* copy → clean uninstall.
+Run it from **Actions → windows-package → Run workflow**, then download the artifacts (`NIE-Windows-Setup`, `NIE-Windows-portable`,
+`NIE-smoke-report` with screenshots and logs). Inputs: put the model inside the installer (about 2.2 GB, fully offline) or let setup
+download it; skip the unit tests (they also run in the `ci` workflow); also upload the portable folder.
+
+The smoke test (`scripts/smoke-windows.mjs <folder>`) can be run by hand against any unpacked build. It attaches to the real window over the
+DevTools protocol and checks: complete runtime next to `llama-server`, valid model, UI opens with the desktop bridges and no Node access in the page,
+status goes starting → "Offline NIE ready." only after the model really answered, a real Brainstorm question is answered by the offline model,
+and the project survives closing and reopening.
+
+## By hand on your own PC
+
 Prerequisites on the build machine: **Node.js 22+**, **npm**, **Inno Setup 6** (`iscc`), and (for the icon step only) a Chromium
 that Playwright can find. Work in a plain folder such as `C:\NIE`, not OneDrive.
 

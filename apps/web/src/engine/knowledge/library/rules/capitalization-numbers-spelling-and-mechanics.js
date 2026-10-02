@@ -747,11 +747,10 @@ export default [
     summary: "Name particles such as de, van, von and della are lowercase in some surnames and capitalized in others, and the form depends on the person, the language and whether a first name precedes it.",
     conv: [
       "With a first name, many such particles stay lowercase: Ludwig van Beethoven, Charles de Gaulle.",
-      "When the surname stands alone, guides often capitalize it in English for some names and keep it lowercase for others; check a reference or the person's own usage.",
-      "Dutch names in English-language writing often capitalize the particle when the surname stands alone: Van Gogh.",
-      "French and German-language practices differ from Dutch and Italian practice; a biographical dictionary shows the usual form.",
+      "Alone, French particles usually stay lowercase (de Gaulle), while Dutch ones are usually capitalized in English (Van Gogh).",
+      "Italian, Spanish and German particles vary by family and period; a biographical reference shows the usual form.",
     ],
-    example: "Ludwig van Beethoven (full name), Van Gogh (surname alone), de Gaulle (surname alone).",
+    example: "Ludwig van Beethoven; Charles de Gaulle (alone: de Gaulle); Vincent van Gogh (alone: Van Gogh).",
     watch: [
       "Individuals and families may choose a form that differs from the language's norm; trust the person's own usage.",
     ],
@@ -762,7 +761,7 @@ export default [
     kw: ["van capitalization", "von lowercase", "de particle capital", "van gogh capital", "surname prefix capitalization", "name particles"],
     topic: "capitalization",
     guide: "General English",
-    asOf: "Common practice; Chicago (17th ed., 2017) and Hart's Rules both treat these as variable by name",
+    asOf: "Common practice; major guides treat these as variable by name and language",
     confidence: "varies",
     refs: ["The Chicago Manual of Style", "New Hart's Rules"],
   },
@@ -800,7 +799,7 @@ export default [
     conv: [
       "Capitalize planets, named stars, galaxies and constellations: Venus, Sirius, the Milky Way, Orion.",
       "Earth is capitalized when it is named as a planet alongside other planets; lowercase earth is common for soil or in idioms.",
-      "Sun and Moon are capitalized in astronomy and often lowercase in general prose: the sun rose; a lunar eclipse of the Moon.",
+      "Sun and Moon are capitalized in astronomy and often lowercase in general prose: the sun rose over the hills.",
       "Generic terms stay lowercase: a comet, a galaxy, a moon of Jupiter.",
     ],
     example: "Mars and Earth orbit the Sun, though the sun in the poem rises over the sea.",
@@ -825,7 +824,7 @@ export default [
     summary: "List items are capitalized by one of two common systems: capitalize each item that is a full sentence or a stand-alone entry, and lowercase items that complete a lead-in sentence; whichever style is chosen, keep it uniform.",
     conv: [
       "Complete-sentence items: capitalize the first word and end with a full stop.",
-      "Fragments that complete a lead-in: lowercase the first word, with the lead-in's punctuation chosen to match.",
+      "Fragments that complete a lead-in sentence: begin in lowercase, separate with commas or semicolons, and end the last with a full stop.",
       "Short labels or stand-alone entries: either capitalize each or lowercase each, uniformly.",
       "A list run into a sentence uses ordinary sentence punctuation and no capitals except for proper nouns.",
     ],
@@ -930,7 +929,7 @@ export default [
     conv: [
       "Salutation: Dear Dr. Okafor, Dear Sir or Madam, My dear Anna.",
       "Closing: capitalize only the first word: Yours faithfully, Best wishes, Warmly.",
-      "In email, informal greetings often use lowercase after Hi or Hello: Hi Sam, or Hello team.",
+      "Informal greetings such as Hi Sam capitalize the first word and the name; the punctuation after the salutation (comma or colon) varies with style.",
       "In dialogue of letters in fiction, reproduce the character's own forms.",
     ],
     example: "Dear Ms. Alvarez, ... Yours sincerely, Tomas",
@@ -954,10 +953,10 @@ export default [
     name: "The at the start of a name",
     summary: "The word the is capitalized when it is an official part of a title or name at the start of a sentence, and in running text it is usually lowercase before the names of newspapers and bands, though some guides keep it capital for some names.",
     conv: [
-      "Lowercase the in running text before a newspaper or band: the New York Times, the Beatles.",
-      "Capitalize The for a title that begins with it: The Great Gatsby, The Hague.",
-      "Keep The as part of a name when it is an official part: The Hague, The Bronx (in some guides).",
-      "Rewrite or follow the guide's preference when a sentence begins with a name that opens with the.",
+      "Book, film and play titles keep an opening The, capitalized: She reread The Great Gatsby.",
+      "Newspapers, magazines and bands: many guides lowercase the in running text (the New York Times, the Beatles) because it is not part of the name.",
+      "Place names with an official The, such as The Hague, keep it capitalized.",
+      "A sentence that opens with such a name can be recast to avoid starting with a lowercase the.",
     ],
     example: "She reads the Guardian every day and The Hague is on her itinerary.",
     watch: [

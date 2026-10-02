@@ -17,6 +17,21 @@ helps you brainstorm, and reads documents aloud, with a local language model (Qw
 
 One NIE: online model, offline model and built-in guidance are routing, not separate assistants.
 
+## Get the Windows app (no Node.js, no command line)
+
+The Windows package is built on a real Windows machine by GitHub Actions and tested there before you download it: the installed
+program is started, the real offline model must load and answer, and the installer must install and uninstall cleanly.
+
+1. On GitHub open this repository → **Actions** → **windows-package**. Open the newest run with a green tick, or press **Run workflow**
+   (leave "Put the offline model inside the installer" ticked) and wait for it to finish (about 15-25 minutes).
+2. Under **Artifacts** download **NIE-Windows-Setup** (the installer; GitHub gives it to you inside a .zip, so unzip it first).
+   **NIE-Windows-portable** is the same app as a plain folder if you would rather not install.
+3. Run **Narrative Integrity Engine Setup … .exe** and finish the wizard (keep "Create a desktop shortcut" ticked).
+4. Double-click **Narrative Integrity Engine** on your desktop. The offline model is inside the installer, so it works with no internet.
+
+Windows may show a blue "Windows protected your PC" (SmartScreen) box, because the installer is not code-signed yet
+([docs/WINDOWS_SIGNING.md](docs/WINDOWS_SIGNING.md)). Choose **More info → Run anyway**.
+
 ## Run it
 
 ```bash
