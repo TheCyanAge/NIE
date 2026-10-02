@@ -1674,7 +1674,7 @@ export default [
       'Swiss spelling is standard in Switzerland and Liechtenstein; Austrian and German publishers use ß.',
     ],
     q: ['Is the vowel before the s long or short?'],
-    kw: ['eszett', 'ß vs ss', 'german sharp s', 'capital ẞ', 'dass or daß', 'when to use ß', 'strasse straße'],
+    kw: ['eszett', 'capital eszett', 'ß vs ss', 'german sharp s', 'dass or daß', 'when to use ß', 'strasse straße'],
     aka: ['scharfes S', 'sharp s'],
     topic: 'orthography',
     guide: 'Language convention',
@@ -1904,7 +1904,7 @@ export default [
       'A hyphen goes where joining would create a misleading vowel pair: zee-eend, auto-ongeluk.',
       'A hyphen links a letter abbreviation or numeral to a word: tv-programma, 3-delig.',
     ],
-    example: 'De reünie op het zee-eiland leverde drie financiën-verhalen op.',
+    example: 'Na de reünie zagen we een zee-eend en een auto-ongeluk.',
     watch: [
       'Dropping the trema in plurals such as zeeën changes the reading.',
     ],
@@ -2023,7 +2023,6 @@ export default [
     guide: 'Language convention',
     asOf: 'Established Norwegian practice; publishers differ',
     confidence: 'varies',
-    refs: ['Norsk referansegrammatikk'],
   },
   {
     id: 'rule-lang-q-no-bokmal-nynorsk',
@@ -2049,7 +2048,6 @@ export default [
     guide: 'Language convention',
     asOf: 'Established Norwegian official standards; each has its own dictionary',
     confidence: 'established',
-    refs: ['Norsk referansegrammatikk'],
   },
   {
     id: 'rule-lang-q-da-lowercase-nouns-and-aa',
@@ -2127,7 +2125,6 @@ export default [
     guide: 'Language convention',
     asOf: 'Established Finnish practice; Kotus language guidance',
     confidence: 'varies',
-    refs: ['Iso suomen kielioppi'],
   },
   {
     id: 'rule-lang-q-nordic-numbers-dates',
