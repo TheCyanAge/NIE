@@ -64,6 +64,14 @@ jobs:
       - name: Build the app (electron-builder, Windows x64)
         run: npm run build:desktop
 
+      - name: Report what is inside the package
+        if: always()
+        run: |
+          R=dist-desktop/win-unpacked/resources
+          echo "== resources"; du -sh $R/* 2>/dev/null
+          echo "== app.asar.unpacked (3 levels)"; find $R/app.asar.unpacked -maxdepth 3 2>/dev/null | head -60
+          echo "== inside app.asar (top levels)"; node apps/desktop/node_modules/@electron/asar/bin/asar.js list $R/app.asar | awk -F'[\\\\/]' 'NF<=4' | head -60
+
       - name: Smoke test the packaged app (real exe, real runtime, real model)
         run: node scripts/smoke-windows.mjs dist-desktop/win-unpacked --out smoke-out/unpacked ${{ env.NIE_BUNDLE_MODEL != 'true' && '--no-model' || '' }}
 
