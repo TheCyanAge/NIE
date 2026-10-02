@@ -11,6 +11,10 @@ on:
         description: 'Put the offline model inside the installer (about 2.2 GB, works with no internet at all)'
         type: boolean
         default: true
+      skip_unit_tests:
+        description: 'Skip the unit-test step (the unit tests run in the ci workflow too)'
+        type: boolean
+        default: false
       portable:
         description: 'Also upload a portable folder (no installer needed)'
         type: boolean
@@ -39,6 +43,7 @@ jobs:
           npm --prefix apps/desktop install --no-audit --no-fund
 
       - name: Unit tests
+        if: inputs.skip_unit_tests != true
         run: npm test
 
       - name: Fetch the llama.cpp runtime (llama-server and every library it needs)
