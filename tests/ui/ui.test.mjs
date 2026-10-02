@@ -1034,6 +1034,7 @@ test('"what NIE understands" follows the conversation, can be cleared, and each 
     await page.click('#kind-row [data-kind=poem]');
     await page.fill('#board-add', 'PROJECT-A-ONLY idea');
     await page.press('#board-add', 'Enter');
+    await boardCount(page, 1);
     const idA = await page.evaluate(() => window.NIE_APP.project.id);
 
     await page.click('#understands-reset');
@@ -1070,6 +1071,7 @@ test('with the offline model running, NIE asks it for ideas, shows them as cards
     await openBrainstorm(page);
     await page.fill('#board-add', 'KEPT-FOR-THE-MODEL idea');
     await page.press('#board-add', 'Enter');
+    await boardCount(page, 1); // Enter submits a moment later in current Chromium
     await page.click('#kind-row [data-kind=article]');
     await page.click('#lens-row [data-lens=angle]');
     await page.waitForSelector('.msg-assistant:not(.msg-pending) .idea');
