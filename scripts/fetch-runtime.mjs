@@ -43,6 +43,27 @@ async function fetchRuntime() {
     n++;
   }
   console.log(`Extracted ${n} files into ${path.relative(root, binDir)}${skipped ? ` (left out ${skipped} command-line tools NIE does not use)` : ''}`);
+  // llama-server imports the Microsoft Visual C++ runtime, which the llama.cpp zip does not contain. Many clean Windows PCs do not
+  // have it, so ship the three DLLs next to llama-server (app-local deployment of the VC++ runtime is permitted by Microsoft).
+  if (platform === 'win32') {
+    const sys = path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32');
+    const want = ['vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll'];
+    if (process.platform === 'win32') {
+      for (const f of want) {
+        const from = path.join(sys, f);
+        if (fs.existsSync(from)) fs.copyFileSync(from, path.join(binDir, f));
+      }
+      const missing = want.filter((f) => !fs.existsSync(path.join(binDir, f)));
+      if (missing.length) {
+        console.error(`The Visual C++ runtime DLLs ${missing.join(', ')} were not found in ${sys}. Install the "Microsoft Visual C++ 2015-2022 x64 Redistributable" on this build machine, then run this again.`);
+        process.exitCode = 1;
+      } else {
+        console.log('Copied the Visual C++ runtime DLLs next to llama-server (needed on PCs that do not have them).');
+      }
+    } else {
+      console.warn('Note: building for Windows on another OS: copy vcruntime140.dll, vcruntime140_1.dll and msvcp140.dll into apps/desktop/bin yourself (the Windows CI build does this).');
+    }
+  }
   const check = validateRuntime(binDir, platform);
   if (!check.ok) {
     console.error('Runtime is INCOMPLETE:\n - ' + check.problems.map((p) => p.message).join('\n - '));

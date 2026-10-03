@@ -1,5 +1,5 @@
 // Smoke test for a PACKAGED NIE: the real exe, the real llama.cpp runtime and the real Qwen model.
-//   node scripts/smoke-windows.mjs <folder containing "Narrative Integrity Engine.exe"> [--out smoke-out] [--no-model] [--no-runtime]
+//   node scripts/smoke-windows.mjs <folder containing "Narrative Integrity Engine.exe"> [--out smoke-out] [--no-model] [--no-runtime] [--real-profile]
 //
 // What it proves (the things that cannot be proven by unit tests):
 //   1. the package layout is complete (whole llama.cpp runtime incl. CPU backend, model present and valid, web UI bundled)
@@ -24,7 +24,8 @@ const dir = path.resolve(args.find((a) => !a.startsWith('--')) ?? path.join(root
 const opt = (n, d) => (args.includes(n) ? args[args.indexOf(n) + 1] : d);
 const outDir = path.resolve(opt('--out', path.join(root, 'smoke-out')));
 const skipModel = args.includes('--no-model');
-const skipRuntime = args.includes('--no-runtime'); // local script checks only; the CI run never skips it
+const skipRuntime = args.includes('--no-runtime');
+const realProfile = args.includes('--real-profile'); // installed run: use the app's real profile folder, like a user's first launch // local script checks only; the CI run never skips it
 const isWin = process.platform === 'win32';
 const exe = path.join(dir, isWin ? 'Narrative Integrity Engine.exe' : 'Narrative Integrity Engine');
 const resources = path.join(dir, 'resources');
@@ -42,6 +43,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const within = (p, ms = 4000) => Promise.race([Promise.resolve(p).catch(() => {}), sleep(ms)]);
 const freePort = () => new Promise((res) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); });
 
+const spawned = []; // every process we started, so a failed launch can never leave NIE or llama-server running
+const allLog = [];
+const allProblems = [];
 function killTree(child) {
   if (!child?.pid) return;
   try {
@@ -54,12 +58,13 @@ function killTree(child) {
 
 async function launch(userData) {
   const port = await freePort();
-  const child = spawn(exe, [`--remote-debugging-port=${port}`, `--user-data-dir=${userData}`, '--disable-gpu', '--no-first-run', ...(isWin ? [] : ['--no-sandbox'])], {
+  const child = spawn(exe, [`--remote-debugging-port=${port}`, ...(realProfile && isWin ? [] : [`--user-data-dir=${userData}`]), '--disable-gpu', '--no-first-run', ...(isWin ? [] : ['--no-sandbox'])], {
     stdio: ['ignore', 'pipe', 'pipe'],
     detached: !isWin,
     env: { ...process.env, ELECTRON_ENABLE_LOGGING: '1' },
   });
-  const log = [];
+  spawned.push(child);
+  const log = allLog;
   child.stdout.on('data', (d) => log.push(String(d)));
   child.stderr.on('data', (d) => log.push(String(d)));
   let exited = null;
@@ -79,10 +84,12 @@ async function launch(userData) {
   const w0 = Date.now();
   while (!page && Date.now() - w0 < 30000) { await sleep(300); page = browser.contexts().flatMap((c) => c.pages())[0]; }
   if (!page) throw new Error('NIE started but no window appeared.');
-  const problems = [];
+  const problems = allProblems; // both launches: errors from the real session count, not just the restart
+  page.setDefaultTimeout(60000);
   page.on('pageerror', (e) => problems.push(`[pageerror] ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') problems.push(`[console] ${m.text()}`); });
   await page.waitForSelector('#story-text', { timeout: 60000 });
+  await dismissTour(page);
   const alive = () => exited === null;
   return {
     child, browser, page, problems, log,
@@ -102,21 +109,38 @@ async function launch(userData) {
 
 /** A first run shows the tour (by design). A person would press Escape or Skip; so does the test. */
 async function dismissTour(page) {
-  for (let i = 0; i < 3; i++) {
-    if (!(await page.$('#tour-root .tour-dim'))) return;
+  // The tour starts shortly after the UI (a timer in main.js), so wait for it to appear before deciding there is none.
+  await page.waitForSelector('#tour-root .tour-dim', { state: 'attached', timeout: 5000 }).catch(() => {});
+  for (let i = 0; i < 3 && (await page.$('#tour-root .tour-dim')); i++) {
     await page.keyboard.press('Escape');
-    await sleep(500);
+    await sleep(600);
   }
+  if (await page.$('#tour-root .tour-dim')) throw new Error('The first-run tour could not be dismissed.');
 }
 
 let app = null;
-const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'nie-smoke-'));
+const userData = realProfile && isWin && process.env.APPDATA ? path.join(process.env.APPDATA, 'Narrative Integrity Engine') : fs.mkdtempSync(path.join(os.tmpdir(), 'nie-smoke-'));
+if (skipModel) {
+  // Without a model the app would start downloading ~2 GB in the background during the test.
+  fs.mkdirSync(userData, { recursive: true });
+  fs.writeFileSync(path.join(userData, 'desktop-prefs.json'), JSON.stringify({ autoDownloadModel: false }));
+}
+// A hung renderer or installer must never hold the job until its time limit.
+const watchdog = setTimeout(() => { console.error('WATCHDOG: the smoke test ran too long; stopping everything.'); spawned.forEach(killTree); process.exit(2); }, Number(opt('--max-minutes', 22)) * 60 * 1000);
+watchdog.unref?.();
 try {
   // 1. layout
   step('exe exists', fs.existsSync(exe), exe);
   if (!skipRuntime) {
     const rt = validateRuntime(path.join(resources, 'bin'), process.platform);
     step('llama.cpp runtime is complete next to llama-server', rt.ok, rt.ok ? `${rt.files.length} files, CPU backend present` : rt.problems.map((p) => p.message).join(' | '));
+    if (isWin) {
+      // llama-server imports the Visual C++ runtime. A clean Windows PC may not have it, and CI runners always do, so the
+      // DLLs must travel inside the package; otherwise the model would fail to start there ("Offline NIE model failed to start").
+      const have = new Set(rt.files.map((f) => f.toLowerCase()));
+      const missing = ['vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll'].filter((f) => !have.has(f));
+      step('the Visual C++ runtime DLLs ship inside the package (clean PCs may not have them)', missing.length === 0, missing.length ? `missing: ${missing.join(', ')}` : 'vcruntime140, vcruntime140_1, msvcp140');
+    }
   }
   // The app's own files must be small and must not contain a copy of the repository (a packaging mistake that bloats the installer).
   const asarUnpacked = path.join(resources, 'app.asar.unpacked');
@@ -129,8 +153,12 @@ try {
     const { createRequire } = await import('node:module');
     const asar = createRequire(path.join(root, 'apps/desktop/package.json'))('@electron/asar');
     inAsar = asar.listPackage(path.join(resources, 'app.asar'), {}).filter((f) => /[\\/]node_modules[\\/](?:narrative-integrity-engine|nie-desktop)[\\/]/.test(f)).slice(0, 5);
-  } catch { /* the asar reader is a build-time dependency; if it is not installed the unpacked check above still runs */ }
-  step('the package does not contain a copy of the repository', !nested && inAsar.length === 0, `resources: ${top.join(', ')}`);
+  } catch (err) {
+    if (process.env.CI) throw err; // in CI this check must really run: it exists to catch the repo-inside-asar mistake
+  }
+  const asarBytes = fs.statSync(path.join(resources, 'app.asar')).size;
+  const stray = fs.readdirSync(resources).filter((n) => !['app.asar', 'bin', 'models', 'web'].includes(n));
+  step('the package does not contain a copy of the repository', !nested && inAsar.length === 0 && asarBytes < 20e6 && stray.length === 0, `resources: ${top.join(', ')}; app.asar ${(asarBytes / 1048576).toFixed(1)} MB${stray.length ? `; unexpected: ${stray.join(', ')}` : ''}`);
   step('web UI is bundled', fs.existsSync(path.join(resources, 'web', 'index.html')) && fs.existsSync(path.join(resources, 'web', 'src', 'engine', 'knowledge', 'index.js')), 'resources/web');
   if (!skipModel) {
     const modelPath = path.join(resources, 'models', DEFAULT_MODEL.fileName);
@@ -190,10 +218,17 @@ try {
   await sleep(900);
   const idBefore = await page.evaluate(() => window.NIE_APP.project.id);
   await app.close();
+  if (isWin) {
+    // Quitting NIE must stop the model server too, or the next launch/uninstall/upgrade finds files locked.
+    const t = spawnSync('tasklist', ['/FI', 'IMAGENAME eq llama-server.exe', '/NH'], { encoding: 'utf8' }).stdout ?? '';
+    const left = /llama-server\.exe/i.test(t);
+    if (left) spawnSync('taskkill', ['/IM', 'llama-server.exe', '/F'], { stdio: 'ignore' });
+    step('quitting NIE also stops the model server (llama-server.exe)', !left, left ? 'llama-server.exe was still running after NIE quit' : 'no llama-server.exe left running');
+  }
   app = await launch(userData);
   const after = await app.page.evaluate(() => ({ id: window.NIE_APP.project.id, text: window.NIE_APP.project.storyText }));
   step('the project is still there after closing and re-opening NIE', after.id === idBefore && after.text.includes('lighthouse keeper'), after.text.slice(0, 40));
-  const bad = app.problems.filter((p) => !/favicon|ERR_CONNECTION_REFUSED|503/i.test(p));
+  const bad = allProblems.filter((p) => !/favicon\.ico|ERR_CONNECTION_REFUSED/i.test(p));
   step('no console errors in the packaged UI', bad.length === 0, bad.slice(0, 3).join(' | '));
 
   report.ok = true;
@@ -203,8 +238,9 @@ try {
   try { await app?.page?.screenshot({ path: path.join(outDir, 'failure.png') }); } catch { /* ignore */ }
 } finally {
   try { fs.copyFileSync(path.join(userData, 'nie.log'), path.join(outDir, 'nie.log')); } catch { /* may not exist */ }
-  try { fs.writeFileSync(path.join(outDir, 'app-output.txt'), (app?.log ?? []).join('')); } catch { /* ignore */ }
+  try { fs.writeFileSync(path.join(outDir, 'app-output.txt'), allLog.join('')); } catch { /* ignore */ }
   await app?.close();
+  spawned.forEach(killTree); // never leave NIE or llama-server behind, even when a launch failed halfway
   fs.writeFileSync(path.join(outDir, 'smoke-report.json'), JSON.stringify(report, null, 2));
   console.log(report.ok ? '\nSMOKE TEST PASSED' : `\nSMOKE TEST FAILED: ${report.error ?? ''}`);
   process.exit(report.ok ? 0 : 1);

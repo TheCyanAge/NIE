@@ -11,7 +11,8 @@ import { OpenAICompatClient } from '../apps/web/src/engine/ai/openai-client.js';
 const FAKE = fileURLToPath(new URL('./fixtures/fake-llama.mjs', import.meta.url));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'nie-rt-'));
-const WIN_FILES = ['llama-server.exe', 'llama.dll', 'llama-common.dll', 'ggml.dll', 'ggml-base.dll', 'ggml-cpu-haswell.dll', 'mtmd.dll'];
+const VC_FILES = ['vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll']; // llama-server imports the Visual C++ runtime
+const WIN_FILES = ['llama-server.exe', 'llama.dll', 'llama-common.dll', 'ggml.dll', 'ggml-base.dll', 'ggml-cpu-haswell.dll', 'mtmd.dll', ...VC_FILES];
 
 function runtimeDir(files = WIN_FILES) {
   const d = tmp();
@@ -43,6 +44,11 @@ test('the whole llama.cpp runtime must be present, not just llama-server.exe (th
   assert.equal(validateRuntime(runtimeDir(['llama.dll']), 'win32').problems[0].code, 'server-missing');
   assert.equal(validateRuntime(path.join(tmp(), 'nope'), 'win32').problems[0].code, 'runtime-missing');
   assert.ok(validateRuntime(runtimeDir(WIN_FILES.filter((f) => f !== 'mtmd.dll')), 'win32').warnings.length === 1);
+  // The Visual C++ runtime is not part of the llama.cpp zip; a clean PC may lack it, so the package ships it and a build without it is flagged.
+  const noVc = validateRuntime(runtimeDir(WIN_FILES.filter((f) => !VC_FILES.includes(f))), 'win32');
+  assert.equal(noVc.ok, true, 'still usable on a PC that has the redistributable installed');
+  assert.equal(noVc.warnings.length, 3);
+  assert.match(noVc.warnings.join(' '), /vcruntime140\.dll/);
 });
 
 test('model validation rejects missing, truncated and non-GGUF files', () => {

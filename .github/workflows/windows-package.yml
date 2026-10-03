@@ -2,7 +2,8 @@ name: windows-package
 
 # Builds the real Windows package on a real Windows machine and proves it works:
 #   app build -> smoke test of the packaged exe with the real llama.cpp runtime and real Qwen model
-#   -> Inno Setup installer -> silent install -> smoke test of the INSTALLED copy (+ desktop shortcut) -> uninstall.
+#   -> Inno Setup installer -> silent install into the DEFAULT per-user folder (checks the program and the desktop shortcut's target)
+#   -> smoke test of the INSTALLED copy with its real profile folder -> clean uninstall (files, shortcuts, registry).
 # Download the result from the run's "Artifacts" (NIE-Windows-Setup is the installer; NIE-Windows-portable needs no install).
 on:
   workflow_dispatch:
@@ -25,7 +26,7 @@ on:
 jobs:
   package:
     runs-on: windows-latest
-    timeout-minutes: 150
+    timeout-minutes: 75
     defaults:
       run:
         shell: bash
@@ -37,85 +38,115 @@ jobs:
         with:
           node-version: 22
 
+      # Installs from the lockfiles, inside each package (running `npm --prefix` from the repo root made npm link the whole
+      # repository into apps/desktop/node_modules on Windows, and electron-builder then packaged it).
       - name: Install dependencies
         run: |
-          npm install --no-audit --no-fund
-          npm --prefix apps/desktop install --no-audit --no-fund
+          npm ci --no-audit --no-fund
+          cd apps/desktop && npm ci --no-audit --no-fund
 
-      - name: Remove npm's self-link (on Windows npm links the repo root into apps/desktop/node_modules)
+      - name: Remove any self-link back to the repository (backstop)
         run: rm -f apps/desktop/node_modules/narrative-integrity-engine apps/desktop/node_modules/nie-desktop
 
       - name: Unit tests
         if: inputs.skip_unit_tests != true
         run: npm test
 
-      - name: Fetch the llama.cpp runtime (llama-server and every library it needs)
-        run: node scripts/fetch-runtime.mjs --no-model
-
-      - name: Restore the offline model from cache
-        if: env.NIE_BUNDLE_MODEL == 'true'
-        id: model-cache
-        uses: actions/cache@v4
-        with:
-          path: apps/desktop/models
-          key: qwen2.5-3b-instruct-q4_k_m-v1
+      - name: Fetch the llama.cpp runtime (llama-server, every library it needs, and the Visual C++ runtime)
+        timeout-minutes: 10
+        run: |
+          for i in 1 2 3; do node scripts/fetch-runtime.mjs --no-model && exit 0; echo "attempt $i failed; retrying"; sleep 20; done; exit 1
 
       - name: Download the offline model (Qwen2.5 3B Instruct, Q4_K_M, about 1.9 GB)
-        if: env.NIE_BUNDLE_MODEL == 'true' && steps.model-cache.outputs.cache-hit != 'true'
-        run: node scripts/fetch-runtime.mjs --no-runtime
+        if: env.NIE_BUNDLE_MODEL == 'true'
+        timeout-minutes: 20
+        run: |
+          # downloadModel resumes from its .part file, so a retry continues instead of starting over.
+          for i in 1 2 3; do node scripts/fetch-runtime.mjs --no-runtime && exit 0; echo "attempt $i failed; retrying"; sleep 20; done; exit 1
 
       - name: Build the app (electron-builder, Windows x64)
+        timeout-minutes: 15
         run: npm run build:desktop
 
       - name: Report what is inside the package
         if: always()
+        continue-on-error: true
         run: |
-          set +e  # a diagnostic report must never fail the build
+          set +e +o pipefail  # a diagnostic report must never fail the build
           R=dist-desktop/win-unpacked/resources
-          echo "== who depends on the repo itself?"; ls -la apps/desktop/node_modules | grep -i -E "narrative|nie-desktop" || echo "(no such entry in apps/desktop/node_modules)"; ls -la node_modules | grep -i -E "narrative|nie-desktop" || echo "(no such entry in node_modules)"
           echo "== resources"; du -sh $R/* 2>/dev/null
-          echo "== app.asar.unpacked (3 levels)"; find $R/app.asar.unpacked -maxdepth 3 2>/dev/null | head -60
-          echo "== inside app.asar (top levels)"; node apps/desktop/node_modules/@electron/asar/bin/asar.js list $R/app.asar | awk -F'[\\\\/]' 'NF<=4' | head -60
+          echo "== bin"; ls $R/bin 2>/dev/null
+          echo "== app.asar (top levels)"; node apps/desktop/node_modules/@electron/asar/bin/asar.js list $R/app.asar 2>/dev/null | awk -F'[\\\\/]' 'NF<=3' | head -40
           exit 0
 
       - name: Smoke test the packaged app (real exe, real runtime, real model)
+        timeout-minutes: 25
         run: node scripts/smoke-windows.mjs dist-desktop/win-unpacked --out smoke-out/unpacked ${{ env.NIE_BUNDLE_MODEL != 'true' && '--no-model' || '' }}
 
       - name: Install Inno Setup
-        run: choco install innosetup -y --no-progress
+        timeout-minutes: 10
+        run: |
+          for i in 1 2 3; do choco install innosetup -y --no-progress && exit 0; echo "attempt $i failed; retrying"; sleep 20; done; exit 1
 
       - name: Compile the installer
+        timeout-minutes: 20
         run: |
           ISCC="/c/Program Files (x86)/Inno Setup 6/ISCC.exe"
-          if [ ! -f "$ISCC" ]; then ISCC="$(command -v ISCC.exe || command -v iscc)"; fi
-          "$ISCC" installer.iss
+          if [ ! -f "$ISCC" ]; then ISCC="$(command -v ISCC.exe || command -v iscc || true)"; fi
+          [ -n "$ISCC" ] && [ -f "$ISCC" ] || { echo "ISCC.exe (Inno Setup compiler) was not found"; exit 1; }
+          VERSION="$(node -p "require('./apps/desktop/package.json').version")"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            [ "${GITHUB_REF_NAME#v}" = "$VERSION" ] || { echo "Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json version $VERSION"; exit 1; }
+          fi
+          "$ISCC" "/DMyAppVersion=$VERSION" installer.iss
           ls -la dist-installer
 
-      - name: Install it silently, like a user would
+      - name: Install it silently, into the default per-user folder, like a user would
         shell: pwsh
+        timeout-minutes: 10
         run: |
+          New-Item -ItemType Directory -Force smoke-out | Out-Null
           $setup = Get-ChildItem dist-installer -Filter *.exe | Select-Object -First 1
           Write-Host "Installing $($setup.Name) ($([math]::Round($setup.Length/1MB)) MB)"
-          $p = Start-Process -FilePath $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/TASKS=desktopicon','/DIR=C:\NIE-installed','/LOG=install.log' -Wait -PassThru
-          Get-Content install.log -Tail 30
+          $p = Start-Process -FilePath $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/TASKS=desktopicon',"/LOG=$env:GITHUB_WORKSPACE\smoke-out\install.log" -PassThru
+          if (-not $p.WaitForExit(600000)) { $p.Kill(); throw 'The installer did not finish within 10 minutes.' }
+          Get-Content "$env:GITHUB_WORKSPACE\smoke-out\install.log" -Tail 25
           if ($p.ExitCode -ne 0) { throw "Installer exited with $($p.ExitCode)" }
-          $exe = 'C:\NIE-installed\Narrative Integrity Engine.exe'
+          $dir = Join-Path $env:LOCALAPPDATA 'Programs\Narrative Integrity Engine'
+          $exe = Join-Path $dir 'Narrative Integrity Engine.exe'
           if (-not (Test-Path $exe)) { throw "The installed program is missing: $exe" }
           $lnk = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Narrative Integrity Engine.lnk'
           if (-not (Test-Path $lnk)) { throw "No desktop shortcut was created at $lnk" }
-          Write-Host "Installed program and desktop shortcut are in place."
+          $target = (New-Object -ComObject WScript.Shell).CreateShortcut($lnk).TargetPath
+          if ($target -ne $exe) { throw "The desktop shortcut points to '$target', not to '$exe'" }
+          "NIE_INSTALL_DIR=$dir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Installed to $dir; the desktop shortcut points at the installed program."
 
-      - name: Smoke test the INSTALLED copy
-        run: node scripts/smoke-windows.mjs "C:/NIE-installed" --out smoke-out/installed ${{ env.NIE_BUNDLE_MODEL != 'true' && '--no-model' || '' }}
+      - name: Smoke test the INSTALLED copy (its real profile folder, as on a user's first launch)
+        timeout-minutes: 25
+        run: node scripts/smoke-windows.mjs "$NIE_INSTALL_DIR" --real-profile --out smoke-out/installed ${{ env.NIE_BUNDLE_MODEL != 'true' && '--no-model' || '' }}
 
       - name: Uninstall cleanly
         shell: pwsh
+        timeout-minutes: 10
         run: |
-          $u = Get-ChildItem C:\NIE-installed -Filter 'unins*.exe' | Select-Object -First 1
-          Start-Process -FilePath $u.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
-          Start-Sleep -Seconds 3
-          if (Test-Path 'C:\NIE-installed\Narrative Integrity Engine.exe') { throw 'Uninstall left the program behind.' }
-          Write-Host 'Uninstalled cleanly.'
+          $dir = $env:NIE_INSTALL_DIR
+          # Nothing from the install folder may still be running (a locked llama-server.exe would break uninstall and upgrade).
+          $running = Get-Process | Where-Object { $_.Path -and $_.Path.StartsWith($dir, [StringComparison]::OrdinalIgnoreCase) }
+          if ($running) { $running | Stop-Process -Force; throw "These were still running from the install folder: $($running.Name -join ', ')" }
+          $u = Get-ChildItem $dir -Filter 'unins*.exe' | Select-Object -First 1
+          $p = Start-Process -FilePath $u.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/LOG=$env:GITHUB_WORKSPACE\smoke-out\uninstall.log" -PassThru
+          if (-not $p.WaitForExit(600000)) { $p.Kill(); throw 'The uninstaller did not finish within 10 minutes.' }
+          if ($p.ExitCode -ne 0) { throw "Uninstaller exited with $($p.ExitCode)" }
+          $deadline = (Get-Date).AddSeconds(90)
+          while ((Test-Path $dir) -and (Get-Date) -lt $deadline) { Start-Sleep -Seconds 1 }   # the uninstaller finishes in a copy of itself
+          if (Test-Path $dir) { throw "Uninstall left the install folder behind: $((Get-ChildItem $dir -Recurse -File | Select-Object -First 5).FullName -join '; ')" }
+          $desk = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Narrative Integrity Engine.lnk'
+          if (Test-Path $desk) { throw 'Uninstall left the desktop shortcut behind.' }
+          $menu = Join-Path ([Environment]::GetFolderPath('Programs')) 'Narrative Integrity Engine.lnk'
+          if (Test-Path $menu) { throw 'Uninstall left the Start menu shortcut behind.' }
+          if (Test-Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{9F0D8580-3877-4D07-A618-69C2AE30C566}_is1') { throw 'Uninstall left its Add/Remove Programs entry behind.' }
+          Write-Host 'Uninstalled cleanly: files, shortcuts and registry entry are gone.'
 
       - name: Upload the installer
         uses: actions/upload-artifact@v4
@@ -124,20 +155,23 @@ jobs:
           path: dist-installer/*.exe
           compression-level: 0
           retention-days: 30
+          overwrite: true
 
       - name: Upload the portable folder
-        if: inputs.portable != false
+        if: github.event_name == 'push' || inputs.portable
         uses: actions/upload-artifact@v4
         with:
           name: NIE-Windows-portable
           path: dist-desktop/win-unpacked
           compression-level: 0
           retention-days: 30
+          overwrite: true
 
-      - name: Upload the smoke-test report and screenshots
+      - name: Upload the smoke-test report, screenshots and installer logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: NIE-smoke-report
           path: smoke-out
           if-no-files-found: ignore
+          overwrite: true

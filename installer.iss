@@ -8,7 +8,10 @@
 
 #define MyAppName       "Narrative Integrity Engine"
 #define MyAppShort      "NIE"
-#define MyAppVersion    "0.1.0"
+; The build passes /DMyAppVersion=<apps/desktop/package.json version>; this is only the default for a manual compile.
+#ifndef MyAppVersion
+  #define MyAppVersion  "0.1.0"
+#endif
 #define MyAppPublisher  "TheCyanAge"
 #define MyAppExeName    "Narrative Integrity Engine.exe"
 #define BuildDir        "dist-desktop\win-unpacked"
