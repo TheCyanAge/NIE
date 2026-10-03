@@ -42,6 +42,9 @@ jobs:
           npm install --no-audit --no-fund
           npm --prefix apps/desktop install --no-audit --no-fund
 
+      - name: Remove npm's self-link (on Windows npm links the repo root into apps/desktop/node_modules)
+        run: rm -f apps/desktop/node_modules/narrative-integrity-engine apps/desktop/node_modules/nie-desktop
+
       - name: Unit tests
         if: inputs.skip_unit_tests != true
         run: npm test
@@ -67,11 +70,13 @@ jobs:
       - name: Report what is inside the package
         if: always()
         run: |
+          set +e  # a diagnostic report must never fail the build
           R=dist-desktop/win-unpacked/resources
           echo "== who depends on the repo itself?"; ls -la apps/desktop/node_modules | grep -i -E "narrative|nie-desktop" || echo "(no such entry in apps/desktop/node_modules)"; ls -la node_modules | grep -i -E "narrative|nie-desktop" || echo "(no such entry in node_modules)"
           echo "== resources"; du -sh $R/* 2>/dev/null
           echo "== app.asar.unpacked (3 levels)"; find $R/app.asar.unpacked -maxdepth 3 2>/dev/null | head -60
           echo "== inside app.asar (top levels)"; node apps/desktop/node_modules/@electron/asar/bin/asar.js list $R/app.asar | awk -F'[\\\\/]' 'NF<=4' | head -60
+          exit 0
 
       - name: Smoke test the packaged app (real exe, real runtime, real model)
         run: node scripts/smoke-windows.mjs dist-desktop/win-unpacked --out smoke-out/unpacked ${{ env.NIE_BUNDLE_MODEL != 'true' && '--no-model' || '' }}
