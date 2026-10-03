@@ -854,13 +854,13 @@ export default [
       'Put the main idea or the reason to care in the first line.',
       'Say what the link is and why a reader would want it, in a sentence of your own.',
       'Do not rely on the link preview to supply the context; it may not appear or may change.',
-      'Keep long web addresses out of the middle of a sentence; many platforms shorten or shorten them for you.',
+      'Keep long web addresses out of the middle of a sentence, or let the platform shorten them for you.',
       'Check that the link works and goes where you say before posting.',
     ],
     example: 'Post: "A short essay on why second drafts feel worse than first ones. Link below."',
     watch: [
       'A bare link with no sentence is easily skipped and gives no context for screen readers.',
-      'Some platforms reduce the reach of posts with outbound links; this changes with the platform.',
+      'Platforms treat outbound links in different ways, and their handling changes; check how yours displays them.',
     ],
     intent: ['A post that is itself a short story or a joke may delay its point; that works when readers already follow you for it.'],
     q: ['If a reader saw only the first line, would they know what the post offers?'],
@@ -2814,7 +2814,7 @@ export default [
     guide: 'Interactive fiction (general)',
     asOf: 'Twine 2 conventions as of the mid-2020s; check current documentation',
     confidence: 'varies',
-    refs: ['The Twine Cookbook'],
+    refs: ['Twine documentation'],
   },
   {
     id: 'rule-dig-if-twine-story-formats',
@@ -4310,7 +4310,7 @@ export default [
     guide: 'Accessibility (general)',
     asOf: 'Practice and regulation as of the mid-2020s; laws differ by region',
     confidence: 'varies',
-    refs: ['EPUB Accessibility specification'],
+    refs: ['EPUB Accessibility'],
   },
 
   // ---------------------------------------------------------------- Community moderation tone
@@ -4389,5 +4389,29 @@ export default [
     asOf: 'General practice, mid-2020s',
     confidence: 'varies',
   },
-  // MORE
+  {
+    id: 'rule-dig-rp-play-by-post-and-chat-roleplay',
+    kind: 'rule',
+    name: 'Play-by-post and chat roleplay conventions',
+    summary: 'Text roleplay on forums and chat servers has shared habits: write in a consistent person and tense, mark out-of-character remarks clearly, give other players room to act, and agree boundaries before play, and communities spell out their own rules.',
+    conv: [
+      'Match the tense and person your partners use, often third person past or present.',
+      'Mark out-of-character remarks with brackets or a separate channel, so they are not read as part of the story.',
+      'Control only your own character; deciding what another player\'s character does or feels is called godmodding and is widely disliked.',
+      'Do not use knowledge your character could not have, which is called metagaming.',
+      'Talk about tone, content limits and pace with your partners before and during play.',
+    ],
+    example: 'A post ends with a character opening the door and waiting, leaving the next move to the other player.',
+    watch: [
+      'Posts that outrun a partner\'s pace can leave them without anything to do.',
+      'Terms and etiquette differ between communities and platforms; read the local rules.',
+    ],
+    intent: ['Groups may agree to share control of non-player characters or to let one writer narrate outcomes; that is fine when everyone has agreed.'],
+    q: ['Have you left your partner something to respond to, and agreed on content limits?'],
+    kw: ['roleplay', 'play by post', 'forum rp', 'discord roleplay', 'godmodding', 'metagaming', 'ooc', 'collaborative writing'],
+    topic: 'roleplay',
+    guide: 'Roleplay community practice',
+    asOf: 'Community practice as of the mid-2020s',
+    confidence: 'varies',
+  },
 ];

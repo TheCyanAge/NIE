@@ -36,7 +36,10 @@
       "updater-config.json",
       "src/**/*",
       "!**/dist-desktop/**",
-      "!**/*.gguf"
+      "!**/*.gguf",
+      "!**/node_modules/narrative-integrity-engine/**",
+      "!**/node_modules/nie-desktop/**",
+      "!**/node_modules/.package-lock.json"
     ],
     "extraResources": [
       {

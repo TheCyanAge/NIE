@@ -123,7 +123,14 @@ try {
   const nested = fs.existsSync(path.join(asarUnpacked, 'node_modules', 'narrative-integrity-engine')) || fs.existsSync(path.join(asarUnpacked, 'node_modules', 'nie-desktop'));
   const top = fs.readdirSync(resources).map((n) => { const f = path.join(resources, n); const st = fs.statSync(f); return `${n}${st.isDirectory() ? '/' : ''}`; });
   report.resourcesTop = top;
-  step('the package does not contain a copy of the repository', !nested, `resources: ${top.join(', ')}`);
+  // Also look INSIDE app.asar: a dependency named like the repo once dragged the whole repository into the package.
+  let inAsar = [];
+  try {
+    const { createRequire } = await import('node:module');
+    const asar = createRequire(path.join(root, 'apps/desktop/package.json'))('@electron/asar');
+    inAsar = asar.listPackage(path.join(resources, 'app.asar'), {}).filter((f) => /[\\/]node_modules[\\/](?:narrative-integrity-engine|nie-desktop)[\\/]/.test(f)).slice(0, 5);
+  } catch { /* the asar reader is a build-time dependency; if it is not installed the unpacked check above still runs */ }
+  step('the package does not contain a copy of the repository', !nested && inAsar.length === 0, `resources: ${top.join(', ')}`);
   step('web UI is bundled', fs.existsSync(path.join(resources, 'web', 'index.html')) && fs.existsSync(path.join(resources, 'web', 'src', 'engine', 'knowledge', 'index.js')), 'resources/web');
   if (!skipModel) {
     const modelPath = path.join(resources, 'models', DEFAULT_MODEL.fileName);

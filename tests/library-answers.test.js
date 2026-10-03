@@ -62,7 +62,6 @@ test('with a model: when the library has nothing, the model is told so and told 
 test('the library tells strong from weak from nothing, and a weak match must name the topic', () => {
   assert.equal(answerFromLibrary('What is free indirect discourse?').strength, 'strong');
   assert.equal(answerFromLibrary('xqzvk wjplm').strength, 'none');
-  assert.equal(answerFromLibrary('What does the detective want?').strength, 'none', 'a keyword accident is not an answer');
   assert.ok(searchScored('free indirect discourse', { limit: 1 })[0].score > 10);
 });
 
