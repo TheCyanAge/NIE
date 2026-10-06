@@ -4,6 +4,7 @@ export const LIBRARY_FILES = [
   () => import('./devices/rhetorical-figures-and-sound-devices.js'),
   () => import('./devices/tropes-archetypes-and-plot-devices.js'),
   () => import('./formats/submission-journalism-academic-and-business.js'),
+  () => import('./forms/poetic-forms.js'),
   () => import('./forms/prose-drama-and-nonfiction-forms.js'),
   () => import('./genres/age-categories-and-nonfiction.js'),
   () => import('./genres/crime-romance-literary-and-popular.js'),
@@ -16,8 +17,10 @@ export const LIBRARY_FILES = [
   () => import('./rules/ap-numbers-titles-and-usage.js'),
   () => import('./rules/ap-punctuation-and-mechanics.js'),
   () => import('./rules/apa-references-and-citations.js'),
+  () => import('./rules/apa-style-bias-free-language-and-format.js'),
   () => import('./rules/capitalization-numbers-spelling-and-mechanics.js'),
   () => import('./rules/chicago-citation-and-manuscript-preparation.js'),
+  () => import('./rules/chicago-numbers-capitalization-and-usage.js'),
   () => import('./rules/chicago-punctuation.js'),
   () => import('./rules/dialogue-and-quotation-by-language.js'),
   () => import('./rules/digital-fandom-game-and-media-writing.js'),
@@ -47,5 +50,5 @@ export const LIBRARY_FILES = [
   () => import('./works/world-fiction-in-translation.js'),
 ];
 export const ENRICH_FILES = [
-
+  () => import('./enrich/core-genres.js'),
 ];

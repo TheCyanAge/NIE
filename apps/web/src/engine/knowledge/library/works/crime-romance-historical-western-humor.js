@@ -607,5 +607,112 @@ export default [
     kw: ['alex michaelides', 'psychological thriller', 'therapist', 'twist ending', 'debut'], genres: ['psychological thriller'],
   },
 
+  // ---- Spy fiction and thrillers ----
+  {
+    id: 'work-pop-the-thirty-nine-steps', kind: 'work', name: 'The Thirty-Nine Steps', author: 'John Buchan', year: 1915, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'A fast adventure in which Richard Hannay, wrongly suspected of murder, flees across Scotland while trying to expose a plot; a founding text of the man-on-the-run thriller and of the British spy adventure.',
+    kw: ['john buchan', 'richard hannay', 'man on the run', 'chase thriller', 'early spy fiction'], genres: ['spy fiction', 'thriller', 'adventure'],
+  },
+  {
+    id: 'work-pop-ashenden', kind: 'work', name: 'Ashenden: or The British Agent', author: 'W. Somerset Maugham', year: 1928, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: "A set of linked stories about a writer working as a British agent in the First World War, drawn from the author's own wartime intelligence work; it treats espionage as dull, ironic and morally untidy rather than glamorous.",
+    kw: ['maugham', 'ashenden', 'realistic spy fiction', 'linked stories', 'first world war'], genres: ['spy fiction', 'short story cycle'],
+  },
+  {
+    id: 'work-pop-the-mask-of-dimitrios', kind: 'work', name: 'The Mask of Dimitrios', author: 'Eric Ambler', year: 1939, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'A thriller in which a detective-story writer in Istanbul becomes fascinated by the life of a dead criminal and retraces it across Europe; it moved the spy and crime thriller toward realism and ordinary protagonists. Published in the United States as A Coffin for Dimitrios.',
+    kw: ['eric ambler', 'a coffin for dimitrios', 'ordinary man thriller', 'realistic thriller', 'istanbul'], genres: ['thriller', 'spy fiction'],
+  },
+  {
+    id: 'work-pop-rogue-male', kind: 'work', name: 'Rogue Male', author: 'Geoffrey Household', year: 1939, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'A first-person thriller of pursuit in which an English hunter stalks a European dictator and is then hunted himself; praised for its lean, vivid chase narrative and its sense of a man alone against a machine.',
+    kw: ['geoffrey household', 'chase thriller', 'manhunt', 'first person thriller', 'hunted hero'], genres: ['thriller', 'chase novel'],
+  },
+  {
+    id: 'work-pop-casino-royale', kind: 'work', name: 'Casino Royale', author: 'Ian Fleming', year: 1953, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'The first James Bond novel, in which a British agent is sent to ruin a Soviet-backed paymaster at a French casino; it established the series\' mix of glamour, brand detail and cold-war menace.',
+    kw: ['ian fleming', 'james bond', '007', 'secret agent', 'cold war spy'], genres: ['spy fiction', 'thriller'],
+  },
+  {
+    id: 'work-pop-the-spy-who-came-in-from-the-cold', kind: 'work', name: 'The Spy Who Came in from the Cold', author: 'John le Carré', year: 1963, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'A bleak Cold War novel in which a weary British agent takes on a last mission in East Germany; its moral ambiguity and unglamorous tradecraft reshaped the spy novel as literary fiction.',
+    kw: ['le carre', 'cold war', 'moral ambiguity', 'berlin', 'realistic spy novel'], genres: ['spy fiction', 'cold war fiction'],
+  },
+  {
+    id: 'work-pop-tinker-tailor-soldier-spy', kind: 'work', name: 'Tinker Tailor Soldier Spy', author: 'John le Carré', year: 1974, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'A novel in which the retired intelligence officer George Smiley is called back to find a Soviet mole at the top of British intelligence; a defining example of the slow-burn, institutional spy novel.',
+    kw: ['le carre', 'george smiley', 'mole hunt', 'the circus', 'institutional spy novel'], genres: ['spy fiction', 'cold war fiction'],
+  },
+  {
+    id: 'work-pop-a-perfect-spy', kind: 'work', name: 'A Perfect Spy', author: 'John le Carré', year: 1986, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: "A novel that follows a double agent's disappearance and his own written account of his life as the son of a charming con man; often described as the author's most autobiographical book, it uses espionage as a way into character and betrayal.",
+    kw: ['le carre', 'double agent', 'father and son', 'coming of age spy novel', 'betrayal'], genres: ['spy fiction', 'literary thriller'],
+  },
+  {
+    id: 'work-pop-the-ipcress-file', kind: 'work', name: 'The Ipcress File', author: 'Len Deighton', year: 1962, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'A brisk, ironic Cold War spy novel narrated by an unnamed, working-class British agent who investigates the kidnapping of scientists; known for its sardonic voice and its anti-Bond sense of bureaucracy and class.',
+    kw: ['len deighton', 'cold war', 'anti-bond', 'sardonic narrator', 'british spy novel'], genres: ['spy fiction', 'cold war fiction'],
+  },
+  {
+    id: 'work-pop-our-man-in-havana', kind: 'work', name: 'Our Man in Havana', author: 'Graham Greene', year: 1958, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'A comic spy novel in which a vacuum-cleaner salesman in pre-revolutionary Cuba is recruited by British intelligence and begins to invent his reports; a satire of intelligence-gathering and of institutional credulity.',
+    kw: ['graham greene', 'havana', 'spy satire', 'comic spy novel', 'fabricated intelligence'], genres: ['spy fiction', 'comic thriller', 'satire'],
+  },
+  {
+    id: 'work-pop-the-manchurian-candidate', kind: 'work', name: 'The Manchurian Candidate', author: 'Richard Condon', year: 1959, language: 'English', region: 'United States', confidence: 'established',
+    summary: 'A Cold War political thriller about a Korean War veteran and a conspiracy built on brainwashing and manipulated loyalty; it became a reference point for paranoia and sleeper-agent stories.',
+    kw: ['richard condon', 'brainwashing', 'sleeper agent', 'political thriller', 'paranoia'], genres: ['political thriller', 'cold war fiction'],
+  },
+  {
+    id: 'work-pop-the-day-of-the-jackal', kind: 'work', name: 'The Day of the Jackal', author: 'Frederick Forsyth', year: 1971, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: "A thriller that follows, in documentary detail, a professional assassin's plot against the French president and the police effort to stop him; known for making a foreknown historical outcome suspenseful through process and method.",
+    kw: ['frederick forsyth', 'assassin', 'procedural thriller', 'documentary style', 'paris'], genres: ['thriller', 'procedural thriller'],
+  },
+  {
+    id: 'work-pop-six-days-of-the-condor', kind: 'work', name: 'Six Days of the Condor', author: 'James Grady', year: 1974, language: 'English', region: 'United States', confidence: 'established',
+    summary: 'A paranoid thriller in which a low-level CIA reader returns from lunch to find his colleagues killed and must work out why; a model of the 1970s conspiracy thriller in which the hero distrusts his own side.',
+    kw: ['james grady', 'cia', 'conspiracy thriller', 'paranoia', 'seventies thriller'], genres: ['conspiracy thriller', 'spy fiction'],
+  },
+  {
+    id: 'work-pop-eye-of-the-needle', kind: 'work', name: 'Eye of the Needle', author: 'Ken Follett', year: 1978, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'A Second World War thriller in which a German spy in Britain races to get a crucial discovery to his superiors while a young woman on a remote island is drawn into events; an early success of the cat-and-mouse espionage plot. Published in the United States as Storm Island.',
+    kw: ['ken follett', 'storm island', 'world war two spy', 'cat and mouse', 'espionage thriller'], genres: ['spy fiction', 'thriller'],
+  },
+  {
+    id: 'work-pop-the-bourne-identity', kind: 'work', name: 'The Bourne Identity', author: 'Robert Ludlum', year: 1980, language: 'English', region: 'United States', confidence: 'established',
+    summary: 'A thriller in which a man with no memory finds that he has deadly skills and a price on his head; a template for the amnesiac-hero chase and for the global conspiracy thriller.',
+    kw: ['robert ludlum', 'jason bourne', 'amnesia', 'chase thriller', 'global conspiracy'], genres: ['thriller', 'spy fiction'],
+  },
+  {
+    id: 'work-pop-gorky-park', kind: 'work', name: 'Gorky Park', author: 'Martin Cruz Smith', year: 1981, language: 'English', region: 'United States', confidence: 'established',
+    summary: "A Moscow detective story in which a militia investigator examines three frozen bodies found in a park and runs into state secrets; it set the police procedural in the Soviet Union and shows how a regime's rules shape an investigation.",
+    kw: ['martin cruz smith', 'arkady renko', 'moscow', 'soviet setting', 'police procedural'], genres: ['police procedural', 'thriller'],
+  },
+  {
+    id: 'work-pop-the-hunt-for-red-october', kind: 'work', name: 'The Hunt for Red October', author: 'Tom Clancy', year: 1984, language: 'English', region: 'United States', confidence: 'established',
+    summary: 'A Cold War thriller about a Soviet submarine commander who may be trying to defect and the American analyst who tries to read his intentions; a founding example of the technological or military thriller.',
+    kw: ['tom clancy', 'jack ryan', 'submarine', 'techno-thriller', 'military thriller'], genres: ['techno-thriller', 'military thriller'],
+  },
+  {
+    id: 'work-pop-jaws', kind: 'work', name: 'Jaws', author: 'Peter Benchley', year: 1974, language: 'English', region: 'United States', confidence: 'established',
+    summary: 'A novel about a New England beach town menaced by a great white shark and the officials who hesitate to close the beaches; a landmark of the creature thriller and of the summer blockbuster bestseller.',
+    kw: ['peter benchley', 'shark', 'creature thriller', 'beach town', 'blockbuster novel'], genres: ['thriller', 'creature feature'],
+  },
+  {
+    id: 'work-pop-fatherland', kind: 'work', name: 'Fatherland', author: 'Robert Harris', year: 1992, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: 'An alternative-history thriller set in a Germany that won the Second World War, in which a police detective investigates a death that touches a state secret; a leading example of the alternate-history crime novel.',
+    kw: ['robert harris', 'alternate history', 'nazi germany what if', 'detective thriller', 'counterfactual'], genres: ['alternate history', 'police procedural', 'thriller'],
+  },
+  {
+    id: 'work-pop-the-da-vinci-code', kind: 'work', name: 'The Da Vinci Code', author: 'Dan Brown', year: 2003, language: 'English', region: 'United States', confidence: 'established',
+    summary: 'A conspiracy thriller in which a symbologist and a cryptologist follow a trail of art, symbols and puzzles across Paris and London after a murder in a museum; a worldwide bestseller whose short, cliffhanging chapters became a model for the page-turner.',
+    kw: ['dan brown', 'robert langdon', 'puzzle thriller', 'cliffhanger chapters', 'conspiracy bestseller'], genres: ['conspiracy thriller', 'puzzle thriller'],
+  },
+  {
+    id: 'work-pop-the-cuckoos-calling', kind: 'work', name: "The Cuckoo's Calling", author: 'Robert Galbraith (J. K. Rowling)', year: 2013, language: 'English', region: 'United Kingdom', confidence: 'established',
+    summary: "The first Cormoran Strike novel, a London private-eye story about the apparent suicide of a famous model; published under the pen name Robert Galbraith, which belongs to J. K. Rowling.",
+    kw: ['robert galbraith', 'j k rowling', 'cormoran strike', 'private eye', 'london crime'], genres: ['private-eye fiction', 'detective fiction'],
+  },
+
   // MORE
 ];
