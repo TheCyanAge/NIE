@@ -583,5 +583,663 @@ export default [
     genres: ['court poem', 'kakawin', 'panegyric'], kw: ['nagarakretagama', 'desawarnana', 'prapanca', 'majapahit', 'kakawin', 'javanese court poetry'], confidence: 'established',
     summary: 'An Old Javanese court poem in praise of the Majapahit king Hayam Wuruk that describes his realm, journeys and rituals; a main source for Majapahit history and for Old Javanese court poetry.',
   },
-  // MORE
+
+  // ---- Medieval Britain, Ireland and Scandinavia ----
+  {
+    id: 'work-anc-beowulf', kind: 'work', name: 'Beowulf', author: 'Anonymous (the Beowulf poet)', year: 'c. 1000 CE', language: 'Old English', region: 'Anglo-Saxon England',
+    genres: ['epic poem', 'heroic poetry', 'alliterative verse'], kw: ['beowulf', 'grendel', 'old english epic', 'anglo-saxon poetry', 'alliterative verse', 'geats'], confidence: 'varies',
+    summary: 'An Old English heroic poem of about three thousand lines in which a Geatish hero faces monsters and a dragon; it survives in one manuscript of about the year 1000, and scholars date its composition anywhere from the eighth to the early eleventh century.',
+  },
+  {
+    id: 'work-anc-exeter-book', kind: 'work', name: 'The Exeter Book', author: 'Anonymous (Old English poets; copied by an unnamed scribe)', year: 'c. 975 CE', language: 'Old English', region: 'Anglo-Saxon England',
+    genres: ['poetry anthology', 'elegy', 'riddles'], kw: ['exeter book', 'the wanderer', 'the seafarer', 'old english riddles', 'anglo-saxon elegy', 'exeter cathedral'], confidence: 'varies',
+    summary: 'A tenth-century manuscript anthology of Old English poetry, kept at Exeter Cathedral, that holds elegies such as The Wanderer and The Seafarer, religious verse and nearly a hundred riddles; a main source for the Old English lyric voice.',
+  },
+  {
+    id: 'work-anc-anglo-saxon-chronicle', kind: 'work', name: 'The Anglo-Saxon Chronicle', author: 'Anonymous (monastic scribes in several centres)', year: 'c. 890 CE', language: 'Old English', region: 'Anglo-Saxon England',
+    genres: ['chronicle', 'annals', 'history'], kw: ['anglo-saxon chronicle', 'old english annals', 'king alfred', 'wessex', 'peterborough chronicle', 'early english prose'], confidence: 'varies',
+    summary: 'A year-by-year record of English history begun in the late ninth century, probably in Wessex under King Alfred, and kept up in several monastic copies, the last of which breaks off in 1154; a main source for early English history and prose.',
+  },
+  {
+    id: 'work-anc-poetic-edda', kind: 'work', name: 'The Poetic Edda (Elder Edda)', author: 'Anonymous (Old Norse poets)', year: 'c. 1270 CE', language: 'Old Norse', region: 'Iceland',
+    genres: ['mythological poetry', 'heroic poetry', 'wisdom poetry'], kw: ['poetic edda', 'elder edda', 'codex regius', 'voluspa', 'havamal', 'norse mythology'], confidence: 'varies',
+    summary: 'A collection of Old Norse poems about gods and heroes, preserved mainly in the Icelandic Codex Regius of the later thirteenth century, though some poems may be much older; it includes Völuspá and Hávamál and is the chief verse source for Norse myth.',
+  },
+  {
+    id: 'work-anc-prose-edda', kind: 'work', name: 'The Prose Edda (Younger Edda)', author: 'Snorri Sturluson', year: 'c. 1220 CE', language: 'Old Norse', region: 'Iceland',
+    genres: ['handbook of poetics', 'mythography', 'skaldic poetry'], kw: ['prose edda', 'younger edda', 'snorri sturluson', 'skaldic verse', 'kennings', 'gylfaginning'], confidence: 'established',
+    summary: 'An Icelandic handbook for poets by Snorri Sturluson that retells Norse myths and explains skaldic metres and the poetic circumlocutions called kennings; the fullest narrative source for Norse mythology and an early treatise on poetic craft.',
+  },
+  {
+    id: 'work-anc-heimskringla', kind: 'work', name: 'Heimskringla', author: 'Snorri Sturluson (traditional attribution)', year: 'c. 1230 CE', language: 'Old Norse', region: 'Iceland',
+    genres: ['kings\' saga', 'royal history', 'chronicle'], kw: ['heimskringla', 'kings\' sagas', 'norse kings', 'snorri sturluson', 'harald hardrada', 'olaf tryggvason'], confidence: 'varies',
+    summary: 'A history of the kings of Norway from legendary times to the later twelfth century, traditionally attributed to Snorri Sturluson; it shows an Icelandic author turning history into vivid, character-driven saga prose.',
+  },
+  {
+    id: 'work-anc-njals-saga', kind: 'work', name: "Njal's Saga (Brennu-Njáls saga)", author: 'Anonymous (Icelandic)', year: 'c. 1280 CE', language: 'Old Norse', region: 'Iceland',
+    genres: ['Icelandic saga', 'family saga', 'legal narrative'], kw: ['njals saga', 'brennu-njals saga', 'njal', 'gunnar', 'icelandic sagas', 'feud and law'], confidence: 'varies',
+    summary: 'One of the longest and most admired Icelandic family sagas, written in the late thirteenth century about feuds in tenth- and eleventh-century Iceland; notable for its attention to law, honour and the way small slights escalate.',
+  },
+  {
+    id: 'work-anc-egils-saga', kind: 'work', name: "Egil's Saga (Egils saga Skallagrímssonar)", author: 'Anonymous (traditionally linked to Snorri Sturluson)', year: 'c. 1240 CE', language: 'Old Norse', region: 'Iceland',
+    genres: ['Icelandic saga', 'family saga', 'skald biography'], kw: ['egils saga', 'egill skallagrimsson', 'skald', 'viking poet', 'icelandic sagas'], confidence: 'contested',
+    summary: 'An Icelandic saga of the thirteenth century about the poet and warrior Egill Skallagrímsson, by an unnamed author sometimes linked to Snorri Sturluson; it joins family feud with the figure of the skald and includes verse attributed to Egill.',
+  },
+  {
+    id: 'work-anc-volsunga-saga', kind: 'work', name: 'The Saga of the Volsungs (Völsunga saga)', author: 'Anonymous (Icelandic)', year: 'c. 1270 CE', language: 'Old Norse', region: 'Iceland',
+    genres: ['legendary saga', 'heroic legend', 'Norse legend'], kw: ['volsunga saga', 'saga of the volsungs', 'sigurd', 'brynhild', 'fafnir', 'nibelung legend'], confidence: 'varies',
+    summary: 'An Icelandic legendary saga of the later thirteenth century that tells of the Volsung family and the dragon-slayer Sigurd, drawing on older Eddic poems; it shares its roots with the German Nibelung tradition and has inspired many later retellings.',
+  },
+  {
+    id: 'work-anc-laxdaela-saga', kind: 'work', name: 'Laxdæla Saga', author: 'Anonymous (Icelandic)', year: 'c. 1245 CE', language: 'Old Norse', region: 'Iceland',
+    genres: ['Icelandic saga', 'family saga', 'romantic tragedy'], kw: ['laxdaela saga', 'gudrun osvifsdottir', 'kjartan', 'icelandic family saga', 'breidafjord'], confidence: 'varies',
+    summary: 'An Icelandic family saga of the thirteenth century that follows several generations of a western Iceland district, with a tangled bond among Guðrún, Kjartan and Bolli at its centre; admired for its psychological depth and its portrait of Guðrún.',
+  },
+  {
+    id: 'work-anc-vinland-sagas', kind: 'work', name: 'The Vinland Sagas', author: 'Anonymous (Icelandic)', year: 'c. 1250 CE', language: 'Old Norse', region: 'Iceland and Greenland',
+    genres: ['Icelandic saga', 'exploration narrative'], kw: ['vinland sagas', 'saga of erik the red', 'saga of the greenlanders', 'leif eriksson', 'norse voyages', 'north america'], confidence: 'varies',
+    summary: 'Two Icelandic sagas, the Saga of the Greenlanders and the Saga of Erik the Red, composed in the thirteenth century about Norse voyages from Greenland to lands in the west; the main written sources for Norse contact with North America.',
+  },
+  {
+    id: 'work-anc-gesta-danorum', kind: 'work', name: 'Gesta Danorum (Deeds of the Danes)', author: 'Saxo Grammaticus', year: 'c. 1200 CE', language: 'Latin', region: 'Denmark',
+    genres: ['chronicle', 'legendary history', 'Latin prose'], kw: ['gesta danorum', 'saxo grammaticus', 'history of the danes', 'amleth', 'hamlet source', 'danish legend'], confidence: 'established',
+    summary: 'A Latin history of the Danes in sixteen books by the Danish cleric Saxo Grammaticus, written around the turn of the thirteenth century; it preserves many legends, including the tale of Amleth, that later writers reworked.',
+  },
+  {
+    id: 'work-anc-tain-bo-cuailnge', kind: 'work', name: 'Táin Bó Cúailnge (The Cattle Raid of Cooley)', author: 'Anonymous (Irish tradition)', year: 'c. 800 CE', language: 'Old and Middle Irish', region: 'Ireland',
+    genres: ['epic', 'heroic saga', 'cattle raid tale'], kw: ['tain bo cuailnge', 'cattle raid of cooley', 'cu chulainn', 'queen medb', 'ulster cycle', 'irish epic'], confidence: 'varies',
+    summary: 'The central tale of the Irish Ulster Cycle, in which Queen Medb of Connacht invades Ulster for a prized bull while the young Cú Chulainn holds the border; prose with embedded verse, probably first set down in the eighth century and preserved in manuscripts from about 1100 onward.',
+  },
+  {
+    id: 'work-anc-mabinogion', kind: 'work', name: 'The Mabinogion', author: 'Anonymous (Welsh storytellers)', year: 'c. 1200 CE', language: 'Middle Welsh', region: 'Wales',
+    genres: ['medieval romance', 'myth', 'tale collection'], kw: ['mabinogion', 'four branches of the mabinogi', 'pwyll', 'branwen', 'culhwch and olwen', 'welsh mythology', 'lady charlotte guest'], confidence: 'varies',
+    summary: 'A modern title for eleven medieval Welsh prose tales, found in manuscripts of the fourteenth century but drawing on older oral tradition; they include the Four Branches of the Mabinogi and Arthurian romances and are the classic source of Welsh myth.',
+  },
+  {
+    id: 'work-anc-y-gododdin', kind: 'work', name: 'Y Gododdin', author: 'Aneirin (traditional attribution)', year: 'c. 600 CE', language: 'Old Welsh', region: 'Early medieval Britain',
+    genres: ['elegy', 'heroic poetry'], kw: ['y gododdin', 'aneirin', 'catraeth', 'welsh elegy', 'hen ogledd', 'heroic elegy'], confidence: 'contested',
+    summary: 'A sequence of Welsh elegiac poems attributed to the poet Aneirin that mourn the warriors of the Gododdin who fell in a battle at Catraeth; traditionally set around 600 CE, though the manuscript is of the thirteenth century and the date of the verse is debated.',
+  },
+  {
+    id: 'work-anc-historia-regum-britanniae', kind: 'work', name: 'Historia Regum Britanniae (History of the Kings of Britain)', author: 'Geoffrey of Monmouth', year: 'c. 1136 CE', language: 'Latin', region: 'Britain',
+    genres: ['legendary history', 'chronicle', 'pseudo-history'], kw: ['geoffrey of monmouth', 'history of the kings of britain', 'king arthur', 'merlin', 'king lear source', 'brutus of troy'], confidence: 'established',
+    summary: 'A Latin history of the kings of Britain from the legendary Brutus onward, by Geoffrey of Monmouth; its stories of Arthur, Merlin and King Leir shaped later Arthurian and British legend, though it is not reliable history.',
+  },
+  {
+    id: 'work-anc-le-morte-darthur', kind: 'work', name: "Le Morte d'Arthur", author: 'Sir Thomas Malory', year: 1485, language: 'Middle English', region: 'England',
+    genres: ['Arthurian romance', 'prose romance', 'compilation'], kw: ['morte darthur', 'malory', 'king arthur', 'lancelot and guinevere', 'round table', 'caxton', 'winchester manuscript'], confidence: 'established',
+    summary: 'A prose compilation of Arthurian tales in English, written in the later fifteenth century and printed by William Caxton in 1485; it gathers and retells French and English romances into the form in which most English readers meet Arthur\'s court.',
+  },
+
+  // ---- Medieval and early modern continental Europe ----
+  {
+    id: 'work-anc-lancelot-knight-of-the-cart', kind: 'work', name: 'Lancelot, the Knight of the Cart', author: 'Chrétien de Troyes', year: 'c. 1180 CE', language: 'Old French', region: 'France',
+    genres: ['Arthurian romance', 'courtly love', 'verse romance'], kw: ['lancelot', 'chretien de troyes', 'knight of the cart', 'guinevere', 'courtly love', 'le chevalier de la charrette'], confidence: 'varies',
+    summary: 'An Old French verse romance by Chrétien de Troyes that introduces Lancelot\'s love for Queen Guinevere and his mission to rescue her, a founding text of courtly love in narrative; its closing section is attributed to a continuator.',
+  },
+  {
+    id: 'work-anc-perceval-story-of-the-grail', kind: 'work', name: 'Perceval, the Story of the Grail (Le Conte du Graal)', author: 'Chrétien de Troyes', year: 'c. 1185 CE', language: 'Old French', region: 'France',
+    genres: ['Arthurian romance', 'grail romance', 'unfinished work'], kw: ['perceval', 'conte du graal', 'chretien de troyes', 'holy grail', 'grail legend', 'fisher king', 'unfinished romance'], confidence: 'varies',
+    summary: 'The unfinished verse romance by Chrétien de Troyes about a young knight who meets a mysterious grail procession; usually regarded as the earliest surviving grail story, it prompted a long line of continuations and rewritings.',
+  },
+  {
+    id: 'work-anc-yvain-knight-of-the-lion', kind: 'work', name: 'Yvain, the Knight of the Lion', author: 'Chrétien de Troyes', year: 'c. 1180 CE', language: 'Old French', region: 'France',
+    genres: ['Arthurian romance', 'verse romance', 'quest narrative'], kw: ['yvain', 'chevalier au lion', 'chretien de troyes', 'knight of the lion', 'laudine', 'chivalric romance'], confidence: 'varies',
+    summary: 'A verse romance by Chrétien de Troyes about a knight who wins a lady, loses her through a broken promise and must earn his way back through adventures; notable for balancing love against the demands of chivalric reputation.',
+  },
+  {
+    id: 'work-anc-song-of-roland', kind: 'work', name: 'The Song of Roland (La Chanson de Roland)', author: 'Anonymous (the closing lines name a Turold)', year: 'c. 1100 CE', language: 'Old French', region: 'France',
+    genres: ['chanson de geste', 'epic poem', 'heroic poetry'], kw: ['chanson de roland', 'song of roland', 'roland', 'charlemagne', 'roncesvalles', 'oliphant', 'chanson de geste'], confidence: 'varies',
+    summary: 'One of the oldest and best-known French chansons de geste, an epic in assonanced laisses about the rearguard of Charlemagne\'s army ambushed in the Pyrenees; the poem is traditionally dated about 1100, and its best-known text is a twelfth-century manuscript now at Oxford.',
+  },
+  {
+    id: 'work-anc-aucassin-and-nicolette', kind: 'work', name: 'Aucassin and Nicolette', author: 'Anonymous', year: 'c. 1200 CE', language: 'Old French', region: 'France',
+    genres: ['chantefable', 'romance', 'prosimetrum'], kw: ['aucassin et nicolette', 'chantefable', 'prosimetrum', 'old french romance', 'medieval love story'], confidence: 'varies',
+    summary: 'A short Old French romance that alternates sung verse with spoken prose, a mixed form its anonymous author calls a chantefable; a light, playful tale of young lovers who defy their families and the best-known example of the form.',
+  },
+  {
+    id: 'work-anc-roman-de-renart', kind: 'work', name: 'Le Roman de Renart (Reynard the Fox)', author: 'Anonymous (many Old French poets)', year: 'c. 1180 CE', language: 'Old French', region: 'France',
+    genres: ['beast epic', 'animal tales', 'verse satire'], kw: ['roman de renart', 'reynard the fox', 'beast epic', 'trickster fox', 'isengrim', 'medieval satire', 'animal fable'], confidence: 'varies',
+    summary: 'A body of Old French verse tales, composed by several poets from the late twelfth century, about the trickster fox Renart and his rivalry with the wolf Ysengrin; they parody epic and court life through animal characters and spread the Reynard figure across Europe.',
+  },
+  {
+    id: 'work-anc-tristan-gottfried', kind: 'work', name: 'Tristan (Gottfried von Straßburg)', author: 'Gottfried von Straßburg', year: 'c. 1210 CE', language: 'Middle High German', region: 'Germany',
+    genres: ['courtly romance', 'verse romance', 'tragic love story'], kw: ['tristan', 'gottfried von strassburg', 'tristan and isolde', 'courtly romance', 'minne', 'middle high german'], confidence: 'varies',
+    summary: 'An unfinished Middle High German verse romance of the lovers Tristan and Isolde, written about 1210; admired for its psychological and linguistic subtlety and a main source for Wagner\'s later opera.',
+  },
+  {
+    id: 'work-anc-divine-comedy', kind: 'work', name: 'The Divine Comedy (La Divina Commedia)', author: 'Dante Alighieri', year: 'c. 1320 CE', language: 'Italian (Tuscan)', region: 'Italy',
+    genres: ['epic poem', 'allegory', 'dream vision', 'terza rima'], kw: ['divine comedy', 'divina commedia', 'inferno', 'purgatorio', 'paradiso', 'dante', 'terza rima', 'vision poem'], confidence: 'established',
+    summary: 'A long Italian poem in three parts, Inferno, Purgatorio and Paradiso, in which the narrator journeys through the afterlife; written in terza rima and completed shortly before Dante\'s death in 1321, it helped establish Italian as a literary language.',
+  },
+  {
+    id: 'work-anc-canterbury-tales', kind: 'work', name: 'The Canterbury Tales', author: 'Geoffrey Chaucer', year: 'c. 1390 CE', language: 'Middle English', region: 'England',
+    genres: ['frame narrative', 'verse tales', 'medieval satire', 'story collection'], kw: ['canterbury tales', 'chaucer', 'general prologue', 'frame story', 'pilgrims', 'wife of bath', 'middle english'], confidence: 'established',
+    summary: 'A collection of tales told by a company of pilgrims travelling to Canterbury, framed by a General Prologue that sketches each teller; begun in the late 1380s and unfinished at Chaucer\'s death in 1400, it is a founding work of English literature and a model of the frame narrative.',
+  },
+  {
+    id: 'work-anc-book-of-the-city-of-ladies', kind: 'work', name: 'The Book of the City of Ladies (Le Livre de la cité des dames)', author: 'Christine de Pizan', year: 1405, language: 'Middle French', region: 'France',
+    genres: ['allegory', 'prose treatise', 'defence of women'], kw: ['city of ladies', 'cite des dames', 'christine de pizan', 'querelle des femmes', 'early feminist writing'], confidence: 'established',
+    summary: 'An allegorical prose work in which the narrator, guided by three allegorical figures, builds a city to house the achievements of notable women; an early and influential defence of women\'s worth by a professional author, written in 1405.',
+  },
+  {
+    id: 'work-anc-book-of-margery-kempe', kind: 'work', name: 'The Book of Margery Kempe', author: 'Margery Kempe (dictated to scribes)', year: 'c. 1436 CE', language: 'Middle English', region: 'England',
+    genres: ['spiritual autobiography', 'life writing', 'memoir'], kw: ['margery kempe', 'earliest english autobiography', 'mystic', 'kings lynn', 'pilgrimage', 'dictated memoir'], confidence: 'varies',
+    summary: 'A spiritual life story dictated by a merchant\'s wife from King\'s Lynn and recorded in the 1430s, describing her visions, pilgrimages and conflicts with neighbours and clergy; often called the first autobiography in English and read for its unpolished, distinctive voice.',
+  },
+  {
+    id: 'work-anc-revelations-of-divine-love', kind: 'work', name: 'Revelations of Divine Love', author: 'Julian of Norwich', year: 'c. 1395 CE', language: 'Middle English', region: 'England',
+    genres: ['spiritual writing', 'mystical prose', 'visionary literature'], kw: ['julian of norwich', 'revelations of divine love', 'showings', 'anchoress', 'middle english mystic', 'all shall be well'], confidence: 'varies',
+    summary: 'A Middle English prose account of sixteen visions and a long reflection on them, written by an anchoress of Norwich in a shorter text and a later, longer one; often described as the earliest surviving book in English by a woman.',
+  },
+  {
+    id: 'work-anc-imitation-of-christ', kind: 'work', name: 'The Imitation of Christ (De imitatione Christi)', author: 'Thomas à Kempis (traditional attribution)', year: 'c. 1420 CE', language: 'Latin', region: 'Low Countries',
+    genres: ['devotional literature', 'spiritual guide'], kw: ['imitation of christ', 'de imitatione christi', 'thomas a kempis', 'devotio moderna', 'devotional classic'], confidence: 'varies',
+    summary: 'A short Latin guide to inner devotion, usually attributed to the Augustinian canon Thomas à Kempis and linked to the Devotio Moderna movement; it circulated widely in manuscript and print and became one of the most reprinted devotional books.',
+  },
+  {
+    id: 'work-anc-golden-legend', kind: 'work', name: 'The Golden Legend (Legenda aurea)', author: 'Jacobus de Voragine', year: 'c. 1260 CE', language: 'Latin', region: 'Italy',
+    genres: ['hagiography', 'legend collection', 'medieval compendium'], kw: ['golden legend', 'legenda aurea', 'jacobus de voragine', 'lives of the saints', 'hagiography', 'medieval legends'], confidence: 'established',
+    summary: 'A medieval compilation of saints\' lives and accounts of the Church\'s feast days by the Dominican Jacobus de Voragine, arranged by the liturgical year; among the most widely copied books of the later Middle Ages and a rich source of medieval stories and imagery.',
+  },
+  {
+    id: 'work-anc-travels-of-marco-polo', kind: 'work', name: 'The Travels of Marco Polo (Il Milione)', author: 'Marco Polo and Rustichello da Pisa', year: 'c. 1300 CE', language: 'Old French (Franco-Italian)', region: 'Venice and Asia',
+    genres: ['travel narrative', 'memoir', 'medieval travel writing'], kw: ['marco polo', 'il milione', 'travels of marco polo', 'rustichello', 'kublai khan', 'silk road'], confidence: 'varies',
+    summary: 'An account of the Venetian merchant Marco Polo\'s journeys in Asia and his stay at the court of Kublai Khan as he told it, written down about 1300 with the romance writer Rustichello da Pisa; much copied and disputed in its details, it shaped European images of the East.',
+  },
+  {
+    id: 'work-anc-travels-of-sir-john-mandeville', kind: 'work', name: 'The Travels of Sir John Mandeville', author: 'Anonymous (writing under the name John Mandeville)', year: 'c. 1357 CE', language: 'Anglo-Norman French', region: 'England and France',
+    genres: ['travel narrative', 'pseudo-travelogue', 'compilation'], kw: ['mandeville', 'travels of sir john mandeville', 'medieval travel book', 'fictional traveller', 'pilgrim guide', 'imaginary geography'], confidence: 'contested',
+    summary: 'A hugely popular medieval travel book that claims to record a knight\'s journeys to the Holy Land and beyond; its author is unknown and most of its marvels come from earlier writers, so it is read as compilation and imagined geography rather than report.',
+  },
+  {
+    id: 'work-anc-heptameron', kind: 'work', name: 'The Heptameron', author: 'Marguerite de Navarre', year: 1558, language: 'French', region: 'France',
+    genres: ['frame narrative', 'novella collection', 'Renaissance prose'], kw: ['heptameron', 'marguerite de navarre', 'frame story', 'renaissance novellas', 'decameron imitation', 'storytelling company'], confidence: 'established',
+    summary: 'A collection of seventy-two tales, unfinished at the author\'s death, told by travellers kept in an abbey by floods, with the storytellers debating each tale; loosely modelled on the Decameron and first published after the queen\'s death.',
+  },
+  {
+    id: 'work-anc-praise-of-folly', kind: 'work', name: 'The Praise of Folly (Moriae encomium)', author: 'Desiderius Erasmus', year: 1511, language: 'Latin', region: 'Netherlands and England',
+    genres: ['satire', 'mock encomium', 'Renaissance humanism'], kw: ['praise of folly', 'moriae encomium', 'erasmus', 'renaissance satire', 'humanism', 'mock praise'], confidence: 'established',
+    summary: 'A short Latin satire in which Folly, personified, delivers a speech in her own praise, mocking the vanities of scholars, clergy, rulers and ordinary people; written by Erasmus and first printed in 1511, it is a landmark of Renaissance satire.',
+  },
+  {
+    id: 'work-anc-ship-of-fools', kind: 'work', name: 'The Ship of Fools (Das Narrenschiff)', author: 'Sebastian Brant', year: 1494, language: 'Early New High German', region: 'Basel',
+    genres: ['satire', 'allegory', 'illustrated poem'], kw: ['ship of fools', 'narrenschiff', 'sebastian brant', 'moral satire', 'woodcuts', 'medieval satire'], confidence: 'established',
+    summary: 'A German verse satire in which a crowd of fools of every kind sails towards a land of fools, each short chapter mocking a vice or folly; illustrated with woodcuts and printed in Basel in 1494, it was soon translated across Europe.',
+  },
+  {
+    id: 'work-anc-till-eulenspiegel', kind: 'work', name: 'Till Eulenspiegel', author: 'Anonymous (traditionally linked to Hermann Bote)', year: 'c. 1510 CE', language: 'German', region: 'Germany',
+    genres: ['jest book', 'trickster tales', 'picaresque'], kw: ['till eulenspiegel', 'eulenspiegel', 'jest book', 'trickster', 'german folk book', 'volksbuch'], confidence: 'contested',
+    summary: 'A German prose collection of pranks played by a wandering trickster, printed in Strasbourg around 1510; its authorship is uncertain, though the Brunswick writer Hermann Bote is often proposed, and the character became a staple of European comic tradition.',
+  },
+  {
+    id: 'work-anc-pentamerone', kind: 'work', name: 'Il Pentamerone (Lo cunto de li cunti)', author: 'Giambattista Basile', year: 1634, language: 'Neapolitan', region: 'Naples',
+    genres: ['fairy tale collection', 'frame narrative', 'Baroque prose'], kw: ['pentamerone', 'lo cunto de li cunti', 'basile', 'tale of tales', 'neapolitan fairy tales', 'cinderella', 'early fairy tales'], confidence: 'established',
+    summary: 'A collection of fifty tales in the Neapolitan dialect, told within a frame story over five days and published after Basile\'s death; it holds early literary versions of the Cinderella, Rapunzel and Sleeping Beauty tale types in an ornate Baroque style.',
+  },
+  {
+    id: 'work-anc-facetious-nights', kind: 'work', name: 'The Facetious Nights (Le piacevoli notti)', author: 'Giovanni Francesco Straparola', year: 'c. 1550 CE', language: 'Italian', region: 'Venice',
+    genres: ['fairy tale collection', 'frame narrative', 'novella collection'], kw: ['straparola', 'piacevoli notti', 'facetious nights', 'pleasant nights', 'puss in boots origin', 'early fairy tales'], confidence: 'varies',
+    summary: 'An Italian two-volume collection of tales told by a company of guests over several nights, published in the early 1550s; among the first European books to print literary fairy tales, including an early form of the Puss in Boots story.',
+  },
+  {
+    id: 'work-anc-simplicissimus', kind: 'work', name: 'Simplicissimus (Der abenteuerliche Simplicissimus Teutsch)', author: 'Hans Jakob Christoffel von Grimmelshausen', year: 1668, language: 'German', region: 'Germany',
+    genres: ['picaresque novel', 'war narrative', 'Baroque novel'], kw: ['simplicissimus', 'grimmelshausen', 'thirty years war', 'picaresque', 'german baroque novel'], confidence: 'established',
+    summary: 'A German picaresque novel narrated by a naive boy who passes through the Thirty Years\' War as shepherd, soldier and wanderer; first published in 1668 and often regarded as the first major German novel.',
+  },
+  {
+    id: 'work-anc-pilgrims-progress', kind: 'work', name: "The Pilgrim's Progress", author: 'John Bunyan', year: 1678, language: 'English', region: 'England',
+    genres: ['allegory', 'Christian allegory', 'dream vision'], kw: ['pilgrims progress', 'bunyan', 'christian', 'allegory', 'celestial city', 'puritan literature'], confidence: 'established',
+    summary: 'An English prose allegory in which a man named Christian journeys from his home to a distant city, meeting figures who embody temptations and virtues; written by John Bunyan in the 1670s, it was among the most widely read books in English for two centuries.',
+  },
+
+  // ---- Eastern Europe, Byzantium, Iberia and the Baltic world ----
+  {
+    id: 'work-anc-tale-of-igors-campaign', kind: 'work', name: "The Tale of Igor's Campaign (Slovo o polku Igoreve)", author: 'Anonymous', year: 'c. 1185 CE', language: 'Old East Slavic', region: 'Kievan Rus',
+    genres: ['epic', 'heroic lay', 'prose poem'], kw: ['tale of igors campaign', 'slovo o polku igoreve', 'lay of igor', 'kievan rus', 'polovtsy', 'old east slavic'], confidence: 'contested',
+    summary: 'An Old East Slavic poem in rhythmic prose about a failed campaign of 1185 by a prince of Novgorod-Seversk against the Polovtsians; its only manuscript was lost in 1812, and debate over its date and authenticity continues, though most scholars accept it as medieval.',
+  },
+  {
+    id: 'work-anc-primary-chronicle', kind: 'work', name: 'The Primary Chronicle (Tale of Bygone Years)', author: 'Nestor (traditional attribution)', year: 'c. 1113 CE', language: 'Old East Slavic', region: 'Kievan Rus',
+    genres: ['chronicle', 'history', 'annals'], kw: ['primary chronicle', 'tale of bygone years', 'povest vremennykh let', 'kievan rus', 'nestor chronicler', 'rus origins'], confidence: 'varies',
+    summary: 'The main surviving chronicle of early Kievan Rus, compiled in the early twelfth century in Kyiv monastic circles and traditionally ascribed to the monk Nestor; it traces the origins of the Rus\' rulers and the adoption of Christianity, mixing legend with annals.',
+  },
+  {
+    id: 'work-anc-life-of-avvakum', kind: 'work', name: 'The Life of Archpriest Avvakum', author: 'Avvakum Petrov', year: 'c. 1672 CE', language: 'Russian (Church Slavonic mixed with vernacular)', region: 'Russia',
+    genres: ['autobiography', 'hagiography', 'Old Believer literature'], kw: ['avvakum', 'life of archpriest avvakum', 'russian autobiography', 'old believers', 'vernacular prose', 'protopope avvakum'], confidence: 'varies',
+    summary: 'A seventeenth-century account of his own sufferings by a leader of the Old Believers, written during imprisonment in colloquial Russian rather than formal Church Slavonic; a landmark of Russian autobiography and vivid vernacular prose.',
+  },
+  {
+    id: 'work-anc-kalevala', kind: 'work', name: 'The Kalevala', author: 'Elias Lönnrot (compiler)', year: 1835, language: 'Finnish', region: 'Finland and Karelia',
+    genres: ['epic poem', 'national epic', 'folk poetry compilation'], kw: ['kalevala', 'lonnrot', 'finnish epic', 'karelian runes', 'vainamoinen', 'sampo', 'national epic'], confidence: 'established',
+    summary: 'A Finnish epic assembled by Elias Lönnrot from oral poems he collected in Karelia and Finland; first published in 1835 and expanded in 1849, it helped shape Finnish national identity, and its trochaic metre has been borrowed by later poets.',
+  },
+  {
+    id: 'work-anc-kalevipoeg', kind: 'work', name: 'Kalevipoeg', author: 'Friedrich Reinhold Kreutzwald', year: 1857, language: 'Estonian', region: 'Estonia',
+    genres: ['epic poem', 'national epic', 'folk poetry compilation'], kw: ['kalevipoeg', 'kreutzwald', 'estonian epic', 'national epic', 'estonian folklore', 'giant hero'], confidence: 'established',
+    summary: 'An Estonian national epic composed by Friedrich Reinhold Kreutzwald from folk tales and songs about a giant hero; published in instalments from 1857 and modelled in part on the Finnish Kalevala.',
+  },
+  {
+    id: 'work-anc-digenes-akritas', kind: 'work', name: 'Digenes Akritas', author: 'Anonymous (Byzantine)', year: 'c. 1100 CE', language: 'Medieval Greek', region: 'Byzantine Empire',
+    genres: ['epic', 'romance', 'frontier epic'], kw: ['digenes akritas', 'byzantine epic', 'akritic songs', 'frontier hero', 'medieval greek romance'], confidence: 'varies',
+    summary: 'A Byzantine Greek verse romance-epic about a border hero of mixed Greek and Arab descent, surviving in several versions, the oldest from around the twelfth century; it draws on frontier songs and is the best-known Byzantine heroic poem.',
+  },
+  {
+    id: 'work-anc-alexiad', kind: 'work', name: 'The Alexiad', author: 'Anna Komnene', year: 'c. 1148 CE', language: 'Medieval Greek', region: 'Byzantine Empire',
+    genres: ['history', 'imperial biography'], kw: ['alexiad', 'anna komnene', 'byzantine history', 'alexios komnenos', 'crusades from byzantine view', 'woman historian'], confidence: 'established',
+    summary: 'A history of the reign of the Byzantine emperor Alexios I, written by his daughter Anna Komnene in the mid-twelfth century; one of the few major historical works of the period by a woman and an important Byzantine view of the First Crusade.',
+  },
+  {
+    id: 'work-anc-heliand', kind: 'work', name: 'The Heliand', author: 'Anonymous (Saxon poet)', year: 'c. 830 CE', language: 'Old Saxon', region: 'Saxony',
+    genres: ['epic poem', 'biblical epic', 'alliterative verse'], kw: ['heliand', 'old saxon', 'gospel epic', 'alliterative verse', 'saxon christ', 'carolingian'], confidence: 'varies',
+    summary: 'An Old Saxon alliterative poem of about six thousand lines that retells the life of Jesus in the idiom of Germanic heroic verse, written in the ninth century; it shows how a new story was fitted to older poetic forms.',
+  },
+  {
+    id: 'work-anc-cantigas-de-santa-maria', kind: 'work', name: 'Cantigas de Santa Maria', author: 'Alfonso X of Castile and his court poets', year: 'c. 1270 CE', language: 'Galician-Portuguese', region: 'Castile',
+    genres: ['song collection', 'miracle tales', 'medieval lyric'], kw: ['cantigas de santa maria', 'alfonso x', 'galician-portuguese', 'medieval songs', 'marian miracles', 'illuminated manuscript'], confidence: 'varies',
+    summary: 'A collection of more than four hundred songs in Galician-Portuguese that praise the Virgin Mary and recount her miracles, produced at the court of Alfonso X of Castile in the later thirteenth century; prized for its music and its illuminated manuscripts.',
+  },
+  {
+    id: 'work-anc-conde-lucanor', kind: 'work', name: 'El Conde Lucanor (Libro de los enxiemplos del conde Lucanor et de Patronio)', author: 'Don Juan Manuel', year: 1335, language: 'Castilian (medieval Spanish)', region: 'Castile',
+    genres: ['exemplum collection', 'frame narrative', 'didactic prose'], kw: ['conde lucanor', 'libro de los enxiemplos', 'don juan manuel', 'exempla', 'medieval spanish prose', 'patronio'], confidence: 'established',
+    summary: 'A medieval Castilian collection of fifty-one exemplary tales in which a count asks his counsellor Patronio for advice and receives a story with a moral; by the nobleman Don Juan Manuel, and one of the finest frame-tale collections in Spanish.',
+  },
+  {
+    id: 'work-anc-tirant-lo-blanc', kind: 'work', name: 'Tirant lo Blanc', author: 'Joanot Martorell (completed by Martí Joan de Galba)', year: 1490, language: 'Catalan', region: 'Valencia',
+    genres: ['chivalric romance', 'prose romance', 'knightly novel'], kw: ['tirant lo blanc', 'martorell', 'catalan novel', 'chivalric romance', 'valencian', 'cervantes praise'], confidence: 'established',
+    summary: 'A long Catalan chivalric romance about the career of a Breton knight, begun by Joanot Martorell and finished after his death; printed in Valencia in 1490, it is notable for its realism and humour, and the priest in Don Quixote singles it out for praise.',
+  },
+  {
+    id: 'work-anc-voyage-of-saint-brendan', kind: 'work', name: 'The Voyage of Saint Brendan (Navigatio Sancti Brendani)', author: 'Anonymous (Irish monastic tradition)', year: 'c. 900 CE', language: 'Latin', region: 'Ireland',
+    genres: ['voyage tale', 'hagiography', 'imram'], kw: ['navigatio sancti brendani', 'voyage of saint brendan', 'brendan the navigator', 'immram', 'medieval voyage tale', 'irish sea saga'], confidence: 'varies',
+    summary: 'A Latin tale of the Irish monk Brendan and his companions sailing the Atlantic in search of a promised land and meeting marvels along the way; composed about the ninth or tenth century and translated into many languages, it is the best-known medieval voyage legend.',
+  },
+
+  // ---- The Americas: Indigenous and colonial-era writing ----
+  {
+    id: 'work-anc-popol-vuh', kind: 'work', name: 'Popol Vuh', author: "Anonymous (K'iche' Maya authors)", year: 'c. 1550 CE', language: "K'iche'", region: 'Guatemalan highlands',
+    genres: ['creation myth', 'epic', 'Maya literature'], kw: ['popol vuh', 'kiche maya', 'quiche', 'hero twins', 'maya creation', 'council book', 'ximenez'], confidence: 'varies',
+    summary: 'The K\'iche\' Maya book of creation, myth and dynastic history, written in the Latin alphabet in the mid-sixteenth century from older sources; its hero twins and account of creation make it the best-known work of Maya literature.',
+  },
+  {
+    id: 'work-anc-books-of-chilam-balam', kind: 'work', name: 'The Books of Chilam Balam', author: 'Anonymous (Yucatec Maya scribes)', year: 'c. 1700 CE', language: 'Yucatec Maya (with Spanish)', region: 'Yucatán',
+    genres: ['prophecy', 'chronicle', 'miscellany'], kw: ['chilam balam', 'chumayel', 'yucatec maya', 'maya prophecy', 'katun', 'colonial maya manuscripts'], confidence: 'varies',
+    summary: 'A group of Yucatec Maya manuscripts, copied by local scribes from the seventeenth to the nineteenth centuries, that mix prophecy, history, ritual, calendar lore and European medicine; they preserve Maya voices under Spanish rule.',
+  },
+  {
+    id: 'work-anc-florentine-codex', kind: 'work', name: 'The Florentine Codex (General History of the Things of New Spain)', author: 'Bernardino de Sahagún with Nahua collaborators', year: 'c. 1577 CE', language: 'Nahuatl and Spanish', region: 'Mexico',
+    genres: ['ethnography', 'encyclopedia', 'colonial chronicle'], kw: ['florentine codex', 'sahagun', 'general history of the things of new spain', 'nahua', 'aztec', 'nahuatl'], confidence: 'established',
+    summary: 'A twelve-book encyclopedia of Nahua life, religion and the Spanish conquest, compiled in Nahuatl and Spanish by the Franciscan Bernardino de Sahagún with Nahua collaborators and completed in the later sixteenth century; among the richest sources on Aztec society.',
+  },
+  {
+    id: 'work-anc-cantares-mexicanos', kind: 'work', name: 'Cantares Mexicanos (Songs of the Mexicans)', author: 'Anonymous (Nahua poets, recorded by colonial scribes)', year: 'c. 1580 CE', language: 'Nahuatl', region: 'Mexico',
+    genres: ['song collection', 'Nahuatl poetry'], kw: ['cantares mexicanos', 'nahuatl poetry', 'flower and song', 'aztec poetry', 'colonial manuscript', 'nahua songs'], confidence: 'varies',
+    summary: 'A late sixteenth-century manuscript collection of Nahuatl songs and poems, many of them older, recorded in the Latin alphabet; its paired images such as flower and song make it a principal body of surviving Nahuatl lyric poetry.',
+  },
+  {
+    id: 'work-anc-royal-commentaries-of-the-incas', kind: 'work', name: 'Royal Commentaries of the Incas (Comentarios reales de los incas)', author: 'Inca Garcilaso de la Vega', year: 1609, language: 'Spanish', region: 'Peru and Spain',
+    genres: ['chronicle', 'history', 'colonial literature'], kw: ['comentarios reales', 'inca garcilaso', 'royal commentaries', 'inca history', 'quechua', 'colonial peru'], confidence: 'established',
+    summary: 'A history of Inca society and the Spanish conquest of Peru by Garcilaso de la Vega, born in Cusco to a Spanish captain and an Inca noblewoman and later living in Spain; first published in Lisbon in 1609 and a founding work of Latin American prose.',
+  },
+  {
+    id: 'work-anc-huarochiri-manuscript', kind: 'work', name: 'The Huarochirí Manuscript', author: 'Anonymous (Quechua authors working for the priest Francisco de Ávila)', year: 'c. 1608 CE', language: 'Quechua', region: 'Peruvian Andes',
+    genres: ['myth collection', 'religious narrative', 'oral tradition'], kw: ['huarochiri manuscript', 'quechua', 'andean myth', 'pariacaca', 'francisco de avila', 'runasimi'], confidence: 'varies',
+    summary: 'A Quechua-language manuscript recording the myths, rituals and local history of the Huarochirí province in the Peruvian Andes, written down about 1608; one of the very few extended early texts in Quechua.',
+  },
+  {
+    id: 'work-anc-guaman-poma-first-new-chronicle', kind: 'work', name: 'The First New Chronicle and Good Government (Nueva corónica y buen gobierno)', author: 'Felipe Guamán Poma de Ayala', year: 'c. 1615 CE', language: 'Spanish (with Quechua)', region: 'Peru',
+    genres: ['chronicle', 'illustrated manuscript', 'petition'], kw: ['guaman poma', 'nueva coronica', 'first new chronicle and good government', 'andean chronicle', 'illustrated chronicle', 'quechua'], confidence: 'established',
+    summary: 'An illustrated chronicle of more than a thousand pages by an Andean nobleman, addressed to the king of Spain, that describes Inca history, colonial abuses and proposals for reform in Spanish mixed with Quechua; its hundreds of drawings are a major source for the period.',
+  },
+  {
+    id: 'work-anc-short-account-destruction-of-the-indies', kind: 'work', name: 'A Short Account of the Destruction of the Indies (Brevísima relación de la destrucción de las Indias)', author: 'Bartolomé de las Casas', year: 1552, language: 'Spanish', region: 'Spain and the Americas',
+    genres: ['polemic', 'history', 'colonial critique'], kw: ['las casas', 'brevisima relacion', 'destruction of the indies', 'colonial critique', 'black legend', 'advocacy writing'], confidence: 'established',
+    summary: 'A short polemical report by the Dominican friar Bartolomé de las Casas on the treatment of indigenous peoples in the Spanish Americas, printed in Seville in 1552; widely translated, it fed later debates about empire and remains a key example of eyewitness advocacy writing.',
+  },
+  {
+    id: 'work-anc-true-history-of-the-conquest-of-new-spain', kind: 'work', name: 'The True History of the Conquest of New Spain (Historia verdadera de la conquista de la Nueva España)', author: 'Bernal Díaz del Castillo', year: 1632, language: 'Spanish', region: 'Mexico and Spain',
+    genres: ['chronicle', 'memoir', 'conquest narrative'], kw: ['bernal diaz', 'true history conquest new spain', 'historia verdadera', 'conquistador memoir', 'cortes', 'tenochtitlan'], confidence: 'established',
+    summary: 'A soldier\'s long memoir of the Spanish campaigns against the Aztec empire, written decades afterwards and published in 1632 after the author\'s death; valued as an eyewitness account and for its plain, anecdotal voice, but read critically as one participant\'s version.',
+  },
+
+  // ---- Africa: oral epics and early written traditions ----
+  {
+    id: 'work-anc-mwindo-epic', kind: 'work', name: 'The Mwindo Epic', author: 'Anonymous (Nyanga oral tradition; recorded and translated by Daniel Biebuyck and Kahombo Mateene)', year: 1969, language: 'Nyanga', region: 'Eastern Democratic Republic of the Congo',
+    genres: ['oral epic', 'hero epic', 'Bantu oral literature'], kw: ['mwindo epic', 'nyanga', 'biebuyck', 'congo oral epic', 'bantu epic', 'mwindo'], confidence: 'varies',
+    summary: 'A Nyanga oral epic from eastern Congo about the hero Mwindo, recorded from a bard in the field and published with an English translation in 1969 by Daniel Biebuyck and Kahombo Mateene; a leading example of epic in Central African oral tradition.',
+  },
+  {
+    id: 'work-anc-ozidi-saga', kind: 'work', name: 'The Ozidi Saga', author: 'Anonymous (Ijo oral tradition; collected and translated by J. P. Clark-Bekederemo)', year: 1977, language: 'Ijo (Ijaw)', region: 'Niger Delta, Nigeria',
+    genres: ['oral epic', 'performance saga', 'Ijo drama'], kw: ['ozidi saga', 'ijo', 'ijaw epic', 'j p clark', 'niger delta', 'oral performance'], confidence: 'varies',
+    summary: 'A multi-day Ijo oral epic-drama from the Niger Delta about the hero Ozidi, recorded in performance by J. P. Clark-Bekederemo and published with an English translation in 1977; it shows how song, dance, drumming and narration combine in an African oral epic.',
+  },
+  {
+    id: 'work-anc-al-inkishafi', kind: 'work', name: 'Al-Inkishafi', author: 'Sayyid Abdalla bin Ali bin Nasir (attributed)', year: 'c. 1810 CE', language: 'Swahili', region: 'Swahili coast (Lamu archipelago)',
+    genres: ['didactic poem', 'Swahili verse', 'religious poetry'], kw: ['al-inkishafi', 'swahili poetry', 'utenzi', 'sayyid abdalla', 'pate', 'classical swahili'], confidence: 'varies',
+    summary: 'A Swahili poem on the passing of worldly splendour, attributed to Sayyid Abdalla bin Ali bin Nasir of the Lamu region and written in the early nineteenth century; often named among the finest classical Swahili religious poems, it reflects on the ruined town of Pate.',
+  },
+
+  // ---- Folktale collections and the tools used to study them ----
+  {
+    id: 'work-anc-aarne-verzeichnis-der-marchentypen', kind: 'work', name: 'Verzeichnis der Märchentypen (Index of Fairy-Tale Types)', author: 'Antti Aarne', year: 1910, language: 'German', region: 'Finland',
+    genres: ['folktale index', 'reference classification'], kw: ['aarne index', 'verzeichnis der marchentypen', 'tale type index', 'folktale classification', 'aarne-thompson'], confidence: 'established',
+    summary: 'A catalogue by the Finnish folklorist Antti Aarne that sorts European folktales into numbered tale types with short descriptions; the first form of the system later extended by Stith Thompson and Hans-Jörg Uther, used to compare variants across cultures.',
+  },
+  {
+    id: 'work-anc-types-of-the-folktale', kind: 'work', name: 'The Types of the Folktale', author: 'Antti Aarne and Stith Thompson', year: 1928, language: 'English', region: 'Finland and United States',
+    genres: ['folktale index', 'reference classification'], kw: ['aarne-thompson', 'at index', 'tale type', 'types of the folktale', 'folktale numbers', 'folktale classification'], confidence: 'established',
+    summary: 'An English-language revision and enlargement by Stith Thompson of Aarne\'s tale-type catalogue, first issued in 1928 and revised in 1961; its numbers became the standard way to cite a folktale type until the later Uther revision.',
+  },
+  {
+    id: 'work-anc-types-of-international-folktales', kind: 'work', name: 'The Types of International Folktales', author: 'Hans-Jörg Uther', year: 2004, language: 'English', region: 'Finland and Germany',
+    genres: ['folktale index', 'reference classification'], kw: ['atu index', 'uther', 'types of international folktales', 'aarne-thompson-uther', 'tale type number', 'folktale classification'], confidence: 'established',
+    summary: 'A three-part revision and expansion of the Aarne–Thompson tale-type index by Hans-Jörg Uther, published in 2004, which adds new types and corrects older entries; folklorists now cite tale types with the abbreviation ATU.',
+  },
+  {
+    id: 'work-anc-motif-index-of-folk-literature', kind: 'work', name: 'Motif-Index of Folk-Literature', author: 'Stith Thompson', year: 1932, language: 'English', region: 'United States',
+    genres: ['folklore index', 'reference classification'], kw: ['motif index', 'stith thompson', 'folklore motifs', 'motif numbers', 'folk literature index', 'recurring story elements'], confidence: 'established',
+    summary: 'A multi-volume English-language classification by Stith Thompson of the smallest recurring story elements, or motifs, found in folktales, myths, ballads and jest books, first issued in 1932 to 1936 and revised in the 1950s; a research tool for tracing how one image or event travels between traditions.',
+  },
+  {
+    id: 'work-anc-morphology-of-the-folktale', kind: 'work', name: 'Morphology of the Folktale', author: 'Vladimir Propp', year: 1928, language: 'Russian', region: 'Soviet Union',
+    genres: ['folktale analysis', 'narratology', 'structuralist theory'], kw: ['propp', 'morphology of the folktale', 'thirty-one functions', 'folktale functions', 'fairy tale structure', 'russian formalism'], confidence: 'established',
+    summary: 'A study by the Russian scholar Vladimir Propp that analyses a set of Russian wonder tales into a fixed sequence of thirty-one narrative functions and a few character roles; it became a foundation for narratology and for later story-structure models.',
+  },
+  {
+    id: 'work-anc-afanasyev-russian-folk-tales', kind: 'work', name: 'Russian Folk Tales (Narodnye russkie skazki)', author: 'Aleksandr Afanasyev', year: 1855, language: 'Russian', region: 'Russia',
+    genres: ['folktale collection', 'Russian folklore'], kw: ['afanasyev', 'russian fairy tales', 'baba yaga', 'firebird', 'koschei', 'narodnye russkie skazki', 'russian folktales'], confidence: 'established',
+    summary: 'The major nineteenth-century collection of Russian folktales by the folklorist Aleksandr Afanasyev, issued in instalments from 1855; it gathers hundreds of wonder tales, animal tales and legends, including the Baba Yaga and Firebird stories, and is the Russian counterpart to the Grimms\' collection.',
+  },
+  {
+    id: 'work-anc-norske-folkeeventyr', kind: 'work', name: 'Norwegian Folk Tales (Norske Folkeeventyr)', author: 'Peter Christen Asbjørnsen and Jørgen Moe', year: 1841, language: 'Norwegian (Dano-Norwegian)', region: 'Norway',
+    genres: ['folktale collection', 'Norwegian folklore'], kw: ['asbjornsen and moe', 'norske folkeeventyr', 'three billy goats gruff', 'east of the sun and west of the moon', 'norwegian fairy tales', 'troll tales'], confidence: 'established',
+    summary: 'The first major Norwegian folktale collection, begun in 1841 by Peter Christen Asbjørnsen and Jørgen Moe in the spirit of the Grimms; it holds the trolls and animal tales best known in English and helped shape a written Norwegian storytelling style.',
+  },
+  {
+    id: 'work-anc-deutsche-sagen', kind: 'work', name: 'German Legends (Deutsche Sagen)', author: 'Jacob and Wilhelm Grimm', year: 1816, language: 'German', region: 'Germany',
+    genres: ['legend collection', 'folklore'], kw: ['deutsche sagen', 'grimm legends', 'german legends', 'pied piper', 'folk legends', 'local legends'], confidence: 'established',
+    summary: 'A companion to the Grimms\' fairy tales, issued in two volumes in 1816 and 1818, that gathers several hundred German legends tied to particular places and persons; it shows the difference between the legend, presented as local belief, and the wonder tale.',
+  },
+  {
+    id: 'work-anc-galland-mille-et-une-nuits', kind: 'work', name: 'Les Mille et Une Nuits (Galland\'s translation)', author: 'Antoine Galland', year: 1704, language: 'French', region: 'France',
+    genres: ['story collection', 'frame narrative', 'translation'], kw: ['galland', 'mille et une nuits', 'arabian nights', 'aladdin', 'ali baba', 'european arabian nights', 'translation history'], confidence: 'established',
+    summary: 'The first European version of the Arabian Nights, translated and adapted by Antoine Galland in twelve volumes from 1704; it added tales such as Aladdin and Ali Baba, which came from a Syrian storyteller, and it set the Western image of the collection.',
+  },
+  {
+    id: 'work-anc-contes-des-fees-aulnoy', kind: 'work', name: 'Les Contes des fées (Tales of Fairies)', author: "Marie-Catherine d'Aulnoy", year: 1697, language: 'French', region: 'France',
+    genres: ['literary fairy tale', 'salon tale'], kw: ['madame d\'aulnoy', 'contes des fees', 'conte de fees', 'fairy tale origin', 'french salon fairy tales', 'white cat', 'blue bird'], confidence: 'established',
+    summary: 'A collection of literary fairy tales by Marie-Catherine d\'Aulnoy, first published in 1697, to whom the French term conte de fées is generally credited; the tales were written for a courtly salon audience and influenced later fairy-tale writing.',
+  },
+  {
+    id: 'work-anc-la-belle-et-la-bete', kind: 'work', name: 'La Belle et la Bête (Beauty and the Beast)', author: 'Gabrielle-Suzanne de Villeneuve', year: 1740, language: 'French', region: 'France',
+    genres: ['literary fairy tale', 'novella'], kw: ['beauty and the beast', 'la belle et la bete', 'villeneuve', 'fairy tale origin', 'la jeune americaine', 'literary fairy tale'], confidence: 'established',
+    summary: 'The long literary tale of Beauty and the Beast, written by Gabrielle-Suzanne de Villeneuve and published in 1740 within a frame story; a shorter version by Jeanne-Marie Leprince de Beaumont, printed in 1756, is the one most often retold.',
+  },
+  {
+    id: 'work-anc-andersen-the-little-mermaid', kind: 'work', name: 'The Little Mermaid (Den lille havfrue)', author: 'Hans Christian Andersen', year: 1837, language: 'Danish', region: 'Denmark',
+    genres: ['literary fairy tale', 'tragic romance'], kw: ['the little mermaid', 'den lille havfrue', 'hans christian andersen', 'literary fairy tale', 'sea princess', 'danish fairy tale'], confidence: 'established',
+    summary: 'A literary fairy tale about a sea-dweller who longs for a human soul and a place among people, first published in Copenhagen in 1837 in Andersen\'s second booklet of tales; known for its bittersweet tone.',
+  },
+  {
+    id: 'work-anc-andersen-the-snow-queen', kind: 'work', name: 'The Snow Queen (Snedronningen)', author: 'Hans Christian Andersen', year: 1844, language: 'Danish', region: 'Denmark',
+    genres: ['literary fairy tale', 'quest tale'], kw: ['the snow queen', 'snedronningen', 'hans christian andersen', 'literary fairy tale', 'quest for a friend', 'seven stories'], confidence: 'established',
+    summary: 'A literary fairy tale in seven episodes about a girl who sets out to find a friend taken by a figure of winter, published in Andersen\'s New Fairy Tales in 1844; a much-cited example of a quest story built on friendship.',
+  },
+  {
+    id: 'work-anc-calvino-fiabe-italiane', kind: 'work', name: 'Italian Folktales (Fiabe italiane)', author: 'Italo Calvino', year: 1956, language: 'Italian', region: 'Italy',
+    genres: ['folktale collection', 'retold folk tales'], kw: ['fiabe italiane', 'italian folktales', 'calvino', 'folktale retelling', 'two hundred tales', 'regional tales'], confidence: 'established',
+    summary: 'A collection of two hundred Italian folktales selected by Italo Calvino from regional collections of the nineteenth and twentieth centuries and retold in standard Italian; a modern counterpart to the Grimms\' project, with an introduction on the nature of the folktale.',
+  },
+
+  // ---- South Asia and the Buddhist world ----
+  {
+    id: 'work-anc-kadambari', kind: 'work', name: 'Kadambari', author: 'Bāṇabhaṭṭa (completed by his son)', year: 'c. 630 CE', language: 'Sanskrit', region: 'North India',
+    genres: ['prose romance', 'kavya', 'frame narrative'], kw: ['kadambari', 'banabhatta', 'sanskrit prose romance', 'kavya', 'harshacharita', 'classical sanskrit prose'], confidence: 'varies',
+    summary: 'A long Sanskrit prose romance by Bāṇabhaṭṭa, built from stories nested within stories and left unfinished at his death, then completed by his son; a high point of ornate classical prose whose title became a word for a novel in several Indian languages.',
+  },
+  {
+    id: 'work-anc-raghuvamsha', kind: 'work', name: 'Raghuvamsha (The Dynasty of Raghu)', author: 'Kalidasa', year: 'c. 400 CE', language: 'Sanskrit', region: 'North India',
+    genres: ['mahakavya', 'epic poem', 'court poem'], kw: ['raghuvamsa', 'raghuvamsha', 'kalidasa', 'mahakavya', 'sanskrit court epic', 'dynasty of raghu'], confidence: 'varies',
+    summary: 'A Sanskrit court epic in nineteen cantos by Kālidāsa that traces the line of kings from whom Rama descends; a model of the classical mahākāvya, admired for its imagery and varied metres.',
+  },
+  {
+    id: 'work-anc-kamba-ramayanam', kind: 'work', name: 'The Kamba Ramayanam (Iramavataram)', author: 'Kambar', year: 'c. 1180 CE', language: 'Tamil', region: 'South India',
+    genres: ['epic poem', 'retelling of the Ramayana', 'Tamil epic'], kw: ['kamba ramayanam', 'kambar', 'iramavataram', 'tamil ramayana', 'tamil epic', 'ramayana retelling'], confidence: 'varies',
+    summary: 'A Tamil retelling of the Rāmāyaṇa by the poet Kambar, usually placed in the twelfth century; it reshapes the Sanskrit story with Tamil settings and imagery and is regarded as a masterpiece of Tamil poetry.',
+  },
+  {
+    id: 'work-anc-manimekalai', kind: 'work', name: 'Manimekalai', author: 'Cāttanār (traditional attribution)', year: 'c. 500 CE', language: 'Tamil', region: 'South India',
+    genres: ['epic', 'Buddhist narrative', 'Tamil literature'], kw: ['manimekalai', 'chithalai chathanar', 'tamil epic', 'buddhist tamil literature', 'silappatikaram sequel', 'five great tamil epics'], confidence: 'varies',
+    summary: 'A Tamil verse epic, traditionally ascribed to the poet Cāttanār, that continues the story begun in the Silappatikaram by following the daughter of its characters on a Buddhist path; counted among the five great Tamil epics.',
+  },
+  {
+    id: 'work-anc-padmavat', kind: 'work', name: 'Padmavat', author: 'Malik Muhammad Jayasi', year: 1540, language: 'Awadhi', region: 'North India',
+    genres: ['epic poem', 'Sufi romance', 'premakhyan'], kw: ['padmavat', 'padmavati', 'jayasi', 'awadhi epic', 'sufi romance', 'premakhyan', 'chittor'], confidence: 'established',
+    summary: 'An Awadhi epic poem by the Sufi poet Malik Muhammad Jayasi, composed about 1540, that retells the legend of Queen Padmini of Chittor as an allegory of the soul\'s search; a central work of the Hindi Sufi romance tradition.',
+  },
+  {
+    id: 'work-anc-dnyaneshwari', kind: 'work', name: 'Dnyaneshwari (Bhavartha Deepika)', author: 'Dnyaneshwar', year: 'c. 1290 CE', language: 'Marathi', region: 'Maharashtra',
+    genres: ['verse commentary', 'devotional poetry'], kw: ['dnyaneshwari', 'jnaneshwari', 'dnyaneshwar', 'marathi bhagavad gita', 'bhavartha deepika', 'marathi literature'], confidence: 'varies',
+    summary: 'A long Marathi verse commentary on the Bhagavad Gita by the saint-poet Dnyāneshwar, traditionally dated to about 1290; one of the first major works in Marathi and a foundation of that literary language.',
+  },
+  {
+    id: 'work-anc-lotus-sutra', kind: 'work', name: 'The Lotus Sutra (Saddharmapundarika)', author: 'Anonymous (Buddhist tradition)', year: 'c. 100 CE', language: 'Sanskrit', region: 'India',
+    genres: ['scripture', 'parable collection', 'Mahayana text'], kw: ['lotus sutra', 'saddharma pundarika', 'burning house parable', 'mahayana', 'buddhist parables', 'kumarajiva'], confidence: 'varies',
+    summary: 'A Mahayana Buddhist text composed in India over roughly the first two centuries CE, celebrated as literature for its parables, such as the burning house, and its vast imagined settings; its Chinese version by Kumārajīva was widely read across East Asia.',
+  },
+  {
+    id: 'work-anc-buddhacarita', kind: 'work', name: 'Buddhacarita (Life of the Buddha)', author: 'Aśvaghoṣa', year: 'c. 100 CE', language: 'Sanskrit', region: 'India',
+    genres: ['mahakavya', 'biographical poem'], kw: ['buddhacarita', 'ashvaghosha', 'life of the buddha poem', 'sanskrit kavya', 'buddhist epic'], confidence: 'varies',
+    summary: 'A Sanskrit poem on the life of the Buddha by Aśvaghoṣa, usually dated to about the first or second century CE and complete only in translation; one of the earliest surviving examples of Sanskrit court poetry (kāvya) and a model for joining devotional and literary aims.',
+  },
+  {
+    id: 'work-anc-bardo-thodol', kind: 'work', name: 'The Tibetan Book of the Dead (Bardo Thödol)', author: 'Karma Lingpa (revealer; teaching attributed to Padmasambhava)', year: 'c. 1350 CE', language: 'Tibetan', region: 'Tibet',
+    genres: ['funerary text', 'treasure text (terma)', 'scripture'], kw: ['bardo thodol', 'tibetan book of the dead', 'karma lingpa', 'terma', 'padmasambhava', 'intermediate state'], confidence: 'varies',
+    summary: 'A Tibetan Buddhist guide read to the dying and the dead to help them through the intermediate state after death, revealed as a "treasure text" by Karma Lingpa in the fourteenth century; its popular English title dates from a translation of 1927.',
+  },
+
+  // ---- China, Japan, Korea and Southeast Asia ----
+  {
+    id: 'work-anc-shishuo-xinyu', kind: 'work', name: 'A New Account of the Tales of the World (Shishuo xinyu)', author: 'Liu Yiqing (with a team of scholars)', year: 'c. 430 CE', language: 'Classical Chinese', region: 'China',
+    genres: ['anecdote collection', 'biographical sketches', 'zhiren'], kw: ['shishuo xinyu', 'liu yiqing', 'tales of the world', 'wei-jin anecdotes', 'chinese anecdotes', 'pure conversation'], confidence: 'established',
+    summary: 'A fifth-century collection of short anecdotes and sayings about scholars, officials and eccentrics of the Han to Jin periods, sorted under thirty-six headings such as insight, wit and indulgence; prized for its compressed, vivid characterisation.',
+  },
+  {
+    id: 'work-anc-poems-of-tao-yuanming', kind: 'work', name: 'The Poems of Tao Yuanming', author: 'Tao Yuanming (Tao Qian)', year: 'c. 420 CE', language: 'Classical Chinese', region: 'China',
+    genres: ['poetry collection', 'pastoral poetry', 'rustic lyric'], kw: ['tao yuanming', 'tao qian', 'peach blossom spring', 'field and garden poetry', 'jin dynasty poetry', 'chinese pastoral'], confidence: 'established',
+    summary: 'Poems and short prose by the Jin dynasty writer Tao Yuanming, who left office to farm, on field and garden life, wine and plain living; his work set a pattern for Chinese pastoral poetry, and the prose Peach Blossom Spring became a lasting image of utopia.',
+  },
+  {
+    id: 'work-anc-mencius', kind: 'work', name: 'The Mencius (Mengzi)', author: 'Mencius (Meng Ke) and his disciples', year: 'c. 300 BCE', language: 'Classical Chinese', region: 'China',
+    genres: ['philosophical dialogue', 'Confucian classic'], kw: ['mencius', 'mengzi', 'confucian classic', 'human nature is good', 'four books'], confidence: 'varies',
+    summary: 'A Confucian classic recording the conversations of the philosopher Mencius with rulers and students, with arguments on human nature, government and moral cultivation; read as literature for its lively debates and vivid analogies.',
+  },
+  {
+    id: 'work-anc-zuo-zhuan', kind: 'work', name: 'The Zuo Commentary (Zuo Zhuan)', author: 'Zuo Qiuming (traditional attribution)', year: 'c. 300 BCE', language: 'Classical Chinese', region: 'China',
+    genres: ['historical narrative', 'chronicle commentary'], kw: ['zuo zhuan', 'zuozhuan', 'spring and autumn annals', 'chinese historical narrative', 'zuo qiuming'], confidence: 'contested',
+    summary: 'A Chinese narrative history of the Spring and Autumn period, framed as a commentary on a terse annals and traditionally credited to Zuo Qiuming; admired as an early great model of Chinese historical storytelling, with speeches, battles and court intrigue.',
+  },
+  {
+    id: 'work-anc-jin-ping-mei', kind: 'work', name: 'Jin Ping Mei (The Plum in the Golden Vase)', author: 'Lanling Xiaoxiao Sheng (pseudonym)', year: 'c. 1610 CE', language: 'Chinese', region: 'China',
+    genres: ['novel of manners', 'domestic novel', 'Ming vernacular fiction'], kw: ['jin ping mei', 'plum in the golden vase', 'ming novel', 'lanling xiaoxiao sheng', 'chinese novel of manners', 'xi men qing'], confidence: 'contested',
+    summary: 'A long Ming dynasty novel by an author who wrote under a pseudonym, following the household of a prosperous merchant in extended and unsparing domestic detail; counted with the great Ming novels and a landmark of social realism in Chinese fiction.',
+  },
+  {
+    id: 'work-anc-the-scholars-rulin-waishi', kind: 'work', name: 'The Scholars (Rulin waishi)', author: 'Wu Jingzi', year: 'c. 1750 CE', language: 'Chinese', region: 'China',
+    genres: ['satirical novel', 'episodic novel', 'Qing fiction'], kw: ['rulin waishi', 'the scholars', 'wu jingzi', 'imperial examinations', 'chinese satire', 'qing novel'], confidence: 'varies',
+    summary: 'A Qing dynasty satirical novel about the ambitions and failings of scholars bound up with the imperial examination system, written about the middle of the eighteenth century; episodic rather than centred on one hero, it is a landmark of Chinese social satire.',
+  },
+  {
+    id: 'work-anc-three-words-feng-menglong', kind: 'work', name: 'The Three Words (Sanyan) story collections', author: 'Feng Menglong (compiler and editor)', year: 'c. 1625 CE', language: 'Chinese (vernacular)', region: 'China',
+    genres: ['vernacular short story', 'huaben', 'story collection'], kw: ['feng menglong', 'sanyan', 'three words', 'stories old and new', 'vernacular stories', 'ming short fiction'], confidence: 'varies',
+    summary: 'Three collections of 120 vernacular short stories compiled and edited by Feng Menglong in the 1620s, adapting older tales and adding new ones; they gave the Chinese vernacular short story its classic form and fed later fiction and drama.',
+  },
+  {
+    id: 'work-anc-shin-kokinshu', kind: 'work', name: 'Shin Kokinshū (New Collection of Ancient and Modern Poems)', author: 'Fujiwara no Teika and other court compilers', year: 'c. 1205 CE', language: 'Japanese', region: 'Japan',
+    genres: ['waka anthology', 'imperial anthology'], kw: ['shin kokinshu', 'new kokinshu', 'imperial anthology', 'waka', 'retired emperor go-toba', 'fujiwara no teika', 'honkadori'], confidence: 'varies',
+    summary: 'An imperial anthology of waka compiled by a committee under the retired Emperor Go-Toba and completed about 1205; known for its allusive, atmospheric style and for honkadori, the technique of echoing and varying a famous earlier poem.',
+  },
+  {
+    id: 'work-anc-japanese-family-storehouse', kind: 'work', name: 'The Japanese Family Storehouse (Nippon eitaigura)', author: 'Ihara Saikaku', year: 1688, language: 'Japanese', region: 'Japan',
+    genres: ['chōnin fiction', 'merchant tales', 'ukiyo-zōshi'], kw: ['nippon eitaigura', 'ihara saikaku', 'merchant stories', 'ukiyo-zoshi', 'edo fiction', 'chonin'], confidence: 'established',
+    summary: 'A collection of stories about how townspeople in Edo-period Japan make, keep and lose fortunes, by Ihara Saikaku; published in 1688, it is a key text of ukiyo-zōshi fiction and a lively portrait of merchant life.',
+  },
+  {
+    id: 'work-anc-fushikaden', kind: 'work', name: 'Fūshikaden (Style and the Flower)', author: 'Zeami Motokiyo', year: 'c. 1400 CE', language: 'Japanese', region: 'Japan',
+    genres: ['treatise', 'theatre theory', 'noh'], kw: ['fushikaden', 'zeami', 'noh theory', 'the flower hana', 'style and the flower', 'japanese theatre treatise'], confidence: 'varies',
+    summary: 'A treatise on the art of Noh by the actor and playwright Zeami, circulated about 1400 as advice on training actors and winning audiences; it develops ideas such as the "flower" of performance and is a foundational work of theatre theory.',
+  },
+  {
+    id: 'work-anc-cloud-dream-of-the-nine', kind: 'work', name: 'The Cloud Dream of the Nine (Kuunmong)', author: 'Kim Manjung', year: 'c. 1687 CE', language: 'Korean and Classical Chinese', region: 'Korea',
+    genres: ['dream narrative', 'romance', 'Joseon fiction'], kw: ['kuunmong', 'cloud dream of the nine', 'kim manjung', 'joseon novel', 'dream tale', 'korean classic novel'], confidence: 'contested',
+    summary: 'A Korean Joseon dynasty novel by Kim Manjung, written about 1687 during exile, in which a monk\'s dream of worldly success prompts reflection on illusion; scholars debate whether it was first written in Korean or in Chinese.',
+  },
+  {
+    id: 'work-anc-hong-gildong-jeon', kind: 'work', name: 'The Tale of Hong Gildong (Hong Gildong jeon)', author: 'Heo Gyun (traditional attribution)', year: 'c. 1612 CE', language: 'Korean', region: 'Korea',
+    genres: ['hero tale', 'social critique', 'Joseon fiction'], kw: ['hong gildong', 'hong gildong jeon', 'heo gyun', 'korean outlaw hero', 'joseon fiction', 'hangul novel'], confidence: 'contested',
+    summary: 'A Korean tale of a gifted outlaw hero born to a nobleman and a concubine, traditionally attributed to Heo Gyun and often called the first novel in Hangul; the attribution and early dating are disputed, but its theme of social barriers is central to Korean literary history.',
+  },
+  {
+    id: 'work-anc-sejarah-melayu', kind: 'work', name: 'Sejarah Melayu (The Malay Annals)', author: 'Anonymous (court tradition; ascribed in some versions to Tun Sri Lanang)', year: 'c. 1612 CE', language: 'Classical Malay', region: 'Malay world',
+    genres: ['court chronicle', 'historical romance', 'hikayat'], kw: ['sejarah melayu', 'malay annals', 'tun sri lanang', 'melaka sultanate', 'hikayat', 'malay chronicle'], confidence: 'varies',
+    summary: 'A court chronicle of the Malay sultanate of Melaka and its rulers that blends dynastic legend with history; its best-known version is dated to 1612 and associated with Tun Sri Lanang, and the work is a founding text of Malay prose.',
+  },
+  {
+    id: 'work-anc-serat-centhini', kind: 'work', name: 'Serat Centhini', author: 'Anonymous (a court team of Surakarta writers)', year: 1814, language: 'Javanese', region: 'Java',
+    genres: ['encyclopedic poem', 'tembang macapat', 'court compendium'], kw: ['serat centhini', 'javanese encyclopedia', 'tembang macapat', 'pakubuwana', 'surakarta court', 'javanese literature'], confidence: 'varies',
+    summary: 'A vast Javanese verse compendium of religion, customs, arts, travel and lore, composed in sung macapat metres by a court team and completed in 1814 at Surakarta; a major source on Javanese culture before the modern era.',
+  },
+
+  // ---- Arabic, Turkic, Persian and Hebrew medieval writing ----
+  {
+    id: 'work-anc-kitab-al-aghani', kind: 'work', name: 'Kitab al-Aghani (Book of Songs)', author: 'Abu al-Faraj al-Isfahani', year: 'c. 950 CE', language: 'Arabic', region: 'Abbasid world',
+    genres: ['anthology', 'literary history', 'biographical compendium'], kw: ['kitab al-aghani', 'book of songs', 'abu al-faraj al-isfahani', 'arabic poetry songs', 'abbasid literary history'], confidence: 'established',
+    summary: 'A vast Arabic anthology of poems and songs, with biographies of the poets and musicians and anecdotes about their lives, compiled by Abū al-Faraj al-Iṣfahānī in the tenth century; a prime source for early Arabic poetry, music and court culture.',
+  },
+  {
+    id: 'work-anc-diwan-of-al-mutanabbi', kind: 'work', name: 'The Diwan of al-Mutanabbi', author: 'al-Mutanabbi', year: 'c. 950 CE', language: 'Arabic', region: 'Abbasid world',
+    genres: ['poetry collection', 'qasida', 'panegyric'], kw: ['al-mutanabbi', 'diwan', 'qasida', 'arabic panegyric', 'abbasid poet', 'classical arabic poetry'], confidence: 'varies',
+    summary: 'The collected poems of Abū al-Ṭayyib al-Mutanabbī, a tenth-century poet of the Abbasid world, whose praise poems and satires in the classical qasida form became standard models of Arabic verse and are among its most quoted lines.',
+  },
+  {
+    id: 'work-anc-poems-of-yunus-emre', kind: 'work', name: 'The Poems of Yunus Emre', author: 'Yunus Emre (many poems attributed on tradition)', year: 'c. 1300 CE', language: 'Old Anatolian Turkish', region: 'Anatolia',
+    genres: ['mystical poetry', 'Sufi lyric', 'folk-style verse'], kw: ['yunus emre', 'divan of yunus emre', 'anatolian sufi poet', 'turkish mystic poetry', 'old anatolian turkish'], confidence: 'varies',
+    summary: 'Mystical poems in plain Turkish by Yunus Emre, a Sufi poet of Anatolia in the late thirteenth and early fourteenth centuries; his simple language and syllabic verse made him a founding voice of Turkish poetry, and many poems are attributed to him on tradition.',
+  },
+  {
+    id: 'work-anc-fuzuli-leyla-and-majnun', kind: 'work', name: 'Leyla and Majnun (Leylā vü Mecnūn)', author: 'Fuzūlī', year: 'c. 1535 CE', language: 'Azerbaijani Turkic', region: 'Iraq and Anatolia',
+    genres: ['romantic epic', 'mathnawi', 'Sufi love story'], kw: ['fuzuli', 'leyla and majnun', 'layla and majnun', 'azeri poetry', 'mathnawi', 'turkic literature', 'divan poetry'], confidence: 'varies',
+    summary: 'A verse romance in Azerbaijani Turkic by the poet Fuzūlī, about 1535, that retells the old tale of the lovers Layla and Majnun with a Sufi emphasis on longing; a masterpiece of Turkic literature in the mathnawi form.',
+  },
+  {
+    id: 'work-anc-baburnama', kind: 'work', name: 'The Baburnama', author: 'Bābur', year: 'c. 1530 CE', language: 'Chagatai Turkic', region: 'Central and South Asia',
+    genres: ['memoir', 'autobiography', 'court chronicle'], kw: ['baburnama', 'babur', 'memoirs of babur', 'mughal founder', 'chagatai', 'central asian memoir'], confidence: 'established',
+    summary: 'The memoirs of Bābur, founder of the Mughal dynasty, written in Chagatai Turkic in the early sixteenth century; known for candid, observant prose on landscapes, people, gardens and his own failures, and a landmark of early autobiography in Asia.',
+  },
+  {
+    id: 'work-anc-navoi-khamsa', kind: 'work', name: 'The Khamsa of Alisher Navoi', author: 'Alisher Navoi', year: 'c. 1485 CE', language: 'Chagatai Turkic', region: 'Central Asia (Herat)',
+    genres: ['mathnawi cycle', 'romantic epic', 'Turkic classical poetry'], kw: ['alisher navoi', 'navai', 'khamsa', 'chagatai poetry', 'uzbek classic', 'hamsa'], confidence: 'established',
+    summary: 'A cycle of five long poems by Alisher Navoi, written in Chagatai Turkic in the 1480s as a Turkic answer to the Persian khamsa tradition of Nizami; a cornerstone of Central Asian literature.',
+  },
+  {
+    id: 'work-anc-guide-for-the-perplexed', kind: 'work', name: 'The Guide for the Perplexed (Dalalat al-ha\'irin)', author: 'Moses Maimonides', year: 'c. 1190 CE', language: 'Judeo-Arabic', region: 'Egypt',
+    genres: ['philosophical treatise', 'theology', 'letter-treatise'], kw: ['guide for the perplexed', 'maimonides', 'dalalat al-hairin', 'medieval jewish philosophy', 'rambam'], confidence: 'established',
+    summary: 'A philosophical work written in Arabic with Hebrew letters by Moses Maimonides and addressed to a student, on reading scripture, divine attributes and the limits of human knowledge; a landmark of medieval Jewish thought and of the letter-treatise form.',
+  },
+
+  // ---- More from ancient Egypt ----
+  {
+    id: 'work-anc-tale-of-two-brothers', kind: 'work', name: 'The Tale of Two Brothers', author: 'Anonymous (Egyptian scribal tradition)', year: 'c. 1200 BCE', language: 'Egyptian (Late Egyptian)', region: 'Egypt',
+    genres: ['folk tale', 'narrative', 'mythic tale'], kw: ['tale of two brothers', 'anpu and bata', 'papyrus d\'orbiney', 'egyptian folktale', 'new kingdom story'], confidence: 'varies',
+    summary: 'A New Kingdom Egyptian story, preserved on a single papyrus of about 1200 BCE, about two brothers whose bond is tested; it contains motifs, such as a heart hidden in a tree, that are recognisable in folktales found much later and far away.',
+  },
+  {
+    id: 'work-anc-eloquent-peasant', kind: 'work', name: 'The Eloquent Peasant', author: 'Anonymous (Egyptian scribal tradition)', year: 'c. 1850 BCE', language: 'Egyptian (Middle Egyptian)', region: 'Egypt',
+    genres: ['narrative with speeches', 'wisdom literature', 'petition tale'], kw: ['eloquent peasant', 'khun-anup', 'middle kingdom', 'egyptian rhetoric', 'maat', 'justice story'], confidence: 'varies',
+    summary: 'A Middle Kingdom Egyptian tale of a peasant robbed on the road who pleads nine times with an official for justice in elegant speeches; read as a showcase of Egyptian rhetoric and an early story built on an appeal to fairness.',
+  },
+  {
+    id: 'work-anc-shipwrecked-sailor', kind: 'work', name: 'The Tale of the Shipwrecked Sailor', author: 'Anonymous (Egyptian scribal tradition)', year: 'c. 1900 BCE', language: 'Egyptian (Middle Egyptian)', region: 'Egypt',
+    genres: ['adventure tale', 'frame story', 'travel narrative'], kw: ['shipwrecked sailor', 'egyptian adventure tale', 'island of the serpent', 'middle kingdom', 'frame tale'], confidence: 'varies',
+    summary: 'A Middle Kingdom Egyptian story, written on one papyrus, in which a returning official is comforted by the anecdote of a sailor wrecked on an island of wonders; an early example of a tale within a tale and of the island-adventure plot.',
+  },
+  {
+    id: 'work-anc-instruction-of-amenemope', kind: 'work', name: 'The Instruction of Amenemope', author: 'Anonymous (traditionally ascribed to the scribe Amenemope)', year: 'c. 1100 BCE', language: 'Egyptian (Late Egyptian)', region: 'Egypt',
+    genres: ['wisdom literature', 'instruction', 'didactic poem'], kw: ['instruction of amenemope', 'egyptian wisdom', 'sebayt', 'proverbs parallels', 'new kingdom wisdom', 'thirty chapters'], confidence: 'varies',
+    summary: 'An Egyptian wisdom text in thirty short chapters, offered by a scribe to his son on honesty, restraint and fair dealing; its likeness to a section of the biblical Book of Proverbs has made it a standard example in studies of ancient wisdom writing.',
+  },
+
+  // ---- More from ancient Greece ----
+  {
+    id: 'work-anc-homeric-hymns', kind: 'work', name: 'The Homeric Hymns', author: 'Anonymous (various poets; ascribed to Homer in antiquity)', year: 'c. 600 BCE', language: 'Ancient Greek', region: 'Greece',
+    genres: ['hymn collection', 'epic hymn', 'mythological poetry'], kw: ['homeric hymns', 'hymn to demeter', 'hymn to hermes', 'hymn to apollo', 'greek hymns', 'greek myth poems'], confidence: 'varies',
+    summary: 'A collection of thirty-three Greek hexameter hymns to the gods, ascribed in antiquity to Homer but composed by various poets over several centuries; several, such as the hymns to Demeter and Hermes, are miniature mythic narratives.',
+  },
+  {
+    id: 'work-anc-poetics-aristotle', kind: 'work', name: 'Poetics', author: 'Aristotle', year: 'c. 335 BCE', language: 'Ancient Greek', region: 'Greece',
+    genres: ['literary theory', 'poetics', 'treatise'], kw: ['aristotle poetics', 'tragedy', 'catharsis', 'mimesis', 'plot', 'peripeteia', 'hamartia', 'unity of action'], confidence: 'established',
+    summary: 'A short Greek treatise on tragedy and epic, probably drawn from lecture notes, that treats plot as the soul of drama and discusses reversal, recognition and the arousal of pity and fear; the foundation of Western discussion of narrative structure.',
+  },
+  {
+    id: 'work-anc-symposium-plato', kind: 'work', name: 'Symposium', author: 'Plato', year: 'c. 385 BCE', language: 'Ancient Greek', region: 'Greece',
+    genres: ['dialogue', 'philosophical prose', 'speech cycle'], kw: ['plato symposium', 'dialogue on love', 'eros', 'aristophanes speech', 'socrates and diotima', 'ancient dialogue'], confidence: 'established',
+    summary: 'A Platonic dialogue set at a dinner party where guests each give a speech in praise of love, ending with the account given by Socrates; admired for its dramatic framing and for the range of styles it holds within a single text.',
+  },
+  {
+    id: 'work-anc-on-the-sublime', kind: 'work', name: 'On the Sublime (Peri hypsous)', author: 'Anonymous (traditionally called Longinus)', year: 'c. 50 CE', language: 'Ancient Greek', region: 'Roman Empire',
+    genres: ['literary criticism', 'rhetorical treatise'], kw: ['on the sublime', 'longinus', 'peri hypsous', 'sublimity', 'ancient literary criticism', 'pseudo-longinus'], confidence: 'contested',
+    summary: 'An ancient Greek essay on what makes writing lift and move its readers, by an author whose name and date are uncertain and who is traditionally called Longinus, probably of the first century CE; rediscovered in the Renaissance, it shaped later ideas of the sublime.',
+  },
+  {
+    id: 'work-anc-lucian-a-true-story', kind: 'work', name: 'A True Story (Alethe diegemata)', author: 'Lucian of Samosata', year: 'c. 170 CE', language: 'Ancient Greek', region: 'Roman Empire',
+    genres: ['satire', 'fantastic voyage', 'parody'], kw: ['lucian', 'true history', 'a true story', 'voyage to the moon', 'ancient science fiction', 'parody of travel tales'], confidence: 'established',
+    summary: 'A comic prose narrative by Lucian of Samosata that parodies travellers\' tales by openly declaring that everything in it is false; its voyage to the Moon and its giant creatures make it a frequent starting point for histories of science fiction.',
+  },
+  {
+    id: 'work-anc-daphnis-and-chloe', kind: 'work', name: 'Daphnis and Chloe', author: 'Longus', year: 'c. 200 CE', language: 'Ancient Greek', region: 'Roman Empire',
+    genres: ['ancient novel', 'pastoral romance', 'Greek romance'], kw: ['daphnis and chloe', 'longus', 'greek romance', 'pastoral novel', 'ancient novel', 'lesbos'], confidence: 'varies',
+    summary: 'A Greek prose romance of the second or third century CE about two foundlings raised among shepherds on Lesbos who slowly learn what their feelings mean; the main ancient example of pastoral fiction and an influence on later pastoral writing.',
+  },
+  {
+    id: 'work-anc-aethiopica-heliodorus', kind: 'work', name: 'Aethiopica (An Ethiopian Story)', author: 'Heliodorus of Emesa', year: 'c. 250 CE', language: 'Ancient Greek', region: 'Roman Empire',
+    genres: ['ancient novel', 'Greek romance', 'adventure romance'], kw: ['aethiopica', 'heliodorus', 'theagenes and charicleia', 'greek romance', 'ancient novel', 'in medias res'], confidence: 'varies',
+    summary: 'A long Greek romance about separated lovers, famous for opening in the middle of the action and then looping back through narrated flashbacks; probably of the third or fourth century CE, it was much admired and imitated in Renaissance Europe.',
+  },
+  {
+    id: 'work-anc-library-pseudo-apollodorus', kind: 'work', name: 'The Library (Bibliotheca)', author: 'Pseudo-Apollodorus (author unknown)', year: 'c. 150 CE', language: 'Ancient Greek', region: 'Roman Empire',
+    genres: ['mythography', 'handbook', 'myth compendium'], kw: ['bibliotheca', 'apollodorus library', 'greek myth handbook', 'mythography', 'labours of heracles', 'theban cycle'], confidence: 'varies',
+    summary: 'A handbook retelling Greek myths and heroic legends from the origin of the gods to the end of the Trojan War period, preserved under the name Apollodorus but of unknown authorship; a convenient single-source summary of the myth cycle for later writers.',
+  },
+
+  // ---- More from ancient Rome ----
+  {
+    id: 'work-anc-ars-poetica', kind: 'work', name: 'Ars Poetica (Art of Poetry)', author: 'Horace', year: 'c. 19 BCE', language: 'Latin', region: 'Rome',
+    genres: ['verse epistle', 'literary criticism', 'poetics'], kw: ['horace ars poetica', 'art of poetry', 'in medias res', 'decorum', 'literary advice', 'epistle to the pisones'], confidence: 'varies',
+    summary: 'A verse letter on the craft of poetry and drama, addressed to the Pisones, that urges decorum, unity and careful revision; it popularised phrases such as in medias res and shaped Renaissance and neoclassical criticism.',
+  },
+  {
+    id: 'work-anc-pharsalia', kind: 'work', name: 'Pharsalia (The Civil War)', author: 'Lucan', year: 'c. 65 CE', language: 'Latin', region: 'Rome',
+    genres: ['epic poem', 'historical epic', 'Latin epic'], kw: ['lucan', 'pharsalia', 'civil war epic', 'de bello civili', 'caesar and pompey', 'silver latin'], confidence: 'established',
+    summary: 'A Latin epic in ten unfinished books on the civil war between Caesar and Pompey, by Lucan, who died young; it gives the gods no active part and treats the war as a political catastrophe.',
+  },
+  {
+    id: 'work-anc-thebaid', kind: 'work', name: 'Thebaid', author: 'Statius', year: 'c. 92 CE', language: 'Latin', region: 'Rome',
+    genres: ['epic poem', 'mythological epic'], kw: ['statius', 'thebaid', 'seven against thebes', 'latin epic', 'eteocles and polynices'], confidence: 'established',
+    summary: 'A Latin epic in twelve books on the war between the sons of Oedipus and the expedition of the Seven against Thebes, published about 92 CE; its intense, rhetorical style influenced medieval and Renaissance poets.',
+  },
+  {
+    id: 'work-anc-martial-epigrams', kind: 'work', name: 'Epigrams (Epigrammata)', author: 'Martial', year: 'c. 90 CE', language: 'Latin', region: 'Rome',
+    genres: ['epigram collection', 'satiric verse'], kw: ['martial', 'epigrams', 'epigrammata', 'roman satire', 'short verse', 'wit'], confidence: 'established',
+    summary: 'Twelve books of short Latin poems by Martial on city life, patrons, poets and manners in Rome, mostly brief and pointed; they fixed the modern idea of the epigram as a compact poem that ends on a witty turn.',
+  },
+  {
+    id: 'work-anc-juvenal-satires', kind: 'work', name: 'Satires (Juvenal)', author: 'Juvenal', year: 'c. 110 CE', language: 'Latin', region: 'Rome',
+    genres: ['satire', 'verse satire'], kw: ['juvenal', 'satires', 'roman satire', 'bread and circuses', 'indignation', 'sixteen satires'], confidence: 'varies',
+    summary: 'Sixteen Latin verse satires attacking corruption, vanity and hypocrisy in Roman society, composed in the early second century CE; its angry, rhetorical tone set one of the two main models of satire, against the gentler manner of Horace.',
+  },
+  {
+    id: 'work-anc-vulgate', kind: 'work', name: 'The Vulgate', author: 'Jerome (principal translator and reviser)', year: 'c. 405 CE', language: 'Latin', region: 'Roman Empire',
+    genres: ['translation', 'scripture translation'], kw: ['vulgate', 'jerome', 'latin bible', 'bible translation', 'medieval latin bible'], confidence: 'varies',
+    summary: 'The Latin version of the Christian Bible, largely translated and revised by Jerome from Hebrew and Greek in the late fourth and early fifth centuries; it served as the standard Bible of Western Europe for a thousand years and shaped medieval Latin prose and vocabulary.',
+  },
 ];
