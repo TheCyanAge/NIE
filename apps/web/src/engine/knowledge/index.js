@@ -174,6 +174,7 @@ function build() {
       len: nameToks.length + kwToks.length + bodyToks.length,
       w: KIND_WEIGHT[k.kind] ?? 1,
       title: new Set(tokens([k.name, ...k.aka].join(' '))),
+      nameKeys: [k.name, ...k.aka].map((n) => ` ${nameKey(n)} `),
       // The name's own words without the little ones ("The Epic of Gilgamesh" -> epic, gilgamesh): for exact-title matching.
       cores: [k.name, ...k.aka].map((n) => new Set(tokens(String(n).split(/[:;]|, or | or, /i)[0]).filter((t) => t.length > 1 && !STOPWORDS.has(t)))),
     };
@@ -230,6 +231,8 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
   const b = 0.6;
   const idfs = q.map((t) => Math.log(1 + (N - (df.get(t) ?? 0) + 0.5) / ((df.get(t) ?? 0) + 0.5)));
   const idfTotal = idfs.reduce((a, x) => a + x, 0);
+  const subject = subjectOf(query);
+  const subjectKey = subject.split(' ').length >= 2 ? ` ${subject} ` : null;
   const exactHits = new Map();
   for (const key of new Set([noArticle(nameKey(query)), subjectOf(query)])) for (const [k, tier] of exact.get(key) ?? []) if (exactHits.get(k) !== 'name') exactHits.set(k, tier);
   const scored = [];
@@ -249,8 +252,10 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
     }
     score *= d.w;
     const isExact = exactHits.has(d.k);
+    const nameHas = !isExact && subjectKey && d.nameKeys.some((n) => n.includes(subjectKey));
     if (isExact) score += exactHits.get(d.k) === 'name' ? 30 : 20;
-    if (score >= minScore) scored.push({ entry: d.k, score, headCoverage: isExact ? 1 : head / idfTotal, coverage: isExact ? 1 : any / idfTotal, exact: isExact });
+    else if (nameHas) score += 25;
+    if (score >= minScore) scored.push({ entry: d.k, score, headCoverage: isExact || nameHas ? 1 : head / idfTotal, coverage: isExact || nameHas ? 1 : any / idfTotal, exact: isExact || !!nameHas });
   }
   scored.sort((a, b2) => b2.score - a.score);
   // Coverage that counts: one name, alias or keyword phrase (plus the guide and topic) must hold most of the question, not
@@ -296,6 +301,7 @@ function workQuestion(query) {
     }
   }
   if (title === null) return null;
+  title = title.split(/\s+by\s+/i)[0]; // "Rebecca by Daphne du Maurier": the title is what is looked up
   const want = [...new Set(tokens(title.replace(/\b(?:the book|the novel|the play|the poem)\b/gi, ' ')).filter((t) => t.length > 1 && !STOPWORDS.has(t)))];
   const matches = [];
   if (want.length) {
