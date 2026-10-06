@@ -50,7 +50,10 @@ export function loadLibrary() {
         const r = enrich.get(k.id);
         return r ? Object.freeze({ ...k, works: r.works ?? k.works, refs: r.refs ?? k.refs }) : k;
       });
-      KNOWLEDGE = Object.freeze([...core, ...added]);
+      const base = [...core, ...added];
+      const seenIds = new Set(base.map((k) => k.id));
+      const derived = derivedWorks(base).filter((k) => !seenIds.has(k.id));
+      KNOWLEDGE = Object.freeze([...base, ...derived]);
       byId = new Map(KNOWLEDGE.map((k) => [k.id, k]));
       index = null;
       libraryState = { loaded: true, loading: null, files: mods.length, error: null };
@@ -62,12 +65,73 @@ export function loadLibrary() {
   return libraryState.loading;
 }
 
+
+/**
+ * Many works appear only inside another entry's `works` list ("Things Fall Apart" under the African Writers Series). So that a
+ * question about such a work can be answered, each listed title that has no record of its own gets a small lookup record built
+ * from what the library already says (title, author, year, where it is listed). Nothing is added that the library does not hold.
+ */
+const surname = (a) => strip(String(a ?? '')).toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[^\p{L} ]+/gu, ' ').trim().split(/\s+/).pop() ?? '';
+const mainTitle = (t) => noArticle(nameKey(String(t).split(/[:;]| or,? /i)[0]));
+export function derivedWorks(entries) {
+  const have = new Map(); // main title -> surnames of standalone works
+  for (const k of entries) {
+    if (k.kind !== 'work') continue;
+    for (const t of new Set([mainTitle(k.name), noArticle(nameKey(k.name))])) have.set(t, [...(have.get(t) ?? []), surname(k.author)]);
+  }
+  const found = new Map();
+  for (const k of entries) {
+    for (const w of k.works ?? []) {
+      if (!w?.title || !w?.author) continue;
+      const t = mainTitle(w.title);
+      const sn = surname(w.author);
+      if (!t || !sn) continue;
+      const known = have.get(t);
+      if (known && (known.includes(sn) || !known.some(Boolean))) continue;
+      const key = `${t}|${sn}`;
+      const cur = found.get(key) ?? { w, where: [] };
+      if (!cur.where.includes(k.name)) cur.where.push(k.name);
+      found.set(key, cur);
+    }
+  }
+  const slug = (s) => nameKey(s).replace(/ /g, '-').slice(0, 60);
+  const out = [];
+  for (const [key, { w, where }] of found) {
+    const [t, sn] = key.split('|');
+    out.push(
+      fromRecord({
+        id: `work-ref-${slug(w.title)}-${sn.replace(/ /g, '-')}`,
+        kind: 'work',
+        name: String(w.title),
+        author: String(w.author),
+        year: w.year ?? null,
+        summary: `${w.title} is a work by ${w.author}${w.year ? `, first published or first performed in ${w.year}` : ''}. NIE's library lists it as a representative work under: ${where.slice(0, 3).join('; ')}.`,
+        kw: [String(w.title).toLowerCase(), String(w.author).toLowerCase()],
+        derived: true,
+      })
+    );
+  }
+  return out;
+}
+
 export const USAGE_NOTE =
   'Reference knowledge only. These are tools a writer may use or deliberately break — never rules to enforce, never a box to put the story in.';
 
 export const getEntry = (id) => byId.get(id) ?? null;
 
-const tokens = (s) => (String(s).match(WORD_RE) ?? []).map(stem);
+const strip = (s) => String(s).normalize('NFD').replace(/\p{M}/gu, '');
+const norm = (w) => w.toLowerCase().replace(/['’]s$/, '').replace(/['’]/g, '');
+// Diacritics are ignored ("Négritude" is found by "negritude") and hyphenated words are indexed whole and in parts
+// ("three-act" is found by "three act").
+const tokens = (s) => {
+  const out = [];
+  for (const w of strip(s).match(WORD_RE) ?? []) {
+    const lw = norm(w);
+    out.push(stem(lw));
+    if (lw.includes('-')) for (const part of lw.split('-')) if (part) out.push(stem(part));
+  }
+  return out;
+};
 
 // BM25-lite index, built on first use and rebuilt when the large library arrives.
 let index = null;
@@ -76,12 +140,41 @@ const tf = (toks) => {
   for (const t of toks) m.set(t, (m.get(t) ?? 0) + 1);
   return m;
 };
+const nameKey = (s) =>
+  strip(s)
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/['’]/g, '')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()
+    .split(' ')
+    .map(stem)
+    .join(' ');
+const noArticle = (key) => key.replace(/^(?:the|a|an) /, '');
 function build() {
+  const exact = new Map();
   const docs = KNOWLEDGE.map((k) => {
-    const name = tokens([k.name, ...k.aka, k.author ?? ''].join(' '));
-    const kw = tokens([...k.keywords, k.topic ?? '', k.guide ?? '', ...k.scope].join(' '));
-    const body = tokens([k.summary, ...k.conventions, ...k.deliberateWhen, ...k.watchFor, k.example ?? ''].join(' '));
-    return { k, f: { name: tf(name), kw: tf(kw), body: tf(body) }, len: name.length + kw.length + body.length, w: KIND_WEIGHT[k.kind] ?? 1 };
+    const nameToks = tokens([k.name, ...k.aka, k.author ?? ''].join(' '));
+    const kwToks = tokens([...k.keywords, k.topic ?? '', k.guide ?? '', ...k.scope].join(' '));
+    const bodyToks = tokens([k.summary, ...k.conventions, ...k.deliberateWhen, ...k.watchFor, k.example ?? ''].join(' '));
+    for (const [list, tier] of [[[k.name, ...k.aka], 'name'], [k.keywords, 'kw']]) {
+      for (const n of list) {
+        const key = nameKey(n);
+        for (const kk of new Set([key, noArticle(key)])) {
+          if (!kk) continue;
+          const m = exact.get(kk) ?? new Map();
+          if (tier === 'name' || !m.has(k)) m.set(k, tier);
+          exact.set(kk, m);
+        }
+      }
+    }
+    return {
+      k,
+      f: { name: tf(nameToks), kw: tf(kwToks), body: tf(bodyToks) },
+      len: nameToks.length + kwToks.length + bodyToks.length,
+      w: KIND_WEIGHT[k.kind] ?? 1,
+      title: new Set(tokens([k.name, ...k.aka].join(' '))),
+    };
   });
   const df = new Map();
   for (const d of docs) {
@@ -89,68 +182,155 @@ function build() {
     for (const t of seen) df.set(t, (df.get(t) ?? 0) + 1);
   }
   const avg = docs.reduce((a, d) => a + d.len, 0) / docs.length;
-  index = { docs, df, avg, N: docs.length };
+  index = { docs, df, avg, N: docs.length, exact };
 }
 
 const WEIGHTS = { name: 4, kw: 3, body: 1 };
 // Craft questions should surface craft knowledge first; a bibliographic work only outranks it when the question is about the work.
 const KIND_WEIGHT = { work: 0.6, usage: 0.9, rule: 0.95 };
-const QUERY_FILLER = new Set(['want', 'need', 'idea', 'make', 'help', 'something', 'like', 'could', 'would', 'think', 'know', 'dont', 'don\'t', 'how', 'what', 'also', 'really']);
+const QUERY_FILLER = new Set(['okay', 'ok', 'allowed', 'acceptable', 'proper', 'properly', 'correct', 'correctly', 'wrong', 'right', 'tell', 'explain', 'describe', 'define', 'meaning', 'mean', 'means', 'difference', 'want', 'need', 'idea', 'make', 'help', 'something', 'like', 'could', 'would', 'think', 'know', 'dont', 'don\'t', 'how', 'what', 'also', 'really']);
 
 /** Keyword-ranked search over the library. Returns entries; use `searchScored` when the strength of the match matters. */
 export function search(query, opts = {}) {
   return searchScored(query, opts).map((s) => s.entry);
 }
 
+// Words that carry the question, not the topic. "vs" and friends only join two topics.
+const JOINERS = new Set(['vs', 'versus', 'or', 'and', 'the', 'a', 'an']);
+// Words the stopword list drops but that can BE the topic ("who vs whom", "its or it's", "that or which").
+const TOPIC_WORDS = new Set(['who', 'whom', 'whose', 'which', 'that', 'than', 'then', 'their', 'there', 'they', 'them', 'its', 'it']);
+
+/** The content words of a question as index tokens. Two-letter terms count ("AP", "UK", "em dash"). */
+function queryTokens(query) {
+  const words = (strip(query).match(WORD_RE) ?? []).map(norm).filter((w) => w && !JOINERS.has(w));
+  const content = words.filter((w) => !STOPWORDS.has(w) && !QUERY_FILLER.has(w));
+  let chosen = content;
+  // A question made only of function words ("who vs whom") is about those words.
+  if (content.length <= 1) chosen = words.filter((w) => !QUERY_FILLER.has(w) && (!STOPWORDS.has(w) || TOPIC_WORDS.has(w)));
+  return [...new Set(chosen.flatMap((w) => [stem(w), ...(w.includes('-') ? w.split('-').filter(Boolean).map(stem) : [])]))].filter((t) => t.length > 1);
+}
+
+// "What is a sonnet?" -> "sonnet": the subject of a definition-style question, for an exact name match.
+const LEAD_WORDS = new Set('what whats is are was were a an the define explain describe tell me about meaning of does do mean means difference differences between how to i you should can use when who'.split(' '));
+function subjectOf(query) {
+  const w = nameKey(query).split(' ').filter(Boolean);
+  while (w.length > 1 && LEAD_WORDS.has(w[0])) w.shift();
+  return w.join(' ');
+}
+
 /** Like `search`, but with scores, so a caller can tell "a good answer" from "the least bad entry". */
 export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } = {}) {
   if (!index) build();
-  const rawWords = (String(query).match(WORD_RE) ?? []).filter((w) => !STOPWORDS.has(w.toLowerCase()) && !QUERY_FILLER.has(w.toLowerCase()));
-  const q = [...new Set(rawWords.map(stem))].filter((t) => t.length > 2);
+  const q = queryTokens(query);
   if (!q.length) return [];
-  const { docs, df, avg, N } = index;
+  const { docs, df, avg, N, exact } = index;
   const k1 = 1.2;
   const b = 0.6;
   const idfs = q.map((t) => Math.log(1 + (N - (df.get(t) ?? 0) + 0.5) / ((df.get(t) ?? 0) + 0.5)));
+  const idfTotal = idfs.reduce((a, x) => a + x, 0);
+  const exactHits = new Map();
+  for (const key of new Set([noArticle(nameKey(query)), subjectOf(query)])) for (const [k, tier] of exact.get(key) ?? []) if (exactHits.get(k) !== 'name') exactHits.set(k, tier);
   const scored = [];
   for (const d of docs) {
     if (kinds && !kinds.includes(d.k.kind)) continue;
     let score = 0;
+    let head = 0; // how much of the question (by rarity) the entry's name, aliases and keywords cover
+    let any = 0;
     for (let i = 0; i < q.length; i++) {
       const t = q[i];
+      const inHead = d.f.name.has(t) || d.f.kw.has(t);
       const tfv = WEIGHTS.name * (d.f.name.get(t) ?? 0) + WEIGHTS.kw * (d.f.kw.get(t) ?? 0) + WEIGHTS.body * (d.f.body.get(t) ?? 0);
       if (!tfv) continue;
       score += (idfs[i] * tfv * (k1 + 1)) / (tfv + k1 * (1 - b + (b * d.len) / avg));
+      if (inHead) head += idfs[i];
+      any += inHead ? idfs[i] : idfs[i] * 0.35;
     }
     score *= d.w;
-    if (score >= minScore) scored.push({ entry: d.k, score });
+    const isExact = exactHits.has(d.k);
+    if (isExact) score += exactHits.get(d.k) === 'name' ? 30 : 20;
+    if (score >= minScore) scored.push({ entry: d.k, score, headCoverage: isExact ? 1 : head / idfTotal, coverage: isExact ? 1 : any / idfTotal, exact: isExact });
   }
   scored.sort((a, b2) => b2.score - a.score);
+  // Coverage that counts: one name, alias or keyword phrase (plus the guide and topic) must hold most of the question, not
+  // several different keywords that each hold a piece of it ("capital" in one, "France" in another).
+  const need = q.map((t, i) => [t, idfs[i]]);
+  for (const x of scored.slice(0, Math.max(limit, 12))) {
+    if (x.exact) continue;
+    const k = x.entry;
+    const phrases = [[k.name, k.guide ?? '', k.topic ?? ''].join(' '), ...k.aka, ...k.keywords];
+    let bestCov = 0;
+    for (const ph of phrases) {
+      const toks = new Set(tokens(ph));
+      let c = 0;
+      let n = 0;
+      for (const [t, w] of need) if (toks.has(t)) { c += w; n++; }
+      // Both measures must agree: by rarity ("France" alone is most of "capital of France") and by count of the question's words.
+      const cov = Math.min(c / idfTotal, n / need.length);
+      if (cov > bestCov) bestCov = cov;
+    }
+    x.headCoverage = bestCov;
+  }
   return scored.slice(0, limit);
 }
 
-const PROFILE_KINDS = ['genre', 'structure', 'style', 'form', 'technique', 'movement', 'tradition'];
+// "Who wrote X?", "author of X", "when was X published?": the answer is a work, and only that work (or nothing).
+const WORK_PATTERNS = [
+  /\bwho (?:wrote|authored|is the author of|was the author of)\s+(.+)/i,
+  /\b(?:the )?author of\s+(.+)/i,
+  /\bwhen was\s+(.+?)\s+(?:first )?(?:published|written|released)\b/i,
+  /\bwhat year was\s+(.+?)\s+(?:first )?(?:published|written|released)\b/i,
+  /\b(?:what|which) genre (?:is|are|was)\s+(.+?)\s*\??$/i,
+];
+function workQuestion(query) {
+  let title = null;
+  for (const re of WORK_PATTERNS) {
+    const m = String(query).match(re);
+    if (m) {
+      title = m[1];
+      break;
+    }
+  }
+  if (title === null) return null;
+  const want = [...new Set(tokens(title.replace(/\b(?:the book|the novel|the play|the poem)\b/gi, ' ')).filter((t) => t.length > 1 && !STOPWORDS.has(t)))];
+  const matches = [];
+  if (want.length) {
+    if (!index) build();
+    for (const d of index.docs) {
+      if (d.k.kind !== 'work') continue;
+      const hit = want.filter((t) => d.title.has(t)).length;
+      if (hit / want.length >= 0.85) matches.push({ entry: d.k, score: hit / want.length - d.title.size * 0.001 });
+    }
+  }
+  return matches.sort((a, b) => b.score - a.score);
+}
 
-/**
- * How well does the library answer a question? 'strong' = an entry is clearly about it; 'weak' = related entries only;
- * 'none' = nothing relevant. NIE uses this to answer from the library with its sources, or to say plainly that it does not
- * have the answer instead of guessing.
- */
 export const STRONG_SCORE = 11;
+// A strong answer must be about what the question names: the entry's own name, aliases and keywords have to cover most of it.
+// (Scores alone are not enough: in a library of thousands of entries, one rare word is enough to score "well".)
+const STRONG_COVERAGE = 0.6;
+const WEAK_COVERAGE = 0.5;
 export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
+  // A question about who wrote / when was published is answered by that work, or by saying the library does not hold it.
+  const work = workQuestion(query);
+  if (work) {
+    if (!work.length) return { strength: 'none', entries: [], related: [] };
+    return { strength: 'strong', entries: work.slice(0, limit).map((x) => x.entry), related: [] };
+  }
   const scored = searchScored(query, { limit: Math.max(limit, 6), minScore: 1.2, kinds });
   if (!scored.length) return { strength: 'none', entries: [], related: [] };
-  const top = scored[0].score;
+  const best = scored[0];
+  const top = best.score;
   // A weak match only counts when the question actually names the entry's topic ("how do I punctuate dialogue" names
   // "dialogue"); otherwise a keyword accident ("the detective wants…" -> mystery) would hijack talk about the writer's story.
-  const q = new Set((String(query).match(WORD_RE) ?? []).map(stem));
-  const nameStems = tokens([scored[0].entry.name, ...scored[0].entry.aka].join(' '));
-  const nameHit = nameStems.some((t) => q.has(t) && t.length > 2 && !STOPWORDS.has(t));
-  let strength = top >= STRONG_SCORE ? 'strong' : top >= STRONG_SCORE * 0.55 ? 'weak' : 'none';
-  if (strength === 'weak' && !nameHit) strength = 'none';
+  const q = new Set(queryTokens(query));
+  const nameStems = tokens([best.entry.name, ...best.entry.aka].join(' '));
+  const nameHit = best.exact || nameStems.some((t) => q.has(t) && t.length > 1 && !STOPWORDS.has(t));
+  let strength = 'none';
+  if (top >= STRONG_SCORE && best.headCoverage >= STRONG_COVERAGE) strength = 'strong';
+  else if (top >= STRONG_SCORE * 0.55 && best.headCoverage >= WEAK_COVERAGE && nameHit) strength = 'weak';
   if (strength === 'none') return { strength, entries: [], related: scored.slice(0, 3).map((x) => x.entry) };
   // Entries close in score to the best one belong to the answer; the rest are only "related".
-  const entries = scored.filter((x) => x.score >= top * 0.72).slice(0, limit).map((x) => x.entry);
+  const entries = scored.filter((x) => x.score >= top * 0.72 && x.headCoverage >= WEAK_COVERAGE).slice(0, limit).map((x) => x.entry);
   const related = scored.map((x) => x.entry).filter((e) => !entries.includes(e)).slice(0, 4);
   return { strength, entries, related };
 }
@@ -234,5 +414,6 @@ export function libraryStats() {
     byKind[k.kind] = (byKind[k.kind] ?? 0) + 1;
     if (k.kind === 'rule' && k.guide) guides.add(k.guide);
   }
-  return { total: KNOWLEDGE.length, byKind, ruleGuides: [...guides].sort(), loaded: libraryState.loaded };
+  const derived = KNOWLEDGE.filter((k) => k.derived).length;
+  return { total: KNOWLEDGE.length, derived, byKind, ruleGuides: [...guides].sort(), loaded: libraryState.loaded };
 }

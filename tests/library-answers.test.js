@@ -71,3 +71,52 @@ test('coverage can be reported honestly', () => {
   assert.equal(s.loaded, true);
   assert.ok(s.byKind.genre > 0);
 });
+
+// ── Retrieval quality over a library of thousands of entries (fixture: tests/fixtures/library-questions.json) ──
+import { readFileSync } from 'node:fs';
+const QUESTIONS = JSON.parse(readFileSync(new URL('./fixtures/library-questions.json', import.meta.url), 'utf8'));
+const plain = (s) => s.normalize('NFD').replace(/\p{M}/gu, '');
+
+test('questions the library should answer are answered by an entry that is about them (at least 90%)', () => {
+  const misses = [];
+  for (const [q, re] of QUESTIONS.found) {
+    const a = answerFromLibrary(q, { limit: 3 });
+    const ok = a.strength !== 'none' && a.entries.some((e) => new RegExp(re, 'i').test(plain(e.name)));
+    if (!ok) misses.push(`${q} -> ${a.strength}: ${a.entries.map((e) => e.name).join(' | ')}`);
+  }
+  assert.ok(misses.length <= QUESTIONS.found.length * 0.1, `${misses.length} of ${QUESTIONS.found.length} missed:\n${misses.join('\n')}`);
+});
+
+test('questions outside the library are never answered with a confident, unrelated entry', () => {
+  for (const q of QUESTIONS.absent) {
+    const a = answerFromLibrary(q);
+    assert.equal(a.strength, 'none', `${q} -> ${a.entries.map((e) => e.name).join(' | ')}`);
+  }
+});
+
+test('"who wrote X" is answered by that work, or the library says it does not hold it', () => {
+  const known = answerFromLibrary('who wrote Pride and Prejudice');
+  assert.equal(known.strength, 'strong');
+  assert.match(known.entries[0].name, /Pride and Prejudice/);
+  assert.match(known.entries[0].author, /Austen/);
+  const listedOnly = answerFromLibrary('who wrote Things Fall Apart'); // listed inside other entries, no record of its own
+  assert.equal(listedOnly.strength, 'strong');
+  assert.match(listedOnly.entries[0].author, /Achebe/);
+  assert.equal(answerFromLibrary('who wrote The Zanzibar Chronicles of Brimstone Fell').strength, 'none');
+});
+
+test('two-letter terms, diacritics and hyphenated names are matched', () => {
+  assert.match(answerFromLibrary('AP style numbers').entries.map((e) => e.name).join(' '), /one through nine|number|figures/i);
+  assert.equal(answerFromLibrary('what is negritude').strength, 'strong');
+  assert.match(answerFromLibrary('what is the three act structure').entries.map((e) => e.name).join(' '), /three-act/i);
+  assert.equal(answerFromLibrary('who vs whom').strength, 'strong');
+});
+
+test('works listed inside other entries get lookup records, marked as derived, and nothing is invented', () => {
+  const s = libraryStats();
+  assert.ok(s.derived > 500, `derived lookup records: ${s.derived}`);
+  const a = answerFromLibrary('who wrote Things Fall Apart').entries[0];
+  assert.equal(a.derived, true);
+  assert.match(a.summary, /Chinua Achebe/);
+  assert.match(a.summary, /lists it as a representative work under/);
+});

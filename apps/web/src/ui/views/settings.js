@@ -52,7 +52,7 @@ export function mountSettings(root, app, { startTour }) {
     libSummary.textContent = status.error
       ? `NIE's full library could not be loaded (${status.error}). Core craft notes still work.`
       : status.loaded
-        ? `${st.total.toLocaleString()} entries are built in and work with no internet.`
+        ? `${st.total.toLocaleString()} entries are built in and work with no internet${st.derived ? ` (${st.derived.toLocaleString()} of them are short lookup records for works listed inside other entries)` : ''}. It cannot hold everything; when something isn't in it, NIE says so.`
         : `${st.total.toLocaleString()} core entries are ready; the full library is loading…`;
     clear(libCoverage).append(...Object.entries(st.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => h('span', { class: 'tag', title: KIND_LABELS[k] ?? k }, `${KIND_LABELS[k] ?? k}: ${n.toLocaleString()}`)));
     if (st.ruleGuides.length) libCoverage.append(h('p', { class: 'muted small library-guides' }, `Style rules from: ${st.ruleGuides.join(', ')}.`));

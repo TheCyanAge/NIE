@@ -69,11 +69,6 @@ export default [
     kw: ['gaston leroux', 'locked room', 'impossible crime', 'rouletabille', 'le mystere de la chambre jaune'], genres: ['locked-room mystery', 'detective fiction'],
   },
   {
-    id: 'work-pop-arsene-lupin-gentleman-burglar', kind: 'work', name: 'Arsène Lupin, Gentleman-Burglar', author: 'Maurice Leblanc', year: 1907, language: 'French', region: 'France', confidence: 'established',
-    summary: 'A story collection introducing a charming thief and master of disguise as its hero, which gave crime fiction a lasting gentleman-rogue protagonist and a French counterpart to Sherlock Holmes. In French, Arsène Lupin, gentleman-cambrioleur.',
-    kw: ['maurice leblanc', 'arsene lupin', 'gentleman thief', 'rogue hero', 'french crime fiction'], genres: ['crime fiction', 'caper', 'short story collection'],
-  },
-  {
     id: 'work-pop-the-riddle-of-the-sands', kind: 'work', name: 'The Riddle of the Sands', author: 'Erskine Childers', year: 1903, language: 'English', region: 'United Kingdom', confidence: 'established',
     summary: 'A yachting adventure in which two amateur sailors uncover signs of a foreign invasion plan along a coast of shallow channels; often named as an early spy novel and an influence on later invasion-scare fiction.',
     kw: ['erskine childers', 'spy novel', 'sailing', 'invasion', 'early spy fiction'], genres: ['spy fiction', 'adventure'],

@@ -32,6 +32,7 @@ export function entry(id, kind, name, summary, o = {}) {
     year: o.year ?? null,
     language: o.language ?? null,
     genres: o.genres ?? [],
+    derived: o.derived ?? false, // a lookup record built from a `works` list inside another entry, not written as its own record
   });
 }
 
