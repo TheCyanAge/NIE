@@ -1156,7 +1156,7 @@ export default [
     summary: 'A URL ends the entry as a plain, complete link with no "Retrieved from" before it and no period after it. Long links may wrap onto the next line, but writers do not add hyphens or spaces to break them.',
     conv: [
       'Copy the whole address, including the https part.',
-      'Do not write "Retrieved from" or "Available at" before the link.',
+      'Do not write "Retrieved from" or "Available at" before the link; the exception is a page built to change over time, such as a social media profile, where a retrieval date and "from" come first.',
       'Do not add a final period, which can break the link.',
       'Prefer a short, stable form of the link if the source offers one, and avoid addresses with session information.',
       'Let the word processor wrap long links and do not insert manual line breaks or hyphens.',

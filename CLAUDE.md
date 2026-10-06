@@ -32,7 +32,7 @@
   real `works` on genres). `node scripts/build-library-index.mjs` regenerates `library/index.js` (the test fails if it is stale).
 - NIE answers general craft/style/usage/work questions from it with the guide and edition, flags `varies`/`contested`, and when nothing matches says
   so instead of guessing (`answerFromLibrary`, `libraryReply`, `libraryMissReply`). Library knowledge is reference only: only the writer's own rules are enforced.
-- It cannot be exhaustive; never claim it is. Coverage is shown in Settings (`libraryStats`).
+- It cannot be exhaustive and is not fully verified; never claim either. It was written with AI assistance and only spot-checked (a 220-claim sample; see docs/STATUS.md); coverage and the reliability note are shown in Settings (`libraryStats`). Retrieval is measured by `tests/fixtures/library-questions.json` (`scripts/library-probe.mjs` asks it anything). Works listed only inside other entries get derived lookup records (`derivedWorks`).
 
 ## Windows package
 `.github/workflows/windows-package.yml` builds on a real Windows runner, smoke-tests the packaged exe with the real runtime + real Qwen

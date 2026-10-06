@@ -401,22 +401,22 @@ export default [
   },
   // ---- Shakespeare ----
   {
-    id: 'work-play-romeo-and-juliet', kind: 'work', name: 'Romeo and Juliet', author: 'William Shakespeare', year: 1597, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-romeo-and-juliet', kind: 'work', name: 'Romeo and Juliet', author: 'William Shakespeare', year: 1595, language: 'English', region: 'England', confidence: 'established',
     summary: 'A tragedy of two young lovers from feuding families in Verona, notable for its blend of lyric poetry and comic energy.',
     kw: ['shakespeare', 'star-crossed lovers', 'elizabethan tragedy', 'verona'], genres: ['tragedy', 'romantic tragedy'],
   },
   {
-    id: 'work-play-a-midsummer-nights-dream', kind: 'work', name: "A Midsummer Night's Dream", author: 'William Shakespeare', year: 1600, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-a-midsummer-nights-dream', kind: 'work', name: "A Midsummer Night's Dream", author: 'William Shakespeare', year: 1595, language: 'English', region: 'England', confidence: 'established',
     summary: 'A comedy that interweaves lovers, fairies and amateur actors in a single night in the woods near Athens.',
     kw: ['shakespeare', 'midsummer night dream', 'fairies', 'comedy', 'play within a play'], genres: ['romantic comedy', 'fantasy comedy'],
   },
   {
-    id: 'work-play-the-merchant-of-venice', kind: 'work', name: 'The Merchant of Venice', author: 'William Shakespeare', year: 1600, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-the-merchant-of-venice', kind: 'work', name: 'The Merchant of Venice', author: 'William Shakespeare', year: 1597, language: 'English', region: 'England', confidence: 'established',
     summary: 'A comedy built around a bond secured against a pound of flesh, and a continuing subject of debate for its portrayal of a Jewish moneylender and of prejudice.',
     kw: ['shakespeare', 'shylock', 'problem play', 'venice', 'bond'], genres: ['comedy', 'problem play'],
   },
   {
-    id: 'work-play-much-ado-about-nothing', kind: 'work', name: 'Much Ado About Nothing', author: 'William Shakespeare', year: 1600, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-much-ado-about-nothing', kind: 'work', name: 'Much Ado About Nothing', author: 'William Shakespeare', year: 1599, language: 'English', region: 'England', confidence: 'established',
     summary: 'A comedy pairing two witty, sparring lovers with a more conventional courtship that is threatened by a slander.',
     kw: ['shakespeare', 'beatrice and benedick', 'romantic comedy', 'wit'], genres: ['romantic comedy'],
   },
@@ -436,37 +436,37 @@ export default [
     kw: ['shakespeare', 'agincourt', 'history play', 'chorus', 'war play'], genres: ['history play'],
   },
   {
-    id: 'work-play-julius-caesar', kind: 'work', name: 'Julius Caesar', author: 'William Shakespeare', year: 1623, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-julius-caesar', kind: 'work', name: 'Julius Caesar', author: 'William Shakespeare', year: 1599, language: 'English', region: 'England', confidence: 'established',
     summary: "A tragedy of conspiracy and its consequences in Rome, with the title figure's death at its centre and the political aftermath filling the second half.",
     kw: ['shakespeare', 'roman play', 'brutus', 'political tragedy', 'conspiracy'], genres: ['political tragedy', 'Roman play'],
   },
   {
-    id: 'work-play-hamlet', kind: 'work', name: 'Hamlet', author: 'William Shakespeare', year: 1603, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-hamlet', kind: 'work', name: 'Hamlet', author: 'William Shakespeare', year: 1600, language: 'English', region: 'England', confidence: 'established',
     summary: 'A tragedy of a prince asked to avenge his father, notable for its soliloquies, its play within a play and its questions of action and doubt.',
     kw: ['shakespeare', 'revenge tragedy', 'soliloquy', 'denmark', 'tragic hero'], genres: ['tragedy', 'revenge tragedy'],
   },
   {
-    id: 'work-play-othello', kind: 'work', name: 'Othello', author: 'William Shakespeare', year: 1622, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-othello', kind: 'work', name: 'Othello', author: 'William Shakespeare', year: 1604, language: 'English', region: 'England', confidence: 'established',
     summary: 'A tragedy about a general, his marriage and the ensign who plots against him; a study of jealousy and manipulation.',
     kw: ['shakespeare', 'iago', 'jealousy', 'tragedy', 'venice'], genres: ['tragedy', 'domestic tragedy'],
   },
   {
-    id: 'work-play-king-lear', kind: 'work', name: 'King Lear', author: 'William Shakespeare', year: 1608, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-king-lear', kind: 'work', name: 'King Lear', author: 'William Shakespeare', year: 1606, language: 'English', region: 'England', confidence: 'established',
     summary: "A tragedy of an aged king who divides his kingdom among his daughters and misjudges their love, with a parallel plot in a nobleman's family.",
     kw: ['shakespeare', 'tragedy', 'parallel plot', 'old age', 'family tragedy'], genres: ['tragedy'],
   },
   {
-    id: 'work-play-macbeth', kind: 'work', name: 'Macbeth', author: 'William Shakespeare', year: 1623, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-macbeth', kind: 'work', name: 'Macbeth', author: 'William Shakespeare', year: 1606, language: 'English', region: 'England', confidence: 'established',
     summary: "A tragedy of a Scottish nobleman whose ambition is stirred by a prophecy; the shortest of Shakespeare's tragedies.",
     kw: ['shakespeare', 'ambition', 'witches', 'scottish play', 'tragedy'], genres: ['tragedy'],
   },
   {
-    id: 'work-play-twelfth-night', kind: 'work', name: 'Twelfth Night', author: 'William Shakespeare', year: 1623, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-twelfth-night', kind: 'work', name: 'Twelfth Night', author: 'William Shakespeare', year: 1601, language: 'English', region: 'England', confidence: 'established',
     summary: 'A romantic comedy of shipwreck, disguise and mistaken identity in which a young woman serves a duke as a page.',
     kw: ['shakespeare', 'viola', 'cross-dressing comedy', 'romantic comedy', 'disguise'], genres: ['romantic comedy', 'comedy of disguise'],
   },
   {
-    id: 'work-play-as-you-like-it', kind: 'work', name: 'As You Like It', author: 'William Shakespeare', year: 1623, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-as-you-like-it', kind: 'work', name: 'As You Like It', author: 'William Shakespeare', year: 1599, language: 'English', region: 'England', confidence: 'established',
     summary: 'A pastoral comedy in which characters flee a hostile court for the Forest of Arden, where love and disguise reshape their lives.',
     kw: ['shakespeare', 'rosalind', 'forest of arden', 'pastoral comedy'], genres: ['pastoral comedy', 'romantic comedy'],
   },
@@ -476,7 +476,7 @@ export default [
     kw: ['shakespeare', 'late romance', 'tragicomedy', 'jealousy', 'reconciliation'], genres: ['late romance', 'tragicomedy'],
   },
   {
-    id: 'work-play-measure-for-measure', kind: 'work', name: 'Measure for Measure', author: 'William Shakespeare', year: 1623, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-measure-for-measure', kind: 'work', name: 'Measure for Measure', author: 'William Shakespeare', year: 1604, language: 'English', region: 'England', confidence: 'established',
     summary: 'A play about a duke who leaves his city in a deputy\'s hands, raising questions of law, mercy and hypocrisy; often classed as a problem play.',
     kw: ['shakespeare', 'problem play', 'justice', 'mercy', 'vienna'], genres: ['problem play', 'dark comedy'],
   },
@@ -497,17 +497,17 @@ export default [
     kw: ['marlowe', 'blank verse', 'elizabethan tragedy', 'conqueror'], genres: ['tragedy', 'heroic drama'],
   },
   {
-    id: 'work-play-doctor-faustus', kind: 'work', name: 'Doctor Faustus', author: 'Christopher Marlowe', year: 1604, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-doctor-faustus', kind: 'work', name: 'Doctor Faustus', author: 'Christopher Marlowe', year: 1592, language: 'English', region: 'England', confidence: 'established',
     summary: 'A tragedy about a scholar who exchanges his soul for knowledge and power; it survives in two significantly different early texts.',
     kw: ['marlowe', 'faust', 'a-text b-text', 'devil pact', 'elizabethan tragedy'], genres: ['tragedy', 'morality-influenced drama'],
   },
   {
-    id: 'work-play-edward-ii', kind: 'work', name: 'Edward II', author: 'Christopher Marlowe', year: 1594, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-edward-ii', kind: 'work', name: 'Edward II', author: 'Christopher Marlowe', year: 1592, language: 'English', region: 'England', confidence: 'established',
     summary: 'A history play about a king whose attachment to favourites alienates the nobility; an early English history play with a psychological focus.',
     kw: ['marlowe', 'history play', 'elizabethan drama', 'favourites'], genres: ['history play', 'tragedy'],
   },
   {
-    id: 'work-play-the-spanish-tragedy', kind: 'work', name: 'The Spanish Tragedy', author: 'Thomas Kyd', year: 1592, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-the-spanish-tragedy', kind: 'work', name: 'The Spanish Tragedy', author: 'Thomas Kyd', year: 1587, language: 'English', region: 'England', confidence: 'established',
     summary: 'A revenge tragedy that helped set the genre\'s conventions, including a ghost, a play within a play and madness; an influence on Hamlet.',
     kw: ['kyd', 'revenge tragedy', 'elizabethan drama', 'ghost', 'play within a play'], genres: ['revenge tragedy'],
   },
@@ -517,12 +517,12 @@ export default [
     kw: ['jonson', 'city comedy', 'satire', 'greed', 'jacobean comedy'], genres: ['city comedy', 'satire'],
   },
   {
-    id: 'work-play-the-alchemist', kind: 'work', name: 'The Alchemist', author: 'Ben Jonson', year: 1612, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-the-alchemist', kind: 'work', name: 'The Alchemist', author: 'Ben Jonson', year: 1610, language: 'English', region: 'England', confidence: 'established',
     summary: 'A city comedy in which three confidence tricksters use a London house to exploit the greed and gullibility of their clients; admired for its tightly engineered plot.',
     kw: ['jonson', 'city comedy', 'con artists', 'jacobean comedy', 'farce plotting'], genres: ['city comedy', 'satire'],
   },
   {
-    id: 'work-play-the-duchess-of-malfi', kind: 'work', name: 'The Duchess of Malfi', author: 'John Webster', year: 1623, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-the-duchess-of-malfi', kind: 'work', name: 'The Duchess of Malfi', author: 'John Webster', year: 1613, language: 'English', region: 'England', confidence: 'established',
     summary: 'A Jacobean tragedy of a widowed duchess who defies her brothers\' control over her choice of husband, noted for its dark imagery and tragic dignity.',
     kw: ['webster', 'jacobean tragedy', 'revenge tragedy', 'italian court'], genres: ['Jacobean tragedy', 'revenge tragedy'],
   },
@@ -532,7 +532,7 @@ export default [
     kw: ['webster', 'jacobean tragedy', 'revenge tragedy', 'vittoria'], genres: ['Jacobean tragedy', 'revenge tragedy'],
   },
   {
-    id: 'work-play-the-changeling', kind: 'work', name: 'The Changeling', author: 'Thomas Middleton and William Rowley', year: 1653, language: 'English', region: 'England', confidence: 'established',
+    id: 'work-play-the-changeling', kind: 'work', name: 'The Changeling', author: 'Thomas Middleton and William Rowley', year: 1622, language: 'English', region: 'England', confidence: 'established',
     summary: 'A Jacobean tragedy of obsession and desire, with a subplot set in a madhouse that echoes the main action; Middleton and Rowley are credited as its co-authors.',
     kw: ['middleton', 'rowley', 'jacobean tragedy', 'subplot', 'madhouse'], genres: ['Jacobean tragedy'],
   },

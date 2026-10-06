@@ -599,7 +599,7 @@ export default [
     kw: ['zeugma', 'one verb two objects', 'sharing a verb', 'yoking', 'economy of words', 'gapping verb'],
     topic: 'syntax',
     confidence: 'varies',
-    works: [{ title: 'The Rape of the Lock', author: 'Alexander Pope', year: 1714 }],
+    works: [{ title: 'The Rape of the Lock', author: 'Alexander Pope', year: 1712 }],
   },
   {
     id: 'tech-rhet-syllepsis',
@@ -1481,7 +1481,7 @@ export default [
     kw: ['periphrasis', 'circumlocution', 'roundabout phrase', 'beating around the bush', 'wordy way of saying', 'indirect phrasing'],
     topic: 'trope',
     confidence: 'established',
-    works: [{ title: 'Little Dorrit', author: 'Charles Dickens', year: 1855 }],
+    works: [{ title: 'Little Dorrit', author: 'Charles Dickens', year: 1857 }],
   },
   {
     id: 'tech-rhet-euphemism',

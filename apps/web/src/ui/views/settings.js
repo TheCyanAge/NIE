@@ -55,6 +55,7 @@ export function mountSettings(root, app, { startTour }) {
         ? `${st.total.toLocaleString()} entries are built in and work with no internet${st.derived ? ` (${st.derived.toLocaleString()} of them are short lookup records for works listed inside other entries)` : ''}. It cannot hold everything; when something isn't in it, NIE says so.`
         : `${st.total.toLocaleString()} core entries are ready; the full library is loading…`;
     clear(libCoverage).append(...Object.entries(st.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => h('span', { class: 'tag', title: KIND_LABELS[k] ?? k }, `${KIND_LABELS[k] ?? k}: ${n.toLocaleString()}`)));
+    libCoverage.append(h('p', { class: 'muted small library-honesty' }, 'How reliable is it? It was compiled with AI assistance, checked by automatic rules and cross-checks, and spot-checked against independent sources, but it has not been fully verified entry by entry. Treat it as a reference, and check the current edition of a style guide for formal work.'));
     if (st.ruleGuides.length) libCoverage.append(h('p', { class: 'muted small library-guides' }, `Style rules from: ${st.ruleGuides.join(', ')}.`));
     paintLibraryResults();
   }

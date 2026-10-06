@@ -785,7 +785,7 @@ export default [
   {
     id: 'work-anc-simplicissimus', kind: 'work', name: 'Simplicissimus (Der abenteuerliche Simplicissimus Teutsch)', author: 'Hans Jakob Christoffel von Grimmelshausen', year: 1668, language: 'German', region: 'Germany',
     genres: ['picaresque novel', 'war narrative', 'Baroque novel'], kw: ['simplicissimus', 'grimmelshausen', 'thirty years war', 'picaresque', 'german baroque novel'], confidence: 'established',
-    summary: 'A German picaresque novel narrated by a naive boy who passes through the Thirty Years\' War as shepherd, soldier and wanderer; first published in 1668 and often regarded as the first major German novel.',
+    summary: 'A German picaresque novel narrated by a naive boy who passes through the Thirty Years\' War as shepherd, soldier and wanderer; first published in 1668 (the title page is dated 1669) and often regarded as the first major German novel.',
   },
   {
     id: 'work-anc-pilgrims-progress', kind: 'work', name: "The Pilgrim's Progress", author: 'John Bunyan', year: 1678, language: 'English', region: 'England',
@@ -1047,7 +1047,7 @@ export default [
   {
     id: 'work-anc-poems-of-tao-yuanming', kind: 'work', name: 'The Poems of Tao Yuanming', author: 'Tao Yuanming (Tao Qian)', year: 'c. 420 CE', language: 'Classical Chinese', region: 'China',
     genres: ['poetry collection', 'pastoral poetry', 'rustic lyric'], kw: ['tao yuanming', 'tao qian', 'peach blossom spring', 'field and garden poetry', 'jin dynasty poetry', 'chinese pastoral'], confidence: 'established',
-    summary: 'Poems and short prose by the Jin dynasty writer Tao Yuanming, who left office to farm, on field and garden life, wine and plain living; his work set a pattern for Chinese pastoral poetry, and the prose Peach Blossom Spring became a lasting image of utopia.',
+    summary: 'Poems and short prose, written over several decades and dated only roughly, by the Jin dynasty writer Tao Yuanming, who left office to farm, on field and garden life, wine and plain living; his work set a pattern for Chinese pastoral poetry, and the prose Peach Blossom Spring became a lasting image of utopia.',
   },
   {
     id: 'work-anc-mencius', kind: 'work', name: 'The Mencius (Mengzi)', author: 'Mencius (Meng Ke) and his disciples', year: 'c. 300 BCE', language: 'Classical Chinese', region: 'China',

@@ -72,7 +72,7 @@ export default [
     aka: ['English Renaissance literature', 'Tudor and Stuart writing'],
     works: [
       { title: 'The Faerie Queene', author: 'Edmund Spenser', year: 1590 },
-      { title: 'Hamlet', author: 'William Shakespeare', year: 1603 },
+      { title: 'Hamlet', author: 'William Shakespeare', year: 1600 },
       { title: 'The Anatomy of Melancholy', author: 'Robert Burton', year: 1621 },
       { title: 'Paradise Lost', author: 'John Milton', year: 1667 },
       { title: 'The Pilgrim\'s Progress', author: 'John Bunyan', year: 1678 },

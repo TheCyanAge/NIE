@@ -841,7 +841,7 @@ export default [
     works: [
       { title: "Adone", author: "Giambattista Marino", year: 1623 },
       { title: "El gran teatro del mundo", author: "Pedro Calderón de la Barca", year: "c. 1635" },
-      { title: "Soledades", author: "Luis de Góngora", year: 1636 },
+      { title: "Soledades", author: "Luis de Góngora", year: 1613 },
       { title: "Simplicissimus", author: "Hans Jakob Christoffel von Grimmelshausen", year: 1668 },
       { title: "Primero sueño", author: "Sor Juana Inés de la Cruz", year: 1692 },
     ],
@@ -872,7 +872,7 @@ export default [
     confidence: "established",
     works: [
       { title: "Le Cid", author: "Pierre Corneille", year: 1637 },
-      { title: "Tartuffe", author: "Molière", year: 1669 },
+      { title: "Tartuffe", author: "Molière", year: 1664 },
       { title: "Fables", author: "Jean de La Fontaine", year: 1668 },
       { title: "Phèdre", author: "Jean Racine", year: 1677 },
       { title: "La Princesse de Clèves", author: "Madame de La Fayette", year: 1678 },
