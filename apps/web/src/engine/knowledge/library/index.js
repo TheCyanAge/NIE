@@ -40,6 +40,7 @@ export const LIBRARY_FILES = [
   () => import('./rules/scientific-and-technical-style.js'),
   () => import('./rules/scripts-transliteration-and-spelling-variants.js'),
   () => import('./rules/technical-ux-and-plain-language.js'),
+  () => import('./structures/story-and-document-structures.js'),
   () => import('./traditions/asia-middle-east-africa-oceania-ancient.js'),
   () => import('./traditions/europe-americas-anglophone.js'),
   () => import('./usage/confusables-a.js'),
