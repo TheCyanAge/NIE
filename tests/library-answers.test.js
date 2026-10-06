@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { loadLibrary, answerFromLibrary, searchScored, libraryStats } from '../apps/web/src/engine/knowledge/index.js';
+import { libraryMissReply } from '../apps/web/src/engine/orchestrator/builtin.js';
 import { projectWith } from './helpers.js';
 
 await loadLibrary();
@@ -119,4 +120,16 @@ test('works listed inside other entries get lookup records, marked as derived, a
   assert.equal(a.derived, true);
   assert.match(a.summary, /Chinua Achebe/);
   assert.match(a.summary, /lists it as a representative work under/);
+});
+
+test('when nothing answers exactly but entries share the question\'s words, they are offered as the closest, never as the answer', () => {
+  const a = answerFromLibrary('how do i cite a legal brief in bluebook');
+  assert.equal(a.strength, 'none');
+  assert.ok(a.near.length >= 1);
+  const reply = libraryMissReply(a);
+  assert.match(reply, /I don't have an entry that answers that exactly, and I won't guess/);
+  assert.match(reply, /closest entries/);
+  assert.match(reply, /Bluebook/);
+  assert.ok(!/^From NIE's built-in library:/.test(reply));
+  assert.match(libraryMissReply(answerFromLibrary('What is the capital of France?')), /isn't in my built-in library, and I won't guess/);
 });

@@ -317,7 +317,7 @@ export const STRONG_SCORE = 11;
 // A strong answer must be about what the question names: the entry's own name, aliases and keywords have to cover most of it.
 // (Scores alone are not enough: in a library of thousands of entries, one rare word is enough to score "well".)
 // Tuned against tests/fixtures/library-questions.json (see tests/library-answers.test.js); exported so the tuning script can move them.
-export const TUNE = { ratio: 0.5, strong: 0.6, weak: 0.5, weakScore: 6 };
+export const TUNE = { ratio: 0.5, strong: 0.6, weak: 0.5, weakScore: 6, hiScore: 18, hiCov: 0.3, nearScore: 14 };
 // Talk about the writer's own work ("who is the killer in my story?") is not a reference question, unless it plainly asks for one.
 const OWN_WORK = /\b(?:my|our)\s+(?:story|stories|novel|book|manuscript|draft|character|characters|protagonist|hero|heroine|villain|antagonist|narrator|plot|scene|chapter|screenplay|script|poem|essay|memoir|series|world)\b/i;
 const REFERENCE_ASK = /\b(?:what is|what are|what's|define|meaning of|difference between|how (?:do|should) i (?:format|cite|punctuate|spell|capitalize|structure)|rule for|rules for|is it (?:\w+ or \w+))\b/i;
@@ -341,9 +341,16 @@ export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
   let strength = 'none';
   if (top >= STRONG_SCORE && best.headCoverage >= TUNE.strong) strength = 'strong';
   else if (top >= TUNE.weakScore && best.headCoverage >= TUNE.weak && nameHit) strength = 'weak';
-  if (strength === 'none') return { strength, entries: [], related: scored.slice(0, 3).map((x) => x.entry) };
+  // A very strong lexical match that names the entry covers only part of a long question: the closest entry, offered as such.
+  else if (top >= TUNE.hiScore && best.headCoverage >= TUNE.hiCov && nameHit) strength = 'weak';
+  if (strength === 'none') {
+    // Not an answer, but a good lexical match that shares a word of its NAME with the question is worth showing as "closest".
+    const inf = queryTokens(query);
+    const near = scored.filter((x) => x.score >= TUNE.nearScore && tokens([x.entry.name, ...x.entry.aka].join(' ')).some((t) => inf.includes(t) && t.length > 3 && !STOPWORDS.has(t))).slice(0, 2).map((x) => x.entry);
+    return { strength, entries: [], related: scored.slice(0, 3).map((x) => x.entry), near };
+  }
   // Entries close in score to the best one belong to the answer; the rest are only "related".
-  const entries = scored.filter((x) => x.score >= top * 0.72 && x.headCoverage >= TUNE.weak).slice(0, limit).map((x) => x.entry);
+  const entries = scored.filter((x) => x.score >= top * 0.72 && x.headCoverage >= (strength === 'weak' ? TUNE.hiCov : TUNE.weak)).slice(0, limit).map((x) => x.entry);
   const related = scored.map((x) => x.entry).filter((e) => !entries.includes(e)).slice(0, 4);
   return { strength, entries, related };
 }

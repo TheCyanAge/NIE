@@ -193,9 +193,20 @@ export function libraryReply(answer) {
 /** Honest "not in my library", used when nothing relevant was found. */
 export function libraryMissReply(answer) {
   const loading = !libraryStatus().loaded;
-  const near = answer.related?.length ? ` The nearest entries I have are: ${answer.related.map((e) => e.name).join(', ')}.` : '';
+  const near = answer.near ?? [];
+  if (!loading && near.length) {
+    // Not an answer, but entries that share the question's words in their names: shown as the closest, never as the answer.
+    const lines = near.map((e) => `- ${e.name}: ${firstSentence(e.summary)}`);
+    return [
+      "I don't have an entry that answers that exactly, and I won't guess, because I can't look things up offline. The closest entries in my built-in library are:",
+      lines.join('\n'),
+      "Ask about one of them by name, or name the form, genre, style guide or word you mean. If it is something you want kept consistent in your own text, add it as a rule in Full Scan and I'll mark every place that breaks it.",
+    ].join('\n\n');
+  }
+  const nearNames = answer.related?.length ? ` The nearest entries I have are: ${answer.related.map((e) => e.name).join(', ')}.` : '';
   return [
     loading ? "My full library is still loading, so I can only answer from my core craft notes right now. Try again in a moment." : "That isn't in my built-in library, and I won't guess, because I can't look things up offline.",
-    `${near} Try naming the form, genre, style guide or word you mean. If it is something you want kept consistent in your own text, add it as a rule in Full Scan and I'll mark every place that breaks it.`.trim(),
+    `${nearNames} Try naming the form, genre, style guide or word you mean. If it is something you want kept consistent in your own text, add it as a rule in Full Scan and I'll mark every place that breaks it.`.trim(),
   ].join('\n\n');
 }
+const firstSentence = (t) => { const m = String(t).match(/^.*?[.!?](?=\s|$)/); return (m ? m[0] : String(t)).slice(0, 220); };
