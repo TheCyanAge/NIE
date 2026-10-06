@@ -255,7 +255,10 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
   scored.sort((a, b2) => b2.score - a.score);
   // Coverage that counts: one name, alias or keyword phrase (plus the guide and topic) must hold most of the question, not
   // several different keywords that each hold a piece of it ("capital" in one, "France" in another).
-  const need = q.map((t, i) => [t, idfs[i]]);
+  // Only the question's informative words count ("how", "write", "rules" do not make an entry about the question).
+  const maxIdf = Math.max(...idfs);
+  const need = q.map((t, i) => [t, idfs[i]]).filter(([, w]) => w >= TUNE.ratio * maxIdf);
+  const needTotal = need.reduce((a, [, w]) => a + w, 0);
   for (const x of scored.slice(0, Math.max(limit, 12))) {
     if (x.exact) continue;
     const k = x.entry;
@@ -267,7 +270,7 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
       let n = 0;
       for (const [t, w] of need) if (toks.has(t)) { c += w; n++; }
       // Both measures must agree: by rarity ("France" alone is most of "capital of France") and by count of the question's words.
-      const cov = Math.min(c / idfTotal, n / need.length);
+      const cov = Math.min(c / needTotal, n / need.length);
       if (cov > bestCov) bestCov = cov;
     }
     x.headCoverage = bestCov;
@@ -313,8 +316,8 @@ function workQuestion(query) {
 export const STRONG_SCORE = 11;
 // A strong answer must be about what the question names: the entry's own name, aliases and keywords have to cover most of it.
 // (Scores alone are not enough: in a library of thousands of entries, one rare word is enough to score "well".)
-const STRONG_COVERAGE = 0.6;
-const WEAK_COVERAGE = 0.5;
+// Tuned against tests/fixtures/library-questions.json (see tests/library-answers.test.js); exported so the tuning script can move them.
+export const TUNE = { ratio: 0.5, strong: 0.6, weak: 0.5, weakScore: 6 };
 export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
   // A question about who wrote / when was published is answered by that work, or by saying the library does not hold it.
   const work = workQuestion(query);
@@ -332,11 +335,11 @@ export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
   const nameStems = tokens([best.entry.name, ...best.entry.aka].join(' '));
   const nameHit = best.exact || nameStems.some((t) => q.has(t) && t.length > 1 && !STOPWORDS.has(t));
   let strength = 'none';
-  if (top >= STRONG_SCORE && best.headCoverage >= STRONG_COVERAGE) strength = 'strong';
-  else if (top >= STRONG_SCORE * 0.55 && best.headCoverage >= WEAK_COVERAGE && nameHit) strength = 'weak';
+  if (top >= STRONG_SCORE && best.headCoverage >= TUNE.strong) strength = 'strong';
+  else if (top >= TUNE.weakScore && best.headCoverage >= TUNE.weak && nameHit) strength = 'weak';
   if (strength === 'none') return { strength, entries: [], related: scored.slice(0, 3).map((x) => x.entry) };
   // Entries close in score to the best one belong to the answer; the rest are only "related".
-  const entries = scored.filter((x) => x.score >= top * 0.72 && x.headCoverage >= WEAK_COVERAGE).slice(0, limit).map((x) => x.entry);
+  const entries = scored.filter((x) => x.score >= top * 0.72 && x.headCoverage >= TUNE.weak).slice(0, limit).map((x) => x.entry);
   const related = scored.map((x) => x.entry).filter((e) => !entries.includes(e)).slice(0, 4);
   return { strength, entries, related };
 }
