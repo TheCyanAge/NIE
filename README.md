@@ -29,6 +29,10 @@ program is started, the real offline model must load and answer, and the install
 3. Run **Narrative Integrity Engine Setup … .exe** and finish the wizard (keep "Create a desktop shortcut" ticked).
 4. Double-click **Narrative Integrity Engine** on your desktop. The offline model is inside the installer, so it works with no internet.
 
+Downloading an artifact needs you to be signed in to GitHub, and artifacts are deleted after 30 days, so if the newest run is older than that, press
+**Run workflow** again. (The installer is about 2.2 GB because it carries the offline model, which is more than GitHub allows for a
+Release download.)
+
 Windows may show a blue "Windows protected your PC" (SmartScreen) box, because the installer is not code-signed yet
 ([docs/WINDOWS_SIGNING.md](docs/WINDOWS_SIGNING.md)). Choose **More info → Run anyway**.
 

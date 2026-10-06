@@ -20,7 +20,7 @@ Legend: ✅ built and tested here · 🟡 built, needs verification on Windows /
 | 23–25, 29–32 | Electron app, llama runtime packaging, validation | ✅ services tested against a fake llama-server; ✅ the packaged exe, real llama.cpp runtime and real Qwen model start and answer on a real Windows runner (CI smoke test) |
 | 26–27, 70–72 | Offline-first, persistent server, non-blocking startup, auto download | ✅ logic; 🟡 end-to-end on a real install |
 | 33 | Honest Starting / Ready / Failed wording | ✅ exact strings, tested |
-| 34–36 | Inno Setup installer, shortcuts | 🟡 built and tested by the `windows-package` workflow on a real Windows runner (see the latest run); not yet tested on a clean consumer PC |
+| 34–36 | Inno Setup installer, shortcuts | ✅ built by the `windows-package` workflow on a real Windows runner, silently installed into the default per-user folder (desktop shortcut target checked), the installed copy smoke-tested with the real model, then uninstalled cleanly (files, shortcuts, registry). 🟡 not yet tested on a clean consumer PC; unsigned, so SmartScreen warns |
 | 37–38 | Multi-size icon, new latte-cream logo | ✅ ICO verified (256/128/64/48/32/16, small sizes simplified) |
 | 39 | Code signing | 🟡 documented (`docs/WINDOWS_SIGNING.md`); needs a certificate |
 | 40–41 | Updater with honest "not configured" | ✅ logic tested; 🟡 live updates need GitHub owner/repo + signed releases |
@@ -40,4 +40,5 @@ Every rule shows how NIE understood it.
 ## Known limits
 - PDF: text PDFs with simple font encodings only; scanned PDFs are reported as unreadable (no OCR).
 - The 3B model is small: its verdicts are shown as *possible issues* and can be marked as exceptions.
-- Windows installer, real-Electron run and real llama-server run were not possible in this (Linux) build environment.
+- The installer and the packaged app are tested on GitHub's Windows runner (a fresh machine, but not a consumer PC with other software, antivirus or a different Windows version).
+- The installer is about 2.2 GB (it carries the offline model), so it is distributed as a workflow artifact (sign-in required, kept 30 days), not as a release download.

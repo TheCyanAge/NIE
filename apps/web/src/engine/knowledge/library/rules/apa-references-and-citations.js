@@ -1444,7 +1444,7 @@ export default [
       'Leave out volume and issue when the magazine does not print them.',
       'The page range follows the volume and issue, with an en dash and no p.',
     ],
-    example: 'Perera, K. (2022, October 14). The last lamp keepers. Coastal Living, 38(5), 22–29.',
+    example: 'Perera, K. (2022, October 14). The last lamp keepers. Harbour Monthly, 38(5), 22–29.',
     watch: ['Citing a magazine article by its website name when the magazine is the real publisher.'],
     intent: ['Popular and trade magazines are fine sources in general writing, though academic work may ask for peer-reviewed ones.'],
     q: ['Does the magazine give the day, the month or only the season?'],
