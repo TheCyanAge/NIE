@@ -318,7 +318,11 @@ export const STRONG_SCORE = 11;
 // (Scores alone are not enough: in a library of thousands of entries, one rare word is enough to score "well".)
 // Tuned against tests/fixtures/library-questions.json (see tests/library-answers.test.js); exported so the tuning script can move them.
 export const TUNE = { ratio: 0.5, strong: 0.6, weak: 0.5, weakScore: 6 };
+// Talk about the writer's own work ("who is the killer in my story?") is not a reference question, unless it plainly asks for one.
+const OWN_WORK = /\b(?:my|our)\s+(?:story|stories|novel|book|manuscript|draft|character|characters|protagonist|hero|heroine|villain|antagonist|narrator|plot|scene|chapter|screenplay|script|poem|essay|memoir|series|world)\b/i;
+const REFERENCE_ASK = /\b(?:what is|what are|what's|define|meaning of|difference between|how (?:do|should) i (?:format|cite|punctuate|spell|capitalize|structure)|rule for|rules for|is it (?:\w+ or \w+))\b/i;
 export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
+  if (OWN_WORK.test(query) && !REFERENCE_ASK.test(query)) return { strength: 'none', entries: [], related: [] };
   // A question about who wrote / when was published is answered by that work, or by saying the library does not hold it.
   const work = workQuestion(query);
   if (work) {
