@@ -174,6 +174,8 @@ function build() {
       len: nameToks.length + kwToks.length + bodyToks.length,
       w: KIND_WEIGHT[k.kind] ?? 1,
       title: new Set(tokens([k.name, ...k.aka].join(' '))),
+      // The name's own words without the little ones ("The Epic of Gilgamesh" -> epic, gilgamesh): for exact-title matching.
+      cores: [k.name, ...k.aka].map((n) => new Set(tokens(String(n).split(/[:;]|, or | or, /i)[0]).filter((t) => t.length > 1 && !STOPWORDS.has(t)))),
     };
   });
   const df = new Map();
@@ -298,8 +300,12 @@ function workQuestion(query) {
     for (const d of index.docs) {
       if (d.k.kind !== 'work') continue;
       const hit = want.filter((t) => d.title.has(t)).length;
-      if (hit / want.length >= 0.85) matches.push({ entry: d.k, score: hit / want.length - d.title.size * 0.001 });
+      if (hit / want.length < 0.85) continue;
+      const exact = d.cores.some((c) => c.size === want.length && want.every((t) => c.has(t)));
+      matches.push({ entry: d.k, exact, score: (exact ? 2 : hit / want.length) - d.title.size * 0.001 });
     }
+    // When a work has exactly that title, other works that merely contain its words ("Cry, the Beloved Country") are not the answer.
+    if (matches.some((m) => m.exact)) return matches.filter((m) => m.exact).sort((a, b) => b.score - a.score);
   }
   return matches.sort((a, b) => b.score - a.score);
 }

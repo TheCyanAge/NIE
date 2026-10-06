@@ -356,7 +356,7 @@ export default [
   },
   {
     id: 'work-en-fic-jude-the-obscure', kind: 'work', name: 'Jude the Obscure', author: 'Thomas Hardy', year: 1895, language: 'English', region: 'England', confidence: 'established',
-    summary: "Hardy's last novel, about a stonemason who longs for education and for a marriage that does not fit social rules; its frankness about class, religion and marriage provoked fierce criticism.",
+    summary: "Hardy's last major novel, about a stonemason who longs for education and for a marriage that does not fit social rules; its frankness about class, religion and marriage provoked fierce criticism.",
     kw: ['hardy', 'stonemason', 'education', 'class barriers', 'marriage', 'tragedy'], genres: ['tragedy', 'realist novel', 'social novel'],
   },
   {
