@@ -18,6 +18,7 @@ import os from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
 import { spawn, spawnSync } from 'node:child_process';
+import { makeLongText, wordCountOf } from '../tests/fixtures/long-text.mjs';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import { validateRuntime, validateModel, DEFAULT_MODEL } from '../apps/desktop/src/runtime.js';
@@ -267,6 +268,18 @@ try {
     await answered(before2);
     const ideaRoute = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).route);
     step('an idea request is answered by the offline model too', ideaRoute === 'local', `route=${ideaRoute}`);
+
+    // a long text pasted into the chat is read in sections by the real model, not cut off at what fits in its window
+    const pasted = makeLongText({ words: 6000, seed: 5 }).text;
+    const before4 = await countMessages();
+    await page.fill('#brainstorm-input', `Here is my opening. What do you think of the ending?\n\n${pasted}`);
+    await page.press('#brainstorm-input', 'Enter');
+    await answered(before4);
+    const longMsg = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1));
+    report.longPaste = { words: wordCountOf(pasted), route: longMsg.route, read: longMsg.read, understood: longMsg.understood, reply: String(longMsg.content).slice(0, 300) };
+    step('a pasted text of 6,000 words is read in sections by the real model, and the reply says what was looked at',
+      longMsg.route === 'local' && longMsg.read?.sections > 5 && longMsg.read?.complete === false && !/longer than I can read at once/.test(longMsg.content) && /I can't hold all of that in mind at once/.test(longMsg.content),
+      `route=${longMsg.route}; sections=${longMsg.read?.sections}; shown=${JSON.stringify(longMsg.read?.shown)}; ${String(longMsg.content).slice(0, 120).replace(/\s+/g, ' ')}`);
   }
 
   // 5. persistence across a restart

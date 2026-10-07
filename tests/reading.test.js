@@ -250,3 +250,22 @@ test('with no model running a long paste is still checked against the writer\'s 
   assert.equal(r.route, 'builtin');
   assert.doesNotMatch(r.reply, /I read all of it|looked closely at section/);
 });
+
+test('only the newest long paste is kept in full: an older one keeps its start, and says so, so the project cannot outgrow its storage', async () => {
+  const first = makeLongText({ words: 6000, seed: 1 }).text;
+  const second = makeLongText({ words: 6000, seed: 2 }).text;
+  const project = projectWith();
+  const { o } = setup();
+  await o.brainstorm({ project, message: `First opening.\n\n${first}` });
+  assert.equal(project.conversation.messages[0].content.length, `First opening.\n\n${first}`.length, 'one paste: kept whole');
+  await o.brainstorm({ project, message: 'thoughts on the tone?' });
+  assert.equal(project.conversation.messages[0].compacted, undefined, 'a short follow-up does not shrink it');
+  await o.brainstorm({ project, message: `Second opening.\n\n${second}` });
+  const m0 = project.conversation.messages[0];
+  assert.equal(m0.compacted, true);
+  assert.ok(m0.content.length < 1500);
+  assert.match(m0.content, /a pasted text of about 6,\d{3} words; only its start is kept once a newer paste arrives/);
+  assert.equal(project.conversation.messages.filter((m) => m.role === 'user').at(-1).content.length, `Second opening.\n\n${second}`.length);
+  const stored = JSON.stringify(project.conversation.messages).length;
+  assert.ok(stored < 2.2 * `Second opening.\n\n${second}`.length, `${stored} characters stored for two pastes`);
+});

@@ -41,6 +41,17 @@ export function splitPaste(text) {
   }
   return { ask: '', body: String(text) };
 }
+/**
+ * Only the most recent long paste is kept in full (follow-up questions are about it). An older one keeps its start and says so, because every
+ * message is stored with the project and storage is limited: several 100,000-character pastes would otherwise fill it, silently losing the project.
+ */
+export function compactOldPastes(messages) {
+  for (const m of messages.slice(0, -1)) {
+    if (m.role !== 'user' || m.compacted || m.content.length <= LONG_MESSAGE_CHARS) continue;
+    m.content = `${m.content.slice(0, 1200).trimEnd()}… [a pasted text of about ${words(m.content).length.toLocaleString('en-US')} words; only its start is kept once a newer paste arrives]`;
+    m.compacted = true;
+  }
+}
 const MENTIONS_OWN_TEXT = /\b(?:my|our)\s+(?:story|novel|manuscript|draft|book|screenplay|script|poem|essay|article|piece|chapters?|ending|opening|middle|scene|characters?|protagonist|villain)\b/i;
 
 /** The compact record kept on the reply: what was shown of a long text. */
@@ -128,6 +139,7 @@ export class Orchestrator {
     const intent = detectIntent(text, { project, hasHistory: history.length > 0, mode: 'brainstorm' });
 
     const userMsg = appendMessage(project, 'user', text, { intent: intent.type });
+    if (text.length > LONG_MESSAGE_CHARS) compactOldPastes(history);
 
     // Idea Board commands are exact and need no model.
     if (intent.type === 'remember') {
