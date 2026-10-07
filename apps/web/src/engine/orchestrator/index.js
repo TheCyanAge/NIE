@@ -335,7 +335,8 @@ export class Orchestrator {
       const recent = history.slice(-12).reverse().find((m) => m.role === 'user' && m.content.length > LONG_MESSAGE_CHARS);
       if (recent) return { document: { text: splitPaste(recent.content).body, query: text, topic, subject: 'passage' }, userMessage: text };
     }
-    if (project.storyText.trim().length >= STORY_TEXT_MIN_CHARS) return { document: { text: project.storyText, query: text, topic, subject: 'text' }, userMessage: text };
+    // Telling NIE something new about the project does not need the old text in front of it (and costs the model time to read): feedback, ideas and talk do.
+    if (task !== 'tell' && project.storyText.trim().length >= STORY_TEXT_MIN_CHARS) return { document: { text: project.storyText, query: text, topic, subject: 'text' }, userMessage: text };
     return { document: null, userMessage: text };
   }
 
