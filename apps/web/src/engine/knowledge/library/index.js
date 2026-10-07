@@ -51,6 +51,7 @@ export const LIBRARY_FILES = [
   () => import('./usage/confusables-a.js'),
   () => import('./usage/contested-and-misused-usage.js'),
   () => import('./usage/era-diction-register-and-inclusive-terms.js'),
+  () => import('./works/additional-canon-and-bestsellers.js'),
   () => import('./works/ancient-medieval-oral-and-sacred-literature.js'),
   () => import('./works/books-on-writing-style-and-editing.js'),
   () => import('./works/childrens-and-young-adult.js'),

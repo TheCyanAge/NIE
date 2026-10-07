@@ -301,7 +301,9 @@ function workQuestion(query) {
     }
   }
   if (title === null) return null;
-  title = title.split(/\s+by\s+/i)[0]; // "Rebecca by Daphne du Maurier": the title is what is looked up
+  const [titlePart, authorPart] = title.split(/\s+by\s+/i);
+  title = titlePart; // "Rebecca by Daphne du Maurier": the title is what is looked up, the author only tells apart works with one title
+  const authorToks = authorPart ? tokens(authorPart).filter((t) => t.length > 2 && !STOPWORDS.has(t)) : [];
   const want = [...new Set(tokens(title.replace(/\b(?:the book|the novel|the play|the poem)\b/gi, ' ')).filter((t) => t.length > 1 && !STOPWORDS.has(t)))];
   const matches = [];
   if (want.length) {
@@ -314,7 +316,13 @@ function workQuestion(query) {
       matches.push({ entry: d.k, exact, score: (exact ? 2 : hit / want.length) - d.title.size * 0.001 });
     }
     // When a work has exactly that title, other works that merely contain its words ("Cry, the Beloved Country") are not the answer.
-    if (matches.some((m) => m.exact)) return matches.filter((m) => m.exact).sort((a, b) => b.score - a.score);
+    const byAuthor = (list) => {
+      if (!authorToks.length) return list;
+      const hit = list.filter((m) => tokens(m.entry.author ?? '').some((t) => authorToks.includes(t)));
+      return hit.length ? hit : list;
+    };
+    if (matches.some((m) => m.exact)) return byAuthor(matches.filter((m) => m.exact)).sort((a, b) => b.score - a.score);
+    return byAuthor(matches).sort((a, b) => b.score - a.score);
   }
   return matches.sort((a, b) => b.score - a.score);
 }
