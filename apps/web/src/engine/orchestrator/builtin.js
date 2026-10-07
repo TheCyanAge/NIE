@@ -39,7 +39,7 @@ const ABOUT_TOPICS = [
   { id: 'internet', re: /\b(?:offline|off-?line|internet|wi-?fi|online|connection|connected)\b/i, status: true,
     text: "NIE works with no internet. My built-in library and the checks in Full Scan run on this computer, and so does the offline language model once it has been downloaded (about 1.9 GB, one time). An online model is optional and only used if you set one up in Settings." },
   { id: 'privacy', re: /\b(?:store|stored|storing|save|saved|private|privacy|upload\w*|sent|share[ds]?|leave|keep)\b/i, status: false,
-    text: "Your projects are stored on this computer and kept separate from each other. What you write is not sent anywhere unless you set up an online model in Settings; then the messages I send for a reply go to that provider." },
+    text: "Your projects are stored on this computer and kept separate from each other. What you write is not sent anywhere unless you set up an online model in Settings; then what I send for a reply (your message and, when your question is about your own text, the parts of it that matter for that question) goes to that provider." },
   { id: 'scan', re: /\bscan\b/i, status: true,
     text: "Full Scan: you set the rules for your project in plain words, and I mark the exact places in your text where a rule is broken and say briefly why. Rules that need meaning are judged by the language model when one is running; with no model they are approximated by keywords and labelled as such. Nothing is rewritten." },
 ];
