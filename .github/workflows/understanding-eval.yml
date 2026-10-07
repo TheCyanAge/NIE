@@ -11,6 +11,10 @@ on:
         description: 'Messages per run, spread evenly over every task (0 = all 260; about 5 seconds each on a CI machine)'
         type: string
         default: '100'
+      slots:
+        description: 'Model-server slots: 2 is what the app uses; 1 shows what a single slot costs (the reading and the answer evict each other from its prompt cache)'
+        type: string
+        default: '2'
       e2e:
         description: 'Also run a short real conversation through the whole orchestrator (slower: it generates answers)'
         type: boolean
@@ -56,7 +60,7 @@ jobs:
           SAMPLE="${{ inputs.sample }}"
           E2E=""
           if [ "${{ inputs.e2e }}" = "true" ]; then E2E="--e2e"; fi
-          node scripts/understanding-probe.mjs --sample "${SAMPLE:-100}" $E2E --out understanding-report.json
+          node scripts/understanding-probe.mjs --sample "${SAMPLE:-100}" --slots "${{ inputs.slots }}" $E2E --out understanding-report.json
 
       - name: Upload the report
         if: always()

@@ -56,7 +56,7 @@ CI runs a NEWER Chromium than a dev container: it has caught real bugs (e.g. `Fi
 `npm test` · `npm run test:ui` · `npm run dev:web` · `npm run icons` · `npm run fetch:runtime` · `npm run desktop` · `npm run build:desktop`
 
 ## Gotchas learned the hard way
-- `llama-server` needs its *whole* runtime beside it (CPU backend DLL especially). Pass `-np 1` or the context is split across slots.
+- `llama-server` needs its *whole* runtime beside it (CPU backend DLL especially). `-c` is split between slots: with `-np 2` pass `-c` = window × 2 (8192) so each slot still has the full 4,096 tokens (`LlamaService`, `slots`). Two slots because NIE alternates a short reading prompt and a long answer prompt: with one slot each evicted the other's prompt cache every turn.
 - Inputs must never be coverable by stale layers: setup is a `<dialog>`, the tour has its own overlay, and `ui/recovery.js` self-heals first.
 - Node's `TextDecoder('windows-1252')` is really Latin-1: use `ingest/formats.js#decodeWin1252`.
 - `speechSynthesis` is a read-only window property: mock it with `Object.defineProperty` in tests.

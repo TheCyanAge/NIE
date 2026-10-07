@@ -6,6 +6,7 @@
 //        [--out understanding-report.json]   write every result as JSON
 //        [--sample 100]                      a stratified sample (the same share of every task, evenly spaced) for a quicker check
 //        [--e2e]                             also run a short real conversation through the whole orchestrator (slow: it generates answers)
+//        [--slots 2]                         model-server slots (2 = the app's setting; 1 shows what one slot cost)
 //        [--rules-only]                      no model: just the rule-based baseline (works anywhere)
 //
 // Numbers are AS SHIPPED: the rules decide first what they decide on their own (exact commands, bare greetings, the requests they recognise as
@@ -52,7 +53,7 @@ if (flag('--rules-only')) {
 } else {
   const binDir = path.resolve(opt('--bin', path.join(root, 'apps/desktop/bin')));
   const modelPath = path.resolve(opt('--model', path.join(root, 'apps/desktop/models', DEFAULT_MODEL.fileName)));
-  svc = new LlamaService({ binDir, modelPath, model: DEFAULT_MODEL, log: (...a) => console.log('[llama]', ...a) });
+  svc = new LlamaService({ binDir, modelPath, model: DEFAULT_MODEL, slots: Number(opt('--slots', 2)), log: (...a) => console.log('[llama]', ...a) });
   const t0 = Date.now();
   const st = await svc.start();
   if (st.state !== 'ready') {

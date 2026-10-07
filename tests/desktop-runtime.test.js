@@ -106,6 +106,7 @@ function service(opts = {}) {
     binDir,
     modelPath: opts.modelPath ?? modelFile(modelDir),
     model: { ...DEFAULT_MODEL, minBytes: 100 },
+    ...(opts.slots ? { slots: opts.slots } : {}),
     platform: 'win32',
     // Run the fake (a node script) in place of llama-server.exe, with the same arguments.
     buildSpawn: ({ args }) => ({ command: process.execPath, args: [FAKE, ...args] }),
@@ -132,15 +133,24 @@ test('startup is honest: starting → ready, only after the model has actually a
   assert.equal(svc.status.state, 'unavailable');
 });
 
-test('llama-server runs with its own folder as cwd and on PATH, with one slot and a bounded context', async () => {
+test('llama-server runs with its own folder as cwd and on PATH, with two slots that each keep the full window', async () => {
   const { svc, binDir, cwdFile } = service();
   await svc.start();
   const [cwd, p, argLine] = fs.readFileSync(cwdFile, 'utf8').split('\n');
   assert.match(argLine, /--host 127\.0\.0\.1 /, 'bound to loopback only');
-  assert.match(argLine, /-np 1\b/, 'a single slot, so the context window is not split');
-  assert.match(argLine, /-c 4096\b/);
+  assert.match(argLine, /-np 2\b/, 'two slots: the reading prompt and the answer prompt each keep their own prompt cache');
+  assert.match(argLine, /-c 8192\b/, 'llama-server splits -c between slots, so each slot still has the whole 4,096-token window');
   assert.equal(fs.realpathSync(cwd), fs.realpathSync(binDir));
   assert.ok(p.split(path.delimiter)[0] === binDir || p.startsWith(binDir), 'runtime dir is first on PATH');
+  await svc.stop();
+});
+
+test('one slot is still possible, and still gets the whole window', async () => {
+  const { svc, cwdFile } = service({ slots: 1 });
+  await svc.start();
+  const argLine = fs.readFileSync(cwdFile, 'utf8').split('\n')[2];
+  assert.match(argLine, /-np 1\b/);
+  assert.match(argLine, /-c 4096\b/);
   await svc.stop();
 });
 

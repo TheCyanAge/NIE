@@ -48,9 +48,9 @@ export class LlamaService extends EventEmitter {
    * @param {(spec:{serverPath:string, modelPath:string, port:number, args:string[]}) => {command:string,args:string[]}} [o.buildSpawn]
    * @param {(cfg:object) => object} [o.clientFactory]  returns an OpenAICompatClient
    */
-  constructor({ binDir, modelPath, model = DEFAULT_MODEL, platform = process.platform, buildSpawn, clientFactory, env = process.env, startupTimeoutMs = 180000, minBytes, threads, log = () => {}, maxRestarts = 2 }) {
+  constructor({ binDir, modelPath, model = DEFAULT_MODEL, platform = process.platform, buildSpawn, clientFactory, env = process.env, startupTimeoutMs = 180000, minBytes, threads, log = () => {}, maxRestarts = 2, slots = 2 }) {
     super();
-    Object.assign(this, { binDir, modelPath, model, platform, buildSpawn, clientFactory, env, startupTimeoutMs, log, maxRestarts });
+    Object.assign(this, { binDir, modelPath, model, platform, buildSpawn, clientFactory, env, startupTimeoutMs, log, maxRestarts, slots });
     this.minBytes = minBytes ?? model.minBytes ?? GENERIC_MIN_MODEL_BYTES;
     this.threads = threads ?? Math.max(2, Math.floor((os.availableParallelism?.() ?? os.cpus().length) / 2));
     this._status = { state: 'starting', detail: null, port: null };
@@ -99,7 +99,11 @@ export class LlamaService extends EventEmitter {
     this._status.port = port;
 
     const serverDir = path.dirname(rt.serverPath);
-    const baseArgs = ['-m', this.modelPath, '--host', '127.0.0.1', '--port', String(port), '-c', String(this.model.contextSize ?? 4096), '-t', String(this.threads), '-np', '1'];
+    // Two slots, each with the model's full window (llama-server splits -c between slots, so -c is the window times the slots). A slot remembers the start
+    // of the last prompt it read, and NIE alternates two very different prompts (the short "what does the writer mean?" reading and the long answer),
+    // so with one slot each evicted the other's cache every turn and the long system prompt was re-read every time.
+    const slots = Math.max(1, Math.floor(this.slots));
+    const baseArgs = ['-m', this.modelPath, '--host', '127.0.0.1', '--port', String(port), '-c', String((this.model.contextSize ?? 4096) * slots), '-t', String(this.threads), '-np', String(slots)];
     const spec = this.buildSpawn ? this.buildSpawn({ serverPath: rt.serverPath, modelPath: this.modelPath, port, args: baseArgs }) : { command: rt.serverPath, args: baseArgs };
 
     // The runtime directory is both the working directory and on PATH, so Windows finds the backend DLLs.
