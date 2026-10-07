@@ -11,7 +11,7 @@ export function createDesktopLocal(bridge) {
   let current = { state: 'starting', detail: null };
   const listeners = new Set();
   const set = (s) => {
-    current = { state: s.state, detail: s.detail ?? null, percent: s.percent ?? null };
+    current = { state: s.state, detail: s.detail ?? null, percent: s.percent ?? null, phase: s.phase ?? null };
     listeners.forEach((cb) => cb(current));
   };
   bridge.status().then(set).catch(() => set({ state: 'failed', detail: 'Could not reach the desktop service.' }));
@@ -26,6 +26,7 @@ export function createDesktopLocal(bridge) {
       return () => listeners.delete(cb);
     },
     restart: () => bridge.restart?.(),
+    download: () => bridge.download?.(),
     info: () => bridge.info?.(),
     chat,
   };

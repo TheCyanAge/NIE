@@ -59,7 +59,7 @@ export class AIEngine {
 
   localStatus() {
     const s = this.local?.status?.() ?? { state: 'unavailable' };
-    return { state: s.state, detail: s.detail ?? null, message: OFFLINE_MESSAGES[s.state] ?? OFFLINE_MESSAGES.unavailable };
+    return { state: s.state, detail: s.detail ?? null, phase: s.phase ?? null, message: OFFLINE_MESSAGES[s.state] ?? OFFLINE_MESSAGES.unavailable };
   }
 
   /** What will answer right now. */

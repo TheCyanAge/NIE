@@ -26,7 +26,8 @@ function relevant(text, kinds, limit = 3) {
   return search(text, { kinds, limit });
 }
 
-export function builtinReply({ intent, project, message, report = null }) {
+/** `modelReady`: the offline model is running but its answer could not be used this time (so never say it is missing). */
+export function builtinReply({ intent, project, message, report = null, modelReady = false }) {
   const seed = `${message}|${project.conversation.messages.length}`;
   const wp = project.conversation.workingPremise ?? {};
   const cues = intent.premiseCues;
@@ -126,7 +127,9 @@ export function builtinReply({ intent, project, message, report = null }) {
     case 'feedback-request': {
       const e = search(message, { kinds: ['technique'], limit: 1 })[0] ?? getEntry('endings');
       return [
-        "I can't judge that properly without the language model, and I don't want to guess about your story.",
+        modelReady
+          ? "I can't give you a reliable read on that right now, and I don't want to guess about your story."
+          : "I can't judge that properly without the language model, and I don't want to guess about your story.",
         `What I can do is ask what you want the reader to feel. ${e?.questions?.[0] ?? 'What should they expect, and what should they feel when it lands?'}`,
         'If you add the specific thing that worries you as a rule in Full Scan, I can mark every place it happens.',
       ].join('\n\n');

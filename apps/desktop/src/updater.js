@@ -21,7 +21,7 @@ export function isConfigured(config) {
   return config.provider === 'github' && !PLACEHOLDER.test(config.owner.trim()) && !PLACEHOLDER.test(config.repo.trim());
 }
 
-export function createUpdater({ isPackaged, config, loadAutoUpdater, onStatus = () => {}, currentVersion = '0.0.0' }) {
+export function createUpdater({ isPackaged, config, loadAutoUpdater, onStatus = () => {}, currentVersion = '0.0.0', portable = false }) {
   let status = { state: 'idle', message: '', version: null, progress: null, currentVersion };
   let au = null;
   const set = (patch) => {
@@ -31,7 +31,9 @@ export function createUpdater({ isPackaged, config, loadAutoUpdater, onStatus = 
 
   const unavailableReason = !isPackaged
     ? 'Updates only work in the installed app, not in a development build.'
-    : !isConfigured(config)
+    : portable
+      ? "This is the portable copy: it doesn't update itself. Download the newest file from NIE's Releases page when you want a newer version."
+      : !isConfigured(config)
       ? "Updates aren't configured for this build yet. (Set the GitHub owner and repository in updater-config.json and publish releases.)"
       : null;
   if (unavailableReason) status = { ...status, state: 'unconfigured', message: unavailableReason };

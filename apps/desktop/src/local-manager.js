@@ -34,6 +34,7 @@ export class LocalModelManager extends EventEmitter {
     const loc = locateModel({ layout: this.layout, model: this.model, customPath: this.prefs.customModelPath ?? null });
     return {
       status: this.status,
+      autoDownload: this.autoDownload,
       model: { ...this.model, path: loc.path, exists: loc.exists, downloadTarget: loc.downloadTarget, validation: loc.exists ? validateModel(loc.path, { minBytes: this.model.minBytes }) : null },
       catalog: MODEL_CATALOG.map(({ id, label, fileName }) => ({ id, label, fileName })),
       runtime: validateRuntime(this.layout.binDir, this.platform),
@@ -112,7 +113,9 @@ export class LocalModelManager extends EventEmitter {
       });
       return true;
     } catch (err) {
-      this.#set('failed', `The offline model could not be downloaded: ${err?.message ?? err}`, { phase: 'download' });
+      // Pressing Restart (or quitting) cancels the download on purpose: that is not a failure, and the next start resumes it.
+      if (this._abort?.signal.aborted || err?.name === 'AbortError') return false;
+      this.#set('failed', `The offline model could not be downloaded: ${friendlyDownloadError(err)}`, { phase: 'download' });
       return false;
     } finally {
       this._abort = null;
@@ -124,10 +127,24 @@ export class LocalModelManager extends EventEmitter {
   }
 
   async restart() {
+    // A download or start in progress must finish stopping first; otherwise init() would hand back that same, cancelled run.
+    const running = this._init;
     this.cancelDownload();
+    if (running) await running;
     await this.service?.stop();
     this.service = null;
     return this.init();
+  }
+
+  /** The "Download the offline model" button: download now even when automatic download is switched off. */
+  async download() {
+    const before = this.autoDownload;
+    this.autoDownload = true;
+    try {
+      return await this.restart();
+    } finally {
+      this.autoDownload = before;
+    }
   }
 
   async stop() {
@@ -139,4 +156,13 @@ export class LocalModelManager extends EventEmitter {
     if (!this.service) throw Object.assign(new Error('Offline NIE is not ready.'), { kind: 'error' });
     return this.service.chat(messages, opts);
   }
+}
+
+/** Plain words for the usual reasons a download fails (the technical message stays in the log). */
+export function friendlyDownloadError(err) {
+  const msg = String(err?.message ?? err ?? '');
+  if (/ENOTFOUND|EAI_AGAIN|fetch failed|ECONNREFUSED|ECONNRESET|ETIMEDOUT|No connection|interrupted|stopped receiving/i.test(msg)) {
+    return "there is no working internet connection to the model's download site. Connect and press Restart in Settings; the download continues where it stopped.";
+  }
+  return msg;
 }

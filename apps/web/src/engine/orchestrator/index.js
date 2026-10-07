@@ -4,7 +4,7 @@ import { answerFromLibrary, forProfile, search } from '../knowledge/index.js';
 import { appendMessage } from '../project/memory.js';
 import { addToBoard, boardToChat, emptyBrainstorm, ideaId } from '../project/board.js';
 import { scan, scanWithModel } from '../analysis/scan.js';
-import { composeMessages, ideaRequestBlock } from './prompt.js';
+import { composeMessages, ideaRequestBlock, RETRY_TOKEN_LIMIT } from './prompt.js';
 import { builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply } from './guard.js';
 import { ideaSuggestions, nextSuggestions, STARTER } from './suggestions.js';
@@ -20,6 +20,20 @@ const GENERAL_Q = /^\s*(?:what(?:'s|\s+is|\s+are|\s+does|\s+do)\b|how\s+(?:do|sh
 const STORY_TALK = /\b(?:my|our|his|her|their|the)\s+(?:story|novel|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|draft|ending|opening|twist|narrator|manuscript)\b|\b(?:he|she|him|they|them)\b/i;
 const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they cover the question, answer from them and say which style guide or source they come from, and mention when practice varies. If they do not cover it, say so plainly. Never invent citations, section numbers, titles, dates or quotations.";
 const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
+
+/** Why the offline model could not answer, in words a writer can act on. */
+export function describeModelFailure(err) {
+  const msg = String(err?.message ?? err ?? '');
+  if (err?.kind === 'timeout') return 'it took too long to answer';
+  if (/context|too long|exceed|token/i.test(msg) || err?.status === 400) return 'what I was sent was too long for the offline model to read in one go';
+  if (err?.kind === 'network') return 'it stopped responding';
+  if (err?.kind === 'bad-response') return 'it sent back something I could not use';
+  return `it ran into a problem${msg ? ` (${msg.replace(/\s+/g, ' ').slice(0, 120)})` : ''}`;
+}
+const modelFailedNote = (err) => `My offline model is running, but I couldn't get an answer from it this time: ${describeModelFailure(err)}. Here is built-in guidance instead.`;
+/** Said only when the WRITER's own words (not NIE's notes) were cut to fit the model's window. */
+const shortenedNote = (trimmed = []) => (trimmed.includes('your message') ? "(Your message was longer than I can read at once, so I used only the first part of it.)" : trimmed.includes('your passage') ? '(I could only fit part of your passage into what I read this time.)' : '');
+const WITHHELD_NOTE = "My offline model did answer, but its answer included wording it had composed for your text, and NIE never writes or edits your text, so I've left it out. Here is built-in guidance instead.";
 
 /**
  * NIE's orchestrator: one identity, regardless of what answers underneath.
@@ -126,7 +140,7 @@ export class Orchestrator {
     const passage = intent.type === 'share-passage' ? text : '';
     const report = passage ? scan({ text: passage, project }) : null;
 
-    const { messages } = composeMessages({
+    const composeArgs = {
       mode: 'brainstorm',
       project,
       interp,
@@ -135,30 +149,27 @@ export class Orchestrator {
       history: history.slice(0, -1),
       retrieved,
       extra: report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : '',
-    });
-
-    let res;
-    try {
-      res = await this.engine.chat(messages, { onToken, signal, maxTokens: 700, temperature: 0.7 });
-    } catch (err) {
-      if (err?.kind === 'abort') throw err;
-      res = { text: null, route: 'builtin' };
-    }
+    };
+    const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.7 });
+    const res = asked.res;
+    const modelReady = asked.modelReady;
 
     let reply;
     let route = res.route;
     let extra = {};
+    let honesty = asked.failure && modelReady ? modelFailedNote(asked.failure) : '';
     if (res.text) {
       const guarded = guardReply(res.text, [text, project.storyText]);
       reply = guarded.text;
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {
-        reply = builtinReply({ intent, project, message: text, report });
+        reply = builtinReply({ intent, project, message: text, report, modelReady: true });
         route = 'builtin';
+        honesty = WITHHELD_NOTE;
       }
     } else {
-      reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: text, report });
+      reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: text, report, modelReady: modelReady && Boolean(asked.failure) });
       route = 'builtin';
       // Starting from nothing is where a few sparks help most: offer some to react to, never a draft.
       if (intent.type === 'start-from-zero') {
@@ -170,9 +181,46 @@ export class Orchestrator {
           markShown(project, sparks);
         }
       }
-      onToken?.(reply, reply);
     }
+    if (route === 'builtin' && honesty) {
+      reply = `${honesty}\n\n${reply}`;
+      if (extra.lead) extra = { ...extra, lead: `${honesty}\n\n${extra.lead}` };
+      extra = { ...extra, fallback: asked.failure ? { reason: 'error', detail: describeModelFailure(asked.failure) } : { reason: 'withheld' } };
+    }
+    if (route === 'builtin') onToken?.(reply, reply);
+    else if (shortenedNote(asked.trimmed)) reply = `${reply}\n\n${shortenedNote(asked.trimmed)}`;
     return this.#finish(project, intent, reply, route, false, extra);
+  }
+
+  /**
+   * Ask the model. If it is ready but the call fails (usually a prompt too long for its window), retry ONCE with a much
+   * smaller prompt before giving up. `modelReady` tells the caller whether "the model is missing" would be a lie.
+   */
+  async #ask({ composeArgs, onToken, signal, temperature }) {
+    const ready = () => this.engine.localStatus?.().state === 'ready';
+    const full = composeMessages(composeArgs);
+    let failure = null;
+    let res = null;
+    try {
+      res = await this.engine.chat(full.messages, { onToken, signal, maxTokens: 700, temperature });
+    } catch (err) {
+      if (err?.kind === 'abort') throw err;
+      failure = err;
+    }
+    if (res && !res.text) failure = res.error ?? failure;
+    const modelReady = ready();
+    if ((!res || !res.text) && modelReady) {
+      const small = composeMessages({ ...composeArgs, limit: RETRY_TOKEN_LIMIT, minimal: true });
+      try {
+        const again = await this.engine.chat(small.messages, { onToken, signal, maxTokens: 500, temperature });
+        if (again.text) return { res: again, failure: null, modelReady, trimmed: [...new Set([...full.trimmed, ...small.trimmed, 'earlier messages'])] };
+        failure = again.error ?? failure;
+      } catch (err) {
+        if (err?.kind === 'abort') throw err;
+        failure = err;
+      }
+    }
+    return { res: res ?? { text: null, route: 'builtin' }, failure: res?.text ? null : failure, modelReady, trimmed: full.trimmed };
   }
 
   /** Idea requests and "develop this idea": the model when it is running, otherwise the built-in idea library. */
@@ -181,7 +229,7 @@ export class Orchestrator {
     const history = project.conversation.messages;
     const gen = develop ? { ideas: [] } : generateIdeas({ project, message: text, kind, lens, count: 3 });
     const interp = interpretProfile(project.profile, { text: project.storyText });
-    const { messages } = composeMessages({
+    const composeArgs = {
       mode: 'brainstorm',
       project,
       interp,
@@ -189,15 +237,10 @@ export class Orchestrator {
       history: history.slice(0, -1),
       retrieved: this.retrieve(project, text),
       extra: ideaRequestBlock({ kind, lens, develop, note, seeds: gen.ideas.slice(0, 2).map((i) => i.text) }),
-    });
-
-    let res;
-    try {
-      res = await this.engine.chat(messages, { onToken, signal, maxTokens: 700, temperature: 0.85 });
-    } catch (err) {
-      if (err?.kind === 'abort') throw err;
-      res = { text: null, route: 'builtin' };
-    }
+    };
+    const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.85 });
+    const res = asked.res;
+    const fallbackNote = asked.failure && asked.modelReady ? modelFailedNote(asked.failure) : '';
 
     const lensLabel = lens ? (LENSES[lens]?.label ?? lens) : 'Idea';
     const toCards = (items) => items.map((t) => ({ id: ideaId(t), kind, lens: lens ?? 'mixed', lensLabel, text: t }));
@@ -212,7 +255,8 @@ export class Orchestrator {
         if (ideas.length) markShown(project, ideas);
         bs.lastLens = lens;
         const lead = [note, parsed.lead].filter(Boolean).join('\n\n');
-        return this.#finish(project, intent, reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: ideas.length ? parsed.tail : '', kind, lens });
+        const cut = shortenedNote(asked.trimmed);
+        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens });
       }
     }
 
@@ -226,18 +270,24 @@ export class Orchestrator {
       ideas = gen.ideas;
       markShown(project, ideas);
     }
+    const honesty = fallbackNote || (res.text ? WITHHELD_NOTE : '');
+    const fallback = honesty ? { reason: asked.failure ? 'error' : 'withheld', ...(asked.failure ? { detail: describeModelFailure(asked.failure) } : {}) } : null;
     if (!composed) {
-      const reply = builtinReply({ intent: { ...intent, type: 'request-ideas' }, project, message: text });
+      const reply = [honesty, builtinReply({ intent: { ...intent, type: 'request-ideas' }, project, message: text, modelReady: Boolean(honesty) })].filter(Boolean).join('\n\n');
       onToken?.(reply, reply);
-      return this.#finish(project, intent, reply, 'builtin', false, { kind, lens });
+      return this.#finish(project, intent, reply, 'builtin', false, { kind, lens, fallback });
     }
     if (note) {
       composed.lead = `${note} ${composed.lead}`;
       composed.text = `${note} ${composed.text}`;
     }
+    if (honesty) {
+      composed.lead = `${honesty}\n\n${composed.lead}`;
+      composed.text = `${honesty}\n\n${composed.text}`;
+    }
     bs.lastLens = lens;
     onToken?.(composed.text, composed.text);
-    return this.#finish(project, intent, composed.text, 'builtin', false, { ideas, lead: composed.lead, tail: composed.tail, kind, lens });
+    return this.#finish(project, intent, composed.text, 'builtin', false, { ideas, lead: composed.lead, tail: composed.tail, kind, lens, fallback });
   }
 
   /** "Remember this": keep what the writer said, or the ideas NIE just offered, on this project's Idea Board. */
@@ -275,6 +325,7 @@ export class Orchestrator {
   #finish(project, intent, reply, route, declined, extra = {}) {
     const ideas = extra.ideas ?? [];
     const meta = { route };
+    if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });
     appendMessage(project, 'assistant', reply, meta);
     project.conversation.suggestionShown = true;

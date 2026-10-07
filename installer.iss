@@ -4,7 +4,7 @@
 ;   npm install && npm run fetch:runtime && npm run icons && npm run build:desktop     -> dist-desktop\win-unpacked
 ;   iscc installer.iss                                                                 -> dist-installer\Narrative Integrity Engine Setup <version>.exe
 ;
-; NOT compiled in this repository's CI (no Windows/Inno there): compile it on Windows and test the result.
+; Compiled and tested by the windows-release and windows-package workflows on a real Windows runner.
 
 #define MyAppName       "Narrative Integrity Engine"
 #define MyAppShort      "NIE"
@@ -82,51 +82,23 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: no
 ; A model downloaded by setup is not tracked by the uninstaller, so remove it explicitly.
 Type: filesandordirs; Name: "{app}\resources\models"
 
-#if !BundledModel
 [Code]
-{ No bundled model: download it as part of installation (resumable verification happens in the app on first launch too). }
+{ The offline model is NOT downloaded here. A second download inside the wizard (into a temp folder, then copied) could not
+  resume, had no checksum, did not count its disk space, and was never exercised by the automatic tests, which install
+  silently. The app itself does the one resumable, honest download on its first start, into the user's profile, shows its progress,
+  and keeps working from its built-in library meanwhile. }
+
+{ Uninstall keeps the writer's projects and, unless they say otherwise, the downloaded model. The model is about 1.9 GB and can
+  be downloaded again, so offer to remove it; a silent uninstall keeps it (the default answer is No). }
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
-  ModelPage: TDownloadWizardPage;
-
-procedure InitializeWizard;
+  ModelsDir: String;
 begin
-  ModelPage := CreateDownloadPage('Offline NIE', 'Downloading the offline model (about 1.9 GB)...', nil);
-end;
-
-function NextButtonClick(CurPageID: Integer): Boolean;
-begin
-  Result := True;
-  if CurPageID = wpReady then
+  if CurUninstallStep = usPostUninstall then
   begin
-    ModelPage.Clear;
-    ModelPage.Add('{#ModelUrl}', '{#ModelFile}', '');
-    ModelPage.Show;
-    try
-      try
-        ModelPage.Download;
-      except
-        { Do not block installation: NIE finishes the download itself on first launch and says so while it does. }
-        SuppressibleMsgBox('The offline model could not be downloaded now. {#MyAppShort} will finish downloading it the first time it starts.' + #13#10#13#10 + GetExceptionMessage, mbInformation, MB_OK, IDOK);
-      end;
-    finally
-      ModelPage.Hide;
-    end;
+    ModelsDir := ExpandConstant('{userappdata}\Narrative Integrity Engine\models');
+    if DirExists(ModelsDir) then
+      if SuppressibleMsgBox('Also remove the offline model that Narrative Integrity Engine downloaded (about 1.9 GB)?' + #13#10#13#10 + 'Your projects are kept either way, and the model can be downloaded again.', mbConfirmation, MB_YESNO or MB_DEFBUTTON2, IDNO) = IDYES then
+        DelTree(ModelsDir, True, True, True);
   end;
 end;
-
-procedure CurStepChanged(CurStep: TSetupStep);
-var
-  Src, DestDir: String;
-begin
-  if CurStep = ssPostInstall then
-  begin
-    Src := ExpandConstant('{tmp}\{#ModelFile}');
-    DestDir := ExpandConstant('{app}\resources\models');
-    if FileExists(Src) then
-    begin
-      ForceDirectories(DestDir);
-      FileCopy(Src, DestDir + '\{#ModelFile}', False);
-    end;
-  end;
-end;
-#endif

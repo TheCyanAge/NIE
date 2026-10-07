@@ -65,12 +65,6 @@ jobs:
         timeout-minutes: 10
         run: node scripts/smoke-windows.mjs dist-desktop/win-unpacked --no-model --out smoke-out/unpacked
 
-      - name: Build the portable single-file exe
-        timeout-minutes: 15
-        run: |
-          npm run build:portable
-          ls -la dist-desktop/*.exe
-
       - name: Install Inno Setup
         timeout-minutes: 10
         run: |
@@ -112,13 +106,25 @@ jobs:
           "NIE_INSTALL_DIR=$dir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Host "Installed to $dir; the desktop shortcut points at the installed program."
 
+      - name: "Build the portable single-file exe (retried, because it downloads the NSIS toolchain)"
+        timeout-minutes: 15
+        run: |
+          for i in 1 2 3; do npm run build:portable && break; [ "$i" = 3 ] && exit 1; echo "attempt $i failed; retrying"; sleep 20; done
+          ls -la dist-desktop/*.exe
+
       - name: "Smoke test the INSTALLED app on a first run (no model yet, so it must download the real one, say so, become ready and answer)"
-        timeout-minutes: 30
-        run: node scripts/smoke-windows.mjs "$NIE_INSTALL_DIR" --real-profile --download-model --out smoke-out/installed
+        timeout-minutes: 32
+        run: node scripts/smoke-windows.mjs "$NIE_INSTALL_DIR" --real-profile --download-model --expect-fresh --max-minutes 27 --out smoke-out/installed
+
+      - name: Record the downloaded model's SHA-256 (so a later build can pin it)
+        run: |
+          F="$(cygpath -u "$APPDATA")/Narrative Integrity Engine/models/Qwen2.5-3B-Instruct-Q4_K_M.gguf"
+          ls -la "$F"
+          sha256sum "$F" | tee smoke-out/model.sha256
 
       - name: "Smoke test the PORTABLE exe (one file; it finds the model the first run saved and answers with it)"
-        timeout-minutes: 20
-        run: node scripts/smoke-windows.mjs --exe dist-desktop/Narrative-Integrity-Engine-Portable.exe --real-profile --download-model --out smoke-out/portable
+        timeout-minutes: 18
+        run: node scripts/smoke-windows.mjs --exe dist-desktop/Narrative-Integrity-Engine-Portable.exe --real-profile --download-model --expect-model --ready-timeout 360000 --max-minutes 15 --out smoke-out/portable
 
       - name: Uninstall cleanly
         shell: pwsh
@@ -149,16 +155,16 @@ jobs:
           cat > dist-release/READ-ME-FIRST.txt <<EOF
           Narrative Integrity Engine ${NIE_VERSION}
 
-          Easiest: double-click  Narrative-Integrity-Engine-Portable.exe  (nothing to install),
-          or run  Narrative-Integrity-Engine-Setup.exe  for a desktop shortcut and Start menu entry.
+          Easiest: run  Narrative-Integrity-Engine-Setup.exe . It installs in a few seconds, puts NIE on your desktop and Start menu, and starts at once.
+          No install wanted? Double-click  Narrative-Integrity-Engine-Portable.exe  (it unpacks for a few seconds each time it starts).
 
           * Windows may show a blue "Windows protected your PC" box because the program is not code-signed yet.
             Choose "More info", then "Run anyway".
-          * On the first start NIE downloads its offline language model (about 1.9 GB) once. Until it finishes, NIE works from its
-            built-in library and says so. After that it works with no internet at all.
-          * Your projects stay in your Windows profile folder, so you can switch between the two files and keep everything.
+          * On the first start NIE downloads its offline language model (about 1.9 GB) once. It says so while it does, and until it finishes NIE
+            answers from its built-in library. After that it works with no internet at all.
+          * Your projects and the model live in your Windows profile (%APPDATA%\\Narrative Integrity Engine), so the two files share them.
+            Close NIE before you open the other file.
           EOF
-          sed -i 's/^          //' dist-release/READ-ME-FIRST.txt
           (cd dist-release && sha256sum *.exe > SHA256SUMS.txt && cat SHA256SUMS.txt && ls -la)
 
       - name: Upload the downloads
@@ -187,6 +193,8 @@ jobs:
           TAG="$TAG_INPUT"
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then TAG="${GITHUB_REF_NAME}"; fi
           [ -n "$TAG" ] || { echo "No tag given; not creating a release."; exit 0; }
+          # The tag must name this build, or the release would carry the wrong version in its title and notes.
+          [ "${TAG#v}" = "$NIE_VERSION" ] || { echo "Tag $TAG does not match the app version $NIE_VERSION (apps/desktop/package.json)."; exit 1; }
           cat > RELEASE_NOTES.md <<EOF
           ## Narrative Integrity Engine ${NIE_VERSION}
 
@@ -194,22 +202,27 @@ jobs:
 
           | File | What it is |
           | --- | --- |
-          | \`Narrative-Integrity-Engine-Portable.exe\` | One file, nothing to install. Double-click and NIE opens. |
-          | \`Narrative-Integrity-Engine-Setup.exe\` | A normal installer: desktop shortcut, Start menu entry, uninstaller. |
+          | \`Narrative-Integrity-Engine-Setup.exe\` | **Recommended.** A normal installer: installs in seconds, desktop shortcut, Start menu entry, uninstaller. |
+          | \`Narrative-Integrity-Engine-Portable.exe\` | One file, nothing to install. Unpacks for a few seconds each time it starts. |
           | \`SHA256SUMS.txt\` | Checksums, to check the downloads are intact. |
 
           **First start:** NIE downloads its offline language model (about 1.9 GB) once, tells you while it does, and meanwhile answers from its built-in library. After that it works with no internet.
 
           **Windows warning:** the program is not code-signed yet, so Windows may show "Windows protected your PC". Choose **More info**, then **Run anyway**.
 
+          **The model's licence:** the offline model (Qwen2.5-3B-Instruct) is made by Alibaba Cloud under the Qwen Research License (research and non-commercial use). It is downloaded from its official page, not included here. See NOTICE.md.
+
           Built and tested on a real Windows machine: unit tests, a first-run model download, an answer from the real model, install and clean uninstall.
           EOF
-          sed -i 's/^          //' RELEASE_NOTES.md
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" dist-release/* --clobber
+          FILES="dist-release/Narrative-Integrity-Engine-Setup.exe dist-release/Narrative-Integrity-Engine-Portable.exe dist-release/SHA256SUMS.txt dist-release/READ-ME-FIRST.txt"
+          STATE="$(gh release list --limit 100 --json tagName,isDraft --jq ".[] | select(.tagName==\"$TAG\") | .isDraft" || true)"
+          if [ "$STATE" = "true" ]; then
+            gh release upload "$TAG" $FILES --clobber        # refreshing a draft is fine
+          elif [ -n "$STATE" ]; then
+            echo "Release $TAG is already PUBLISHED. Refusing to replace public downloads from a build; use a new tag."; exit 1
           elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            gh release create "$TAG" dist-release/*.exe dist-release/SHA256SUMS.txt --draft --title "NIE ${NIE_VERSION}" --notes-file RELEASE_NOTES.md
+            gh release create "$TAG" $FILES --draft --title "NIE ${NIE_VERSION}" --notes-file RELEASE_NOTES.md
           else
-            gh release create "$TAG" dist-release/*.exe dist-release/SHA256SUMS.txt --draft --target "$GITHUB_SHA" --title "NIE ${NIE_VERSION}" --notes-file RELEASE_NOTES.md
+            gh release create "$TAG" $FILES --draft --target "$GITHUB_SHA" --title "NIE ${NIE_VERSION}" --notes-file RELEASE_NOTES.md
           fi
-          echo "A DRAFT release '$TAG' now holds the files. It is not public until somebody presses Publish release."
+          echo "A DRAFT release '$TAG' holds the files. It is not public until somebody presses Publish release."

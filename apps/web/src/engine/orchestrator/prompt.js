@@ -79,18 +79,47 @@ export function trimHistory(messages, maxChars = BUDGET.history) {
 }
 
 /**
- * @returns {{ messages: {role:string, content:string}[], tokens: number }}
+ * The local model reads at most 4,096 tokens at once, and a reply of up to 700 tokens plus the chat template's own markup
+ * come out of that. A prompt over this estimate (3.6 characters per token) risks being refused by the model.
  */
-export function composeMessages({ mode = 'brainstorm', project, interp, userMessage, passage = '', history = [], retrieved = [], extra = '' }) {
-  const system = buildSystem({ mode, project, interp });
-  const userParts = [];
-  if (retrieved.length) userParts.push(`Reference notes (tools the writer may use or break, not rules):\n${describeForPrompt(retrieved, BUDGET.knowledge)}`);
-  if (passage) userParts.push(`The writer's passage (for reference only; do not rewrite it):\n"""\n${clip(passage, BUDGET.passage)}\n"""`);
-  if (extra) userParts.push(extra);
-  userParts.push(userMessage);
+export const PROMPT_TOKEN_LIMIT = 2900;
+/** The smaller prompt used for one automatic retry after the model failed to answer. */
+export const RETRY_TOKEN_LIMIT = 1500;
 
-  const messages = [{ role: 'system', content: system }, ...trimHistory(history), { role: 'user', content: userParts.join('\n\n') }];
-  return { messages, tokens: messages.reduce((a, m) => a + estimateTokens(m.content), 0) };
+/**
+ * Sections shrink in steps (reference notes, then history, then the passage) until the whole prompt fits.
+ * The writer's own message is only ever shortened as a last resort, and `trimmed` says what was cut so the UI can be honest.
+ * @returns {{ messages: {role:string, content:string}[], tokens: number, trimmed: string[] }}
+ */
+export function composeMessages({ mode = 'brainstorm', project, interp, userMessage, passage = '', history = [], retrieved = [], extra = '', limit = PROMPT_TOKEN_LIMIT, minimal = false }) {
+  const system = buildSystem({ mode, project, interp });
+  const count = (msgs) => msgs.reduce((a, m) => a + estimateTokens(m.content), 0);
+  const build = (scale, message) => {
+    const userParts = [];
+    if (retrieved.length && scale > 0) userParts.push(`Reference notes (tools the writer may use or break, not rules):\n${describeForPrompt(retrieved, Math.floor(BUDGET.knowledge * scale))}`);
+    if (passage && scale > 0) userParts.push(`The writer's passage (for reference only; do not rewrite it):\n"""\n${clip(passage, Math.floor(BUDGET.passage * scale))}\n"""`);
+    if (extra) userParts.push(extra);
+    userParts.push(message);
+    return [{ role: 'system', content: system }, ...(scale > 0 ? trimHistory(history, Math.floor(BUDGET.history * scale)) : []), { role: 'user', content: userParts.join('\n\n') }];
+  };
+
+  let messages = build(minimal ? 0 : 1, userMessage);
+  let trimmed = minimal ? [retrieved.length && 'reference notes', history.length && 'earlier messages', passage && 'your passage'].filter(Boolean) : [];
+  if (count(messages) > limit) {
+    for (const scale of [0.6, 0.3, 0]) {
+      messages = build(scale, userMessage);
+      trimmed = [retrieved.length && 'reference notes', history.length && 'earlier messages', passage && 'your passage'].filter(Boolean);
+      if (count(messages) <= limit) break;
+    }
+  }
+  if (count(messages) > limit) {
+    // Even alone, the writer's message does not fit: keep as much of it as the window allows.
+    const overhead = count(build(0, ''));
+    const room = Math.max(600, Math.floor((limit - overhead) * 3.6));
+    messages = build(0, `${clip(userMessage, room)}\n\n(The writer's message was longer than the offline model can read at once; only the first part is shown here.)`);
+    trimmed.push('your message');
+  }
+  return { messages, tokens: count(messages), trimmed };
 }
 
 /**

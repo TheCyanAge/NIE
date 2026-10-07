@@ -38,6 +38,10 @@ running, and otherwise approximated by keywords (negative rules only) and labell
 Every rule shows how NIE understood it.
 
 ## Known limits
+- Force-quitting NIE (Task Manager, a crash) can leave `llama-server.exe` running in the background and holding about 2 GB of memory until it is ended in Task Manager. A normal quit stops it.
+- The 1.9 GB model is stored under the roaming profile (`%APPDATA%`); on PCs with roaming profiles or redirected folders that may be slow to sync. Moving it to `%LOCALAPPDATA%` is planned.
+- The model download is not checked against a pinned SHA-256 (it is checked for size and the GGUF header); the CI log shows the checksum of the real download so it can be pinned.
+- The portable exe unpacks to a temporary folder every time it starts (a few seconds); the installed copy does not.
 - PDF: text PDFs with simple font encodings only; scanned PDFs are reported as unreadable (no OCR).
 - The 3B model is small: its verdicts are shown as *possible issues* and can be marked as exceptions.
 - The installer and the packaged app are tested on GitHub's Windows runner (a fresh machine, but not a consumer PC with other software, antivirus or a different Windows version).

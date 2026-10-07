@@ -102,6 +102,7 @@ async function streamChat(provider, channel, { id, messages, options = {} }) {
 ipcMain.handle('nie:local:status', () => local.status);
 ipcMain.handle('nie:local:info', () => local.info());
 ipcMain.handle('nie:local:restart', () => local.restart());
+ipcMain.handle('nie:local:download', () => local.download());
 ipcMain.handle('nie:local:chat', (_e, req) => streamChat({ chat: (m, o) => local.chat(m, o) }, 'nie:local:chunk', req));
 ipcMain.handle('nie:local:set-auto-download', (_e, v) => {
   writePrefs({ autoDownloadModel: Boolean(v) });
@@ -160,6 +161,7 @@ const updater = createUpdater({
   isPackaged: app.isPackaged,
   config: readUpdaterConfig(path.join(here, 'updater-config.json')),
   currentVersion: app.getVersion(),
+  portable: Boolean(process.env.PORTABLE_EXECUTABLE_FILE), // set by the portable single-file exe
   loadAutoUpdater: async () => (await import('electron-updater')).default.autoUpdater,
   onStatus: (s) => send('nie:updater:status', s),
 });

@@ -2,6 +2,8 @@
 //   node scripts/smoke-windows.mjs <folder containing "Narrative Integrity Engine.exe"> [--out smoke-out] [--no-model] [--no-runtime] [--real-profile]
 //   node scripts/smoke-windows.mjs --exe <a single portable .exe> [--real-profile] [--download-model]   (no folder layout to inspect)
 //   --download-model: the model is NOT in the package; the app must download it on first run (the click-and-run package).
+//   --expect-fresh:   the profile must have NO model at the start (so the first-run download is really exercised and cannot be skipped silently)
+//   --expect-model:   the profile must ALREADY have the model (a later start must find it, not download it again)
 //
 // What it proves (the things that cannot be proven by unit tests):
 //   1. the package layout is complete (whole llama.cpp runtime incl. CPU backend, model present and valid, web UI bundled)
@@ -32,6 +34,8 @@ const realProfile = args.includes('--real-profile'); // installed run: use the a
 const isWin = process.platform === 'win32';
 const exeOverride = opt('--exe', null); // a single portable exe: nothing of its layout can be inspected from outside
 const downloadModel = args.includes('--download-model');
+const expectFresh = args.includes('--expect-fresh');
+const expectModel = args.includes('--expect-model');
 const exe = exeOverride ? path.resolve(exeOverride) : path.join(dir, isWin ? 'Narrative Integrity Engine.exe' : 'Narrative Integrity Engine');
 const resources = path.join(dir, 'resources');
 const READY_TIMEOUT_MS = Number(opt('--ready-timeout', downloadModel ? 1200000 : 360000));
@@ -133,11 +137,22 @@ if (skipModel) {
   fs.writeFileSync(path.join(userData, 'desktop-prefs.json'), JSON.stringify({ autoDownloadModel: false }));
 }
 // A hung renderer or installer must never hold the job until its time limit.
-const watchdog = setTimeout(() => { console.error('WATCHDOG: the smoke test ran too long; stopping everything.'); spawned.forEach(killTree); process.exit(2); }, Number(opt('--max-minutes', 22)) * 60 * 1000);
+const watchdogMinutes = Number(opt('--max-minutes', downloadModel && !expectModel ? 27 : 22));
+const watchdog = setTimeout(() => {
+  console.error('WATCHDOG: the smoke test ran too long; stopping everything.');
+  // Leave something to read: a silent timeout is the hardest failure to diagnose.
+  try { report.error = `WATCHDOG: the smoke test ran longer than ${watchdogMinutes} minutes. Last steps: ${report.steps.slice(-3).map((x) => x.name).join(' | ')}`; fs.writeFileSync(path.join(outDir, 'smoke-report.json'), JSON.stringify(report, null, 2)); } catch { /* ignore */ }
+  try { fs.copyFileSync(path.join(userData, 'nie.log'), path.join(outDir, 'nie.log')); } catch { /* may not exist */ }
+  try { fs.writeFileSync(path.join(outDir, 'app-output.txt'), allLog.join('')); } catch { /* ignore */ }
+  spawned.forEach(killTree);
+  process.exit(2);
+}, watchdogMinutes * 60 * 1000);
 watchdog.unref?.();
 try {
   // 1. layout
   step('exe exists', fs.existsSync(exe), exe);
+  if (expectFresh) step('the profile starts WITHOUT a model, so the first-run download is really exercised', !hadModelAtStart, hadModelAtStart ? `a model is already at ${modelInProfile(userData)}` : 'no model yet');
+  if (expectModel) step('the profile already has the model from the first run, so it must be found, not downloaded again', hadModelAtStart, hadModelAtStart ? 'found' : `no model at ${modelInProfile(userData)}`);
   if (exeOverride) {
     const mb = fs.statSync(exe).size / 1048576;
     step('the single-file exe is a reasonable size (no model inside)', mb > 50 && mb < 900, `${mb.toFixed(0)} MB`);
@@ -169,7 +184,7 @@ try {
     if (process.env.CI) throw err; // in CI this check must really run: it exists to catch the repo-inside-asar mistake
   }
   const asarBytes = fs.statSync(path.join(resources, 'app.asar')).size;
-  const stray = fs.readdirSync(resources).filter((n) => !['app.asar', 'bin', 'models', 'web'].includes(n));
+  const stray = fs.readdirSync(resources).filter((n) => !['app.asar', 'bin', 'models', 'web', 'elevate.exe'].includes(n));
   step('the package does not contain a copy of the repository', !nested && inAsar.length === 0 && asarBytes < 20e6 && stray.length === 0, `resources: ${top.join(', ')}; app.asar ${(asarBytes / 1048576).toFixed(1)} MB${stray.length ? `; unexpected: ${stray.join(', ')}` : ''}`);
   step('web UI is bundled', fs.existsSync(path.join(resources, 'web', 'index.html')) && fs.existsSync(path.join(resources, 'web', 'src', 'engine', 'knowledge', 'index.js')), 'resources/web');
   if (!skipModel && !downloadModel) {
@@ -212,6 +227,7 @@ try {
       const mv = validateModel(modelInProfile(userData), { minBytes: DEFAULT_MODEL.minBytes });
       step('the downloaded model is saved in the user profile and is intact (size + GGUF header)', mv.ok, mv.ok ? `${(mv.size / 1073741824).toFixed(2)} GB` : mv.problems.map((p) => p.message).join(' | '));
     }
+    if (expectModel) step('the app found the existing model and did not download it again', !seen.some((b) => /Downloading the offline model/i.test(b)), seen.join('  ->  ').slice(0, 300));
     step('offline model reaches "Offline NIE ready." (real llama-server, real Qwen)', /Offline NIE ready\./.test(banner), `${seen.join('  ->  ')} after ${((Date.now() - t0) / 1000).toFixed(0)} s`);
     await page.screenshot({ path: path.join(outDir, '2-ready.png') });
 

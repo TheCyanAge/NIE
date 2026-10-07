@@ -70,6 +70,58 @@ test('model missing → downloads it as part of first run, reports progress, the
   } finally { await m.stop(); server.close(); server.closeAllConnections?.(); }
 });
 
+const trickleServer = async (data, perTickMs = 15) => {
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Length': data.length });
+    let i = 0;
+    const t = setInterval(() => {
+      if (i >= data.length) { clearInterval(t); return res.end(); }
+      res.write(data.subarray(i, i + 30000)); i += 30000;
+    }, perTickMs);
+    res.on('close', () => clearInterval(t));
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  return server;
+};
+
+test('pressing Restart while the model is downloading really restarts it (it used to hand back the cancelled run and fail)', async () => {
+  const data = Buffer.concat([Buffer.from('GGUF'), Buffer.alloc(600000, 3)]);
+  const server = await trickleServer(data);
+  const m = mgr(layoutWith(), { model: { ...MODEL, url: `http://127.0.0.1:${server.address().port}/m.gguf` } });
+  const states = [];
+  m.on('status', (s) => states.push(`${s.state}:${s.phase ?? ''}`));
+  try {
+    const first = m.init();
+    for (let i = 0; i < 100 && !states.some((x) => x.endsWith('download')); i++) await new Promise((r) => setTimeout(r, 20));
+    assert.ok(states.some((x) => x.endsWith('download')), 'download started');
+    const s = await m.restart();
+    await first;
+    assert.equal(s.state, 'ready', `restart ended as ${s.state}: ${s.detail}`);
+    assert.ok(!states.some((x) => x.startsWith('failed')), `a cancelled download is not a failure: ${states.join(', ')}`);
+  } finally { await m.stop(); server.close(); server.closeAllConnections?.(); }
+});
+
+test('"Download the offline model" works even when automatic download is switched off, and does not change that setting', async () => {
+  const data = Buffer.concat([Buffer.from('GGUF'), Buffer.alloc(100000, 3)]);
+  const server = await trickleServer(data, 5);
+  const m = mgr(layoutWith(), { autoDownload: false, model: { ...MODEL, url: `http://127.0.0.1:${server.address().port}/m.gguf` } });
+  try {
+    assert.equal((await m.init()).state, 'failed');
+    assert.equal(m.info().autoDownload, false);
+    const s = await m.download();
+    assert.equal(s.state, 'ready');
+    assert.equal(m.autoDownload, false, 'the saved preference is left alone');
+  } finally { await m.stop(); server.close(); server.closeAllConnections?.(); }
+});
+
+test('with no internet the failure says so in plain words and carries the "download" phase so the UI can be truthful', async () => {
+  const m = mgr(layoutWith(), { model: { ...MODEL, url: 'http://127.0.0.1:1/m.gguf' }, fetchImpl: async () => { throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ENOTFOUND' } }); } });
+  const s = await m.init();
+  assert.equal(s.state, 'failed');
+  assert.equal(s.phase, 'download');
+  assert.match(s.detail, /no working internet connection/);
+});
+
 test('download failure is reported as a failure, not as "starting forever"', async () => {
   const server = http.createServer((req, res) => { res.writeHead(503); res.end(); });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));

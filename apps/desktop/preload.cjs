@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld('NIE_LOCAL', {
   onStatus: (cb) => on('nie:local:status', cb),
   info: () => ipcRenderer.invoke('nie:local:info'),
   restart: () => ipcRenderer.invoke('nie:local:restart'),
+  download: () => ipcRenderer.invoke('nie:local:download'),
   chat: (req) => ipcRenderer.invoke('nie:local:chat', req),
   abort: (id) => ipcRenderer.send('nie:local:abort', id),
   onChunk: (cb) => on('nie:local:chunk', cb),

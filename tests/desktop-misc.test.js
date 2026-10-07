@@ -58,13 +58,65 @@ test('model download resumes an interrupted transfer with a Range request', asyn
   const s = await serve(data, { cutAfter: 20000 });
   const dest = path.join(tmp(), 'm.gguf');
   try {
-    await assert.rejects(downloadModel({ url: s.url, destPath: dest, minBytes: 1000 }));
+    await assert.rejects(downloadModel({ url: s.url, destPath: dest, minBytes: 1000, attempts: 1 }));
     assert.equal(fs.existsSync(dest), false, 'a half-finished download is never the model');
     assert.ok(fs.statSync(dest + '.part').size > 0);
     const r = await downloadModel({ url: s.url, destPath: dest, minBytes: 1000 });
     assert.ok(fs.readFileSync(dest).equals(data));
     assert.match(s.hits.at(-1), /^bytes=\d+-$/);
     assert.equal(r.size, data.length);
+  } finally { s.close(); }
+});
+
+test('a connection cut mid-download resumes by itself from the .part file', async () => {
+  const data = modelBytes(60000);
+  const s = await serve(data, { cutAfter: 20000 });
+  const dest = path.join(tmp(), 'm.gguf');
+  try {
+    const r = await downloadModel({ url: s.url, destPath: dest, minBytes: 1000, retryDelayMs: 5 });
+    assert.ok(fs.readFileSync(dest).equals(data));
+    assert.equal(r.size, data.length);
+    assert.ok(s.hits.some((h) => /^bytes=\d+-$/.test(h)), 'the second attempt used a Range request');
+  } finally { s.close(); }
+});
+
+test('a download that stops delivering bytes is abandoned after the stall time and resumed, not left at 37% forever', async () => {
+  const data = modelBytes(60000);
+  let calls = 0;
+  const seen = [];
+  const fetchImpl = async (_url, init) => {
+    calls++;
+    seen.push(init.headers.Range ?? null);
+    if (calls === 1) {
+      const body = new ReadableStream({ start(c) { c.enqueue(new Uint8Array(data.subarray(0, 20000))); /* then nothing, never closes */ } });
+      return new Response(body, { status: 200, headers: { 'content-length': String(data.length) } });
+    }
+    const from = Number(/bytes=(\d+)-/.exec(init.headers.Range)[1]);
+    return new Response(data.subarray(from), { status: 206, headers: { 'content-length': String(data.length - from) } });
+  };
+  const dest = path.join(tmp(), 'm.gguf');
+  const r = await downloadModel({ url: 'http://x/m', destPath: dest, minBytes: 1000, fetchImpl, stallMs: 150, retryDelayMs: 5 });
+  assert.equal(calls, 2);
+  assert.equal(seen[1], 'bytes=20000-');
+  assert.ok(fs.readFileSync(dest).equals(data));
+  assert.equal(r.size, data.length);
+});
+
+test('not enough free disk space is a plain-language error before anything is written', async () => {
+  const s = await serve(modelBytes(60000));
+  const dest = path.join(tmp(), 'm.gguf');
+  try {
+    await assert.rejects(downloadModel({ url: s.url, destPath: dest, minBytes: 1000, freeBytes: () => 1000 }), /not enough free disk space/);
+    assert.equal(fs.existsSync(dest + '.part'), false);
+  } finally { s.close(); }
+});
+
+test('an unwritable model folder is a plain error, never an unhandled stream error that would crash the app', async () => {
+  const s = await serve(modelBytes(60000));
+  const dest = path.join(tmp(), 'm.gguf');
+  fs.mkdirSync(dest + '.part'); // a directory where the file should go: writing fails
+  try {
+    await assert.rejects(downloadModel({ url: s.url, destPath: dest, minBytes: 1000, attempts: 1 }), /could not be saved|disk is full/);
   } finally { s.close(); }
 });
 
@@ -108,6 +160,15 @@ test('placeholder updater config is "not configured", never a fake "up to date"'
   assert.equal((await u.check()).state, 'unconfigured');
   assert.equal(loaded, 0, 'the updater library is never touched when unconfigured');
   assert.equal(u.install().ok, false);
+});
+
+test('the portable copy says it does not update itself (it is not "unconfigured" or "failed")', async () => {
+  let loaded = 0;
+  const u = createUpdater({ isPackaged: true, portable: true, config: { provider: 'github', owner: 'TheCyanAge', repo: 'NIE' }, loadAutoUpdater: async () => (loaded++, new EventEmitter()) });
+  assert.equal(u.status().state, 'unconfigured');
+  assert.match(u.status().message, /portable copy/);
+  assert.equal((await u.check()).state, 'unconfigured');
+  assert.equal(loaded, 0);
 });
 
 test('development builds report that updates only work when installed', () => {

@@ -14,6 +14,7 @@ export function mountSettings(root, app, { startTour }) {
   const modelSelect = h('select', { class: 'select', id: 'model-select', 'aria-label': 'Offline model' });
   const restartBtn = h('button', { class: 'btn', id: 'restart-model', onclick: async () => { toast('Restarting the offline model…'); await window.NIE_LOCAL?.restart(); refreshModel(); } }, 'Restart offline model');
   const autoDl = h('input', { type: 'checkbox', id: 'auto-download', checked: true, onchange: (e) => window.NIE_LOCAL?.setAutoDownload?.(e.target.checked) });
+  const downloadBtn = h('button', { class: 'btn btn-primary', id: 'download-model', hidden: true, onclick: async () => { toast('Downloading the offline model…'); downloadBtn.disabled = true; await window.NIE_LOCAL?.download?.(); downloadBtn.disabled = false; refreshModel(); } }, 'Download the offline model (about 1.9 GB)');
 
   const onEnabled = h('input', { type: 'checkbox', id: 'online-enabled' });
   const onUrl = h('input', { class: 'input', id: 'online-url', placeholder: 'https://api.example.com/v1', 'aria-label': 'Online provider base URL' });
@@ -75,8 +76,8 @@ export function mountSettings(root, app, { startTour }) {
 
   root.append(h('div', { class: 'settings' },
     pageHead({ eyebrow: 'Settings', title: 'Make NIE yours', sub: 'Choose how NIE thinks offline, check for updates, and control the tour.' }),
-    section('AI', h('p', { class: 'muted' }, 'You always talk to NIE. Online, it can use an online model; offline, it automatically uses the model installed with the app.'), aiStatus,
-      h('div', { class: 'row' }, h('label', { class: 'field inline' }, h('span', { class: 'field-label' }, 'Offline model'), modelSelect), restartBtn),
+    section('AI', h('p', { class: 'muted' }, 'You always talk to NIE. Online, it can use an online model; offline, it uses the offline model that runs on this computer. NIE downloads that model (about 1.9 GB) the first time it needs it, and until it is ready NIE answers from its built-in library.'), aiStatus,
+      h('div', { class: 'row' }, h('label', { class: 'field inline' }, h('span', { class: 'field-label' }, 'Offline model'), modelSelect), restartBtn, downloadBtn),
       modelInfo,
       h('p', { class: 'muted small model-license' }, 'The offline model is Qwen2.5 3B Instruct from Alibaba Cloud\'s Qwen team. It is not part of NIE\'s own code: it is used under the Qwen Research License (research and non-commercial use; commercial use needs a separate licence from its authors). NIE downloads it from the model\'s official page.'),
       h('label', { class: 'check' }, autoDl, ' Download the offline model automatically if it is missing'),
@@ -133,7 +134,7 @@ export function mountSettings(root, app, { startTour }) {
     clear(modelInfo);
     if (!bridge) {
       clear(modelSelect).append(h('option', {}, 'Qwen2.5 3B Instruct (Q4_K_M)'));
-      modelSelect.disabled = true; restartBtn.disabled = true; autoDl.disabled = true;
+      modelSelect.disabled = true; restartBtn.disabled = true; autoDl.disabled = true; downloadBtn.hidden = true;
       modelInfo.append(h('p', { class: 'muted small' }, 'The offline model runs inside the desktop app. In a browser, NIE uses its built-in guidance unless you connect a llama-server (add ?llama=http://127.0.0.1:8080 to the address).'));
       return;
     }
@@ -142,6 +143,8 @@ export function mountSettings(root, app, { startTour }) {
     clear(modelSelect);
     for (const m of info.catalog) modelSelect.append(h('option', { value: m.id, selected: m.id === info.model.id ? true : null }, m.label));
     const rows = [['Model file', info.model.exists ? info.model.path : `${info.model.fileName} (not installed)`], ['Model check', info.model.validation ? (info.model.validation.ok ? `OK (${(info.model.validation.size / 1073741824).toFixed(2)} GB)` : info.model.validation.problems.map((p) => p.message).join(' ')) : 'Not installed'], ['Runtime', info.runtime.ok ? 'Complete' : info.runtime.problems.map((p) => p.message).join(' ')]];
+    autoDl.checked = info.autoDownload !== false; // show the saved choice, not always ticked
+    downloadBtn.hidden = info.model.exists && info.model.validation?.ok !== false;
     if (st.local.state === 'failed' && st.local.detail) rows.push(['Problem', st.local.detail]);
     if (st.local.state === 'starting' && st.local.detail) rows.push(['Progress', st.local.detail]);
     for (const [k, v] of rows) modelInfo.append(h('div', { class: 'info-k' }, k), h('div', { class: 'info-v' }, v));

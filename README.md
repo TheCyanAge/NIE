@@ -22,15 +22,20 @@ One NIE: online model, offline model and built-in guidance are routing, not sepa
 **Click and run:** download one file and double-click it.
 
 1. Open the [latest release](https://github.com/TheCyanAge/NIE/releases/latest) and download
-   **`Narrative-Integrity-Engine-Portable.exe`**, then double-click it. Nothing is installed; NIE opens.
-   Prefer a desktop shortcut and a Start menu entry? Download **`Narrative-Integrity-Engine-Setup.exe`** instead and run it.
+   **`Narrative-Integrity-Engine-Setup.exe`** (recommended) and run it. It installs in a few seconds, puts NIE on your desktop and in the
+   Start menu, and starts it. Or download **`Narrative-Integrity-Engine-Portable.exe`**: one file, nothing to install; it unpacks for a
+   few seconds every time it starts.
 2. Windows may show a blue "Windows protected your PC" box, because the program is not code-signed yet
    ([docs/WINDOWS_SIGNING.md](docs/WINDOWS_SIGNING.md)). Choose **More info → Run anyway**.
-3. The first time, NIE downloads its offline language model (about 1.9 GB) once. It says so while it does, and meanwhile it answers from
-   its built-in library. After that it works with no internet at all.
+3. The first time, NIE downloads its offline language model (about 1.9 GB) once. It shows the progress, and until it finishes NIE
+   answers from its built-in library and says so. After that it works with no internet at all. (No connection at the time? Press
+   **Restart** or **Download the offline model** in Settings later; the download continues where it stopped.)
+
+Your projects and the model live in your Windows profile (`%APPDATA%\Narrative Integrity Engine`), so the Setup and Portable versions
+share them; close NIE before opening the other one. Uninstalling asks whether to remove the 1.9 GB model too; your projects are kept.
 
 Both files are built on a real Windows machine by GitHub Actions and tested there before they are offered: the app starts, downloads
-the real model on a first run, answers with it, installs and uninstalls cleanly. If the Releases page shows no release yet, the
+the real model on a first run, answers with it, installs (silently) and uninstalls cleanly. If the Releases page shows no release yet, the
 files exist as a *draft* until the repository owner presses **Publish release**; or open **Actions → windows-release → the newest green run → Artifacts → NIE-Windows-click-and-run**
 (GitHub asks you to sign in, and keeps artifacts for 30 days).
 
