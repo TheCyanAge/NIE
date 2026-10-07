@@ -269,3 +269,53 @@ test('only the newest long paste is kept in full: an older one keeps its start, 
   const stored = JSON.stringify(project.conversation.messages).length;
   assert.ok(stored < 2.2 * `Second opening.\n\n${second}`.length, `${stored} characters stored for two pastes`);
 });
+
+// ── a pasted chapter is the writer's text, not a command ─────────────────────
+
+const CHAPTER_WITH_DIALOGUE = [
+  'Note this: the lamp was out again.',
+  '"Can you fix the lamp?" Marta asked, and Tomas shrugged.',
+  '"Open the memory," said the old man, "and show me what you kept."',
+  '"Write it down," she said. "Rewrite it if you must. Remember this: nobody will believe you."',
+  '"Show me my notes," he said, and "please improve the ending," and she laughed.',
+  ...Array.from({ length: 70 }, (_, i) => `The tide went out and the tide came in, and nobody on the east pier wrote down the hour, the weather or the name of boat number ${i}.`),
+].join('\n\n');
+
+test('dialogue inside a pasted chapter is never mistaken for a request to NIE: no decline, no Idea Board command', async () => {
+  assert.ok(CHAPTER_WITH_DIALOGUE.length > LONG_MESSAGE_CHARS);
+  const project = projectWith();
+  const { o, calls } = setup({ reading: { task: 'tell', topic: '' } });
+  const r = await o.brainstorm({ project, message: CHAPTER_WITH_DIALOGUE });
+  assert.equal(r.declined, false, 'not declined');
+  assert.equal(r.intent.type, 'share-passage');
+  assert.equal(r.route, 'local', 'the model answered');
+  assert.equal(calls.length, 1);
+  assert.equal(project.brainstorm.board.length, 0, 'nothing was "remembered"');
+  assert.doesNotMatch(r.reply, /I don't (?:write|rewrite)/);
+});
+
+test('with the writer\'s own ask next to the pasted chapter, only the ask is read: a request to rewrite it is still declined, a question about it is answered', async () => {
+  const { o } = setup({ reading: { task: 'feedback', topic: '' } });
+  const declined = await o.brainstorm({ project: projectWith(), message: `Please rewrite this chapter to be shorter.\n\n${CHAPTER_WITH_DIALOGUE}\n\n${CHAPTER_WITH_DIALOGUE}` });
+  assert.equal(declined.declined, true);
+  const asked = await setup({ reading: { task: 'feedback', topic: '' } }).o.brainstorm({ project: projectWith(), message: `${CHAPTER_WITH_DIALOGUE}\n\n${CHAPTER_WITH_DIALOGUE}\n\nWhat do you think of the pacing?` });
+  assert.equal(asked.declined, false);
+  assert.equal(asked.intent.type, 'feedback-request');
+});
+
+test('a long paste with no model: the rules still check it against the writer\'s rules and answer; dialogue is not a command', async () => {
+  const project = projectWith();
+  const o = new Orchestrator({ engine: new AIEngine({ local: null, online: null, isOnline: () => false }) });
+  const r = await o.brainstorm({ project, message: CHAPTER_WITH_DIALOGUE });
+  assert.equal(r.intent.type, 'share-passage');
+  assert.equal(r.declined, false);
+  assert.equal(project.brainstorm.board.length, 0);
+});
+
+test('pasting a very long text is not slow: the rules never run over the body', async () => {
+  const { text } = makeLongText({ words: 150000 });
+  const { o } = setup({ reading: { task: 'tell', topic: '' } });
+  const t = Date.now();
+  await o.brainstorm({ project: projectWith(), message: text });
+  assert.ok(Date.now() - t < 4000, `${Date.now() - t} ms for a 150,000-word paste`);
+});

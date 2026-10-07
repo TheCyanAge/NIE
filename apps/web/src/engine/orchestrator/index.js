@@ -52,6 +52,17 @@ export function compactOldPastes(messages) {
     m.compacted = true;
   }
 }
+/**
+ * What does a message with a long pasted text in it mean? Only the writer's OWN words (its short first or last paragraph) are read by the rules: a
+ * chapter is full of dialogue like "Can you fix the lamp?" or "Open the memory", which must never be mistaken for a request to NIE.
+ */
+function pasteIntent(paste, ctx) {
+  const base = paste.ask ? detectIntent(paste.ask, ctx) : null;
+  const decided = base && !['remember', 'recall', 'develop-idea', 'empty', 'greeting', 'discuss', 'share-premise', 'direction-change', 'start-from-zero'].includes(base.type);
+  const intent = decided ? base : { type: 'share-passage', secondary: [], confidence: 0.5, signals: ['pasted text'], mode: ctx.mode, direction: { changed: false }, topics: [] };
+  intent.premiseCues = extractPremiseCues(paste.body.slice(0, 6000));
+  return intent;
+}
 const MENTIONS_OWN_TEXT = /\b(?:my|our)\s+(?:story|novel|manuscript|draft|book|screenplay|script|poem|essay|article|piece|chapters?|ending|opening|middle|scene|characters?|protagonist|villain)\b/i;
 
 /** The compact record kept on the reply: what was shown of a long text. */
@@ -136,7 +147,10 @@ export class Orchestrator {
     project.brainstorm ??= emptyBrainstorm();
     const bs = project.brainstorm;
     const history = project.conversation.messages;
-    const intent = detectIntent(text, { project, hasHistory: history.length > 0, mode: 'brainstorm' });
+    const ctx = { project, hasHistory: history.length > 0, mode: 'brainstorm' };
+    const paste = text.length > LONG_MESSAGE_CHARS ? splitPaste(text) : null;
+    const askText = paste ? paste.ask : text; // what the rules and the library look at: the writer's own words, never a pasted chapter
+    const intent = paste ? pasteIntent(paste, ctx) : detectIntent(text, ctx);
 
     const userMsg = appendMessage(project, 'user', text, { intent: intent.type });
     if (text.length > LONG_MESSAGE_CHARS) compactOldPastes(history);
@@ -168,10 +182,10 @@ export class Orchestrator {
 
     // What is the writer asking? The language model reads the message when one is running; the rules read it otherwise.
     // The model only returns a label, so it cannot write anything; a "write"/"edit" label gets the same fixed decline.
-    const reading = await this.#read({ intent, text, history: history.slice(0, -1), signal, button: Boolean(lensOpt) }); // a tapped quick-action already says what it is
+    const reading = await this.#read({ intent, text: paste ? paste.ask || text.slice(0, 450) : text, history: history.slice(0, -1), signal, button: Boolean(lensOpt) }); // a tapped quick-action already says what it is
     userMsg.intent = intent.type;
     if (declines()) return decline();
-    if (intent.type === 'about-nie') return this.#about({ project, intent, text, onToken });
+    if (intent.type === 'about-nie') return this.#about({ project, intent, text: askText, onToken });
     const byModel = reading.by === 'model';
 
     // A general question about craft, style, usage, a form, genre or work: answer from the offline library, with its sources.
@@ -205,18 +219,18 @@ export class Orchestrator {
     if (intent.type !== 'library-question') project.conversation.workingPremise = updateWorkingPremise(project.conversation.workingPremise, text, intent);
 
     // ── What is being brainstormed, and is this a request for ideas? ──────────
-    const asks = ASKS_FOR_IDEAS.test(text);
+    const asks = ASKS_FOR_IDEAS.test(askText);
     const develop = intent.type === 'develop-idea' ? intent.idea : null;
     // When the model read the message, only a reading of "ideas" (or a quick-action button) makes idea cards: "tell me more about the
     // twist" is a conversation, not a request for more twists. The rules' guess at a lens word only applies when the rules read it.
     const ideaIntent = intent.type === 'request-ideas' || (!byModel && intent.type === 'discuss');
     let lens = lensOpt && lensOpt !== 'develop' ? lensOpt : null;
-    if (!lens && ideaIntent && (asks || words(text).length <= 7)) lens = detectLens(text);
+    if (!lens && ideaIntent && (asks || words(askText).length <= 7)) lens = detectLens(askText);
     if (!lens && ideaIntent && asks && WANTS_MORE.test(text)) lens = bs.lastLens; // "more!" repeats the last request
     if (lens && !LENSES[lens]) lens = null;
-    const isIdeaAsk = !develop && (Boolean(lensOpt) || intent.type === 'request-ideas' || (!byModel && intent.type === 'discuss' && (Boolean(lens) || (asks && /\bideas?\b/i.test(text)))));
+    const isIdeaAsk = !develop && (Boolean(lensOpt) || intent.type === 'request-ideas' || (!byModel && intent.type === 'discuss' && (Boolean(lens) || (asks && /\bideas?\b/i.test(askText)))));
 
-    const resolved = resolveKind(project, text, kindOpt ?? null);
+    const resolved = resolveKind(project, askText, kindOpt ?? null);
     let kind = resolved.kind;
     let note = '';
     if (lens && !LENSES_BY_KIND[kind].includes(lens)) {
@@ -229,15 +243,14 @@ export class Orchestrator {
       }
     }
     // Remember what the writer said they are working on, so "give me ideas" next turn stays in the right lane.
-    const stated = detectKind(text);
-    if (stated && (isIdeaAsk || develop || intent.type === 'start-from-zero' || /\b(?:i'?m|i am|i want to|i'?d like to|i need to|let'?s)\s+(?:be\s+)?(?:writing|write|working on|draft)/i.test(text))) bs.detectedKind = stated;
+    const stated = detectKind(askText);
+    if (stated && (isIdeaAsk || develop || intent.type === 'start-from-zero' || /\b(?:i'?m|i am|i want to|i'?d like to|i need to|let'?s)\s+(?:be\s+)?(?:writing|write|working on|draft)/i.test(askText))) bs.detectedKind = stated;
 
     if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, signal });
 
     // ── Conversation (not an idea request) ───────────────────────────────────
     const interp = interpretProfile(project.profile, { text: project.storyText });
     const doc = this.#documentFor({ project, text, intent, reading, history: history.slice(0, -1) });
-    const askText = doc.document?.subject === 'passage' && text.length > LONG_MESSAGE_CHARS ? doc.userMessage : text; // notes are found by what was ASKED, not by the pasted text
     const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, askText);
     const passage = intent.type === 'share-passage' ? text : '';
     const report = passage ? scan({ text: passage, project }) : null;
@@ -267,16 +280,16 @@ export class Orchestrator {
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {
-        reply = builtinReply({ intent, project, message: text, report, modelReady: true, status });
+        reply = builtinReply({ intent, project, message: askText, report, modelReady: true, status });
         route = 'builtin';
         honesty = WITHHELD_NOTE;
       }
     } else {
-      reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: text, report, modelReady: modelReady && Boolean(asked.failure), status });
+      reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: askText, report, modelReady: modelReady && Boolean(asked.failure), status });
       route = 'builtin';
       // Starting from nothing is where a few sparks help most: offer some to react to, never a draft.
       if (intent.type === 'start-from-zero') {
-        const sparks = generateIdeas({ project, message: text, kind, lens: 'spark', count: 3 }).ideas;
+        const sparks = generateIdeas({ project, message: askText, kind, lens: 'spark', count: 3 }).ideas;
         if (sparks.length) {
           const lead = `${reply}\n\nIf it helps, here are a few starting points to react to:`;
           reply = [lead, sparks.map((s, i) => `${i + 1}. ${s.text}`).join('\n')].join('\n\n');
@@ -411,7 +424,7 @@ export class Orchestrator {
     const honesty = fallbackNote || (res.text ? WITHHELD_NOTE : '');
     const fallback = honesty ? { reason: asked.failure ? 'error' : 'withheld', ...(asked.failure ? { detail: describeModelFailure(asked.failure) } : {}) } : null;
     if (!composed) {
-      const reply = [honesty, builtinReply({ intent: { ...intent, type: 'request-ideas' }, project, message: text, modelReady: Boolean(honesty) })].filter(Boolean).join('\n\n');
+      const reply = [honesty, builtinReply({ intent: { ...intent, type: 'request-ideas' }, project, message: askText, modelReady: Boolean(honesty) })].filter(Boolean).join('\n\n');
       onToken?.(reply, reply);
       return this.#finish(project, intent, reply, 'builtin', false, { kind, lens, fallback });
     }
