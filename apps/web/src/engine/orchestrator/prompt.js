@@ -6,7 +6,7 @@ import { leadNoun } from '../brainstorm/ideas.js';
 import { rulesToPromptBlock } from '../rules/rules.js';
 import { describeForPrompt } from '../knowledge/index.js';
 import { clip, estimateTokens, fnv1a } from '../util/text.js';
-import { buildIndex, readingContext } from '../reading/context.js';
+import { buildIndex, documentNote, readingContext } from '../reading/context.js';
 
 /**
  * Prompt composition for conversation (Brainstorm). The 3B local model has a small context window, so every section
@@ -120,7 +120,7 @@ export function composeMessages({ mode = 'brainstorm', project, interp, userMess
     if (docIndex) {
       const ctx = readingContext({ index: docIndex, query: document.query ?? '', topic: document.topic ?? '', budgetTokens: scale > 0 ? Math.max(450, Math.floor(docBudget * scale)) : 450, subject: document.subject });
       reading = ctx.stats;
-      if (ctx.block) userParts.push(`${ctx.block}\n\n(Reference only: this is the writer's own text. Do not rewrite, continue or quote it back at length.)`);
+      if (ctx.block) userParts.push(`${ctx.block}\n\n${documentNote(document.query || userMessage, ctx.stats)}`);
     }
     if (passage && scale > 0) userParts.push(`The writer's passage (for reference only; do not rewrite it):\n"""\n${clip(passage, Math.floor(BUDGET.passage * scale))}\n"""`);
     if (extra) userParts.push(extra);

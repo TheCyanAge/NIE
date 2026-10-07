@@ -222,3 +222,24 @@ export function describeReading(stats) {
   const whyText = why.length <= 1 ? why[0] : `${why.slice(0, -1).join(', ')} and ${why.at(-1)}`;
   return `${stats.subject === 'passage' ? 'The passage you pasted' : 'Your text'} is about ${w} words in ${stats.sections} sections. I can't hold all of that in mind at once, so for this I looked closely at section${closely.length === 1 ? '' : 's'} ${list} (${whyText}) and skimmed an outline of the rest. Ask about any part and I'll look at it.`;
 }
+
+/**
+ * Is the writer asking what their text SAYS ("who owed the money?", "where did she hide the key?", "how many steps led down?")? Then the answer is in the
+ * text, not in a brainstorm; the model is told so (a 3B model asked a factual question about a text it is shown still answered in brainstorming style
+ * and speculated about what "might" be there, measured on the real model).
+ */
+const OPINION = /\b(?:you think|should|could|might|would|can i|may|work|works|working|better|improve|predictable|too (?:slow|fast|long|short|much)|feel|feels|land|lands|ideas?|twist|happen next|next|possible|possibly|maybe|imagine|suppose)\b/i;
+export function isLookupQuestion(q) {
+  const t = String(q ?? '').trim();
+  if (!t || t.length > 400) return false;
+  return /^(?:in\s+(?:my|the)\s+(?:story|text|draft|novel|book|chapter\s*\d*|passage|piece|script|essay|poem|scene)\b[^,?:]*[,:]?\s*)?(?:who|whom|whose|what|where|when|which|how\s+(?:many|much|long|old|far)|did|does|do|was|were|is|are)\b/i.test(t) && !OPINION.test(t);
+}
+
+/** What the model is told about the text it was shown. */
+export function documentNote(query, stats) {
+  const partial = stats && !stats.complete;
+  if (isLookupQuestion(query)) {
+    return `The writer is asking what their text says. Answer from the text shown above in one or two plain sentences, and name the section it is in. If the parts shown do not say, tell them you cannot see it in the parts you were shown${partial ? ' (you were not shown all of it)' : ''}. Do not guess, do not list possibilities, and do not turn the question into brainstorming.`;
+  }
+  return `(Reference only: this is the writer's own text. Do not rewrite, continue or quote it back at length. Say only what the text shown actually contains${partial ? '; you were not shown all of it, so say so if you are unsure whether something is in the parts you did not see' : ''}.)`;
+}

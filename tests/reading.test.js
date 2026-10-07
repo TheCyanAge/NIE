@@ -319,3 +319,28 @@ test('pasting a very long text is not slow: the rules never run over the body', 
   await o.brainstorm({ project: projectWith(), message: text });
   assert.ok(Date.now() - t < 4000, `${Date.now() - t} ms for a 150,000-word paste`);
 });
+
+// ── factual questions about the text are answered from the text ──────────────
+
+import { isLookupQuestion, documentNote } from '../apps/web/src/engine/reading/context.js';
+import { composeMessages } from '../apps/web/src/engine/orchestrator/prompt.js';
+
+test('a question about what the text SAYS is told apart from a request for ideas or an opinion', () => {
+  for (const q of ['In my story, Where did Tomas Verrick hide the brass key?', 'Who owed Dov Anselm eleven shillings?', 'How many steps led down to the old cannery cellar?', 'Which night did the lamp go out?', 'What colour was the door?', 'Was the boat ever found?']) assert.equal(isLookupQuestion(q), true, q);
+  for (const q of ['What do you think of the ending?', 'is my ending too predictable?', 'what could happen next?', 'Does the twist work?', 'What would make the middle less slow?', 'Give me some ideas', '', 'Who might the stranger be?']) assert.equal(isLookupQuestion(q), false, q);
+});
+
+test('the model is told to answer from the text and not to guess when the writer asks what it says', () => {
+  const { text } = makeLongText({ words: 8000 });
+  const project = projectWith({ storyText: text });
+  const ask = (q) => composeMessages({ project, userMessage: q, document: { text, query: q, topic: '', subject: 'text' }, history: [] }).messages.at(-1).content;
+  const lookup = ask('Who owed Dov Anselm eleven shillings?');
+  assert.match(lookup, /The writer is asking what their text says\. Answer from the text shown above/);
+  assert.match(lookup, /you were not shown all of it/);
+  assert.match(lookup, /do not turn the question into brainstorming/i);
+  const opinion = ask('is my ending too predictable?');
+  assert.doesNotMatch(opinion, /The writer is asking what their text says/);
+  assert.match(opinion, /Reference only: this is the writer's own text/);
+  assert.match(opinion, /you were not shown all of it, so say so/);
+  assert.equal(documentNote('who?', { complete: true }).includes('not shown all'), false, 'a text shown whole does not say it was partial');
+});
