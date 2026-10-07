@@ -3,7 +3,8 @@ import { addToBoard, boardToMarkdown, removeFromBoard, updateBoardItem } from '.
 import { emptyWorkingPremise } from '../../engine/intent/intent.js';
 import { kindLabel } from '../../engine/brainstorm/lenses.js';
 import { resolveKind } from '../../engine/brainstorm/ideas.js';
-import { clip } from '../../engine/util/text.js';
+import { clip, estimateTokens, words } from '../../engine/util/text.js';
+import { splitSections } from '../../engine/reading/sections.js';
 
 /**
  * The Idea Board: what the writer kept, plus "what NIE understands" about the project so far.
@@ -75,6 +76,14 @@ export function mountBoard(app, { onDevelop, onChange = null }) {
         h('button', { class: 'link link-danger', type: 'button', 'aria-label': 'Remove from Idea Board', onclick: () => { removeFromBoard(app.project, i.id); persist(); } }, 'Remove')));
   }
 
+  // The panel is redrawn often; cutting a long text into sections is quick but not free, so remember the last one.
+  let lastText = null;
+  let lastSections = 0;
+  const sectionCount = (text) => {
+    if (text !== lastText) [lastText, lastSections] = [text, splitSections(text).length];
+    return lastSections;
+  };
+
   function renderUnderstands() {
     const p = app.project;
     const wp = p.conversation.workingPremise ?? {};
@@ -82,6 +91,13 @@ export function mountBoard(app, { onDevelop, onChange = null }) {
     const { kind, source } = resolveKind(p, '', null);
     const rows = [];
     rows.push(['Working on', source === 'default' ? 'Not sure yet' : `${kindLabel(kind)}${source === 'chosen' ? '' : ' (from what you said)'}`]);
+    const story = p.storyText ?? '';
+    if (story.trim()) {
+      const n = words(story).length;
+      rows.push(['Your text', estimateTokens(story) <= 1400
+        ? `${n.toLocaleString('en-US')} words: NIE reads all of it`
+        : `${n.toLocaleString('en-US')} words in ${sectionCount(story)} sections: NIE keeps an outline of all of it and looks closely at the parts that matter for each question`]);
+    }
     if (wp.summary) rows.push(['Premise', clip(wp.summary, 150)]);
     if (wp.characters?.length) rows.push(['Cast', wp.characters.slice(0, 5).join(', ')]);
     if (wp.settings?.length) rows.push(['Setting', wp.settings.slice(0, 3).join(', ')]);

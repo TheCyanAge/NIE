@@ -1129,6 +1129,24 @@ test('with the model reading messages: "does this work without wifi?" is answere
   });
 });
 
+test('"What NIE understands" says how NIE reads your text: all of it when it is short, an outline plus the parts that matter when it is long', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    assert.ok(!/Your text/.test(await page.textContent('#understands, .info-grid') ?? ''), 'nothing is claimed when there is no text');
+    await page.evaluate(() => { window.NIE_APP.project.storyText = 'The harbour was quiet. A boat came in late.'; window.NIE_APP.emit?.('storyChanged'); });
+    await page.click('.nav-btn[data-view=scan]');
+    await page.click('.nav-btn[data-view=brainstorm]');
+    await page.fill('#board-add', 'x');
+    await page.press('#board-add', 'Enter');
+    assert.match(await page.textContent('.info-grid'), /Your text\s*9 words: NIE reads all of it/);
+    const long = Array.from({ length: 40 }, (_, c) => `Chapter ${c + 1}\n\n${'The tide went out and the tide came in and nobody wrote it down. '.repeat(30)}`).join('\n\n');
+    await page.evaluate((t) => { window.NIE_APP.project.storyText = t; }, long);
+    await page.fill('#board-add', 'y');
+    await page.press('#board-add', 'Enter');
+    assert.match(await page.textContent('.info-grid'), /Your text\s*[\d,]+ words in \d+ sections: NIE keeps an outline of all of it and looks closely at the parts that matter for each question/);
+  });
+});
+
 test('Brainstorm stays usable on a narrow window: one column, board below the chat, nothing overflowing', async () => {
   await run({ viewport: { width: 820, height: 900 } }, async ({ page }) => {
     await openBrainstorm(page);
