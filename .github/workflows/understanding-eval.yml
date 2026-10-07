@@ -27,10 +27,24 @@ jobs:
           node-version: 22
 
       - name: Fetch the llama.cpp runtime (Linux)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          node scripts/fetch-runtime.mjs --asset ubuntu-x64 --no-model
+          # The Linux release file is named differently from release to release (.zip or .tar.gz), so ask the release what it has.
+          gh release view b9085 --repo ggml-org/llama.cpp --json assets --jq '.assets[].name' | grep -i 'ubuntu-x64' || true
+          mkdir -p rt apps/desktop/bin
+          gh release download b9085 --repo ggml-org/llama.cpp --pattern 'llama-*-bin-ubuntu-x64*' --dir rt
+          ls -la rt
+          for f in rt/*; do
+            case "$f" in
+              *.zip) unzip -q -o "$f" -d rt/x ;;
+              *.tar.gz|*.tgz) mkdir -p rt/x && tar -xzf "$f" -C rt/x ;;
+            esac
+          done
+          # llama-server and every library it loads, flattened next to each other (like the app's own runtime folder)
+          find rt/x -type f \( -name 'llama-server' -o -name '*.so' -o -name '*.so.*' \) -exec cp -P {} apps/desktop/bin/ \;
           chmod +x apps/desktop/bin/llama-server
-          ls apps/desktop/bin | head -30
+          ls -la apps/desktop/bin
 
       - name: Fetch the real model (about 1.9 GB, resumable)
         run: node scripts/fetch-runtime.mjs --no-runtime

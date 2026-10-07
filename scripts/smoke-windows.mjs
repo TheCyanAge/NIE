@@ -246,6 +246,20 @@ try {
     report.sampleReply = reply.slice(0, 400);
     step('Brainstorm answer comes from the offline model', route === 'local' && reply.length > 20, `route=${route}; "${reply.slice(0, 140).replace(/\s+/g, ' ')}"`);
     await page.screenshot({ path: path.join(outDir, '3-answer.png') });
+    // NIE understands the message with the language model (through the desktop bridge, with the constrained JSON reading), not only by rules.
+    const understood = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).understood);
+    report.understood = understood;
+    step('the language model read the message before answering', understood?.by === 'model' && Boolean(understood.task), JSON.stringify(understood));
+
+    // a request to write that the old rules did not recognise: the model's reading must get it declined (information only: the
+    // exact label is measured by the understanding-eval workflow, and a 3B model is not a deterministic guarantee)
+    const before3 = await countMessages();
+    await page.fill('#brainstorm-input', 'I was wondering if you might be able to compose the first page of my memoir for me?');
+    await page.press('#brainstorm-input', 'Enter');
+    await answered(before3);
+    const declinedMsg = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1));
+    report.writeRequest = { understood: declinedMsg.understood, route: declinedMsg.route, reply: declinedMsg.content?.slice(0, 160) };
+    step('a request to write is recognised and declined (information)', true, `read as ${declinedMsg.understood?.task} by ${declinedMsg.understood?.by}; route ${declinedMsg.route}; ${/I don't write|don't write or continue/i.test(declinedMsg.content ?? '') ? 'declined' : 'NOT declined by the fixed text'}`);
 
     // an idea request: either cards (model followed the format) or a plain reply; never an error
     const before2 = await countMessages();
