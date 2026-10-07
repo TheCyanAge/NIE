@@ -15,6 +15,10 @@ helps you brainstorm, and reads documents aloud, with a local language model (Qw
 - **Read**: import TXT, Markdown, HTML, RTF, DOCX, ODT, EPUB or PDF; it becomes your Story Text; have NIE read it aloud.
 - **Projects**: every project is its own world. New means fresh; delete means gone.
 
+NIE understands what you ask. When a language model is running, it first *reads* your message (is this a question about writing, a request
+for ideas, feedback on your own work, a question about NIE itself, or a request for NIE to write your text, which it declines?) and answers
+accordingly. With no model, simpler built-in rules read it, and NIE says which one it was.
+
 One NIE: online model, offline model and built-in guidance are routing, not separate assistants.
 
 ## Get the Windows app (no Node.js, no command line)

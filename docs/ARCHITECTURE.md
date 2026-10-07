@@ -17,11 +17,11 @@ continuity. Intent / style / pattern interpretation is the reading. NIE is the u
 | --- | --- |
 | Narrative library (≈180 genres, structures, styles, forms, techniques; BM25-style search) | `apps/web/src/engine/knowledge/` |
 | Project profile + interpreter (fragmented, unreliable, surreal, clinical, nonfiction forms → what to treat as deliberate) | `engine/profile/` |
-| Intent recognition, working premise (adapts when the writer changes direction), form sniffing | `engine/intent/` |
+| Rule-based intent recognition (the fallback reader), working premise (adapts when the writer changes direction), form sniffing | `engine/intent/` |
 | Project store: fresh-by-construction creation, full deletion, preferences | `engine/project/` |
 | **Rules**: plain-language rule parsing, exact span checking, model judging by sentence number | `engine/rules/` |
 | Full Scan: classified findings, observations, honest accounting (no score) | `engine/analysis/` |
-| Orchestrator: brainstorm, built-in guidance, prompt budgeting, no-write guard | `engine/orchestrator/` |
+| Orchestrator: the language model's reading of what the writer asks (`understand.js`), brainstorm, built-in guidance, prompt budgeting, no-write guard | `engine/orchestrator/` |
 | Brainstorm idea partner: kinds (story, character, world, article, essay, poem, script), lenses, offline idea banks, genre blends, develop-an-idea, model-reply parsing | `engine/brainstorm/` |
 | Idea Board (kept ideas, notes, export), per project | `engine/project/board.js`, `ui/views/board.js` |
 | AI routing, OpenAI-compatible client with streaming, bridges | `engine/ai/` |
@@ -35,7 +35,9 @@ continuity. Intent / style / pattern interpretation is the reading. NIE is the u
 1. Rule violations are `{start, end}` ranges into the writer's text plus a brief reason; findings have no replacement field.
 2. For meaning-based rules the model is shown **numbered sentences** and may only answer with numbers and a short reason; each number maps back
    to a range in the writer's own text, so a hallucinated quote cannot even be highlighted (`rules/judge.js`).
-3. Brainstorm requests to write/rewrite are recognised (`intent/intent.js`) and declined without calling a model; the system prompt forbids drafting;
+3. Brainstorm requests to write/rewrite are recognised (`intent/intent.js`) and declined without calling a model; when a model is running it also
+   reads every other message (`orchestrator/understand.js`: a label and a topic as schema-constrained JSON, never prose) and a `write`/`edit`
+   reading gets the same fixed decline, which catches the phrasings the rules miss; the system prompt forbids drafting;
    `orchestrator/guard.js` strips any long composed passage from a reply that isn't the writer's own words.
 4. Brainstorm ideas are concepts by construction: the offline banks are linted (`tests/brainstorm-banks.test.js`: no quotation marks, digits or
    narration, 12-40 word concepts), a model's idea list is parsed into cards and any item over 60 words is dropped (never edited), and

@@ -4,9 +4,10 @@
 1. **NIE never writes or edits the writer's text.** No rewrites, no replacement wording, no drafted prose or dialogue.
    Full Scan only *locates* (exact character ranges) and *explains briefly* where text breaks the writer's own rules.
    Brainstorm is an idea partner: it offers *concepts* (a what-if, an angle, a complication, a question), never manuscript prose,
-   dialogue, a ready-to-paste headline/line, or an edit. Requests to write/rewrite are declined deterministically before any model
-   call (`engine/orchestrator/builtin.js`, `guard.js`); "give me twists/ideas/premises" is *not* such a request, "write a scene with
-   twists" is (`intent/intent.js`, `brainstorm/commands.js`). The idea banks (`engine/brainstorm/banks/*.js`) are validated by
+   dialogue, a ready-to-paste headline/line, or an edit. Requests to write/rewrite that the rules recognise are declined deterministically
+   before any model call (`engine/orchestrator/builtin.js`, `guard.js`); "give me twists/ideas/premises" is *not* such a request, "write a
+   scene with twists" is (`intent/intent.js`, `brainstorm/commands.js`). The rules miss about half of the ways people ask, so when a
+   model is running it also reads the message (rule 6) and a `write`/`edit` reading gets the same fixed decline: the reading is only a label. The idea banks (`engine/brainstorm/banks/*.js`) are validated by
    `tests/brainstorm-banks.test.js` (no quotes, no digits, no narration, length limits). Do not weaken any of this.
 2. **One NIE.** Online model, offline model and built-in guidance are routing, never separate assistants (`engine/ai/engine.js`).
    The model chooser lives in Settings only. Offline status strings are exact and must stay truthful.
@@ -15,11 +16,21 @@
 4. **Intent over rules.** A flag is not a mistake: findings are classed hard / likely / possible / stylistic / intentional / strength,
    and the profile interpreter (`engine/profile/interpret.js`) demotes things the writer declared deliberate. No single quality score.
 5. **Never fake readiness.** A file existing is not a working model; offline rule checks that need meaning say "needs the language model".
+6. **The language model understands the writer; the rules are the fallback.** When a model is running (offline or online) it reads every
+   message first (`engine/orchestrator/understand.js`): a `task` + `topic` as schema-constrained JSON, never prose. That reading decides how NIE
+   answers (idea cards, library, conversation, about-NIE, decline). With no model, a bare greeting, an exact Idea Board command, or a model
+   that keeps failing, the rules in `intent/intent.js` read it instead. Every result carries `understood: {by: 'model'|'rules', task, topic}`,
+   so NIE never claims to have understood something it only pattern-matched. The reading is measured on the real model with
+   `scripts/understanding-probe.mjs` (workflow `understanding-eval`) against `tests/fixtures/understanding-messages.json`; change the prompt
+   only with that evidence. Tests that fake a model must answer reading calls (`opts.purpose === 'understand'`): use `modelWithReading` in `tests/helpers.js`.
 
 ## Layout
 - Brainstorm: `engine/brainstorm/` (lenses = what to push on, kinds = what is being made, offline idea banks + seeded selection that never
   repeats until a lens is exhausted, `ideas.js` also parses a model's numbered list into cards and drops over-long "ideas"). The Idea
   Board is project data (`project.brainstorm`, `project/board.js`): isolated, deleted with the project, never edited by NIE.
+- Understanding: `engine/orchestrator/understand.js` (the prompt, the schema, `parseReading`, `applyReading`, the label each rule-intent stands for)
+  and `orchestrator/index.js#read` (when to ask, the circuit breaker that stops asking a model that keeps failing). `about-nie` questions are
+  answered from facts (`aboutNieFacts`) and the real status (`describeStatus`), and a reply that claims NIE writes text is never shown.
 - `apps/web`: UI (native ES modules, no bundler) and the shared engine in `apps/web/src/engine` (also imported by the desktop main process).
 - `apps/desktop`: Electron main, preload bridge, llama-server service, model manager/downloader, updater.
 - `tests/`: `npm test` (node:test; engine + desktop services against a fake llama-server), `npm run test:ui` (Playwright, real UI).
