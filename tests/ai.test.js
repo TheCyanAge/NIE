@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { spawn } from 'node:child_process';
 import net from 'node:net';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { OpenAICompatClient, AIError, sseData } from '../apps/web/src/engine/ai/openai-client.js';
 import { AIEngine, OFFLINE_MESSAGES } from '../apps/web/src/engine/ai/engine.js';
@@ -15,7 +16,7 @@ const freePort = () => new Promise((res) => { const s = net.createServer(); s.li
 async function startFake(env = {}) {
   const port = await freePort();
   const model = fileURLToPath(import.meta.url); // any existing file
-  const child = spawn(process.execPath, [FAKE, '-m', model, '--host', '127.0.0.1', '--port', String(port)], { env: { ...process.env, FAKE_LLAMA_CWD_FILE: '/dev/null', ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(process.execPath, [FAKE, '-m', model, '--host', '127.0.0.1', '--port', String(port)], { env: { ...process.env, FAKE_LLAMA_CWD_FILE: os.devNull, ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
   await new Promise((resolve, reject) => {
     child.stdout.on('data', (d) => /listening/.test(String(d)) && resolve());
     child.on('exit', (c) => reject(new Error('fake exited ' + c)));

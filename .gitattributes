@@ -1,0 +1,8 @@
+# One line-ending style everywhere, so a Windows checkout behaves like the Linux one (tests compare generated files byte for byte).
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.gguf binary
+*.zip binary
+*.exe binary
+*.dll binary

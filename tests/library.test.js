@@ -17,7 +17,7 @@ import { KNOWLEDGE, coreEntries, loadLibrary, libraryStats, libraryStatus, searc
 const files = listDataFiles();
 
 test('library: the index lists exactly the data files that exist', () => {
-  assert.equal(fs.readFileSync(path.join(LIB_DIR, 'index.js'), 'utf8'), renderIndex(files), 'run: node scripts/build-library-index.mjs');
+  assert.equal(fs.readFileSync(path.join(LIB_DIR, 'index.js'), 'utf8').replace(/\r\n/g, '\n'), renderIndex(files), 'run: node scripts/build-library-index.mjs'); // a Windows checkout may use CRLF
 });
 
 test('library: every file is well-formed, every record passes the checks, and nothing is duplicated', async () => {
