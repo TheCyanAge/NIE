@@ -42,7 +42,7 @@ jobs:
             esac
           done
           # llama-server and every library it loads, flattened next to each other (like the app's own runtime folder)
-          find rt/x -type f \( -name 'llama-server' -o -name '*.so' -o -name '*.so.*' \) -exec cp -P {} apps/desktop/bin/ \;
+          find rt/x \( -type f -o -type l \) \( -name 'llama-server' -o -name '*.so' -o -name '*.so.*' \) -exec cp -P {} apps/desktop/bin/ \;
           chmod +x apps/desktop/bin/llama-server
           ls -la apps/desktop/bin
 
