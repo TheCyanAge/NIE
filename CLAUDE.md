@@ -33,6 +33,14 @@
   reading is only believed when the message really contains a request (`looksLikeARequest`): the real 3B model sometimes read plain statements
   as "write" and declined a writer's own premise. `about-nie` questions are answered by fixed, checked facts and the real status
   (`aboutNieReply`, `describeStatus`), never by the model: measured on the real model, a 3B asked to describe NIE rambles and invents abilities.
+- Long texts: `engine/reading/` (`sections.js` cuts any text into sections at the writer's own structure with every character in exactly one section;
+  `context.js` ranks sections for a question with BM25 over the writer's own words and builds what the model is shown: an outline of the whole, the
+  opening, the best matches cut around the matching sentence, and the latest part). `orchestrator/prompt.js#composeMessages({document})` fits that into
+  the window and `orchestrator/index.js#documentFor` decides which long text a message is about (a long paste, a follow-up soon after one, or the project's
+  Story Text). **Honesty rule: NIE says exactly what it looked at (`describeReading`), never "I read all of it" unless the whole text was shown, and a
+  built-in (no-model) reply claims no reading.** Nothing is persisted but derived data; only the newest long paste is kept in full in the chat
+  (`compactOldPastes`) so a project cannot outgrow its storage. `tests/fixtures/long-text.mjs` makes deterministic invented texts of any length with
+  planted facts; `scripts/understanding-probe.mjs --long` measures it on the real model.
 - `apps/web`: UI (native ES modules, no bundler) and the shared engine in `apps/web/src/engine` (also imported by the desktop main process).
 - `apps/desktop`: Electron main, preload bridge, llama-server service, model manager/downloader, updater.
 - `tests/`: `npm test` (node:test; engine + desktop services against a fake llama-server), `npm run test:ui` (Playwright, real UI).
