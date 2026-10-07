@@ -14,6 +14,19 @@ DevTools protocol and checks: complete runtime next to `llama-server`, valid mod
 status goes starting → "Offline NIE ready." only after the model really answered, a real Brainstorm question is answered by the offline model,
 and the project survives closing and reopening.
 
+## The small "click and run" downloads (`windows-release`)
+
+`.github/workflows/windows-release.yml` builds the two small downloads (no model inside, so each is a few hundred MB and can be a
+normal GitHub Release file): the **portable single exe** (`npm run build:portable`, electron-builder `portable`) and the **Setup exe**
+(`installer.iss` with no bundled model). It tests them on a real Windows runner: the installed app starts with no model, downloads the
+real one, says so, becomes ready and answers; the portable exe then starts and answers; the installer uninstalls cleanly.
+
+Run it from **Actions → windows-release → Run workflow**. Put a tag such as `v0.1.0` in *release_tag* (or push a `v*` tag) and it also
+creates a **draft** release holding the files, `SHA256SUMS.txt` and notes. A draft is visible only to people who can write to the
+repository; **nothing is public until you press Publish release**. The version in the tag must equal `apps/desktop/package.json`.
+
+`scripts/smoke-windows.mjs --exe <file.exe> --download-model` is the matching test for a single exe whose model is not inside.
+
 ## By hand on your own PC
 
 Prerequisites on the build machine: **Node.js 22+**, **npm**, **Inno Setup 6** (`iscc`), and (for the icon step only) a Chromium

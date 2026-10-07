@@ -19,22 +19,24 @@ One NIE: online model, offline model and built-in guidance are routing, not sepa
 
 ## Get the Windows app (no Node.js, no command line)
 
-The Windows package is built on a real Windows machine by GitHub Actions and tested there before you download it: the installed
-program is started, the real offline model must load and answer, and the installer must install and uninstall cleanly.
+**Click and run:** download one file and double-click it.
 
-1. On GitHub open this repository → **Actions** → **windows-package**. Open the newest run with a green tick, or press **Run workflow**
-   (leave "Put the offline model inside the installer" ticked) and wait for it to finish (about 15-25 minutes).
-2. Under **Artifacts** download **NIE-Windows-Setup** (the installer; GitHub gives it to you inside a .zip, so unzip it first).
-   **NIE-Windows-portable** is the same app as a plain folder if you would rather not install.
-3. Run **Narrative Integrity Engine Setup … .exe** and finish the wizard (keep "Create a desktop shortcut" ticked).
-4. Double-click **Narrative Integrity Engine** on your desktop. The offline model is inside the installer, so it works with no internet.
+1. Open the [latest release](https://github.com/TheCyanAge/NIE/releases/latest) and download
+   **`Narrative-Integrity-Engine-Portable.exe`**, then double-click it. Nothing is installed; NIE opens.
+   Prefer a desktop shortcut and a Start menu entry? Download **`Narrative-Integrity-Engine-Setup.exe`** instead and run it.
+2. Windows may show a blue "Windows protected your PC" box, because the program is not code-signed yet
+   ([docs/WINDOWS_SIGNING.md](docs/WINDOWS_SIGNING.md)). Choose **More info → Run anyway**.
+3. The first time, NIE downloads its offline language model (about 1.9 GB) once. It says so while it does, and meanwhile it answers from
+   its built-in library. After that it works with no internet at all.
 
-Downloading an artifact needs you to be signed in to GitHub, and artifacts are deleted after 30 days, so if the newest run is older than that, press
-**Run workflow** again. (The installer is about 2.2 GB because it carries the offline model, which is more than GitHub allows for a
-Release download.)
+Both files are built on a real Windows machine by GitHub Actions and tested there before they are offered: the app starts, downloads
+the real model on a first run, answers with it, installs and uninstalls cleanly. If the Releases page shows no release yet, the
+files exist as a *draft* until the repository owner presses **Publish release**; or open **Actions → windows-release → the newest green run → Artifacts → NIE-Windows-click-and-run**
+(GitHub asks you to sign in, and keeps artifacts for 30 days).
 
-Windows may show a blue "Windows protected your PC" (SmartScreen) box, because the installer is not code-signed yet
-([docs/WINDOWS_SIGNING.md](docs/WINDOWS_SIGNING.md)). Choose **More info → Run anyway**.
+**Everything inside one installer (works with no internet even on the first run):** the `windows-package` workflow builds a ~2.2 GB installer
+that already contains the model. It is too large for a release download, so it is an Actions artifact: **Actions → windows-package →
+Run workflow → Artifacts → NIE-Windows-Setup** (sign in; unzip first). See [NOTICE.md](NOTICE.md) about the model's licence before sharing it.
 
 ## Run it
 

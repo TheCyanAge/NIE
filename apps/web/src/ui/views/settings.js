@@ -78,6 +78,7 @@ export function mountSettings(root, app, { startTour }) {
     section('AI', h('p', { class: 'muted' }, 'You always talk to NIE. Online, it can use an online model; offline, it automatically uses the model installed with the app.'), aiStatus,
       h('div', { class: 'row' }, h('label', { class: 'field inline' }, h('span', { class: 'field-label' }, 'Offline model'), modelSelect), restartBtn),
       modelInfo,
+      h('p', { class: 'muted small model-license' }, 'The offline model is Qwen2.5 3B Instruct from Alibaba Cloud\'s Qwen team. It is not part of NIE\'s own code: it is used under the Qwen Research License (research and non-commercial use; commercial use needs a separate licence from its authors). NIE downloads it from the model\'s official page.'),
       h('label', { class: 'check' }, autoDl, ' Download the offline model automatically if it is missing'),
       h('h3', {}, 'Online model (optional)'),
       h('label', { class: 'check' }, onEnabled, ' Use an online model when I\'m connected'),

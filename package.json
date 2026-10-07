@@ -2,7 +2,7 @@
   "name": "narrative-integrity-engine",
   "version": "0.1.0",
   "private": true,
-  "description": "NIE — an offline-capable narrative intelligence environment for writers.",
+  "description": "NIE \u2014 an offline-capable narrative intelligence environment for writers.",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -14,7 +14,8 @@
     "icons": "node scripts/build-icons.mjs",
     "fetch:runtime": "node scripts/fetch-runtime.mjs",
     "desktop": "npm --prefix apps/desktop start",
-    "build:desktop": "npm --prefix apps/desktop run build"
+    "build:desktop": "npm --prefix apps/desktop run build",
+    "build:portable": "npm --prefix apps/desktop run build:portable"
   },
   "devDependencies": {
     "playwright-core": "^1.63.0"

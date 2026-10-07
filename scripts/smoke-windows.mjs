@@ -1,5 +1,7 @@
 // Smoke test for a PACKAGED NIE: the real exe, the real llama.cpp runtime and the real Qwen model.
 //   node scripts/smoke-windows.mjs <folder containing "Narrative Integrity Engine.exe"> [--out smoke-out] [--no-model] [--no-runtime] [--real-profile]
+//   node scripts/smoke-windows.mjs --exe <a single portable .exe> [--real-profile] [--download-model]   (no folder layout to inspect)
+//   --download-model: the model is NOT in the package; the app must download it on first run (the click-and-run package).
 //
 // What it proves (the things that cannot be proven by unit tests):
 //   1. the package layout is complete (whole llama.cpp runtime incl. CPU backend, model present and valid, web UI bundled)
@@ -20,16 +22,19 @@ import { validateRuntime, validateModel, DEFAULT_MODEL } from '../apps/desktop/s
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
-const dir = path.resolve(args.find((a) => !a.startsWith('--')) ?? path.join(root, 'dist-desktop/win-unpacked'));
 const opt = (n, d) => (args.includes(n) ? args[args.indexOf(n) + 1] : d);
+const positional = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && ['--out', '--exe', '--ready-timeout', '--max-minutes'].includes(args[i - 1])));
+const dir = path.resolve(positional[0] ?? path.join(root, 'dist-desktop/win-unpacked'));
 const outDir = path.resolve(opt('--out', path.join(root, 'smoke-out')));
 const skipModel = args.includes('--no-model');
 const skipRuntime = args.includes('--no-runtime');
 const realProfile = args.includes('--real-profile'); // installed run: use the app's real profile folder, like a user's first launch // local script checks only; the CI run never skips it
 const isWin = process.platform === 'win32';
-const exe = path.join(dir, isWin ? 'Narrative Integrity Engine.exe' : 'Narrative Integrity Engine');
+const exeOverride = opt('--exe', null); // a single portable exe: nothing of its layout can be inspected from outside
+const downloadModel = args.includes('--download-model');
+const exe = exeOverride ? path.resolve(exeOverride) : path.join(dir, isWin ? 'Narrative Integrity Engine.exe' : 'Narrative Integrity Engine');
 const resources = path.join(dir, 'resources');
-const READY_TIMEOUT_MS = Number(opt('--ready-timeout', 360000));
+const READY_TIMEOUT_MS = Number(opt('--ready-timeout', downloadModel ? 1200000 : 360000));
 
 fs.mkdirSync(outDir, { recursive: true });
 const report = { when: new Date().toISOString(), dir, platform: process.platform, steps: [], ok: false };
@@ -119,7 +124,9 @@ async function dismissTour(page) {
 }
 
 let app = null;
+const modelInProfile = (ud) => path.join(ud, 'models', DEFAULT_MODEL.fileName);
 const userData = realProfile && isWin && process.env.APPDATA ? path.join(process.env.APPDATA, 'Narrative Integrity Engine') : fs.mkdtempSync(path.join(os.tmpdir(), 'nie-smoke-'));
+const hadModelAtStart = fs.existsSync(modelInProfile(userData));
 if (skipModel) {
   // Without a model the app would start downloading ~2 GB in the background during the test.
   fs.mkdirSync(userData, { recursive: true });
@@ -131,7 +138,11 @@ watchdog.unref?.();
 try {
   // 1. layout
   step('exe exists', fs.existsSync(exe), exe);
-  if (!skipRuntime) {
+  if (exeOverride) {
+    const mb = fs.statSync(exe).size / 1048576;
+    step('the single-file exe is a reasonable size (no model inside)', mb > 50 && mb < 900, `${mb.toFixed(0)} MB`);
+  }
+  if (!exeOverride && !skipRuntime) {
     const rt = validateRuntime(path.join(resources, 'bin'), process.platform);
     step('llama.cpp runtime is complete next to llama-server', rt.ok, rt.ok ? `${rt.files.length} files, CPU backend present` : rt.problems.map((p) => p.message).join(' | '));
     if (isWin) {
@@ -142,6 +153,7 @@ try {
       step('the Visual C++ runtime DLLs ship inside the package (clean PCs may not have them)', missing.length === 0, missing.length ? `missing: ${missing.join(', ')}` : 'vcruntime140, vcruntime140_1, msvcp140');
     }
   }
+  if (!exeOverride) {
   // The app's own files must be small and must not contain a copy of the repository (a packaging mistake that bloats the installer).
   const asarUnpacked = path.join(resources, 'app.asar.unpacked');
   const nested = fs.existsSync(path.join(asarUnpacked, 'node_modules', 'narrative-integrity-engine')) || fs.existsSync(path.join(asarUnpacked, 'node_modules', 'nie-desktop'));
@@ -160,10 +172,15 @@ try {
   const stray = fs.readdirSync(resources).filter((n) => !['app.asar', 'bin', 'models', 'web'].includes(n));
   step('the package does not contain a copy of the repository', !nested && inAsar.length === 0 && asarBytes < 20e6 && stray.length === 0, `resources: ${top.join(', ')}; app.asar ${(asarBytes / 1048576).toFixed(1)} MB${stray.length ? `; unexpected: ${stray.join(', ')}` : ''}`);
   step('web UI is bundled', fs.existsSync(path.join(resources, 'web', 'index.html')) && fs.existsSync(path.join(resources, 'web', 'src', 'engine', 'knowledge', 'index.js')), 'resources/web');
-  if (!skipModel) {
+  if (!skipModel && !downloadModel) {
     const modelPath = path.join(resources, 'models', DEFAULT_MODEL.fileName);
     const mv = validateModel(modelPath, { minBytes: DEFAULT_MODEL.minBytes });
     step('offline model is bundled and valid (size + GGUF header)', mv.ok, mv.ok ? `${(mv.size / 1073741824).toFixed(2)} GB` : mv.problems.map((p) => p.message).join(' | '));
+  }
+  if (downloadModel) {
+    const bundled = fs.existsSync(path.join(resources, 'models', DEFAULT_MODEL.fileName));
+    step('the click-and-run package does not carry the model (it is downloaded on first run)', !bundled, bundled ? 'a model file is inside the package' : 'no model inside');
+  }
   }
 
   // 2. start the app
@@ -189,6 +206,12 @@ try {
       await sleep(1000);
     }
     report.statusHistory = seen;
+    if (downloadModel && !hadModelAtStart) {
+      // The first-run promise: the app starts at once, says honestly that it is downloading, and then becomes ready on its own.
+      step('first run: the app says it is downloading the offline model, then becomes ready by itself', seen.some((b) => /Downloading the offline model/i.test(b)) && /Offline NIE ready\./.test(banner), seen.join('  ->  ').slice(0, 300));
+      const mv = validateModel(modelInProfile(userData), { minBytes: DEFAULT_MODEL.minBytes });
+      step('the downloaded model is saved in the user profile and is intact (size + GGUF header)', mv.ok, mv.ok ? `${(mv.size / 1073741824).toFixed(2)} GB` : mv.problems.map((p) => p.message).join(' | '));
+    }
     step('offline model reaches "Offline NIE ready." (real llama-server, real Qwen)', /Offline NIE ready\./.test(banner), `${seen.join('  ->  ')} after ${((Date.now() - t0) / 1000).toFixed(0)} s`);
     await page.screenshot({ path: path.join(outDir, '2-ready.png') });
 

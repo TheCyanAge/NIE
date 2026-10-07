@@ -1,0 +1,215 @@
+name: windows-release
+
+# Builds the "click and run" downloads on a real Windows machine and proves they work:
+#   * Narrative-Integrity-Engine-Portable.exe : ONE file, nothing to install: double-click and it opens.
+#   * Narrative-Integrity-Engine-Setup.exe    : a normal installer (desktop shortcut, Start menu, uninstaller).
+# Both are small (a few hundred MB) because the offline language model (about 1.9 GB) is NOT inside them: the app downloads it
+# from its official source on first run, says so honestly while it does, and keeps working from its built-in library meanwhile.
+# (A package with the model inside is over GitHub's 2 GiB download limit; the windows-package workflow builds that one as an artifact.)
+#
+# Tested here: unit tests -> app build -> smoke test of the unpacked app -> installer compile -> silent install -> the INSTALLED app
+# starts without a model, downloads the REAL model, becomes ready and answers with it -> the PORTABLE exe starts and answers with it
+# -> clean uninstall. Nothing is published automatically: with a release tag the files are attached to a DRAFT release that only
+# repository writers can see until somebody presses "Publish release".
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Attach the files to a DRAFT GitHub release with this tag (for example v0.1.0). Leave empty to only build and test.'
+        type: string
+        default: ''
+  push:
+    tags: ['v*']
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 70
+    permissions:
+      contents: write # only used to create the DRAFT release
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          cd apps/desktop && npm ci --no-audit --no-fund
+
+      - name: Remove any self-link back to the repository (backstop)
+        run: rm -f apps/desktop/node_modules/narrative-integrity-engine apps/desktop/node_modules/nie-desktop
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Fetch the llama.cpp runtime (llama-server, every library it needs, and the Visual C++ runtime)
+        timeout-minutes: 10
+        run: |
+          for i in 1 2 3; do node scripts/fetch-runtime.mjs --no-model && exit 0; echo "attempt $i failed; retrying"; sleep 20; done; exit 1
+
+      - name: Make sure no model file is inside this package
+        run: |
+          rm -f apps/desktop/models/*.gguf
+          ls apps/desktop/models 2>/dev/null || true
+
+      - name: Build the app (electron-builder, Windows x64)
+        timeout-minutes: 15
+        run: npm run build:desktop
+
+      - name: Smoke test the unpacked app (real exe, real runtime; no model in the package)
+        timeout-minutes: 10
+        run: node scripts/smoke-windows.mjs dist-desktop/win-unpacked --no-model --out smoke-out/unpacked
+
+      - name: Build the portable single-file exe
+        timeout-minutes: 15
+        run: |
+          npm run build:portable
+          ls -la dist-desktop/*.exe
+
+      - name: Install Inno Setup
+        timeout-minutes: 10
+        run: |
+          for i in 1 2 3; do choco install innosetup -y --no-progress && exit 0; echo "attempt $i failed; retrying"; sleep 20; done; exit 1
+
+      - name: Compile the installer
+        timeout-minutes: 20
+        run: |
+          ISCC="/c/Program Files (x86)/Inno Setup 6/ISCC.exe"
+          if [ ! -f "$ISCC" ]; then ISCC="$(command -v ISCC.exe || command -v iscc || true)"; fi
+          [ -n "$ISCC" ] && [ -f "$ISCC" ] || { echo "ISCC.exe (Inno Setup compiler) was not found"; exit 1; }
+          VERSION="$(node -p "require('./apps/desktop/package.json').version")"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            [ "${GITHUB_REF_NAME#v}" = "$VERSION" ] || { echo "Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json version $VERSION"; exit 1; }
+          fi
+          # Git Bash rewrites arguments that start with "/" into Windows paths; turn that off for this one call.
+          MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' "$ISCC" "/DMyAppVersion=$VERSION" installer.iss
+          ls -la dist-installer
+          echo "NIE_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Install it silently, into the default per-user folder, like a user would
+        shell: pwsh
+        timeout-minutes: 10
+        run: |
+          New-Item -ItemType Directory -Force smoke-out | Out-Null
+          $setup = Get-ChildItem dist-installer -Filter *.exe | Select-Object -First 1
+          Write-Host "Installing $($setup.Name) ($([math]::Round($setup.Length/1MB)) MB)"
+          $p = Start-Process -FilePath $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/TASKS=desktopicon',"/LOG=$env:GITHUB_WORKSPACE\smoke-out\install.log" -PassThru
+          if (-not $p.WaitForExit(600000)) { $p.Kill(); throw 'The installer did not finish within 10 minutes.' }
+          Get-Content "$env:GITHUB_WORKSPACE\smoke-out\install.log" -Tail 15
+          if ($p.ExitCode -ne 0) { throw "Installer exited with $($p.ExitCode)" }
+          $dir = Join-Path $env:LOCALAPPDATA 'Programs\Narrative Integrity Engine'
+          $exe = Join-Path $dir 'Narrative Integrity Engine.exe'
+          if (-not (Test-Path $exe)) { throw "The installed program is missing: $exe" }
+          $lnk = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Narrative Integrity Engine.lnk'
+          if (-not (Test-Path $lnk)) { throw "No desktop shortcut was created at $lnk" }
+          $target = (New-Object -ComObject WScript.Shell).CreateShortcut($lnk).TargetPath
+          if ($target -ne $exe) { throw "The desktop shortcut points to '$target', not to '$exe'" }
+          "NIE_INSTALL_DIR=$dir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Installed to $dir; the desktop shortcut points at the installed program."
+
+      - name: "Smoke test the INSTALLED app on a first run (no model yet, so it must download the real one, say so, become ready and answer)"
+        timeout-minutes: 30
+        run: node scripts/smoke-windows.mjs "$NIE_INSTALL_DIR" --real-profile --download-model --out smoke-out/installed
+
+      - name: "Smoke test the PORTABLE exe (one file; it finds the model the first run saved and answers with it)"
+        timeout-minutes: 20
+        run: node scripts/smoke-windows.mjs --exe dist-desktop/Narrative-Integrity-Engine-Portable.exe --real-profile --download-model --out smoke-out/portable
+
+      - name: Uninstall cleanly
+        shell: pwsh
+        timeout-minutes: 10
+        run: |
+          $dir = $env:NIE_INSTALL_DIR
+          $running = Get-Process | Where-Object { $_.Path -and $_.Path.StartsWith($dir, [StringComparison]::OrdinalIgnoreCase) }
+          if ($running) { $running | Stop-Process -Force; throw "These were still running from the install folder: $($running.Name -join ', ')" }
+          $u = Get-ChildItem $dir -Filter 'unins*.exe' | Select-Object -First 1
+          $p = Start-Process -FilePath $u.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/LOG=$env:GITHUB_WORKSPACE\smoke-out\uninstall.log" -PassThru
+          if (-not $p.WaitForExit(600000)) { $p.Kill(); throw 'The uninstaller did not finish within 10 minutes.' }
+          if ($p.ExitCode -ne 0) { throw "Uninstaller exited with $($p.ExitCode)" }
+          $deadline = (Get-Date).AddSeconds(90)
+          while ((Test-Path $dir) -and (Get-Date) -lt $deadline) { Start-Sleep -Seconds 1 }   # the uninstaller finishes in a copy of itself
+          if (Test-Path $dir) { throw "Uninstall left the install folder behind: $((Get-ChildItem $dir -Recurse -File | Select-Object -First 5).FullName -join '; ')" }
+          $desk = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Narrative Integrity Engine.lnk'
+          if (Test-Path $desk) { throw 'Uninstall left the desktop shortcut behind.' }
+          $menu = Join-Path ([Environment]::GetFolderPath('Programs')) 'Narrative Integrity Engine.lnk'
+          if (Test-Path $menu) { throw 'Uninstall left the Start menu shortcut behind.' }
+          if (Test-Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{9F0D8580-3877-4D07-A618-69C2AE30C566}_is1') { throw 'Uninstall left its Add/Remove Programs entry behind.' }
+          Write-Host 'Uninstalled cleanly: files, shortcuts and registry entry are gone.'
+
+      - name: Collect the downloads (stable file names) and their checksums
+        run: |
+          mkdir -p dist-release
+          cp dist-installer/*.exe "dist-release/Narrative-Integrity-Engine-Setup.exe"
+          cp dist-desktop/Narrative-Integrity-Engine-Portable.exe dist-release/
+          cat > dist-release/READ-ME-FIRST.txt <<EOF
+          Narrative Integrity Engine ${NIE_VERSION}
+
+          Easiest: double-click  Narrative-Integrity-Engine-Portable.exe  (nothing to install),
+          or run  Narrative-Integrity-Engine-Setup.exe  for a desktop shortcut and Start menu entry.
+
+          * Windows may show a blue "Windows protected your PC" box because the program is not code-signed yet.
+            Choose "More info", then "Run anyway".
+          * On the first start NIE downloads its offline language model (about 1.9 GB) once. Until it finishes, NIE works from its
+            built-in library and says so. After that it works with no internet at all.
+          * Your projects stay in your Windows profile folder, so you can switch between the two files and keep everything.
+          EOF
+          sed -i 's/^          //' dist-release/READ-ME-FIRST.txt
+          (cd dist-release && sha256sum *.exe > SHA256SUMS.txt && cat SHA256SUMS.txt && ls -la)
+
+      - name: Upload the downloads
+        uses: actions/upload-artifact@v4
+        with:
+          name: NIE-Windows-click-and-run
+          path: dist-release/*
+          retention-days: 30
+          overwrite: true
+
+      - name: Upload the smoke-test report, screenshots and installer logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NIE-release-smoke-report
+          path: smoke-out
+          if-no-files-found: ignore
+          overwrite: true
+
+      - name: Attach the files to a DRAFT release (nothing is published)
+        if: github.event_name == 'push' || inputs.release_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_INPUT: ${{ inputs.release_tag }}
+        run: |
+          TAG="$TAG_INPUT"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then TAG="${GITHUB_REF_NAME}"; fi
+          [ -n "$TAG" ] || { echo "No tag given; not creating a release."; exit 0; }
+          cat > RELEASE_NOTES.md <<EOF
+          ## Narrative Integrity Engine ${NIE_VERSION}
+
+          **Click and run for Windows.** Download one file and double-click it. No command prompt, no Node.js.
+
+          | File | What it is |
+          | --- | --- |
+          | \`Narrative-Integrity-Engine-Portable.exe\` | One file, nothing to install. Double-click and NIE opens. |
+          | \`Narrative-Integrity-Engine-Setup.exe\` | A normal installer: desktop shortcut, Start menu entry, uninstaller. |
+          | \`SHA256SUMS.txt\` | Checksums, to check the downloads are intact. |
+
+          **First start:** NIE downloads its offline language model (about 1.9 GB) once, tells you while it does, and meanwhile answers from its built-in library. After that it works with no internet.
+
+          **Windows warning:** the program is not code-signed yet, so Windows may show "Windows protected your PC". Choose **More info**, then **Run anyway**.
+
+          Built and tested on a real Windows machine: unit tests, a first-run model download, an answer from the real model, install and clean uninstall.
+          EOF
+          sed -i 's/^          //' RELEASE_NOTES.md
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist-release/* --clobber
+          elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            gh release create "$TAG" dist-release/*.exe dist-release/SHA256SUMS.txt --draft --title "NIE ${NIE_VERSION}" --notes-file RELEASE_NOTES.md
+          else
+            gh release create "$TAG" dist-release/*.exe dist-release/SHA256SUMS.txt --draft --target "$GITHUB_SHA" --title "NIE ${NIE_VERSION}" --notes-file RELEASE_NOTES.md
+          fi
+          echo "A DRAFT release '$TAG' now holds the files. It is not public until somebody presses Publish release."
