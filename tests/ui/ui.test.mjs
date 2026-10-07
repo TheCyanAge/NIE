@@ -87,7 +87,7 @@ async function startFakeLlama(env = {}) {
 
 /** Pretend to be the Electron preload bridge (window.NIE_DESKTOP / NIE_LOCAL / NIE_UPDATER). */
 const BRIDGE = () => {
-  const L = (window.__bridge = { status: [], chunk: [], state: { state: 'starting', detail: null }, reply: 'Hello from the offline model.', delay: 0, calls: [] });
+  const L = (window.__bridge = { status: [], chunk: [], state: { state: 'starting', detail: null }, reply: 'Hello from the offline model.', delay: 0, calls: [], reads: [], reading: null });
   window.NIE_DESKTOP = { isDesktop: true, info: async () => ({ version: '0.1.0', platform: 'win32', electron: '44.0.0' }), openFile: async () => null, onMenu: () => () => {} };
   window.NIE_LOCAL = {
     status: async () => L.state,
@@ -97,8 +97,15 @@ const BRIDGE = () => {
     abort: () => {},
     setAutoDownload: async () => true,
     onChunk: (cb) => L.chunk.push(cb),
-    chat: async ({ id, messages }) => {
-      L.calls.push(messages);
+    chat: async ({ id, messages, options }) => {
+      // The "what does the writer mean?" call (a JSON-schema request). A test can script its answer with __bridge.reading; otherwise it gets
+      // the ordinary reply, which is not a usable reading, so NIE falls back to its rules (as it does for any model that cannot read).
+      if (options?.json) {
+        L.reads.push({ messages, options });
+        if (L.reading) return { text: JSON.stringify({ task: L.reading, topic: '' }) };
+      } else {
+        L.calls.push(messages);
+      }
       if (L.delay) await new Promise((r) => setTimeout(r, L.delay));
       for (const part of L.reply.match(/[\s\S]{1,8}/g)) { L.chunk.forEach((cb) => cb({ id, delta: part })); await new Promise((r) => setTimeout(r, 4)); }
       return { text: L.reply };
@@ -1083,6 +1090,42 @@ test('with the offline model running, NIE asks it for ideas, shows them as cards
     const sent = await page.evaluate(() => JSON.stringify(window.__bridge.calls.at(-1)));
     assert.match(sent, /KEPT-FOR-THE-MODEL idea/);
     assert.match(sent, /for an article/);
+  });
+});
+
+test('with the model reading messages: a request to write the rules would miss is declined without the model answering, and the schema reaches the bridge', async () => {
+  await run({ init: BRIDGE }, async ({ page }) => {
+    await bridgeReady(page);
+    await page.evaluate(() => { window.__bridge.reading = 'write'; window.__bridge.reply = 'I can write chapters for you!'; });
+    await openBrainstorm(page);
+    await page.fill('#brainstorm-input', 'I was wondering if you might be able to compose the first page of my memoir for me?');
+    await page.press('#brainstorm-input', 'Enter');
+    await page.waitForSelector('.msg-assistant:not(.msg-pending)');
+    assert.match(await page.textContent('.msg-assistant .bubble-body'), /I don't write or continue the story for you/);
+    assert.ok(!/write chapters/.test(await page.textContent('.msg-assistant')));
+    const seen = await page.evaluate(() => ({ answers: window.__bridge.calls.length, reads: window.__bridge.reads.length, options: window.__bridge.reads[0]?.options }));
+    assert.equal(seen.answers, 0, 'the model was never asked to answer');
+    assert.equal(seen.reads, 1);
+    assert.equal(seen.options.json.properties.task.enum.includes('about-nie'), true, 'the schema reaches the bridge');
+    assert.equal(seen.options.stream, false);
+    assert.equal(seen.options.temperature, 0);
+    assert.ok(seen.options.timeoutMs > 0);
+  });
+});
+
+test('with the model reading messages: "does this work without wifi?" is answered with the exact facts and status, and says nothing a model made up', async () => {
+  await run({ init: BRIDGE }, async ({ page }) => {
+    await bridgeReady(page);
+    await page.evaluate(() => { window.__bridge.reading = 'about-nie'; window.__bridge.reply = 'Sure! I can rewrite everything you give me.'; });
+    await openBrainstorm(page);
+    await page.fill('#brainstorm-input', 'does this work without wifi?');
+    await page.press('#brainstorm-input', 'Enter');
+    await page.waitForSelector('.msg-assistant:not(.msg-pending)');
+    const text = await page.textContent('.msg-assistant .bubble-body');
+    assert.match(text, /NIE works with no internet/);
+    assert.match(text, /offline language model is running on this computer/);
+    assert.ok(!/rewrite everything/.test(text));
+    assert.equal(await page.evaluate(() => window.__bridge.calls.length), 0);
   });
 });
 
