@@ -4,7 +4,7 @@ import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { AIError, OpenAICompatClient } from '../apps/web/src/engine/ai/openai-client.js';
 import { DECLINE_EDIT, DECLINE_WRITE } from '../apps/web/src/engine/orchestrator/builtin.js';
-import { READING_SCHEMA, TASKS, UNDERSTAND_SYSTEM, applyReading, buildUnderstandMessages, parseReading, taskOfIntent } from '../apps/web/src/engine/orchestrator/understand.js';
+import { READING_SCHEMA, TASKS, UNDERSTAND_SYSTEM, applyReading, buildUnderstandMessages, declineKind, looksAddressedToNie, looksLikeARequest, parseReading, taskOfIntent } from '../apps/web/src/engine/orchestrator/understand.js';
 import { detectIntent } from '../apps/web/src/engine/intent/intent.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
 import { modelWithReading, projectWith } from './helpers.js';
@@ -379,4 +379,49 @@ test('a question about the writer\'s own story that the model misreads as genera
     assert.match(prompt, /mentions their own project/, msg);
     assert.doesNotMatch(prompt, /not about the writer's own project/, msg);
   }
+});
+
+// ── from the full 260-message run on the real model ──────────────────────────
+
+test('"give me an example / ideas / tips" is not a request to write text, but "give me a headline for my article" is', () => {
+  for (const q of ['give me an example from classic film', 'give me some twists for my heist', 'give me a few ideas', 'Give me tips for pacing']) assert.equal(looksLikeARequest(q), false, q);
+  for (const q of ['give me a headline for my article', 'give me the opening paragraph', 'can u fix the commas', 'Cut this down to half the words: foo']) assert.equal(looksLikeARequest(q), true, q);
+});
+
+test('the refusal matches what was asked: composing new text is "write", changing the writer\'s own is "edit"', async () => {
+  assert.equal(declineKind('I was wondering if you might be able to compose the first page of my memoir for me?', 'edit'), 'write');
+  assert.equal(declineKind('Would you mind smoothing out the flow of this passage?', 'write'), 'write'.replace('write', 'write'), 'no clear verb: the model\'s label stands');
+  assert.equal(declineKind('please rewrite this paragraph', 'write'), 'edit');
+  const { o, calls } = setup({ reading: read('edit') });
+  const r = await o.brainstorm({ project: projectWith(), message: 'I was wondering if you might be able to compose the first page of my memoir for me?' });
+  assert.equal(r.reply, DECLINE_WRITE);
+  assert.equal(calls.length, 0);
+  assert.equal(r.understood.task, 'write');
+});
+
+test('a model that reads "My novel is about…" as a question about NIE is not believed: it is not put to NIE', async () => {
+  assert.equal(looksAddressedToNie('My novel is about a lighthouse keeper who starts getting letters from the sea.'), false);
+  for (const q of ['what can you do', 'where do i change the model', 'is it free? do i have to make an account', 'how does the full scan thing work', "what's your deal"]) assert.equal(looksAddressedToNie(q), true, q);
+  const { o, calls } = setup({ reading: read('about-nie'), reply: 'What do you think the letters say?' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'My novel is about a lighthouse keeper who starts getting letters from the sea.' });
+  assert.equal(r.intent.type, 'share-premise');
+  assert.equal(r.understood.overruled, 'about-nie');
+  assert.equal(calls.length, 1, 'answered by the model, not by the description of NIE');
+  assert.doesNotMatch(r.reply, /thinking partner for writers/);
+});
+
+test('a thank-you is answered warmly and briefly: the model is told not to turn it into a list of ideas', async () => {
+  const { o, calls, reads } = setup({ reading: read('ideas'), reply: 'You are welcome!' });
+  await o.brainstorm({ project: projectWith(), message: 'thanks!' });
+  assert.equal(reads.length, 0);
+  assert.match(calls[0].messages.at(-1).content, /just being friendly/);
+  assert.match(calls[0].messages.at(-1).content, /Do not give ideas, lists or advice/);
+});
+
+test('questions about file formats are answered from the facts about Read mode', async () => {
+  const { o, calls } = setup({ reading: read('about-nie') });
+  const r = await o.brainstorm({ project: projectWith(), message: 'can you read a pdf of my manuscript' });
+  assert.equal(r.intent.type, 'about-nie');
+  assert.equal(calls.length, 0);
+  assert.match(r.reply, /Read mode opens TXT, Markdown, HTML, RTF, Word \(DOCX\)[\s\S]*PDF/);
 });

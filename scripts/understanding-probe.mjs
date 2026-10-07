@@ -7,6 +7,7 @@
 //        [--sample 100]                      a stratified sample (the same share of every task, evenly spaced) for a quicker check
 //        [--e2e]                             also run a short real conversation through the whole orchestrator (slow: it generates answers)
 //        [--slots 2]                         model-server slots (2 = the app's setting; 1 shows what one slot cost)
+//        [--ab-slots]                        same machine, same conversation, 1 slot vs 2 slots (twice, alternating): what the second prompt cache is worth
 //        [--rules-only]                      no model: just the rule-based baseline (works anywhere)
 //
 // Numbers are AS SHIPPED: the rules decide first what they decide on their own (exact commands, bare greetings, the requests they recognise as
@@ -44,6 +45,40 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const quantile = (xs, q) => (xs.length ? [...xs].sort((a, b) => a - b)[Math.min(xs.length - 1, Math.floor(q * xs.length))] : 0);
 
 const rulesTask = (it) => taskOfIntent(detectIntent(it.text, { hasHistory: Boolean(it.history?.length) }).type) ?? 'none';
+
+
+// ── same-machine A/B: what a second model-server slot is worth ───────────────
+if (flag('--ab-slots')) {
+  await loadLibrary();
+  const binDir = path.resolve(opt('--bin', path.join(root, 'apps/desktop/bin')));
+  const modelPath = path.resolve(opt('--model', path.join(root, 'apps/desktop/models', DEFAULT_MODEL.fileName)));
+  const script = ["What's a villanelle?", 'My novel is about a lighthouse keeper who starts getting letters from the sea.', 'give me some twists', 'is my ending too predictable?', 'who could be writing the letters?', 'what would the second twist change about the ending?'];
+  const runs = [];
+  for (const slots of [1, 2, 1, 2]) {
+    const service = new LlamaService({ binDir, modelPath, model: DEFAULT_MODEL, slots, log: () => {} });
+    const st = await service.start();
+    if (st.state !== 'ready') { console.error(`slots=${slots}: the model did not start: ${st.detail}`); process.exit(1); }
+    const o = new Orchestrator({ engine: new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: (m, op) => service.chat(m, op) }, online: null, isOnline: () => false }) });
+    const project = createProjectData({ title: 'AB' });
+    const ms = [];
+    for (const message of script) {
+      const t = Date.now();
+      await o.brainstorm({ project, message });
+      ms.push(Date.now() - t);
+    }
+    await service.stop();
+    runs.push({ slots, ms, total: ms.reduce((a, b) => a + b, 0) });
+    console.log(`slots=${slots}: ${ms.map((x) => (x / 1000).toFixed(1)).join(' ')}  total ${(runs.at(-1).total / 1000).toFixed(1)} s`);
+    await sleep(500);
+  }
+  const med = (n) => quantile(runs.filter((r) => r.slots === n).map((r) => r.total), 0.5);
+  const turn = (n, i) => Math.round(runs.filter((r) => r.slots === n).reduce((a, r) => a + r.ms[i], 0) / runs.filter((r) => r.slots === n).length);
+  console.log(`\nper turn, mean of two runs (ms):\n  turn   1 slot   2 slots`);
+  script.forEach((m, i) => console.log(`  ${String(i + 1).padStart(4)}  ${String(turn(1, i)).padStart(7)}  ${String(turn(2, i)).padStart(8)}   ${m.slice(0, 50)}`));
+  console.log(`\nconversation total (median): 1 slot ${(med(1) / 1000).toFixed(1)} s, 2 slots ${(med(2) / 1000).toFixed(1)} s => 2 slots is ${(100 * (1 - med(2) / med(1))).toFixed(0)}% faster`);
+  if (opt('--out')) { fs.mkdirSync(path.dirname(path.resolve(opt('--out'))), { recursive: true }); fs.writeFileSync(opt('--out'), JSON.stringify({ runs }, null, 1)); }
+  process.exit(0);
+}
 
 let svc = null;
 let results = [];

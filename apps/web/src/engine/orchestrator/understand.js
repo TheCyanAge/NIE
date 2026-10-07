@@ -112,7 +112,7 @@ export async function understandMessage({ engine, text, history = [], signal, ti
 const TASK_OF_INTENT = { 'request-ideas': 'ideas', 'what-if': 'ideas', 'start-from-zero': 'ideas', 'craft-question': 'craft', 'feedback-request': 'feedback', 'share-premise': 'tell', 'share-passage': 'tell', 'direction-change': 'tell', greeting: 'chat', 'develop-idea': 'develop', 'request-write': 'write', 'request-edit': 'edit', 'about-nie': 'about-nie' };
 export const taskOfIntent = (type) => TASK_OF_INTENT[type] ?? null;
 
-const REQUEST_VERBS = 'write|draft|compose|rewrite|rephrase|reword|redo|edit|proofread|fix|polish|tighten|improve|correct|revise|smooth|finish|continue|expand|make|change|cut|shorten|trim|rework|turn|convert|give\\s+me|add|swap|replace|simplify|punch|extend|complete|generate|create|produce|summari[sz]e|translate|paraphrase|clean\\s+up|flesh';
+const REQUEST_VERBS = 'write|draft|compose|rewrite|rephrase|reword|redo|edit|proofread|fix|polish|tighten|improve|correct|revise|smooth|finish|continue|expand|make|change|cut|shorten|trim|rework|turn|convert|give\\s+me\\s+(?!(?:an?\\s+|some\\s+|a\\s+few\\s+|the\\s+|more\\s+|any\\s+)?(?:examples?|ideas?|tips?|advice|suggestions?|options?|names?|twists?|reasons?|lists?|explanations?|definitions?|overviews?|summar(?:y|ies)|angles?|questions?|sources?|references?|titles?|hints?|feedback|thoughts?|an?\\s+example)\\b)|add|swap|replace|simplify|punch|extend|complete|generate|create|produce|summari[sz]e|translate|paraphrase|clean\\s+up|flesh';
 const REQUEST_MARKER = new RegExp(
   String.raw`\b(?:can|could|would|will|won'?t|might)\s+(?:you|u|ya)\b|\byou\s+(?:can|could|might|please)\b|\bplease\b|\bpls\b|\bplz\b|\bfor\s+(?:me|us)\b|\bhelp\s+me\b|\bI\s+(?:need|want|'?d\s+like)\s+you\b|\bI\s+was\s+wondering\b|\bgo\s+ahead\b|\b(?:better|another)\s+way\s+to\s+(?:phrase|say|word|put)\b|\bjust\s+(?:${REQUEST_VERBS})\b|(?:^|[.!?:;]\s+|\bthen\s+|\bnow\s+|\bok(?:ay)?[,\s]+|\bso\s+)(?:please\s+|just\s+)?(?:${REQUEST_VERBS})\b`,
   'i'
@@ -123,6 +123,21 @@ const REQUEST_MARKER = new RegExp(
  * accusation, so a model reading of write/edit is only believed when the message has a visible request in it.
  */
 export const looksLikeARequest = (text) => REQUEST_MARKER.test(String(text ?? ''));
+
+const COMPOSE_WORDS = /\b(?:write|draft|compose|continue|finish|complete|expand|create|generate|produce|ghost-?write|extend|flesh)\b/i;
+const CHANGE_WORDS = /\b(?:rewrite|rephrase|reword|redo|edit|proofread|fix|polish|tighten|improve|correct|revise|smooth|shorten|trim|rework|simplify|paraphrase|punch|swap|replace|cut|change|clean\s+up|better\s+way)\b/i;
+/** Which refusal fits: a request to compose new text, or to change the writer's own. The model can say one while the words say the other ("compose the first page" is not an edit). */
+export function declineKind(text, modelSaid) {
+  const compose = COMPOSE_WORDS.test(text);
+  const change = CHANGE_WORDS.test(text);
+  if (compose && !change) return 'write';
+  if (change && !compose) return 'edit';
+  return modelSaid;
+}
+
+const ADDRESSED = /\b(?:you|your|yours|yourself|nie|u)\b|\bthis\s+(?:app|tool|program|thing|software)\b|\?\s*$|^\s*(?:help|is|are|does|do|did|where|how|what|can|could|which|why|who|when|will|would)\b/i;
+/** Is the message put TO NIE (a question or a "you")? A model that reads "My novel is about…" as a question about NIE is not believed. */
+export const looksAddressedToNie = (text) => ADDRESSED.test(String(text ?? ''));
 
 /**
  * Let the model's reading decide the intent. Where it agrees with the rules the rules' richer detail is kept (their direction-change
@@ -135,6 +150,11 @@ export function applyReading(intent, reading, text) {
   if ((task === 'write' || task === 'edit') && !looksLikeARequest(text)) {
     overruled = task; // the model said "write"/"edit" but nothing in the message asks for it: not a request, so nothing is declined
     task = /\?\s*$/.test(text) || wc < 3 ? 'unclear' : 'tell';
+  } else if (task === 'write' || task === 'edit') {
+    task = declineKind(text, task);
+  } else if (task === 'about-nie' && !looksAddressedToNie(text)) {
+    overruled = task; // "My novel is about…" is a statement, not a question about NIE
+    task = wc < 3 ? 'unclear' : 'tell';
   }
   intent.reading = { by: 'model', task, topic: reading.topic, rules: intent.type, ...(overruled ? { overruled } : {}) };
   if (task === taskOfIntent(intent.type)) return intent;
@@ -157,7 +177,9 @@ export const rulesReading = (intent, why = null) => ({ by: 'rules', task: taskOf
 
 /** A short instruction for the answering model, from how the message was read. */
 export function readingNote(reading, text, { ownProject = false } = {}) {
-  if (!reading || reading.by !== 'model') return '';
+  if (!reading) return '';
+  if (reading.task === 'chat') return "The writer is just being friendly (a greeting, thanks or small talk). Reply in one or two warm sentences. Do not give ideas, lists or advice they did not ask for.";
+  if (reading.by !== 'model') return '';
   const asks = [];
   if (reading.task === 'unclear') asks.push("I could not tell what the writer is asking. Ask one short question to find out; do not guess and do not give a list of ideas.");
   if (reading.task === 'feedback') asks.push("The writer wants your honest read on their own work. Answer in conversation, point at where something is rather than rewriting it, and ask before calling anything a mistake.");
