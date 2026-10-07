@@ -134,14 +134,18 @@ export function applyReading(intent, reading, text) {
 export const rulesReading = (intent, why = null) => ({ by: 'rules', task: taskOfIntent(intent.type), topic: '', rules: intent.type, ...(why ? { why } : {}) });
 
 /** A short instruction for the answering model, from how the message was read. */
-export function readingNote(reading, text) {
+export function readingNote(reading, text, { ownProject = false } = {}) {
   if (!reading || reading.by !== 'model') return '';
   const asks = [];
   if (reading.task === 'unclear') asks.push("I could not tell what the writer is asking. Ask one short question to find out; do not guess and do not give a list of ideas.");
   if (reading.task === 'feedback') asks.push("The writer wants your honest read on their own work. Answer in conversation, point at where something is rather than rewriting it, and ask before calling anything a mistake.");
   if (reading.task === 'tell') asks.push("The writer is telling you about their project. Say back what you understood in a sentence, then ask one or two questions that move it forward.");
   if (reading.task === 'develop') asks.push("The writer wants to go deeper on something already in this chat. Stay with it and use what was said earlier.");
-  if (reading.task === 'craft') asks.push("This is a general question about writing, not about the writer's own project. Answer it directly and briefly.");
+  if (reading.task === 'craft') {
+    asks.push(ownProject
+      ? "The writer's question mentions their own project, so answer it from what they have told you about it, not as a general lesson."
+      : "This is a general question about writing, not about the writer's own project. Answer it directly and briefly.");
+  }
   if (reading.topic && words(text).length <= 8) asks.push(`The subject is: ${reading.topic}.`);
   return asks.join(' ');
 }

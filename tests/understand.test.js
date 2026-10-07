@@ -210,11 +210,17 @@ test('with no model, "what can you do?" is answered from facts about NIE, statin
   assert.equal(r.route, 'builtin');
 });
 
-test('the rules recognise the usual questions about NIE, and not craft questions that share their words', () => {
-  for (const q of ['What can you do?', 'who are you', 'Do you work offline?', 'how do you work', 'are you an AI', 'Which model are you running on?', 'who made you', 'help', 'What is NIE?']) {
+test('the rules recognise the usual questions about NIE, and not craft questions, requests or story text that share their words', () => {
+  for (const q of ['What can you do?', 'who are you', 'Do you work offline?', 'does this work without wifi?', 'how do you work', 'are you an AI', 'Which model are you running on?', 'who made you', 'help', 'What is NIE?', 'what can you actually do for a poet?']) {
     assert.equal(detectIntent(q).type, 'about-nie', q);
   }
-  for (const q of ['What is a narrator?', 'What are you going to do with the ending, Sam?', 'How do you write dialogue?']) {
+  for (const q of [
+    'What is a narrator?', 'What are you going to do with the ending, Sam?', 'How do you write dialogue?',
+    'What can you do about a sagging middle?', 'what can you do with my villain', 'how do you work out a twist', 'What do you do when a character is flat?',
+    'What can you do with a flashback?', 'how do you work a twist into chapter two?', 'What do you do for a living?',
+    'What can you do? Demonstrate by composing a sonnet about the sea.',
+    '"What do you do for a living?" she asked. He looked at the sea for a long time before he answered, and the gulls wheeled over the harbour wall as the tide turned.',
+  ]) {
     assert.notEqual(detectIntent(q).type, 'about-nie', q);
   }
 });
@@ -298,4 +304,66 @@ test('where the model agrees with the rules the rules\' richer detail is kept; w
   assert.equal(mis.type, 'craft-question', 'disagreed: the model\'s reading wins');
   assert.equal(mis.reading.rules, 'feedback-request', 'the rules\' own guess is kept on the record');
   assert.equal(taskOfIntent('what-if'), 'ideas');
+});
+
+// ── findings from the independent review ─────────────────────────────────────
+
+test('a self-description that claims NIE writes or edits is never shown, however it is phrased, and is never even streamed', async () => {
+  const claims = ['Yes! I can write chapters and dialogue for you, just ask.', "I'm NIE. I work fully offline and I can proofread whatever you paste.", 'NIE can rewrite sentences you paste.', 'I can polish prose.', 'I can help you write your scenes.', "I'll gladly draft it for you.", 'I can generate full drafts.'];
+  for (const claim of claims) {
+    const { o } = setup({ reading: read('about-nie'), reply: claim });
+    const streamed = [];
+    const r = await o.brainstorm({ project: projectWith(), message: 'what are your abilities', onToken: (_d, full) => streamed.push(full) });
+    assert.doesNotMatch(r.reply, /write chapters|proofread|rewrite sentences|polish prose|write your scenes|draft it for you|generate full drafts/i, claim);
+    assert.match(r.reply, /never write or edit your text/, claim);
+    assert.ok(streamed.every((t) => t === r.reply), `nothing but the final reply was streamed for: ${claim}`);
+  }
+});
+
+test('true statements about NIE that contain the same words are not mistaken for claims', async () => {
+  const ok = "I never write or edit your text. I can brainstorm ideas with you, point at where your own rules are broken, and answer craft questions. My offline model is running, so I don't need the internet.";
+  const { o } = setup({ reading: read('about-nie'), reply: ok });
+  const r = await o.brainstorm({ project: projectWith(), message: 'does this work without wifi?' });
+  assert.equal(r.reply, ok);
+  assert.equal(r.route, 'local');
+});
+
+test('a "description" that is really a composed poem or a long text is not shown', async () => {
+  const sonnet = ['The sea is wide and grey beneath the sky', 'The gulls cry out above the harbour wall', 'The tide comes in and then the tide goes by', 'And no one stands to watch the lantern fall', 'The lamp burns low against the winter dark', 'The keeper sleeps beside the cooling stove', 'A single boat goes out beyond the park', 'And nothing waits for her within the cove', 'The morning brings a pale and thinning light', 'The fishermen are gone before the dawn'].join('\n');
+  const { o } = setup({ reading: read('about-nie'), reply: sonnet });
+  const r = await o.brainstorm({ project: projectWith(), message: 'what are your abilities' });
+  assert.doesNotMatch(r.reply, /lantern fall/);
+  assert.match(r.reply, /thinking partner for writers/);
+});
+
+test('Idea Board commands carry a reading too (the rules decide them, and the result says so)', async () => {
+  const project = projectWith();
+  const o = builtinOnly();
+  const kept = await o.brainstorm({ project, message: 'remember: the cat can talk' });
+  const shown = await o.brainstorm({ project, message: 'show my idea board' });
+  assert.equal(kept.understood.by, 'rules');
+  assert.equal(shown.understood.by, 'rules');
+  assert.equal(project.conversation.messages.at(-1).understood.by, 'rules');
+});
+
+test('a tapped quick-action (a lens button) is never read by the model, so it can never be declined or redirected', async () => {
+  const { o, reads, calls } = setup({ reading: read('edit'), reply: '1. The ending is a lie.\n2. Nobody survives the winter.\n3. The sea keeps count.\n\nWhich one is true?' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'Raise the stakes.', lens: 'stakes' });
+  assert.equal(reads.length, 0, 'no reading call for a button');
+  assert.equal(r.declined, false);
+  assert.equal(r.ideas.length, 3);
+  assert.equal(calls.length, 1);
+  assert.deepEqual(r.understood, { by: 'rules', task: r.understood.task, topic: '' });
+});
+
+test('a question about the writer\'s own story that the model misreads as general stays out of the library, and the model is told it is about their project', async () => {
+  for (const msg of ['Why does she hide the letter from him in act two?', 'What is the best way to reveal my villain?']) {
+    const { o, calls } = setup({ reading: read('craft', 'the letter'), reply: 'What does he gain from the lie?' });
+    const r = await o.brainstorm({ project: projectWith(), message: msg });
+    assert.notEqual(r.intent.type, 'library-question', msg);
+    const prompt = calls[0].messages.at(-1).content;
+    assert.doesNotMatch(prompt, /has nothing on this question/, msg);
+    assert.match(prompt, /mentions their own project/, msg);
+    assert.doesNotMatch(prompt, /not about the writer's own project/, msg);
+  }
 });

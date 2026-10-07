@@ -23,18 +23,19 @@ const RULES = [
     /^\s*i don'?t know what to write\b/i,
     /\bhelp me (?:get started|start|begin)\b/i,
   ]],
-  // Questions about NIE itself (what it can do, how it works, its model). Answered from facts about NIE, never from the craft library.
+  // Questions about NIE itself (what it can do, how it works, its model). Each pattern is the WHOLE question, so "what can you do about my
+  // sagging middle?" or a line of dialogue in a pasted scene is not mistaken for one. Answered from facts about NIE, never from the craft library.
   ['about-nie', [
-    /^\s*(?:(?:hey|hi|hello)[,!]?\s+)?(?:nie[,:]?\s+)?(?:so\s+)?(?:what|who)\s+(?:are|is)\s+(?:you|nie)(?:\s+(?:exactly|really|actually|even|anyway))?\s*[?!.]*\s*$/i,
-    /\bwhat\s+(?:can|could|do|does)\s+(?:you|nie)\s+(?:actually\s+)?(?:do|help)\b/i,
-    /\bwhat\s+(?:are|is)\s+(?:you|nie)\s+(?:for|good\s+for)\b/i,
-    /\bhow\s+(?:do|does)\s+(?:you|nie)\s+work\b/i,
-    /\b(?:do|does|can|will)\s+(?:you|nie)\s+(?:work|run)\s+(?:offline|without\s+(?:the\s+)?(?:internet|wi-?fi))\b/i,
-    /\b(?:are|is)\s+(?:you|nie)\s+(?:an?\s+)?(?:ai|bot|robot|chatbot|offline|online|real|human)\b/i,
-    /\b(?:which|what)\s+(?:model|llm|language\s+model)\b[^.?!]{0,30}\b(?:are\s+you|do\s+you\s+use|you\s+use|you\s+run|is\s+this)\b/i,
-    /\bwho\s+(?:made|built|created|developed)\s+(?:you|nie)\b/i,
+    /^\s*(?:(?:hey|hi|hello|so|ok(?:ay)?)[,!]?\s+)?(?:nie[,:]?\s+)?(?:what|who)\s+(?:are|is)\s+(?:you|nie)(?:\s+(?:exactly|really|actually|even|anyway))?\s*[?!.]*\s*$/i,
+    /^\s*(?:(?:hey|hi|hello|so|ok(?:ay)?)[,!]?\s+)?(?:nie[,:]?\s+)?what\s+(?:can|could|do|does)\s+(?:you|nie)\s+(?:actually\s+|really\s+)?(?:do|help\s+(?:me\s+)?with)(?:\s+for\s+(?:me|us|writers?|poets?|novelists?|screenwriters?|a\s+(?:writer|poet|novelist|screenwriter|journalist|student)))?\s*[?!.]*\s*$/i,
+    /^\s*(?:so\s+)?what\s+(?:are|is)\s+(?:you|nie)\s+(?:good\s+)?for\s*[?!.]*\s*$/i,
+    /^\s*(?:so\s+)?how\s+(?:do|does)\s+(?:you|nie)\s+(?:actually\s+|really\s+)?work\s*[?!.]*\s*$/i,
+    /^\s*(?:and\s+|so\s+)?(?:do|does|can|will)\s+(?:you|nie|this)\s+(?:work|run)\s+(?:offline|without\s+(?:the\s+)?(?:internet|wi-?fi))\s*[?!.]*\s*$/i,
+    /^\s*(?:are|is)\s+(?:you|nie)\s+(?:an?\s+)?(?:ai|bot|robot|chatbot|offline|online|real|human)\s*[?!.]*\s*$/i,
+    /^\s*(?:which|what)\s+(?:model|llm|language\s+model)\b[^.?!]{0,30}\b(?:are\s+you|do\s+you\s+use|you\s+use|you\s+run|is\s+this)\b[^.?!]{0,20}[?!.]*\s*$/i,
+    /^\s*(?:so\s+)?who\s+(?:made|built|created|developed)\s+(?:you|nie)\s*[?!.]*\s*$/i,
     /^\s*(?:help|help\s+me|how\s+do\s+i\s+use\s+(?:this|nie))\s*[?.!]*\s*$/i,
-    /\bwhat\s+can\s+i\s+(?:ask|use)\s+(?:you|nie|this)\b/i,
+    /^\s*what\s+can\s+i\s+(?:ask|use)\s+(?:you|nie|this)\s*[?!.]*\s*$/i,
   ]],
   ['direction-change', [
     /^\s*(?:actually|wait|hold on|hmm+|on second thought|scratch that|never ?mind|no,? wait|what if instead|let'?s (?:change|switch|try)|instead)\b/i,

@@ -22,8 +22,12 @@ const STORY_TALK = /\b(?:my|our|his|her|their|the)\s+(?:story|novel|characters?|
 const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they cover the question, answer from them and say which style guide or source they come from, and mention when practice varies. If they do not cover it, say so plainly. Never invent citations, section numbers, titles, dates or quotations.";
 const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
 const ABOUT_NIE_NOTE = "The writer is asking about NIE itself. Answer their actual question in your own words, briefly, using ONLY these facts. Do not claim any ability that is not listed, and never say you can write, rewrite or edit their text.";
-/** A self-description that claims NIE writes or edits is wrong whatever the model says, so it is replaced by the fixed one. */
-const CLAIMS_TO_WRITE = /\b(?:I|NIE)\s+(?:can|will|could|do)\s+(?:also\s+)?(?:write|rewrite|edit|proofread|draft|polish|fix|compose|continue)\s+(?:your|the|a|an|any|it|that|this)\b/i;
+/** A self-description that claims NIE writes or edits is wrong whatever the model says, so it is replaced by the fixed one. Any first-person
+ *  ability claim with a writing verb is rejected (no determiner needed: "I can write chapters for you" must not slip through). */
+const WRITE_VERBS = 'write|rewrite|edit|proofread|draft|polish|fix|compose|continue|generate|create|finish|expand|rephrase|reword|revise|correct|improve|tighten|ghost-?write';
+const CLAIMS_TO_WRITE = new RegExp(`\\b(?:I|NIE|we)(?:'ll|'d|'m able to| am able to| will| can| could| would| do| also| gladly| happily| often| usually)*\\s+(?:also\\s+|gladly\\s+|happily\\s+)?(?:${WRITE_VERBS})\\b(?!\\s+(?:nothing|anything)\\b)|\\b(?:help|helps|helping)\\s+(?:you|writers?)\\s+(?:to\\s+)?(?:${WRITE_VERBS})\\b|\\b(?:${WRITE_VERBS})\\s+(?:it\\s+)?for\\s+you\\b`, 'i');
+/** A truthful answer about NIE is a few sentences. Anything long or verse-like is composed text, not a description. */
+const aboutReplyOk = (t) => !CLAIMS_TO_WRITE.test(t) && words(t).length <= 120 && t.split(/\n/).filter((l) => l.trim()).length <= 8;
 const RANK = { none: 0, weak: 1, strong: 2 };
 const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|draft|screenplay|script|poem|essay|article|book|memoir|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|ending|opening|narrator)\b/i;
 /** After this many model readings in a row fail, stop asking for a few messages (the rules read them) so a broken model never doubles the wait. */
@@ -67,8 +71,8 @@ export class Orchestrator {
    * otherwise (no model, an exact command, a bare greeting, or a model that keeps failing) the rules' reading stands.
    * Either way `intent.reading` says which, so a result never claims more understanding than it had.
    */
-  async #read({ intent, text, history, signal }) {
-    if (!text || ['remember', 'recall', 'develop-idea', 'greeting'].includes(intent.type)) return (intent.reading = rulesReading(intent, 'exact'));
+  async #read({ intent, text, history, signal, button = false }) {
+    if (!text || button || ['remember', 'recall', 'develop-idea', 'greeting'].includes(intent.type)) return (intent.reading = rulesReading(intent, button ? 'button' : 'exact'));
     if ((this.engine.route?.() ?? 'builtin') === 'builtin') return (intent.reading = rulesReading(intent, 'no-model'));
     if (this.#readPause > 0) {
       this.#readPause--;
@@ -110,8 +114,12 @@ export class Orchestrator {
     const userMsg = appendMessage(project, 'user', text, { intent: intent.type });
 
     // Idea Board commands are exact and need no model.
-    if (intent.type === 'remember') return this.#keep(project, intent, onToken);
+    if (intent.type === 'remember') {
+      intent.reading = rulesReading(intent, 'exact');
+      return this.#keep(project, intent, onToken);
+    }
     if (intent.type === 'recall') {
+      intent.reading = rulesReading(intent, 'exact');
       const reply = boardToChat(project);
       onToken?.(reply, reply);
       return this.#finish(project, intent, reply, 'builtin', false);
@@ -132,7 +140,7 @@ export class Orchestrator {
 
     // What is the writer asking? The language model reads the message when one is running; the rules read it otherwise.
     // The model only returns a label, so it cannot write anything; a "write"/"edit" label gets the same fixed decline.
-    const reading = await this.#read({ intent, text, history: history.slice(0, -1), signal });
+    const reading = await this.#read({ intent, text, history: history.slice(0, -1), signal, button: Boolean(lensOpt) }); // a tapped quick-action already says what it is
     userMsg.intent = intent.type;
     if (declines()) return decline();
     if (intent.type === 'about-nie') return this.#about({ project, intent, text, onToken, signal });
@@ -142,14 +150,17 @@ export class Orchestrator {
     // (Not a premise: it must not become the story's working premise.)
     let lib = null;
     let libMiss = false;
+    let ownProject = false;
     const libraryCandidate = byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
     if (libraryCandidate) {
-      // Naming a character or role ('the detective', 'Samantha') means the writer is talking about their story, not asking the library.
-      // When the model has read the message it decides what is a general question; only "my story…" and known character names veto it.
+      // Naming a character or role ('the detective', 'Samantha', 'he') or "my story" means the writer is talking about their story, not asking the
+      // library. Even when the model read it as a general question, that stays a veto for anything but a strong match: a 3B model misreads
+      // some questions about the writer's own project, and answering those from the library (or saying the library has nothing) would be wrong.
       const lower = text.toLowerCase();
       const known = [...(project.conversation.workingPremise?.characters ?? []), ...(project.memory?.characters ?? []).map((c) => c.name)];
       const knownName = known.some((n) => n && lower.includes(String(n).toLowerCase()));
-      const storyTalk = byModel ? OWN_PROJECT.test(text) || knownName : STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || knownName;
+      const storyTalk = OWN_PROJECT.test(text) || STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || knownName;
+      ownProject = storyTalk;
       const general = byModel ? !storyTalk : GENERAL_Q.test(text) && !storyTalk;
       let a = answerFromLibrary(text);
       // The model's short topic ("villanelle") finds the entry when the long way of asking buries it (never for talk about the writer's own project:
@@ -209,7 +220,7 @@ export class Orchestrator {
       passage: intent.type === 'feedback-request' ? project.storyText.slice(-1800) : '',
       history: history.slice(0, -1),
       retrieved,
-      extra: [readingNote(reading, text), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      extra: [readingNote(reading, text, { ownProject }), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.7 });
     const res = asked.res;
@@ -363,9 +374,14 @@ export class Orchestrator {
     let fallback = null;
     if ((this.engine.route?.() ?? 'builtin') !== 'builtin') {
       const composeArgs = { mode: 'brainstorm', project, userMessage: text, history: project.conversation.messages.slice(0, -1), extra: `${ABOUT_NIE_NOTE}\n${aboutNieFacts(status)}` };
-      const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.3 });
-      if (asked.res.text && !CLAIMS_TO_WRITE.test(asked.res.text)) {
-        return this.#finish(project, intent, guardReply(asked.res.text, [text, project.storyText]).text, asked.res.route, false);
+      // Not streamed: the reply is checked first, so a self-description that claims NIE writes is never even briefly on screen.
+      const asked = await this.#ask({ composeArgs, signal, temperature: 0.3 });
+      if (asked.res.text) {
+        const guarded = guardReply(asked.res.text, [text, project.storyText]).text;
+        if (aboutReplyOk(guarded)) {
+          onToken?.(guarded, guarded);
+          return this.#finish(project, intent, guarded, asked.res.route, false);
+        }
       }
       if (asked.failure && asked.modelReady) {
         honesty = modelFailedNote(asked.failure);
