@@ -8,7 +8,7 @@ export function makeBridgeChat(bridge) {
   let seq = 0;
   const handlers = new Map();
   bridge.onChunk(({ id, delta }) => handlers.get(id)?.(delta));
-  return async function chat(messages, { onToken, signal, maxTokens, temperature, stream = true } = {}) {
+  return async function chat(messages, { onToken, signal, maxTokens, temperature, stream = true, json = null, timeoutMs = null } = {}) {
     const id = `c${Date.now().toString(36)}${++seq}`;
     let full = '';
     handlers.set(id, (delta) => {
@@ -19,7 +19,7 @@ export function makeBridgeChat(bridge) {
     signal?.addEventListener('abort', onAbort, { once: true });
     if (signal?.aborted) onAbort();
     try {
-      const res = await bridge.chat({ id, messages, options: { maxTokens, temperature, stream } });
+      const res = await bridge.chat({ id, messages, options: { maxTokens, temperature, stream, json, timeoutMs } });
       if (res?.error) throw new AIError(res.error, { kind: res.aborted ? 'abort' : 'error' });
       return res.text ?? full;
     } finally {

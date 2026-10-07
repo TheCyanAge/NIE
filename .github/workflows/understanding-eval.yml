@@ -1,0 +1,53 @@
+name: understanding-eval
+
+# Measures how well NIE's language model understands what a writer is asking, with the REAL model (Qwen2.5-3B) and the app's own
+# llama-server arguments, on the labelled messages in tests/fixtures/understanding-messages.json. It also runs a short real
+# conversation through the whole orchestrator (--e2e). Nothing here builds, ships or publishes anything: it only reports numbers
+# (job log + the understanding-report artifact), so the prompt can be tuned against evidence instead of guesses.
+on:
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: 'Messages per run, spread evenly over every task (0 = all 260; about 5 seconds each on a CI machine)'
+        type: string
+        default: '100'
+      e2e:
+        description: 'Also run a short real conversation through the whole orchestrator (slower: it generates answers)'
+        type: boolean
+        default: true
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch the llama.cpp runtime (Linux)
+        run: |
+          node scripts/fetch-runtime.mjs --asset ubuntu-x64 --no-model
+          chmod +x apps/desktop/bin/llama-server
+          ls apps/desktop/bin | head -30
+
+      - name: Fetch the real model (about 1.9 GB, resumable)
+        run: node scripts/fetch-runtime.mjs --no-runtime
+
+      - name: Measure understanding with the real model
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/apps/desktop/bin
+        run: |
+          SAMPLE="${{ inputs.sample }}"
+          E2E=""
+          if [ "${{ inputs.e2e }}" = "true" ]; then E2E="--e2e"; fi
+          node scripts/understanding-probe.mjs --sample "${SAMPLE:-100}" $E2E --out understanding-report.json
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: understanding-report
+          path: understanding-report.json
+          if-no-files-found: ignore

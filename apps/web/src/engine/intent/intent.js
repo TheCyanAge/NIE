@@ -4,8 +4,10 @@ import { EXPLICIT_ASK, IDEA_OBJECT, PROSE_OBJECT, parseDevelop, parseMemoryComma
 import { detectLens } from '../brainstorm/lenses.js';
 
 /**
- * Intent recognition: what is the writer trying to do with this message?
- * Rule-based so it works instantly and offline; the language model refines tone, not routing.
+ * Intent recognition by rules: what is the writer trying to do with this message?
+ * This is the FALLBACK reading. It is instant and works with no model, and it alone makes the deterministic decisions (the exact Idea Board
+ * commands, and declining to write or edit). When a language model is running, `orchestrator/understand.js` reads the message with the
+ * model and that reading decides everything else; these rules are then only the starting point it corrects.
  */
 
 const norm = (s) => String(s ?? '').trim();
@@ -20,6 +22,19 @@ const RULES = [
     /\b(?:blank page|writer'?s block|i'?m stuck|i am stuck|nothing to write)\b/i,
     /^\s*i don'?t know what to write\b/i,
     /\bhelp me (?:get started|start|begin)\b/i,
+  ]],
+  // Questions about NIE itself (what it can do, how it works, its model). Answered from facts about NIE, never from the craft library.
+  ['about-nie', [
+    /^\s*(?:(?:hey|hi|hello)[,!]?\s+)?(?:nie[,:]?\s+)?(?:so\s+)?(?:what|who)\s+(?:are|is)\s+(?:you|nie)(?:\s+(?:exactly|really|actually|even|anyway))?\s*[?!.]*\s*$/i,
+    /\bwhat\s+(?:can|could|do|does)\s+(?:you|nie)\s+(?:actually\s+)?(?:do|help)\b/i,
+    /\bwhat\s+(?:are|is)\s+(?:you|nie)\s+(?:for|good\s+for)\b/i,
+    /\bhow\s+(?:do|does)\s+(?:you|nie)\s+work\b/i,
+    /\b(?:do|does|can|will)\s+(?:you|nie)\s+(?:work|run)\s+(?:offline|without\s+(?:the\s+)?(?:internet|wi-?fi))\b/i,
+    /\b(?:are|is)\s+(?:you|nie)\s+(?:an?\s+)?(?:ai|bot|robot|chatbot|offline|online|real|human)\b/i,
+    /\b(?:which|what)\s+(?:model|llm|language\s+model)\b[^.?!]{0,30}\b(?:are\s+you|do\s+you\s+use|you\s+use|you\s+run|is\s+this)\b/i,
+    /\bwho\s+(?:made|built|created|developed)\s+(?:you|nie)\b/i,
+    /^\s*(?:help|help\s+me|how\s+do\s+i\s+use\s+(?:this|nie))\s*[?.!]*\s*$/i,
+    /\bwhat\s+can\s+i\s+(?:ask|use)\s+(?:you|nie|this)\b/i,
   ]],
   ['direction-change', [
     /^\s*(?:actually|wait|hold on|hmm+|on second thought|scratch that|never ?mind|no,? wait|what if instead|let'?s (?:change|switch|try)|instead)\b/i,
@@ -123,6 +138,7 @@ export function detectIntent(message, { project = null, mode = 'brainstorm', has
   if (types.includes('start-from-zero')) type = 'start-from-zero';
   else if (types.includes('request-write')) type = 'request-write';
   else if (types.includes('request-edit')) type = 'request-edit';
+  else if (types.includes('about-nie')) type = 'about-nie';
   else if (directionCue) type = 'direction-change';
   else if (types.includes('what-if')) type = 'what-if';
   else if (types.includes('craft-question') && isQuestion) type = 'craft-question';

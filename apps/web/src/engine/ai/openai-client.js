@@ -43,13 +43,15 @@ export async function* sseData(body) {
 }
 
 export class OpenAICompatClient {
-  constructor({ baseUrl, apiKey = '', model = 'default', fetchImpl = globalThis.fetch?.bind(globalThis), timeoutMs = 120000, headers = {} } = {}) {
+  /** `jsonSchema`: the server can constrain a reply to a JSON schema (llama-server can; an arbitrary online provider may not, so it is opt-in). */
+  constructor({ baseUrl, apiKey = '', model = 'default', fetchImpl = globalThis.fetch?.bind(globalThis), timeoutMs = 120000, headers = {}, jsonSchema = false } = {}) {
     this.baseUrl = String(baseUrl ?? '').replace(/\/+$/, '');
     this.apiKey = apiKey;
     this.model = model;
     this.fetch = fetchImpl;
     this.timeoutMs = timeoutMs;
     this.headers = headers;
+    this.jsonSchema = jsonSchema;
   }
 
   get configured() {
@@ -73,18 +75,20 @@ export class OpenAICompatClient {
   }
 
   /**
+   * `json`: a JSON schema the reply must follow (used to read a message's meaning as a label, never prose). `timeoutMs` overrides the default for one call.
    * @returns {Promise<string>} the full reply text. `onToken(delta, full)` is called for each streamed chunk.
    */
-  async chat(messages, { stream = true, onToken, signal, maxTokens = 700, temperature = 0.7, extra = {} } = {}) {
+  async chat(messages, { stream = true, onToken, signal, maxTokens = 700, temperature = 0.7, extra = {}, json = null, timeoutMs = null } = {}) {
     if (!this.configured) throw new AIError('No AI endpoint configured', { kind: 'error' });
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(new AIError('The model took too long to respond', { kind: 'timeout' })), this.timeoutMs);
+    const timer = setTimeout(() => ctrl.abort(new AIError('The model took too long to respond', { kind: 'timeout' })), timeoutMs ?? this.timeoutMs);
     const onAbort = () => ctrl.abort(signal.reason ?? new AIError('Cancelled', { kind: 'abort' }));
     signal?.addEventListener('abort', onAbort, { once: true });
     if (signal?.aborted) onAbort();
 
     try {
       const body = { model: this.model, messages, stream, max_tokens: maxTokens, temperature, cache_prompt: true, ...extra };
+      if (json && this.jsonSchema) body.response_format = { type: 'json_schema', json_schema: { name: 'reading', strict: true, schema: json } };
       let res;
       try {
         res = await this.fetch(`${this.baseUrl}/chat/completions`, { method: 'POST', headers: this.#headers(), body: JSON.stringify(body), signal: ctrl.signal });

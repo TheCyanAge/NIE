@@ -67,7 +67,7 @@ const local = new LocalModelManager({
   layout,
   prefs: prefs0,
   model: DEFAULT_MODEL,
-  clientFactory: (cfg) => new OpenAICompatClient(cfg),
+  clientFactory: (cfg) => new OpenAICompatClient({ ...cfg, jsonSchema: true }), // llama-server can constrain a reply to a schema
   autoDownload: prefs0.autoDownloadModel !== false,
   log,
 });
@@ -89,6 +89,9 @@ async function streamChat(provider, channel, { id, messages, options = {} }) {
       maxTokens: options.maxTokens,
       temperature: options.temperature,
       stream: options.stream !== false,
+      // Only a plain schema object and a sane timeout cross from the page; nothing else is forwarded to the model server.
+      json: options.json && typeof options.json === 'object' && !Array.isArray(options.json) ? options.json : undefined,
+      timeoutMs: Number.isFinite(options.timeoutMs) ? Math.min(Math.max(options.timeoutMs, 1000), 120000) : undefined,
       onToken: (delta) => send(channel, { id, delta }),
     });
     return { text };

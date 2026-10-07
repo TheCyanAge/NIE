@@ -4,12 +4,12 @@ import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { loadLibrary, answerFromLibrary, searchScored, libraryStats } from '../apps/web/src/engine/knowledge/index.js';
 import { libraryMissReply } from '../apps/web/src/engine/orchestrator/builtin.js';
-import { projectWith } from './helpers.js';
+import { modelWithReading, projectWith } from './helpers.js';
 
 await loadLibrary();
 
 const builtinOnly = () => new Orchestrator({ engine: new AIEngine({ local: null, online: null, isOnline: () => false }) });
-const stubLocal = (replyFn, calls = []) => ({ status: () => ({ state: 'ready' }), onStatus: () => () => {}, async chat(messages, opts) { calls.push({ messages, opts }); return replyFn(messages); } });
+const stubLocal = (replyFn, calls = []) => ({ status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: modelWithReading(replyFn, { calls }) });
 const withModel = (replyFn, calls) => new Orchestrator({ engine: new AIEngine({ local: stubLocal(replyFn, calls), online: null, isOnline: () => false }) });
 const ask = (o, project, message) => o.brainstorm({ project, message });
 

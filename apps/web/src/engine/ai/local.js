@@ -37,7 +37,7 @@ export function createDesktopLocal(bridge) {
  * Polls /health so the status reflects reality instead of assuming.
  */
 export function createHttpLocal({ baseUrl, pollMs = 1500, fetchImpl } = {}) {
-  const client = new OpenAICompatClient({ baseUrl, fetchImpl, model: 'local' });
+  const client = new OpenAICompatClient({ baseUrl, fetchImpl, model: 'local', jsonSchema: true });
   let current = { state: 'starting', detail: null };
   const listeners = new Set();
   let timer = null;

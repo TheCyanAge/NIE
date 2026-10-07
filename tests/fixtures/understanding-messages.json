@@ -1,0 +1,1803 @@
+{
+ "note": "Messages a writer might type into NIE with the task each one asks for. Written by one set of independent writers and blind-labelled by two others who never saw the intended label; only items where both agreed are kept. Used to measure how well NIE understands what a writer asks (scripts/understanding-probe.mjs) and as a regression test for the rule-based fallback (tests/understand.test.js).",
+ "tasks": [
+  "ideas",
+  "develop",
+  "feedback",
+  "craft",
+  "tell",
+  "write",
+  "edit",
+  "about-nie",
+  "chat",
+  "unclear"
+ ],
+ "items": [
+  {
+   "id": 1,
+   "text": "give me some twists for the third act",
+   "task": "ideas",
+   "hard": true
+  },
+  {
+   "id": 2,
+   "text": "ideas for a story set in a laundromat at 3am",
+   "task": "ideas"
+  },
+  {
+   "id": 3,
+   "text": "what are some ways the heist could go wrong?",
+   "task": "ideas",
+   "hard": true
+  },
+  {
+   "id": 4,
+   "text": "names for a cranky lighthouse keeper? something old fashioned",
+   "task": "ideas"
+  },
+  {
+   "id": 5,
+   "text": "stuck. my two leads need to end up in the same room but i cant think why. options?",
+   "task": "ideas",
+   "hard": true
+  },
+  {
+   "id": 6,
+   "text": "brainstorm",
+   "task": "ideas"
+  },
+  {
+   "id": 7,
+   "text": "Could you suggest a few angles for an essay about why i keep quitting hobbies? I'd like something less obvious than 'fear of failure'.",
+   "task": "ideas"
+  },
+  {
+   "id": 8,
+   "text": "what if the ghost in my poem is the speaker's future self lol. what else could it be",
+   "task": "ideas",
+   "hard": true
+  },
+  {
+   "id": 9,
+   "text": "complications for a road trip memoir chapter where nothing happens",
+   "task": "ideas"
+  },
+  {
+   "id": 10,
+   "text": "my villain feels flat. what could make him genuinely scary instead of just loud?",
+   "task": "ideas",
+   "hard": true
+  },
+  {
+   "id": 11,
+   "text": "need a magic system that costs the user something weird. not blood. thoughts?",
+   "task": "ideas"
+  },
+  {
+   "id": 12,
+   "text": "Can you throw me a handful of premises for a screenplay about two rival bakers?",
+   "task": "ideas"
+  },
+  {
+   "id": 13,
+   "text": "any good questions i should ask myself about my protagonists motivation",
+   "task": "ideas"
+  },
+  {
+   "id": 14,
+   "text": "fanfic idea: what would happen if the two rivals got stuck in a lift together",
+   "task": "ideas"
+  },
+  {
+   "id": 15,
+   "text": "opening line angles for a piece on city pigeons? just directions not actual lines",
+   "task": "ideas",
+   "hard": true
+  },
+  {
+   "id": 16,
+   "text": "twist ideas pls",
+   "task": "ideas"
+  },
+  {
+   "id": 17,
+   "text": "Looking for faction ideas for my desert trading world. Right now I only have merchants and raiders and it feels thin.",
+   "task": "ideas"
+  },
+  {
+   "id": 18,
+   "text": "what are some ways a mentor character could betray the hero that arent just 'he was evil all along'",
+   "task": "ideas"
+  },
+  {
+   "id": 19,
+   "text": "another one",
+   "task": "ideas",
+   "history": [
+    {
+     "role": "user",
+     "content": "Give me a what-if for my sci-fi story about a failing colony ship."
+    },
+    {
+     "role": "assistant",
+     "content": "What if the ship's records of the colony's destination were quietly rewritten generations ago, and only one crew member notices the stars don't match?"
+    }
+   ]
+  },
+  {
+   "id": 20,
+   "text": "ok but different, less bleak",
+   "task": "ideas",
+   "history": [
+    {
+     "role": "user",
+     "content": "Ideas for how my grieving widow character could spend her first month alone?"
+    },
+    {
+     "role": "assistant",
+     "content": "She could keep setting two places at dinner, or take over his abandoned allotment and slowly lose herself in it."
+    }
+   ]
+  },
+  {
+   "id": 21,
+   "text": "more names, maybe ones that sound northern",
+   "task": "ideas",
+   "history": [
+    {
+     "role": "user",
+     "content": "Need names for a fishing village in my fantasy novel."
+    },
+    {
+     "role": "assistant",
+     "content": "Some directions: Saltmere, Gullhaven, Tidewick, Brannock Reach. Want a particular feel, grim or cozy?"
+    }
+   ]
+  },
+  {
+   "id": 22,
+   "text": "what else could the letter contain besides a confession",
+   "task": "ideas",
+   "history": [
+    {
+     "role": "user",
+     "content": "In my mystery the detective finds a letter in the dead man's coat. What could it say?"
+    },
+    {
+     "role": "assistant",
+     "content": "It could be a confession, a love note to the wrong person, or a list of names with one crossed out."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 23,
+   "text": "how might the ending go if she stays?",
+   "task": "ideas",
+   "hard": true
+  },
+  {
+   "id": 24,
+   "text": "Hi! I'm writing a coming of age story and want a few complications for the summer job subplot, what could mess things up for my narrator?",
+   "task": "ideas"
+  },
+  {
+   "id": 25,
+   "text": "tell me more about that second idea",
+   "task": "develop",
+   "history": [
+    {
+     "role": "user",
+     "content": "Give me three reasons my detective would quit the force."
+    },
+    {
+     "role": "assistant",
+     "content": "1. A case closed too neatly. 2. A partner she can't trust. 3. A promise to a dying witness she can't keep."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 26,
+   "text": "lets dig into the sister's motive",
+   "task": "develop"
+  },
+  {
+   "id": 27,
+   "text": "go deeper on why the lighthouse matters to him",
+   "task": "develop"
+  },
+  {
+   "id": 28,
+   "text": "why would she do that?",
+   "task": "develop",
+   "history": [
+    {
+     "role": "assistant",
+     "content": "One angle: your heroine burns the map before anyone else can read it."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 29,
+   "text": "Can we unpack the betrayal scene? I want to understand what's really going on underneath it for both of them.",
+   "task": "develop",
+   "hard": true
+  },
+  {
+   "id": 30,
+   "text": "expand on the third one",
+   "task": "develop",
+   "history": [
+    {
+     "role": "user",
+     "content": "What could go wrong at the wedding in my novel?"
+    },
+    {
+     "role": "assistant",
+     "content": "1. The toast reveals a secret. 2. A storm cuts the power. 3. The groom's first wife arrives as a guest."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 31,
+   "text": "ok i like the idea of the unreliable narrator. how would that actually work across the whole book",
+   "task": "develop"
+  },
+  {
+   "id": 32,
+   "text": "hmm the thing about the tide clock. what does it mean for the town?",
+   "task": "develop"
+  },
+  {
+   "id": 33,
+   "text": "lets think through what the council would actually do once the river dries up",
+   "task": "develop"
+  },
+  {
+   "id": 34,
+   "text": "more on that",
+   "task": "develop",
+   "history": [
+    {
+     "role": "user",
+     "content": "What if my chef protagonist loses her sense of taste?"
+    },
+    {
+     "role": "assistant",
+     "content": "Then her craft shifts from tasting to memory and trust: she has to rely on her apprentice's palate, which flips the power dynamic."
+    }
+   ]
+  },
+  {
+   "id": 35,
+   "text": "I want to stay with the grandmother for a bit. who is she when no one's watching?",
+   "task": "develop"
+  },
+  {
+   "id": 36,
+   "text": "so if the ship's AI is lying, what does it gain? work that out with me",
+   "task": "develop"
+  },
+  {
+   "id": 37,
+   "text": "yeah the second option is interesting, what are the consequences of that for my hero",
+   "task": "develop"
+  },
+  {
+   "id": 38,
+   "text": "what would that mean for the ending",
+   "task": "develop",
+   "history": [
+    {
+     "role": "assistant",
+     "content": "If the narrator never learns her brother survived, the reader holds knowledge she lacks for the entire final act."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 39,
+   "text": "can we talk about the magic tax idea more. who collects it and who resents it",
+   "task": "develop"
+  },
+  {
+   "id": 40,
+   "text": "i keep circling the dad character, he drinks but hes also the funniest person in the book. help me think about him",
+   "task": "develop",
+   "hard": true
+  },
+  {
+   "id": 41,
+   "text": "Staying on the poem for a minute: the image of the empty chairs on the beach. What could it be carrying emotionally?",
+   "task": "develop"
+  },
+  {
+   "id": 42,
+   "text": "ok and then what happens after she opens the door",
+   "task": "develop",
+   "history": [
+    {
+     "role": "user",
+     "content": "Opening scene idea: a woman stands outside her childhood home with a key she isn't sure still works."
+    },
+    {
+     "role": "assistant",
+     "content": "Strong tension. The question is what's waiting inside, and whether she wants it to open."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 43,
+   "text": "explore the rivalry between the two bakers with me. where does it come from?",
+   "task": "develop"
+  },
+  {
+   "id": 44,
+   "text": "his fear of water. where could that go",
+   "task": "develop",
+   "hard": true
+  },
+  {
+   "id": 45,
+   "text": "let's pick up the pigeon essay angle again, the one about being invisible in cities. how far can it stretch?",
+   "task": "develop"
+  },
+  {
+   "id": 46,
+   "text": "wait back up, the mentor thing. unpack that",
+   "task": "develop"
+  },
+  {
+   "id": 47,
+   "text": "Ive got the idea that the whole town forgets the same day every year. Walk me through what that does to the people living there.",
+   "task": "develop"
+  },
+  {
+   "id": 48,
+   "text": "so what's the cost of her lie, like long term",
+   "task": "develop"
+  },
+  {
+   "id": 49,
+   "text": "thinking out loud about the villains backstory, can we flesh out why he hates the guild",
+   "task": "develop"
+  },
+  {
+   "id": 50,
+   "text": "dig into the memoir structure idea of ordering chapters by rooms instead of years",
+   "task": "develop"
+  },
+  {
+   "id": 51,
+   "text": "that bit about the broken radio, what could it symbolize in my screenplay?",
+   "task": "develop",
+   "hard": true
+  },
+  {
+   "id": 52,
+   "text": "is my opening too slow? the first three pages are just her packing boxes",
+   "task": "feedback",
+   "hard": true
+  },
+  {
+   "id": 53,
+   "text": "does the ending of my short story actually land or does it feel tacked on",
+   "task": "feedback"
+  },
+  {
+   "id": 54,
+   "text": "I wrote 'The kettle clicked off and neither of us moved.' Does that sound stiff to you?",
+   "task": "feedback",
+   "hard": true
+  },
+  {
+   "id": 55,
+   "text": "pacing in act two feels off to me. thoughts?",
+   "task": "feedback"
+  },
+  {
+   "id": 56,
+   "text": "be honest, is my villain believable or is he just a cartoon",
+   "task": "feedback"
+  },
+  {
+   "id": 57,
+   "text": "is the twist too obvious? the reader basically learns the sister is the thief on page 40 and the big reveal isnt til page 200",
+   "task": "feedback"
+  },
+  {
+   "id": 58,
+   "text": "is that strong enough or too cliche?",
+   "task": "feedback",
+   "history": [
+    {
+     "role": "user",
+     "content": "my protagonist refuses to leave her town in chapter 3."
+    },
+    {
+     "role": "assistant",
+     "content": "Got it. What keeps her there?"
+    },
+    {
+     "role": "user",
+     "content": "her dying father."
+    }
+   ]
+  },
+  {
+   "id": 59,
+   "text": "my poem ends on the word 'light'. too neat?",
+   "task": "feedback"
+  },
+  {
+   "id": 60,
+   "text": "Is there a plot hole in my heist? The crew goes in through the vents, but I never explain how they get past the guard dogs.",
+   "task": "feedback"
+  },
+  {
+   "id": 61,
+   "text": "do the stakes feel high enough at the midpoint of my screenplay, or does it fizzle",
+   "task": "feedback"
+  },
+  {
+   "id": 62,
+   "text": "does this dialogue feel natural?\n\"I told you, Marcus, I didn't take it.\"\n\"Then who did?\"",
+   "task": "feedback",
+   "hard": true
+  },
+  {
+   "id": 63,
+   "text": "Worried my narrator is too unreliable. Will readers just get lost?",
+   "task": "feedback"
+  },
+  {
+   "id": 64,
+   "text": "my essay's argument wanders around i think... does it?",
+   "task": "feedback"
+  },
+  {
+   "id": 65,
+   "text": "is the magic system in my world consistent? mages burn memories as fuel, and healers do the same thing but only with their own",
+   "task": "feedback",
+   "hard": true
+  },
+  {
+   "id": 66,
+   "text": "does it flow better?",
+   "task": "feedback",
+   "history": [
+    {
+     "role": "user",
+     "content": "I cut the flashback from chapter 2."
+    },
+    {
+     "role": "assistant",
+     "content": "Noted. The chapter now opens straight on the funeral."
+    }
+   ]
+  },
+  {
+   "id": 67,
+   "text": "too much backstory in my first chapter? it's like eight pages of her childhood before anything happens",
+   "task": "feedback",
+   "hard": true
+  },
+  {
+   "id": 68,
+   "text": "my memoir leaves out my brother completely. will readers notice the gap or is it fine",
+   "task": "feedback",
+   "hard": true
+  },
+  {
+   "id": 69,
+   "text": "my headline is 'Nobody Is Reading Your Newsletter.' too clickbaity?",
+   "task": "feedback"
+  },
+  {
+   "id": 70,
+   "text": "Does the name Thessaly Vane work for the lead in a noir novel, or is it too much",
+   "task": "feedback",
+   "hard": true
+  },
+  {
+   "id": 71,
+   "text": "pls tell me my fanfic isnt cringe lol. its a canon divergence where the mentor survives and the whole second half is about guilt",
+   "task": "feedback"
+  },
+  {
+   "id": 72,
+   "text": "Does my voice stay consistent? Chapter 1 is chatty and chapter 9 is all clipped sentences.",
+   "task": "feedback"
+  },
+  {
+   "id": 73,
+   "text": "is the romance subplot overpowering the mystery",
+   "task": "feedback"
+  },
+  {
+   "id": 74,
+   "text": "does the logline give away too much?",
+   "task": "feedback",
+   "history": [
+    {
+     "role": "user",
+     "content": "here's my logline: a retired diver must find her missing brother before the tide floods the cave."
+    },
+    {
+     "role": "assistant",
+     "content": "Clear and tense. Want to dig into it?"
+    }
+   ]
+  },
+  {
+   "id": 75,
+   "text": "will readers buy it though?",
+   "task": "feedback",
+   "history": [
+    {
+     "role": "user",
+     "content": "In chapter 12 she forgives him after one apology."
+    },
+    {
+     "role": "assistant",
+     "content": "That's quick. Is the forgiveness meant to surprise?"
+    }
+   ]
+  },
+  {
+   "id": 76,
+   "text": "quick check: does \"It was with great reluctance that she opened the door\" read too stiff in my story?",
+   "task": "feedback",
+   "hard": true
+  },
+  {
+   "id": 77,
+   "text": "my game world has five factions and honestly they all feel the same to me. are they distinct enough?",
+   "task": "feedback"
+  },
+  {
+   "id": 78,
+   "text": "how do openings usually work in short stories",
+   "task": "craft",
+   "hard": true
+  },
+  {
+   "id": 79,
+   "text": "is it okay to start a sentence with And?",
+   "task": "craft",
+   "hard": true
+  },
+  {
+   "id": 80,
+   "text": "oxford comma or no",
+   "task": "craft"
+  },
+  {
+   "id": 81,
+   "text": "whats the difference between affect and effect",
+   "task": "craft"
+  },
+  {
+   "id": 82,
+   "text": "What is free indirect discourse, exactly?",
+   "task": "craft"
+  },
+  {
+   "id": 83,
+   "text": "when do you use a semicolon vs a colon",
+   "task": "craft"
+  },
+  {
+   "id": 84,
+   "text": "who came up with the hero's journey and is it actually used in screenwriting",
+   "task": "craft"
+  },
+  {
+   "id": 85,
+   "text": "what's a villanelle? how many lines does it have",
+   "task": "craft"
+  },
+  {
+   "id": 86,
+   "text": "is 'impact' as a verb just wrong? people keep telling me it is",
+   "task": "craft",
+   "hard": true
+  },
+  {
+   "id": 87,
+   "text": "how long is a typical novella",
+   "task": "craft"
+  },
+  {
+   "id": 88,
+   "text": "Chicago or AP for a magazine article, which do most outlets use?",
+   "task": "craft"
+  },
+  {
+   "id": 89,
+   "text": "is passive voice always bad or is that a myth",
+   "task": "craft"
+  },
+  {
+   "id": 90,
+   "text": "can you head-hop in third person or is that a hard no",
+   "task": "craft",
+   "hard": true
+  },
+  {
+   "id": 91,
+   "text": "what's the difference between a screenplay and a teleplay",
+   "task": "craft"
+  },
+  {
+   "id": 92,
+   "text": "how do sestinas work, the end word thing confuses me",
+   "task": "craft"
+  },
+  {
+   "id": 93,
+   "text": "do romance novels have to end happily or does that make it a different genre",
+   "task": "craft",
+   "hard": true
+  },
+  {
+   "id": 94,
+   "text": "what is hemingway's iceberg theory",
+   "task": "craft"
+  },
+  {
+   "id": 95,
+   "text": "is present tense harder to pull off than past in general? i keep hearing people say so",
+   "task": "craft",
+   "hard": true
+  },
+  {
+   "id": 96,
+   "text": "why do readers tend to distrust them?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "my antagonist keeps showing up in dream sequences."
+    },
+    {
+     "role": "assistant",
+     "content": "Dream sequences can reveal inner conflict, but many readers are wary of them."
+    }
+   ]
+  },
+  {
+   "id": 97,
+   "text": "give me an example from classic film",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What's a MacGuffin?"
+    },
+    {
+     "role": "assistant",
+     "content": "A plot object that drives the characters but matters little in itself, like a stolen briefcase nobody ever opens."
+    }
+   ]
+  },
+  {
+   "id": 98,
+   "text": "and a novelette?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "How is a novella different from a novel?"
+    },
+    {
+     "role": "assistant",
+     "content": "Mostly length, roughly 20,000 to 40,000 words, and a tighter focus on one thread."
+    }
+   ]
+  },
+  {
+   "id": 99,
+   "text": "so are they ever acceptable in essays?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "what's a sentence fragment?"
+    },
+    {
+     "role": "assistant",
+     "content": "A group of words missing a subject or a verb, like 'Gone.' on its own."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 100,
+   "text": "whats the difference between a memoir and an autobiography?",
+   "task": "craft"
+  },
+  {
+   "id": 101,
+   "text": "Should I use an em dash or an ellipsis when dialogue trails off or gets cut off? What's the convention?",
+   "task": "craft",
+   "hard": true
+  },
+  {
+   "id": 102,
+   "text": "what are the main types of narrative point of view",
+   "task": "craft"
+  },
+  {
+   "id": 103,
+   "text": "toward vs towards, does it matter, is one british",
+   "task": "craft"
+  },
+  {
+   "id": 104,
+   "text": "My novel is a slow-burn mystery set on a fishing island off Newfoundland. The narrator is a retired ferry captain who starts noticing that the same boat docks every Thursday and nobody knows whose it is.",
+   "task": "tell"
+  },
+  {
+   "id": 105,
+   "text": "working on a short story about two sisters clearing out their dead mother's house, 3000 words or so, mostly dialogue",
+   "task": "tell"
+  },
+  {
+   "id": 106,
+   "text": "So I'm changing the ending. Instead of the heist working, the crew gets away but the money turns out to be counterfeit, and the last scene is just them in a diner not saying anything.",
+   "task": "tell",
+   "hard": true
+  },
+  {
+   "id": 107,
+   "text": "The rain had stopped hours ago but the gutters kept dripping, and Marta counted each drop like a debt she'd never settle. She did not look at the letter on the table.",
+   "task": "tell",
+   "hard": true
+  },
+  {
+   "id": 108,
+   "text": "my villain is a lighthouse keeper who thinks he's saving ships. thats about all i have so far",
+   "task": "tell",
+   "hard": true
+  },
+  {
+   "id": 109,
+   "text": "I write personal essays, mostly about growing up in a Lebanese bakery in Detroit. The collection is about bread, inheritance and shame, and I'm roughly two thirds done.",
+   "task": "tell"
+  },
+  {
+   "id": 110,
+   "text": "Fan fiction, Dragon Age, Fenris and Hawke, post-game, rated T. I'm 40k words in and the whole thing takes place over one winter in Kirkwall.",
+   "task": "tell"
+  },
+  {
+   "id": 111,
+   "text": "here's the opening of my poem: \"The orchard remembers what we pruned / and grows it back in the shape of our hands.\" there's more but that's the turn I like",
+   "task": "tell",
+   "hard": true
+  },
+  {
+   "id": 112,
+   "text": "ok so quick update. i scrapped the dual timeline entirely, everything's now in 1987 and the present day stuff is just a framing letter",
+   "task": "tell"
+  },
+  {
+   "id": 113,
+   "text": "Screenplay. Thirty-minute pilot, dark comedy, a funeral home run by three generations of women who disagree about everything, including how to bury people.",
+   "task": "tell"
+  },
+  {
+   "id": 114,
+   "text": "My magic system runs on debt. Every spell borrows from a lender spirit and the interest compounds, so old mages are basically bankrupt and the whole political structure is built on who owes whom.",
+   "task": "tell",
+   "hard": true
+  },
+  {
+   "id": 115,
+   "text": "I'm 15k words into a memoir about my years as a long-haul trucker. Chronological, but each chapter is named after a highway.",
+   "task": "tell"
+  },
+  {
+   "id": 116,
+   "text": "The protagonist is Dev, 17, who runs a pirate radio station out of his grandfather's garage. Set in Leicester, 1994. Third person, past tense.",
+   "task": "tell"
+  },
+  {
+   "id": 117,
+   "text": "just finished chapter nine. she finally tells him about the fire. took me three weeks",
+   "task": "tell"
+  },
+  {
+   "id": 118,
+   "text": "I have an article due Friday on the collapse of local newspapers in rural Ohio, around 1800 words, and I've already got three interviews done.",
+   "task": "tell"
+  },
+  {
+   "id": 119,
+   "text": "\"You don't get to be sorry,\" he said. \"Sorry is a thing you do for yourself.\" She turned the key anyway and the engine caught on the second try.",
+   "task": "tell",
+   "hard": true
+  },
+  {
+   "id": 120,
+   "text": "the game world is a city built on the back of a sleeping giant. districts are named for body parts, and the guilds are terrified of him waking up",
+   "task": "tell"
+  },
+  {
+   "id": 121,
+   "text": "I tend to write at night, usually between 11 and 2, and mostly on my phone. Currently drafting a YA fantasy about a girl who can hear what rivers remember.",
+   "task": "tell"
+  },
+  {
+   "id": 122,
+   "text": "We switched the whole book to present tense last week and honestly it feels like a different novel now.",
+   "task": "tell",
+   "hard": true
+  },
+  {
+   "id": 123,
+   "text": "Rewriting my thesis novel. 90k words, literary fiction, grief and bees. Agent wants it by spring.",
+   "task": "tell"
+  },
+  {
+   "id": 124,
+   "text": "Third draft, third person limited, cuts between Ines and her brother. The brother only gets short chapters because he's dying in the background.",
+   "task": "tell",
+   "history": [
+    {
+     "role": "assistant",
+     "content": "Happy to dig in. How is the book structured so far, and whose point of view carries it?"
+    }
+   ]
+  },
+  {
+   "id": 125,
+   "text": "real. she's his dead wife and the whole town knows about her. nobody finds it strange except the new vet.",
+   "task": "tell",
+   "history": [
+    {
+     "role": "user",
+     "content": "I'm writing a quiet small-town ghost story."
+    },
+    {
+     "role": "assistant",
+     "content": "Nice. Is the ghost real within the story, or is she in his head?"
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 126,
+   "text": "love the third one. so i'm making the sister the informant, and the whole second half shifts to her point of view",
+   "task": "tell",
+   "history": [
+    {
+     "role": "user",
+     "content": "who could be leaking the plans in my war novel?"
+    },
+    {
+     "role": "assistant",
+     "content": "A few angles: a wounded cousin, the sister who types the orders, a chaplain hearing confessions, a rival's spy."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 127,
+   "text": "a retired jockey who inherits a failing vineyard in the Hunter Valley and hates wine. that's the premise, it's a comic novel",
+   "task": "tell",
+   "history": [
+    {
+     "role": "assistant",
+     "content": "Welcome back. What are you working on today?"
+    }
+   ]
+  },
+  {
+   "id": 128,
+   "text": "Small one. The collection is called Salt Years and it's all prose poems about my father's shipyard.",
+   "task": "tell"
+  },
+  {
+   "id": 129,
+   "text": "Heads up that the hero is actually a woman now, I changed it after my beta reader pointed out the dad stuff reads better that way.",
+   "task": "tell"
+  },
+  {
+   "id": 130,
+   "text": "hi",
+   "task": "chat"
+  },
+  {
+   "id": 131,
+   "text": "Good morning! Coffee first, then words.",
+   "task": "chat"
+  },
+  {
+   "id": 132,
+   "text": "thanks!",
+   "task": "chat"
+  },
+  {
+   "id": 133,
+   "text": "ok",
+   "task": "chat",
+   "history": [
+    {
+     "role": "user",
+     "content": "is it okay to start a chapter with weather?"
+    },
+    {
+     "role": "assistant",
+     "content": "It can work if the weather does a job, like setting mood or pressure. Many editors flag it when it's just filler."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 134,
+   "text": "hey nie, how's it going",
+   "task": "chat"
+  },
+  {
+   "id": 135,
+   "text": "haha fair enough",
+   "task": "chat",
+   "history": [
+    {
+     "role": "user",
+     "content": "i think my protagonist is kind of boring"
+    },
+    {
+     "role": "assistant",
+     "content": "Boring is rarely the root problem. Often it's missing wants or stakes. Worth testing what she wants right now."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 136,
+   "text": "Thank you, that was really helpful.",
+   "task": "chat"
+  },
+  {
+   "id": 137,
+   "text": "hello there",
+   "task": "chat"
+  },
+  {
+   "id": 138,
+   "text": "wow ok that's a lot to think about. i'm going to go stare at the ceiling for a while",
+   "task": "chat",
+   "hard": true
+  },
+  {
+   "id": 139,
+   "text": "cool, makes sense",
+   "task": "chat",
+   "history": [
+    {
+     "role": "assistant",
+     "content": "An em dash is usually a sharper break than a comma, and many styles close it up with no spaces."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 140,
+   "text": "Hi! First time using this. Excited.",
+   "task": "chat"
+  },
+  {
+   "id": 141,
+   "text": "lol im so tired of this book",
+   "task": "chat",
+   "hard": true
+  },
+  {
+   "id": 142,
+   "text": "Great, thanks. I'll come back after I've had a go at the draft.",
+   "task": "chat"
+  },
+  {
+   "id": 143,
+   "text": "yo",
+   "task": "chat"
+  },
+  {
+   "id": 144,
+   "text": "perfect",
+   "task": "chat",
+   "history": [
+    {
+     "role": "user",
+     "content": "can you point me to where my flashback starts?"
+    },
+    {
+     "role": "assistant",
+     "content": "Yes, once you paste the chapter I can locate it. Nothing's pasted yet."
+    },
+    {
+     "role": "user",
+     "content": "ah right, pasting now"
+    },
+    {
+     "role": "assistant",
+     "content": "Great, ready when you are."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 145,
+   "text": "Good evening. Long day of editing, my eyes are shot.",
+   "task": "chat"
+  },
+  {
+   "id": 146,
+   "text": "thx",
+   "task": "chat"
+  },
+  {
+   "id": 147,
+   "text": "ha, you're funny",
+   "task": "chat"
+  },
+  {
+   "id": 148,
+   "text": "ok great, thanks, got it",
+   "task": "chat",
+   "history": [
+    {
+     "role": "user",
+     "content": "what's the difference between a novella and a novel?"
+    },
+    {
+     "role": "assistant",
+     "content": "Mostly length, roughly 20k to 40k words for a novella, though the edges blur and publishers and prizes set their own cutoffs."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 149,
+   "text": "hmm, interesting. well, I'm off to dinner",
+   "task": "chat",
+   "hard": true
+  },
+  {
+   "id": 150,
+   "text": "Hello, hope you're well!",
+   "task": "chat"
+  },
+  {
+   "id": 151,
+   "text": "morning",
+   "task": "chat"
+  },
+  {
+   "id": 152,
+   "text": "appreciate it. talk later",
+   "task": "chat"
+  },
+  {
+   "id": 153,
+   "text": "ahh nice one",
+   "task": "chat",
+   "hard": true
+  },
+  {
+   "id": 154,
+   "text": "Thanks so much, that's all for today.",
+   "task": "chat"
+  },
+  {
+   "id": 155,
+   "text": "hiya, back again",
+   "task": "chat"
+  },
+  {
+   "id": 156,
+   "text": "write me an opening paragraph for my sci-fi novel, the one set on the generator ship",
+   "task": "write"
+  },
+  {
+   "id": 157,
+   "text": "ok continue it from there",
+   "task": "write",
+   "history": [
+    {
+     "role": "user",
+     "content": "Here's my scene: Mara stood at the door, key in hand, not sure she wanted to go in."
+    },
+    {
+     "role": "assistant",
+     "content": "Got it. A hesitant moment at a threshold, with the key as a small physical anchor."
+    }
+   ]
+  },
+  {
+   "id": 158,
+   "text": "draft a bio for my author website, I write cozy mysteries set in small coastal towns",
+   "task": "write"
+  },
+  {
+   "id": 159,
+   "text": "I can't get the argument between Tess and her father to sound real. Can you just write the dialogue for it? The actual lines, not tips.",
+   "task": "write",
+   "hard": true
+  },
+  {
+   "id": 160,
+   "text": "finish my poem pls: the tide keeps / its own counsel, and I",
+   "task": "write"
+  },
+  {
+   "id": 161,
+   "text": "Write a 500 word flash fiction piece about a woman who finds a door in her basement.",
+   "task": "write"
+  },
+  {
+   "id": 162,
+   "text": "give me a headline for my article on urban beekeeping, something I can paste straight in",
+   "task": "write",
+   "hard": true
+  },
+  {
+   "id": 163,
+   "text": "I was wondering if you might be able to compose the first page of my memoir for me? The basics are that I grew up in Tulsa and my dad was a roofer. I'd really appreciate it if you could just put it into words.",
+   "task": "write",
+   "hard": true
+  },
+  {
+   "id": 164,
+   "text": "expand this into a full scene: the knight arrives at the burned village",
+   "task": "write"
+  },
+  {
+   "id": 165,
+   "text": "write the logline for my screenplay about two rival chefs trapped in a walk-in freezer",
+   "task": "write",
+   "hard": true
+  },
+  {
+   "id": 166,
+   "text": "pls write chapter 3",
+   "task": "write"
+  },
+  {
+   "id": 167,
+   "text": "love it. now write her intro monologue",
+   "task": "write",
+   "history": [
+    {
+     "role": "user",
+     "content": "Give me a villain for my game world."
+    },
+    {
+     "role": "assistant",
+     "content": "What if the villain is a cartographer who erases places from maps so nobody can fight over them?"
+    }
+   ]
+  },
+  {
+   "id": 168,
+   "text": "write a sonnet about my dog",
+   "task": "write"
+  },
+  {
+   "id": 169,
+   "text": "Can you write out what Elena says when she finally confronts Marcus about the money? Just the actual lines she'd say.",
+   "task": "write",
+   "hard": true
+  },
+  {
+   "id": 170,
+   "text": "Compose a closing paragraph for my essay on remote work, tying together the points I made above about loneliness and autonomy.",
+   "task": "write"
+  },
+  {
+   "id": 171,
+   "text": "fanfic time!! write the scene where my two OCs get stuck in an elevator and have to talk about the thing",
+   "task": "write"
+  },
+  {
+   "id": 172,
+   "text": "need an ending. write one.",
+   "task": "write"
+  },
+  {
+   "id": 173,
+   "text": "Come up with the first line of my novel and write it out for me, I want something I can just use.",
+   "task": "write",
+   "hard": true
+  },
+  {
+   "id": 174,
+   "text": "just write the next three paragraphs for me",
+   "task": "write",
+   "history": [
+    {
+     "role": "user",
+     "content": "Opening is: Rain hammered the tin roof."
+    },
+    {
+     "role": "assistant",
+     "content": "Good sensory start. Want to talk about where the scene goes next?"
+    }
+   ]
+  },
+  {
+   "id": 175,
+   "text": "could you draft a description of the tavern for my worldbuilding doc? like a proper paragraph I can drop in as is",
+   "task": "write",
+   "hard": true
+  },
+  {
+   "id": 176,
+   "text": "write a scene with a few twists and a surprise ending, about two siblings dividing up their late mother's house",
+   "task": "write",
+   "hard": true
+  },
+  {
+   "id": 177,
+   "text": "Generate 300 words of backstory for my character Dov, written as prose, not bullet points.",
+   "task": "write"
+  },
+  {
+   "id": 178,
+   "text": "ok just one more, about winter",
+   "task": "write",
+   "history": [
+    {
+     "role": "user",
+     "content": "Write me a haiku about autumn."
+    },
+    {
+     "role": "assistant",
+     "content": "I can't write text for you, but I can offer angles on autumn, like what is ending or being stored away."
+    }
+   ]
+  },
+  {
+   "id": 179,
+   "text": "can u write my speech for my sisters wedding. she likes hiking and bad puns",
+   "task": "write"
+  },
+  {
+   "id": 180,
+   "text": "Please produce a complete first draft of a short story about a lighthouse keeper who stops receiving mail.",
+   "task": "write"
+  },
+  {
+   "id": 181,
+   "text": "continue my story: 'The door creaked open and Ines held her breath.'",
+   "task": "write"
+  },
+  {
+   "id": 182,
+   "text": "tighten this: She walked slowly across the room, and then she sat down in the chair that was by the window.",
+   "task": "edit"
+  },
+  {
+   "id": 183,
+   "text": "can you proofread this for me? Their going to the market tomorow and I think we should of went with them.",
+   "task": "edit"
+  },
+  {
+   "id": 184,
+   "text": "rewrite this paragraph so it sounds less stiff: 'The protagonist experienced a feeling of sadness upon receiving the news.'",
+   "task": "edit"
+  },
+  {
+   "id": 185,
+   "text": "fix the grammar in my intro pls: Me and him was arguing about whether the hotel were haunted or not.",
+   "task": "edit"
+  },
+  {
+   "id": 186,
+   "text": "How would you tighten this dialogue? 'Well, I mean, I don't know, I guess I just thought that maybe we could go.' Just give me the tightened version.",
+   "task": "edit",
+   "hard": true
+  },
+  {
+   "id": 187,
+   "text": "polish my opening line: It was a dark night and it was raining.",
+   "task": "edit"
+  },
+  {
+   "id": 188,
+   "text": "make it punchier",
+   "task": "edit",
+   "history": [
+    {
+     "role": "user",
+     "content": "Here's my line: He said he was fine, but he wasn't fine at all."
+    },
+    {
+     "role": "assistant",
+     "content": "Noted. The contradiction is clear from the line itself."
+    }
+   ]
+  },
+  {
+   "id": 189,
+   "text": "ok shorten it then",
+   "task": "edit",
+   "history": [
+    {
+     "role": "user",
+     "content": "Is this too long? 'When the last of the guests had finally gone home and the house was quiet again, she sat down.'"
+    },
+    {
+     "role": "assistant",
+     "content": "It runs long, and the main clause arrives late, so the reader waits for the action."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 190,
+   "text": "I was wondering if you could possibly look over my poem and fix the rhythm in the second stanza so it flows better? It goes: 'The kettle sings its tired song / and I am waiting all day long / for you to come back home again.'",
+   "task": "edit",
+   "hard": true
+  },
+  {
+   "id": 191,
+   "text": "Cut this down to half the words: The meeting, which had been scheduled for early in the morning, went on for what felt like a very long time, and nobody in the room really wanted to be there.",
+   "task": "edit"
+  },
+  {
+   "id": 192,
+   "text": "change this to past tense: She runs to the door and pulls it open.",
+   "task": "edit"
+  },
+  {
+   "id": 193,
+   "text": "is there a better way to say 'very tired'? just swap it in my sentence: He was very tired after the long walk.",
+   "task": "edit",
+   "hard": true
+  },
+  {
+   "id": 194,
+   "text": "rephrase: the aforementioned individual was in possession of a weapon",
+   "task": "edit"
+  },
+  {
+   "id": 195,
+   "text": "Make my villain's monologue sound more menacing: 'You will regret this, and I am angry about it.'",
+   "task": "edit"
+  },
+  {
+   "id": 196,
+   "text": "can u fix the commas, i never know where they go: After the storm passed we walked to the harbor and found the boat gone.",
+   "task": "edit",
+   "hard": true
+  },
+  {
+   "id": 197,
+   "text": "Rewrite the last paragraph of my article so it ends stronger",
+   "task": "edit"
+  },
+  {
+   "id": 198,
+   "text": "what's a better way to phrase this? 'I am of the opinion that the ending is not good.' Give me the reworded sentence.",
+   "task": "edit",
+   "hard": true
+  },
+  {
+   "id": 199,
+   "text": "now trim the adjectives for me",
+   "task": "edit",
+   "history": [
+    {
+     "role": "user",
+     "content": "Here's my paragraph: The cold, damp, gloomy cellar smelled of old, rotting, musty apples."
+    },
+    {
+     "role": "assistant",
+     "content": "The dread builds well, and the smell is vivid."
+    }
+   ]
+  },
+  {
+   "id": 200,
+   "text": "Turn this into second person: I opened the letter and my hands shook.",
+   "task": "edit"
+  },
+  {
+   "id": 201,
+   "text": "edit my chapter for typos and consistency",
+   "task": "edit"
+  },
+  {
+   "id": 202,
+   "text": "reword the sentence so it doesn't repeat 'suddenly' three times: Suddenly the lights went out. Suddenly Roy was gone. Suddenly I understood.",
+   "task": "edit"
+  },
+  {
+   "id": 203,
+   "text": "make this sound more British: 'I'm so angry, this elevator is broken again.'",
+   "task": "edit"
+  },
+  {
+   "id": 204,
+   "text": "simplify the language in this so a 10 year old gets it: The tributary's confluence with the main channel precipitated significant sedimentation.",
+   "task": "edit"
+  },
+  {
+   "id": 205,
+   "text": "Would you mind terribly cleaning up the flow of this passage? I know you can't write for me, but just smooth it out: 'He went to the store. He bought bread. He went home.'",
+   "task": "edit",
+   "hard": true
+  },
+  {
+   "id": 206,
+   "text": "shorten my screenplay action lines: INT. KITCHEN - NIGHT. Maria is standing at the sink, and she is looking out of the window at the garden in the dark.",
+   "task": "edit"
+  },
+  {
+   "id": 207,
+   "text": "ok flip it to active for me",
+   "task": "edit",
+   "history": [
+    {
+     "role": "user",
+     "content": "Here is my sentence: The dog was chased by the boy."
+    },
+    {
+     "role": "assistant",
+     "content": "That's passive voice, which can be a deliberate choice. Worth checking whether you want it here."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 208,
+   "text": "what are you exactly",
+   "task": "about-nie",
+   "hard": true
+  },
+  {
+   "id": 209,
+   "text": "Does this work without wifi?",
+   "task": "about-nie"
+  },
+  {
+   "id": 210,
+   "text": "which model are you running on",
+   "task": "about-nie"
+  },
+  {
+   "id": 211,
+   "text": "who made you",
+   "task": "about-nie"
+  },
+  {
+   "id": 212,
+   "text": "hey so before i paste my whole first chapter in here, do you store it anywhere or does it stay on my laptop?",
+   "task": "about-nie"
+  },
+  {
+   "id": 213,
+   "text": "can you write my chapters for me or is that not a thing you do",
+   "task": "about-nie",
+   "hard": true
+  },
+  {
+   "id": 214,
+   "text": "what can you actually do for a poet",
+   "task": "about-nie"
+  },
+  {
+   "id": 215,
+   "text": "Are you ChatGPT?",
+   "task": "about-nie"
+  },
+  {
+   "id": 216,
+   "text": "how does the full scan thing work, like what is it looking for",
+   "task": "about-nie"
+  },
+  {
+   "id": 217,
+   "text": "is the offline model the same as the online one or are they two different assistants",
+   "task": "about-nie"
+  },
+  {
+   "id": 218,
+   "text": "are you any good at screenplays or mostly prose",
+   "task": "about-nie",
+   "hard": true
+  },
+  {
+   "id": 219,
+   "text": "do you remember my other projects when i switch between them? i'm juggling a fan fic and a memoir",
+   "task": "about-nie"
+  },
+  {
+   "id": 220,
+   "text": "Why won't you just fix my sentences? Every other tool does.",
+   "task": "about-nie",
+   "hard": true
+  },
+  {
+   "id": 221,
+   "text": "what's your deal",
+   "task": "about-nie",
+   "hard": true
+  },
+  {
+   "id": 222,
+   "text": "is it free? do i have to make an account",
+   "task": "about-nie"
+  },
+  {
+   "id": 223,
+   "text": "how smart are you compared to a human editor lol",
+   "task": "about-nie",
+   "hard": true
+  },
+  {
+   "id": 224,
+   "text": "where do i change the model",
+   "task": "about-nie"
+  },
+  {
+   "id": 225,
+   "text": "do you learn from what i write? asking cause my worldbuilding notes are kind of precious to me",
+   "task": "about-nie"
+  },
+  {
+   "id": 226,
+   "text": "so are you an AI or what",
+   "task": "about-nie"
+  },
+  {
+   "id": 227,
+   "text": "can you read a pdf of my manuscript",
+   "task": "about-nie"
+  },
+  {
+   "id": 228,
+   "text": "how big of a document can you handle before you choke",
+   "task": "about-nie"
+  },
+  {
+   "id": 229,
+   "text": "why?",
+   "task": "about-nie",
+   "history": [
+    {
+     "role": "user",
+     "content": "can you rewrite this paragraph so it flows better?"
+    },
+    {
+     "role": "assistant",
+     "content": "I don't rewrite your text. I can point out where it breaks your own rules, or brainstorm options with you."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": 230,
+   "text": "and offline?",
+   "task": "about-nie",
+   "history": [
+    {
+     "role": "user",
+     "content": "does the scan use a language model?"
+    },
+    {
+     "role": "assistant",
+     "content": "Yes, for checks that need meaning. Online it uses a hosted model, and it can use a local one too."
+    }
+   ]
+  },
+  {
+   "id": 231,
+   "text": "what about the scan, does that one need internet",
+   "task": "about-nie",
+   "history": [
+    {
+     "role": "user",
+     "content": "can you brainstorm without internet?"
+    },
+    {
+     "role": "assistant",
+     "content": "Yes. Brainstorming works offline with built-in idea banks, and the local model if you have it installed."
+    }
+   ]
+  },
+  {
+   "id": 232,
+   "text": "is that a limit of you or of the app?",
+   "task": "about-nie",
+   "history": [
+    {
+     "role": "user",
+     "content": "can you turn my outline into a full draft?"
+    },
+    {
+     "role": "assistant",
+     "content": "No. I never write or continue your text. I can brainstorm and point out issues instead."
+    }
+   ]
+  },
+  {
+   "id": 233,
+   "text": "Thanks, but how did you know that about my plot? Did you read the whole thing?",
+   "task": "about-nie",
+   "hard": true
+  },
+  {
+   "id": 234,
+   "text": "hmm",
+   "task": "unclear",
+   "hard": true
+  },
+  {
+   "id": 235,
+   "text": "the second one",
+   "task": "unclear"
+  },
+  {
+   "id": 236,
+   "text": "it",
+   "task": "unclear"
+  },
+  {
+   "id": 237,
+   "text": "ok but what about her",
+   "task": "unclear"
+  },
+  {
+   "id": 238,
+   "text": "so then",
+   "task": "unclear",
+   "hard": true
+  },
+  {
+   "id": 239,
+   "text": "banana",
+   "task": "unclear"
+  },
+  {
+   "id": 240,
+   "text": "can you help",
+   "task": "unclear",
+   "hard": true
+  },
+  {
+   "id": 241,
+   "text": "idk i just don't know",
+   "task": "unclear",
+   "hard": true
+  },
+  {
+   "id": 242,
+   "text": "that part",
+   "task": "unclear"
+  },
+  {
+   "id": 243,
+   "text": "and the other thing??",
+   "task": "unclear"
+  },
+  {
+   "id": 244,
+   "text": "why does he",
+   "task": "unclear"
+  },
+  {
+   "id": 245,
+   "text": "i have a question",
+   "task": "unclear",
+   "hard": true
+  },
+  {
+   "id": 246,
+   "text": "wait no not that one the other one i mean",
+   "task": "unclear"
+  },
+  {
+   "id": 247,
+   "text": "...",
+   "task": "unclear",
+   "hard": true
+  },
+  {
+   "id": 248,
+   "text": "asdf jkl",
+   "task": "unclear"
+  },
+  {
+   "id": 249,
+   "text": "more",
+   "task": "unclear"
+  },
+  {
+   "id": 250,
+   "text": "blue, but not like that",
+   "task": "unclear"
+  },
+  {
+   "id": 251,
+   "text": "ugh this chapter",
+   "task": "unclear",
+   "hard": true
+  },
+  {
+   "id": 252,
+   "text": "Hmm. Maybe. Or the thing with the lighthouse, you know.",
+   "task": "unclear"
+  },
+  {
+   "id": 253,
+   "text": "yes",
+   "task": "unclear",
+   "hard": true
+  },
+  {
+   "id": 254,
+   "text": "do that",
+   "task": "unclear"
+  },
+  {
+   "id": 255,
+   "text": "what does that mean",
+   "task": "unclear"
+  },
+  {
+   "id": 256,
+   "text": "same but different",
+   "task": "unclear"
+  },
+  {
+   "id": 257,
+   "text": "Number three, I think. Or maybe not.",
+   "task": "unclear",
+   "history": [
+    {
+     "role": "user",
+     "content": "what's a good flaw for a retired sea captain in my novel?"
+    },
+    {
+     "role": "assistant",
+     "content": "Here are angles: pride about one old failure; a habit of lying about small things; fear of open water he never admits."
+    }
+   ]
+  },
+  {
+   "id": 258,
+   "text": "and him?",
+   "task": "unclear",
+   "history": [
+    {
+     "role": "user",
+     "content": "tell me about my protagonist's rival"
+    },
+    {
+     "role": "assistant",
+     "content": "You haven't told me about a rival yet. Who is the rival, and what do they want?"
+    }
+   ]
+  },
+  {
+   "id": 259,
+   "text": "what about the other",
+   "task": "unclear"
+  },
+  {
+   "id": 260,
+   "text": "idk, thoughts?",
+   "task": "unclear",
+   "hard": true
+  }
+ ]
+}

@@ -4,7 +4,7 @@ import { Orchestrator, describeModelFailure } from '../apps/web/src/engine/orche
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { AIError } from '../apps/web/src/engine/ai/openai-client.js';
 import { composeMessages, PROMPT_TOKEN_LIMIT } from '../apps/web/src/engine/orchestrator/prompt.js';
-import { projectWith } from './helpers.js';
+import { modelWithReading, projectWith } from './helpers.js';
 
 /**
  * When the offline model IS running, NIE must never claim it is missing. Two things used to make that claim:
@@ -15,7 +15,7 @@ import { projectWith } from './helpers.js';
 const FEEDBACK = 'Does this ending feel too predictable?';
 const modelWith = (chatFn) => {
   const calls = [];
-  const local = { status: () => ({ state: 'ready' }), onStatus: () => () => {}, async chat(messages, opts) { calls.push({ messages, opts }); return chatFn(messages, calls.length); } };
+  const local = { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: modelWithReading(chatFn, { calls }) };
   return { o: new Orchestrator({ engine: new AIEngine({ local, online: null, isOnline: () => false }) }), calls };
 };
 const tooLong = () => new AIError('The model returned 400: the request exceeds the available context size', { status: 400, kind: 'http' });

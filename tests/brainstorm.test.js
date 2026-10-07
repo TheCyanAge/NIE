@@ -12,17 +12,14 @@ import { bankFor, generateIdeas, markShown, parseIdeas, resolveKind } from '../a
 import { addToBoard, boardToMarkdown, boardToPromptBlock, normalizeBrainstorm, removeFromBoard, updateBoardItem, MAX_BOARD } from '../apps/web/src/engine/project/board.js';
 import { ProjectStore, memoryStorage, STORAGE_KEYS } from '../apps/web/src/engine/project/store.js';
 import { seededShuffle } from '../apps/web/src/engine/util/text.js';
-import { projectWith } from './helpers.js';
+import { modelWithReading, projectWith } from './helpers.js';
 
 const ROBOTIC = /NIE has identified|NIE recommends|NIE flagged|As an AI/i;
 const builtinOnly = () => new Orchestrator({ engine: new AIEngine({ local: null, online: null, isOnline: () => false }) });
 const stubLocal = (replyFn, calls = []) => ({
   status: () => ({ state: 'ready' }),
   onStatus: () => () => {},
-  async chat(messages, opts) {
-    calls.push({ messages, opts });
-    return replyFn(messages);
-  },
+  chat: modelWithReading(replyFn, { calls }),
 });
 const withModel = (replyFn, calls) => new Orchestrator({ engine: new AIEngine({ local: stubLocal(replyFn, calls), online: null, isOnline: () => false }) });
 const ask = (o, project, message, opts = {}) => o.brainstorm({ project, message, ...opts });

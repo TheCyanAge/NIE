@@ -5,8 +5,9 @@ import { appendMessage } from '../project/memory.js';
 import { addToBoard, boardToChat, emptyBrainstorm, ideaId } from '../project/board.js';
 import { scan, scanWithModel } from '../analysis/scan.js';
 import { composeMessages, ideaRequestBlock, RETRY_TOKEN_LIMIT } from './prompt.js';
-import { builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
+import { aboutNieFacts, aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply } from './guard.js';
+import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { ideaSuggestions, nextSuggestions, STARTER } from './suggestions.js';
 import { ASKS_FOR_IDEAS, WANTS_MORE } from '../brainstorm/commands.js';
 import { KIND_IDS, LENSES, LENSES_BY_KIND, detectKind, detectLens, kindLabel } from '../brainstorm/lenses.js';
@@ -20,6 +21,14 @@ const GENERAL_Q = /^\s*(?:what(?:'s|\s+is|\s+are|\s+does|\s+do)\b|how\s+(?:do|sh
 const STORY_TALK = /\b(?:my|our|his|her|their|the)\s+(?:story|novel|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|draft|ending|opening|twist|narrator|manuscript)\b|\b(?:he|she|him|they|them)\b/i;
 const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they cover the question, answer from them and say which style guide or source they come from, and mention when practice varies. If they do not cover it, say so plainly. Never invent citations, section numbers, titles, dates or quotations.";
 const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
+const ABOUT_NIE_NOTE = "The writer is asking about NIE itself. Answer their actual question in your own words, briefly, using ONLY these facts. Do not claim any ability that is not listed, and never say you can write, rewrite or edit their text.";
+/** A self-description that claims NIE writes or edits is wrong whatever the model says, so it is replaced by the fixed one. */
+const CLAIMS_TO_WRITE = /\b(?:I|NIE)\s+(?:can|will|could|do)\s+(?:also\s+)?(?:write|rewrite|edit|proofread|draft|polish|fix|compose|continue)\s+(?:your|the|a|an|any|it|that|this)\b/i;
+const RANK = { none: 0, weak: 1, strong: 2 };
+const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|draft|screenplay|script|poem|essay|article|book|memoir|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|ending|opening|narrator)\b/i;
+/** After this many model readings in a row fail, stop asking for a few messages (the rules read them) so a broken model never doubles the wait. */
+const READING_FAILURES_BEFORE_PAUSE = 2;
+const READING_PAUSE_MESSAGES = 5;
 
 /** Why the offline model could not answer, in words a writer can act on. */
 export function describeModelFailure(err) {
@@ -45,9 +54,37 @@ const WITHHELD_NOTE = "My offline model did answer, but its answer included word
  * Everything here reads only the project passed in, so one project can never leak into another.
  */
 export class Orchestrator {
+  #readFailures = 0;
+  #readPause = 0;
+
   /** @param {{ engine: import('../ai/engine.js').AIEngine }} o */
   constructor({ engine }) {
     this.engine = engine;
+  }
+
+  /**
+   * Understand the message. With a model running, the MODEL reads it (task + topic) and its reading is applied to `intent`;
+   * otherwise (no model, an exact command, a bare greeting, or a model that keeps failing) the rules' reading stands.
+   * Either way `intent.reading` says which, so a result never claims more understanding than it had.
+   */
+  async #read({ intent, text, history, signal }) {
+    if (!text || ['remember', 'recall', 'develop-idea', 'greeting'].includes(intent.type)) return (intent.reading = rulesReading(intent, 'exact'));
+    if ((this.engine.route?.() ?? 'builtin') === 'builtin') return (intent.reading = rulesReading(intent, 'no-model'));
+    if (this.#readPause > 0) {
+      this.#readPause--;
+      return (intent.reading = rulesReading(intent, 'model-reading-paused'));
+    }
+    const r = await understandMessage({ engine: this.engine, text, history, signal });
+    if (!r.ok) {
+      if (++this.#readFailures >= READING_FAILURES_BEFORE_PAUSE) {
+        this.#readPause = READING_PAUSE_MESSAGES;
+        this.#readFailures = READING_FAILURES_BEFORE_PAUSE - 1; // one more failure after the pause pauses again
+      }
+      return (intent.reading = rulesReading(intent, 'model-reading-failed'));
+    }
+    this.#readFailures = 0;
+    applyReading(intent, r, text);
+    return intent.reading;
   }
 
   retrieve(project, text) {
@@ -70,7 +107,7 @@ export class Orchestrator {
     const history = project.conversation.messages;
     const intent = detectIntent(text, { project, hasHistory: history.length > 0, mode: 'brainstorm' });
 
-    appendMessage(project, 'user', text, { intent: intent.type });
+    const userMsg = appendMessage(project, 'user', text, { intent: intent.type });
 
     // Idea Board commands are exact and need no model.
     if (intent.type === 'remember') return this.#keep(project, intent, onToken);
@@ -80,25 +117,47 @@ export class Orchestrator {
       return this.#finish(project, intent, reply, 'builtin', false);
     }
 
-    // NIE does not write or edit the writer's text. Decline clearly, without calling any model.
-    if (intent.type === 'request-edit' || intent.type === 'request-write') {
+    // NIE does not write or edit the writer's text. Decline clearly, without calling any model. (The rules decide this first, so a
+    // request they recognise never reaches a model at all.)
+    const decline = () => {
       const reply = intent.type === 'request-edit' ? DECLINE_EDIT : DECLINE_WRITE;
       onToken?.(reply, reply);
       return this.#finish(project, intent, reply, 'builtin', true);
+    };
+    const declines = () => intent.type === 'request-edit' || intent.type === 'request-write';
+    if (declines()) {
+      intent.reading = rulesReading(intent, 'declined-by-rules');
+      return decline();
     }
+
+    // What is the writer asking? The language model reads the message when one is running; the rules read it otherwise.
+    // The model only returns a label, so it cannot write anything; a "write"/"edit" label gets the same fixed decline.
+    const reading = await this.#read({ intent, text, history: history.slice(0, -1), signal });
+    userMsg.intent = intent.type;
+    if (declines()) return decline();
+    if (intent.type === 'about-nie') return this.#about({ project, intent, text, onToken, signal });
+    const byModel = reading.by === 'model';
 
     // A general question about craft, style, usage, a form, genre or work: answer from the offline library, with its sources.
     // (Not a premise: it must not become the story's working premise.)
     let lib = null;
     let libMiss = false;
-    const libraryCandidate = intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
+    const libraryCandidate = byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
     if (libraryCandidate) {
       // Naming a character or role ('the detective', 'Samantha') means the writer is talking about their story, not asking the library.
+      // When the model has read the message it decides what is a general question; only "my story…" and known character names veto it.
       const lower = text.toLowerCase();
       const known = [...(project.conversation.workingPremise?.characters ?? []), ...(project.memory?.characters ?? []).map((c) => c.name)];
-      const storyTalk = STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || known.some((n) => n && lower.includes(String(n).toLowerCase()));
-      const general = GENERAL_Q.test(text) && !storyTalk;
-      const a = answerFromLibrary(text);
+      const knownName = known.some((n) => n && lower.includes(String(n).toLowerCase()));
+      const storyTalk = byModel ? OWN_PROJECT.test(text) || knownName : STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || knownName;
+      const general = byModel ? !storyTalk : GENERAL_Q.test(text) && !storyTalk;
+      let a = answerFromLibrary(text);
+      // The model's short topic ("villanelle") finds the entry when the long way of asking buries it (never for talk about the writer's own project:
+      // a bare topic like "villain" would match the library and skip the check that stops it answering about their story).
+      if (general && a.strength !== 'strong' && reading.topic) {
+        const b = answerFromLibrary(reading.topic);
+        if (RANK[b.strength] > RANK[a.strength]) a = b;
+      }
       if (a.strength === 'strong' || (a.strength === 'weak' && general)) lib = a;
       else if (general && words(text).length >= 3) libMiss = true;
     }
@@ -109,12 +168,14 @@ export class Orchestrator {
     // ── What is being brainstormed, and is this a request for ideas? ──────────
     const asks = ASKS_FOR_IDEAS.test(text);
     const develop = intent.type === 'develop-idea' ? intent.idea : null;
-    const ideaIntent = intent.type === 'request-ideas' || intent.type === 'discuss';
+    // When the model read the message, only a reading of "ideas" (or a quick-action button) makes idea cards: "tell me more about the
+    // twist" is a conversation, not a request for more twists. The rules' guess at a lens word only applies when the rules read it.
+    const ideaIntent = intent.type === 'request-ideas' || (!byModel && intent.type === 'discuss');
     let lens = lensOpt && lensOpt !== 'develop' ? lensOpt : null;
     if (!lens && ideaIntent && (asks || words(text).length <= 7)) lens = detectLens(text);
     if (!lens && ideaIntent && asks && WANTS_MORE.test(text)) lens = bs.lastLens; // "more!" repeats the last request
     if (lens && !LENSES[lens]) lens = null;
-    const isIdeaAsk = !develop && (Boolean(lensOpt) || intent.type === 'request-ideas' || (intent.type === 'discuss' && (Boolean(lens) || (asks && /\bideas?\b/i.test(text)))));
+    const isIdeaAsk = !develop && (Boolean(lensOpt) || intent.type === 'request-ideas' || (!byModel && intent.type === 'discuss' && (Boolean(lens) || (asks && /\bideas?\b/i.test(text)))));
 
     const resolved = resolveKind(project, text, kindOpt ?? null);
     let kind = resolved.kind;
@@ -148,11 +209,12 @@ export class Orchestrator {
       passage: intent.type === 'feedback-request' ? project.storyText.slice(-1800) : '',
       history: history.slice(0, -1),
       retrieved,
-      extra: report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : '',
+      extra: [readingNote(reading, text), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.7 });
     const res = asked.res;
     const modelReady = asked.modelReady;
+    const status = this.engine.status?.() ?? null;
 
     let reply;
     let route = res.route;
@@ -164,12 +226,12 @@ export class Orchestrator {
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {
-        reply = builtinReply({ intent, project, message: text, report, modelReady: true });
+        reply = builtinReply({ intent, project, message: text, report, modelReady: true, status });
         route = 'builtin';
         honesty = WITHHELD_NOTE;
       }
     } else {
-      reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: text, report, modelReady: modelReady && Boolean(asked.failure) });
+      reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: text, report, modelReady: modelReady && Boolean(asked.failure), status });
       route = 'builtin';
       // Starting from nothing is where a few sparks help most: offer some to react to, never a draft.
       if (intent.type === 'start-from-zero') {
@@ -290,6 +352,31 @@ export class Orchestrator {
     return this.#finish(project, intent, composed.text, 'builtin', false, { ideas, lead: composed.lead, tail: composed.tail, kind, lens, fallback });
   }
 
+  /**
+   * "What can you do? Do you work offline?" is answered from facts about NIE: by the model in its own words when one is running
+   * (so it can answer the question actually asked), otherwise by a fixed answer. A reply that claims NIE writes or edits text is
+   * never used, and neither is one that cannot be trusted about the state of the model: the fixed answer states it exactly.
+   */
+  async #about({ project, intent, text, onToken, signal }) {
+    const status = this.engine.status?.() ?? null;
+    let honesty = '';
+    let fallback = null;
+    if ((this.engine.route?.() ?? 'builtin') !== 'builtin') {
+      const composeArgs = { mode: 'brainstorm', project, userMessage: text, history: project.conversation.messages.slice(0, -1), extra: `${ABOUT_NIE_NOTE}\n${aboutNieFacts(status)}` };
+      const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.3 });
+      if (asked.res.text && !CLAIMS_TO_WRITE.test(asked.res.text)) {
+        return this.#finish(project, intent, guardReply(asked.res.text, [text, project.storyText]).text, asked.res.route, false);
+      }
+      if (asked.failure && asked.modelReady) {
+        honesty = modelFailedNote(asked.failure);
+        fallback = { reason: 'error', detail: describeModelFailure(asked.failure) };
+      }
+    }
+    const reply = [honesty, aboutNieReply(status)].filter(Boolean).join('\n\n');
+    onToken?.(reply, reply);
+    return this.#finish(project, intent, reply, 'builtin', false, fallback ? { fallback } : {});
+  }
+
   /** "Remember this": keep what the writer said, or the ideas NIE just offered, on this project's Idea Board. */
   #keep(project, intent, onToken) {
     const prior = project.conversation.messages.slice(0, -1);
@@ -325,6 +412,9 @@ export class Orchestrator {
   #finish(project, intent, reply, route, declined, extra = {}) {
     const ideas = extra.ideas ?? [];
     const meta = { route };
+    // Who understood the message and how it was read ('model' = the language model read it; 'rules' = the built-in rules did).
+    const understood = intent.reading ? { by: intent.reading.by, task: intent.reading.task, topic: intent.reading.topic ?? '' } : null;
+    if (understood) meta.understood = understood;
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });
     appendMessage(project, 'assistant', reply, meta);
@@ -332,6 +422,7 @@ export class Orchestrator {
     return {
       reply,
       intent,
+      understood,
       route,
       declined,
       ideas,

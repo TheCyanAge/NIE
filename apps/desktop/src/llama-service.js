@@ -159,7 +159,7 @@ export class LlamaService extends EventEmitter {
   async #defaultClient(port) {
     // Development and tests. The packaged app passes `clientFactory` because the web folder lives outside the asar.
     const mod = await import('../../web/src/engine/ai/openai-client.js');
-    return new mod.OpenAICompatClient({ baseUrl: `http://127.0.0.1:${port}/v1`, model: 'local' });
+    return new mod.OpenAICompatClient({ baseUrl: `http://127.0.0.1:${port}/v1`, model: 'local', jsonSchema: true });
   }
 
   #fail(detail, { keepChild = false } = {}) {

@@ -8,7 +8,7 @@ import { DECLINE_EDIT, DECLINE_WRITE } from '../apps/web/src/engine/orchestrator
 import { interpretProfile } from '../apps/web/src/engine/profile/interpret.js';
 import { rememberCharacter } from '../apps/web/src/engine/project/memory.js';
 import { ProjectStore, memoryStorage } from '../apps/web/src/engine/project/store.js';
-import { projectWith, withRules } from './helpers.js';
+import { modelWithReading, projectWith, withRules } from './helpers.js';
 
 const ROBOTIC = /NIE has identified|NIE recommends|NIE flagged|As an AI/i;
 
@@ -16,10 +16,7 @@ const builtinOnly = () => new Orchestrator({ engine: new AIEngine({ local: null,
 const stubLocal = (replyFn, calls = []) => ({
   status: () => ({ state: 'ready' }),
   onStatus: () => () => {},
-  async chat(messages, opts) {
-    calls.push({ messages, opts });
-    return replyFn(messages);
-  },
+  chat: modelWithReading(replyFn, { calls }),
 });
 const withModel = (replyFn, calls) => new Orchestrator({ engine: new AIEngine({ local: stubLocal(replyFn, calls), online: null, isOnline: () => false }) });
 

@@ -13,6 +13,40 @@ export const DECLINE_EDIT =
 export const DECLINE_WRITE =
   "I don't write or continue the story for you; that part is yours. I can help you think, though: tell me the idea and I'll ask the questions that sharpen it, test a twist with you, or, once you've written something, show you where it breaks your rules.";
 
+/** How NIE is answering right now, in words that match the real state (see the exact offline status strings in ai/engine.js). */
+export function describeStatus(status) {
+  if (!status) return "I'm answering from my built-in library and guidance.";
+  if (status.route === 'online') return "Right now I'm answering through the online model set up in Settings.";
+  const local = status.local ?? {};
+  if (local.state === 'ready') return "Right now my offline language model is running on this computer, so I don't need the internet.";
+  if (local.state === 'starting' && local.phase === 'download') return 'My offline language model is being downloaded. Until it is ready I answer from my built-in library and guidance.';
+  if (local.state === 'starting') return 'My offline language model is still starting. Until it is ready I answer from my built-in library and guidance.';
+  if (local.state === 'failed') return "My offline language model failed to start, so I'm using my built-in library and guidance.";
+  return "The offline language model isn't installed here, so I'm using my built-in library and guidance.";
+}
+
+/** Plain facts about NIE, for answering "what can you do?" (given to the language model as its only source, and used as the built-in answer). */
+export function aboutNieFacts(status) {
+  return [
+    "NIE is a thinking partner for writers: stories, poems, essays, articles, memoir, scripts, worldbuilding.",
+    "NIE never writes, rewrites or edits the writer's text. Their words stay theirs.",
+    "Brainstorm (this chat): ideas, angles, twists, complications and questions, never drafted text. The writer can keep favourites on the project's Idea Board.",
+    "Full Scan: the writer sets their own rules, and NIE marks the exact places where the text breaks them and says briefly why. A flag is not always a mistake, so findings are sorted by how sure NIE is, and anything the writer calls deliberate is respected.",
+    'Read: opens a document and reads it aloud.',
+    "A built-in library of writing craft, style, usage, forms, genres and notable works answers general questions with no internet, says when practice varies, and says so when it has nothing instead of guessing. It is large but not complete.",
+    'Projects are stored on this computer and kept separate from each other.',
+    describeStatus(status),
+  ].join('\n');
+}
+
+export function aboutNieReply(status) {
+  return [
+    "I'm NIE, a thinking partner for writers. I never write or edit your text; I help you think, and I show you where your own rules are broken.",
+    ['Here is what I can do:', '- Brainstorm with you: ideas, twists, complications and questions for a story, essay, poem or anything else, kept on your Idea Board if you like.', "- Full Scan: you set the rules for your project, and I mark the exact places that break them and say why.", '- Read your document aloud.', '- Answer questions about craft, style, grammar, forms, genres and well-known works from my built-in library, which works with no internet.'].join('\n'),
+    describeStatus(status),
+  ].join('\n\n');
+}
+
 const list = (items) => (items.length <= 1 ? (items[0] ?? '') : items.slice(0, -1).join(', ') + ' and ' + items.at(-1));
 const sentenceCase = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -26,8 +60,8 @@ function relevant(text, kinds, limit = 3) {
   return search(text, { kinds, limit });
 }
 
-/** `modelReady`: the offline model is running but its answer could not be used this time (so never say it is missing). */
-export function builtinReply({ intent, project, message, report = null, modelReady = false }) {
+/** `modelReady`: the offline model is running but its answer could not be used this time (so never say it is missing). `status`: AIEngine.status(). */
+export function builtinReply({ intent, project, message, report = null, modelReady = false, status = null }) {
   const seed = `${message}|${project.conversation.messages.length}`;
   const wp = project.conversation.workingPremise ?? {};
   const cues = intent.premiseCues;
@@ -37,6 +71,9 @@ export function builtinReply({ intent, project, message, report = null, modelRea
       return DECLINE_EDIT;
     case 'request-write':
       return DECLINE_WRITE;
+
+    case 'about-nie':
+      return aboutNieReply(status);
 
     case 'greeting':
       return pick(

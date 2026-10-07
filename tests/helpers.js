@@ -1,4 +1,6 @@
 import { createProjectData } from '../apps/web/src/engine/project/store.js';
+import { detectIntent } from '../apps/web/src/engine/intent/intent.js';
+import { taskOfIntent } from '../apps/web/src/engine/orchestrator/understand.js';
 
 export function projectWith({ profile = {}, memory = {}, storyText = '', title = 'Test' } = {}) {
   const p = createProjectData({ title, storyText });
@@ -12,6 +14,30 @@ export function projectWith({ profile = {}, memory = {}, storyText = '', title =
   };
   p.memory = { ...p.memory, ...memory };
   return p;
+}
+
+/** The writer's message as it appears inside a "what does the writer mean?" prompt. */
+export const messageOfReading = (messages) => messages.at(-1).content.match(/"""\n([\s\S]*?)\n"""/)?.[1] ?? '';
+
+/**
+ * Wrap a fake model's chat function so it also answers the "what does the writer mean?" call. By default it answers the way the rules
+ * read the message, so older tests keep their meaning; pass `reading(text, messages)` to script it (return an Error to make the call fail).
+ * Reading calls go to `reads`, never to `calls`, so tests that count or inspect the ANSWER calls see only those.
+ */
+export function modelWithReading(replyFn, { calls = [], reads = [], reading = null } = {}) {
+  return async (messages, opts) => {
+    if (opts?.purpose === 'understand') {
+      reads.push({ messages, opts });
+      const text = messageOfReading(messages);
+      // A message the rules call plain "discuss" is a general question if it is shaped like one ("What is…?"), otherwise a conversation.
+      const fallback = /^\s*(?:what|who|how|which|when|explain|define)\b/i.test(text) ? 'craft' : 'develop';
+      const r = reading ? reading(text, messages) : { task: taskOfIntent(detectIntent(text).type) ?? fallback, topic: '' };
+      if (r instanceof Error) throw r;
+      return typeof r === 'string' ? r : JSON.stringify(r);
+    }
+    calls.push({ messages, opts });
+    return replyFn(messages, calls.length);
+  };
 }
 
 export const para = (...sentences) => sentences.join(' ');
