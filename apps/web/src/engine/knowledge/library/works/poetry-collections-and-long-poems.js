@@ -1059,5 +1059,4 @@ export default [
     genres: ['verse novel', 'crime fiction in verse', 'lesbian detective story'], kw: ['dorothy porter', 'monkeys mask', 'verse crime novel', 'detective verse novel', 'australian poet'], confidence: 'established',
     summary: 'A crime novel told entirely in short poems by a lesbian private detective investigating a young woman\'s disappearance; a notable example of genre storytelling in verse.',
   },
-  // MORE
 ];

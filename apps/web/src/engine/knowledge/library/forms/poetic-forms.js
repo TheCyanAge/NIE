@@ -3850,5 +3850,4 @@ export default [
     region: 'Russia',
     confidence: 'established',
   },
-  // MORE
 ];

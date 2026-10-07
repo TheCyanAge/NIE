@@ -2619,5 +2619,4 @@ export default [
     confidence: 'established',
     refs: ['The Chicago Manual of Style'],
   },
-  // MORE
 ];

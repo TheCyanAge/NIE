@@ -1505,5 +1505,4 @@ export default [
     summary: 'A Canadian comic fantasy by a major novelist about a small boy who has to say everything twice and is sentenced by a children\'s prison; a model of comic fantasy built on a child\'s sense of injustice.',
     kw: ['richler', 'canadian children\'s literature', 'comic fantasy', 'child hero', 'injustice', 'montreal'], genres: ['comic fantasy'],
   },
-  // MORE
 ];

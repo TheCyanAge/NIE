@@ -3191,5 +3191,4 @@ export default [
     kw: ['the brothers ashkenazi', 'i. j. singer', 'yiddish', 'singer', 'israel joshua singer', 'łódź', 'lodz', 'twins', 'textile industry'],
     confidence: 'established',
   },
-  // MORE
 ];

@@ -1020,5 +1020,4 @@ export default [
     summary: 'A long novel narrated by an elderly writer looking back over a century of public life, religion and literary history.',
     kw: ['burgess', 'anthony burgess', 'writer narrator', 'twentieth century', 'long novel', 'memoir form'], genres: ['literary fiction', 'fictional memoir'],
   },
-  // MORE
 ];

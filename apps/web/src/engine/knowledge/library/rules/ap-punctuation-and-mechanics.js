@@ -2193,5 +2193,4 @@ export default [
     confidence: 'varies',
     refs: ['The Associated Press Stylebook'],
   },
-  // MORE
 ];

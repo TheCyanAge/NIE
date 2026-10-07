@@ -3131,5 +3131,4 @@ export default [
     confidence: "varies",
     refs: ["The Chicago Manual of Style"],
   },
-  // MORE
 ];

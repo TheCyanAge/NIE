@@ -802,5 +802,9 @@ export default [
     summary: "A long autobiographical manga about the rise of gekiga, the mature, realist comics movement Tatsumi helped found, and about his early career in postwar Japan.",
   },
 
-  // MORE
+  {
+    id: "work-scr-zork", kind: 'work', name: "Zork", author: "Marc Blank, Tim Anderson, Bruce Daniels and Dave Lebling", year: 1977, language: "English", region: "United States", confidence: 'established',
+    summary: "A text adventure begun at the Massachusetts Institute of Technology in the late 1970s and sold by Infocom from 1980; players type commands to explore a vast underground world, and its parser and dry humour made it a model for interactive fiction.",
+    kw: ["zork", "text adventure", "infocom", "interactive fiction", "great underground empire", "parser fiction", "who wrote zork"], genres: ["interactive fiction", "text adventure"],
+  },
 ];

@@ -3720,5 +3720,4 @@ export default [
     kw: ["contronym", "contronyms", "sanction", "cleave", "oversight", "auto-antonym", "janus word", "words with opposite meanings"],
     confidence: "established",
   },
-  // MORE
 ];
