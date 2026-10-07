@@ -46,8 +46,8 @@ const NEEDLES = [
   { question: 'What colour was the door of the signal tower?', answer: 'green', fact: 'The door of the signal tower had been painted green the summer Marit Oland arrived.', decoy: 'The door of the chapel was left grey, since nobody could agree on a colour.' },
   { question: 'Who owed Dov Anselm eleven shillings?', answer: 'Pell Hargrove', fact: 'Pell Hargrove owed Dov Anselm eleven shillings and had promised to pay it by the first frost.', decoy: 'Fenn Marlowe owed the cannery nine shillings, which was not remembered by anyone.' },
   { question: 'What did Brenna Hale carry in her left pocket?', answer: 'a pressed violet', fact: 'In her left pocket Brenna Hale carried a pressed violet, which she touched whenever she lied.', decoy: 'Wren Calloway kept a pressed leaf in a book, though nobody ever saw it.' },
-  { question: 'Which night did the lamp at the ferry landing go out?', answer: 'the night of the second storm', fact: 'The lamp at the ferry landing went out on the night of the second storm, and was not lit again until spring.', decoy: 'The lamp at the clock yard flickered all winter and was blamed on the oil.' },
-  { question: 'How many steps led down to the old cannery cellar?', answer: 'nineteen', fact: 'Corin Ashby counted nineteen steps down to the old cannery cellar, and then lost count of the rest.', decoy: 'There were twelve steps up to the chapel, which Odalys Venn climbed daily.' },
+  { question: 'Which night did the lamp at the ferry landing go out?', answer: 'second storm', fact: 'The lamp at the ferry landing went out on the night of the second storm, and was not lit again until spring.', decoy: 'The lamp at the clock yard flickered all winter and was blamed on the oil.' },
+  { question: 'How many steps led down to the old cannery cellar?', answer: 'nineteen', alts: ['19'], fact: 'Corin Ashby counted nineteen steps down to the old cannery cellar, and then lost count of the rest.', decoy: 'There were twelve steps up to the chapel, which Odalys Venn climbed daily.' },
   { question: 'What was written inside the lid of the tin lantern?', answer: 'for Anselm, who kept the light', fact: 'Inside the lid of the tin lantern was scratched the line "for Anselm, who kept the light".', decoy: 'The lid of the jar of tar had a date scratched into it, but the date had worn away.' },
   { question: 'Who rowed to the far side of the bay before dawn?', answer: 'Odalys Venn', fact: 'Before dawn Odalys Venn rowed alone to the far side of the bay and came back with an empty boat.', decoy: 'Wren Calloway walked to the far end of the quarry road before dawn, and came back with nothing to say.' },
   { question: 'What did the council vote to sell?', answer: 'the clock yard', fact: 'By a single vote the council decided to sell the clock yard, and the man who cast it left town.', decoy: 'The council voted to repaint the ferry landing, which took a week and pleased no one.' },
@@ -80,7 +80,7 @@ export function makeLongText({ words = 8000, seed = 7 } = {}) {
         if (p === (i % paragraphs)) {
           const at = 1 + Math.floor(r() * (sentences.length - 1));
           sentences.splice(at, 0, n.fact);
-          needles.push({ id: `n${i + 1}`, question: n.question, answer: n.answer, fact: n.fact, chapter: c, at: Number(((c - 0.5) / chapters).toFixed(3)) });
+          needles.push({ id: `n${i + 1}`, question: n.question, answer: n.answer, alts: n.alts ?? [], fact: n.fact, chapter: c, at: Number(((c - 0.5) / chapters).toFixed(3)) });
         }
         if (c % 3 === 1 && p === 3 && (c + i) % 4 === 0) sentences.splice(1, 0, n.decoy);
       }

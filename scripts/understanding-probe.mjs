@@ -8,6 +8,8 @@
 //        [--e2e]                             also run a short real conversation through the whole orchestrator (slow: it generates answers)
 //        [--slots 2]                         model-server slots (2 = the app's setting; 1 shows what one slot cost)
 //        [--ab-slots]                        same machine, same conversation, 1 slot vs 2 slots (twice, alternating): what the second prompt cache is worth
+//        [--long]                            long-text reading on the real model: questions about facts planted at known places in 8,000 to 148,000 word texts,
+//                                            asked the old way (only the last 1,800 characters) and the new way (outline + the parts that matter)
 //        [--rules-only]                      no model: just the rule-based baseline (works anywhere)
 //
 // Numbers are AS SHIPPED: the rules decide first what they decide on their own (exact commands, bare greetings, the requests they recognise as
@@ -25,6 +27,8 @@ import { TASKS, UNDERSTAND_SYSTEM, applyReading, buildUnderstandMessages, taskOf
 import { detectIntent } from '../apps/web/src/engine/intent/intent.js';
 import { createProjectData } from '../apps/web/src/engine/project/store.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
+import { composeMessages } from '../apps/web/src/engine/orchestrator/prompt.js';
+import { makeLongText, wordCountOf } from '../tests/fixtures/long-text.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -46,6 +50,59 @@ const quantile = (xs, q) => (xs.length ? [...xs].sort((a, b) => a - b)[Math.min(
 
 const rulesTask = (it) => taskOfIntent(detectIntent(it.text, { hasHistory: Boolean(it.history?.length) }).type) ?? 'none';
 
+
+// ── long-text reading on the real model ──────────────────────────────────────
+if (flag('--long')) {
+  await loadLibrary();
+  const binDir = path.resolve(opt('--bin', path.join(root, 'apps/desktop/bin')));
+  const modelPath = path.resolve(opt('--model', path.join(root, 'apps/desktop/models', DEFAULT_MODEL.fileName)));
+  const service = new LlamaService({ binDir, modelPath, model: DEFAULT_MODEL, slots: 2, log: () => {} });
+  const st = await service.start();
+  if (st.state !== 'ready') { console.error(`The model did not start: ${st.detail}`); process.exit(1); }
+  const norm = (t) => String(t).toLowerCase().replace(/[^\p{L}\p{N} ]+/gu, ' ').replace(/\s+/g, ' ').trim();
+  const correct = (reply, n) => [n.answer, ...(n.alts ?? [])].some((a) => norm(reply).includes(norm(a)));
+  const lengths = String(opt('--lengths', '8000,40000,148000')).split(',').map(Number);
+  const perLength = Number(opt('--needles', 6));
+  const report = [];
+  for (const words of lengths) {
+    const { text, needles } = makeLongText({ words });
+    const project = createProjectData({ title: 'Long', storyText: text });
+    const picks = needles.filter((_, k) => k % Math.max(1, Math.floor(needles.length / perLength)) === 0).slice(0, perLength);
+    const row = { words: wordCountOf(text), asked: picks.length, oldHits: 0, newHits: 0, oldMs: 0, newMs: 0, newPromptTokens: 0, misses: [] };
+    for (const n of picks) {
+      const question = `In my story, ${n.question}`;
+      const ask = async (args) => {
+        const { messages, tokens } = composeMessages({ mode: 'brainstorm', project, userMessage: question, history: [], ...args });
+        const t = Date.now();
+        const reply = await service.chat(messages, { maxTokens: 120, temperature: 0.1, stream: false });
+        return { reply, ms: Date.now() - t, tokens };
+      };
+      const before = await ask({ passage: text.slice(-1800) }); // what NIE did: only the last 1,800 characters
+      const after = await ask({ document: { text, query: question, topic: '', subject: 'text' } }); // what NIE does now
+      if (correct(before.reply, n)) row.oldHits++;
+      if (correct(after.reply, n)) row.newHits++; else row.misses.push({ q: n.question, want: n.answer, got: after.reply.slice(0, 140).replace(/\s+/g, ' ') });
+      row.oldMs += before.ms;
+      row.newMs += after.ms;
+      row.newPromptTokens = Math.max(row.newPromptTokens, after.tokens);
+    }
+    row.oldMs = Math.round(row.oldMs / picks.length);
+    row.newMs = Math.round(row.newMs / picks.length);
+    report.push(row);
+    console.log(`${String(row.words).padStart(7)} words: the old way found ${row.oldHits}/${row.asked}, the new way ${row.newHits}/${row.asked}   (answer time ${row.oldMs} ms -> ${row.newMs} ms, largest prompt ${row.newPromptTokens} tokens)`);
+    for (const m of row.misses) console.log(`          missed: ${m.q} -> wanted "${m.want}", got "${m.got}"`);
+  }
+  // a pasted passage through the whole orchestrator, as in the screenshot that started this
+  const o = new Orchestrator({ engine: new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: (m, op) => service.chat(m, op) }, online: null, isOnline: () => false }) });
+  const pasted = makeLongText({ words: 8000, seed: 5 });
+  const proj = createProjectData({ title: 'Paste' });
+  const t = Date.now();
+  const r = await o.brainstorm({ project: proj, message: `Here is my opening. What do you think of the ending?\n\n${pasted.text}` });
+  console.log(`\npasted ${wordCountOf(pasted.text)} words through the whole orchestrator: ${((Date.now() - t) / 1000).toFixed(1)} s, read by ${r.understood?.by} as ${r.understood?.task}, route ${r.route}`);
+  console.log(`  ${r.reply.slice(0, 700).replace(/\s+/g, ' ')}`);
+  if (opt('--out')) { fs.mkdirSync(path.dirname(path.resolve(opt('--out'))), { recursive: true }); fs.writeFileSync(opt('--out'), JSON.stringify({ report, pasted: { reply: r.reply, read: proj.conversation.messages.at(-1).read } }, null, 1)); }
+  await service.stop();
+  process.exit(0);
+}
 
 // ── same-machine A/B: what a second model-server slot is worth ───────────────
 if (flag('--ab-slots')) {

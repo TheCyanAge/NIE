@@ -15,6 +15,10 @@ on:
         description: 'Model-server slots: 2 is what the app uses; 1 shows what a single slot costs (the reading and the answer evict each other from its prompt cache)'
         type: string
         default: '2'
+      long_text:
+        description: 'Instead of the labelled messages: long-text reading on the real model (facts planted in 8,000 to 148,000 word texts, asked the old way and the new way)'
+        type: boolean
+        default: false
       ab_slots:
         description: 'Instead of the labelled messages: the same conversation with 1 slot and with 2, twice each, alternating, on this machine (about 12 minutes)'
         type: boolean
@@ -64,7 +68,9 @@ jobs:
           SAMPLE="${{ inputs.sample }}"
           E2E=""
           if [ "${{ inputs.e2e }}" = "true" ]; then E2E="--e2e"; fi
-          if [ "${{ inputs.ab_slots }}" = "true" ]; then
+          if [ "${{ inputs.long_text }}" = "true" ]; then
+            node scripts/understanding-probe.mjs --long --out understanding-report.json
+          elif [ "${{ inputs.ab_slots }}" = "true" ]; then
             node scripts/understanding-probe.mjs --ab-slots --out understanding-report.json
           else
             node scripts/understanding-probe.mjs --sample "${SAMPLE:-100}" --slots "${{ inputs.slots }}" $E2E --out understanding-report.json
