@@ -268,7 +268,7 @@ export function updateWorkingPremise(prev, message, intent) {
   const next = {
     ...emptyPremise(),
     ...base,
-    summary: intent.type === 'share-premise' && !base.summary ? norm(message) : base.summary || norm(message),
+    summary: intent.type === 'share-premise' && !base.summary ? clipSummary(norm(message)) : base.summary || clipSummary(norm(message)),
     characters: merge(base.characters, cues.characters),
     settings: merge(base.settings, cues.settings),
     themes: changed ? merge(cues.themes, base.themes) : merge(base.themes, cues.themes),
@@ -279,6 +279,9 @@ export function updateWorkingPremise(prev, message, intent) {
   if (changed && cues.reality === 'speculative' && base.reality === 'realist') next.reality = 'speculative';
   return next;
 }
+
+/** A pasted chapter must not become the "premise": keep the start of it. */
+const clipSummary = (t) => (t.length > 500 ? `${t.slice(0, 499).trimEnd()}…` : t);
 
 function emptyPremise() {
   return { summary: '', characters: [], settings: [], themes: [], modes: [], reality: 'unclear', revisions: [] };

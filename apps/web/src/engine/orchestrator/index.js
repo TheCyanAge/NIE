@@ -8,6 +8,7 @@ import { composeMessages, ideaRequestBlock, RETRY_TOKEN_LIMIT } from './prompt.j
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply } from './guard.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
+import { describeReading } from '../reading/context.js';
 import { ideaSuggestions, nextSuggestions, STARTER } from './suggestions.js';
 import { ASKS_FOR_IDEAS, WANTS_MORE } from '../brainstorm/commands.js';
 import { KIND_IDS, LENSES, LENSES_BY_KIND, detectKind, detectLens, kindLabel } from '../brainstorm/lenses.js';
@@ -23,6 +24,28 @@ const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they co
 const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
 const RANK = { none: 0, weak: 1, strong: 2 };
 const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|draft|screenplay|script|poem|essay|article|book|memoir|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|ending|opening|narrator)\b/i;
+/** A message longer than this (about 1,000 tokens) is a pasted text, not a sentence to answer: it is read in sections instead of cut off. */
+export const LONG_MESSAGE_CHARS = 3600;
+const STORY_TEXT_MIN_CHARS = 400;
+const ASK_WORDS = /\?|\bplease\b|\b(?:can|could|would)\s+you\b|\bwhat\b|\bhow\b|\bwhy\b|\bthoughts?\b|\bthink\b|\bfeedback\b|\bhere(?:'s| is| are)\b|\bbelow\b|:\s*$/i;
+const PASTED_NO_ASK = "(The writer pasted a text and did not say what they want from it. Respond to what stands out in it and ask one or two good questions. This line is not the writer's wording.)";
+/** Which of the writer's own words is the ask, and which is the pasted text? A short first or last paragraph around a long body is the ask. */
+export function splitPaste(text) {
+  const paras = String(text).split(/\n[ \t]*\n/).map((p) => p.trim()).filter(Boolean);
+  let lead = '';
+  let trail = '';
+  if (paras.length >= 3) {
+    if (paras[0].length <= 400 && ASK_WORDS.test(paras[0])) lead = paras.shift();
+    if (paras.length >= 2 && paras.at(-1).length <= 400 && ASK_WORDS.test(paras.at(-1))) trail = paras.pop();
+    return { ask: [lead, trail].filter(Boolean).join(' '), body: paras.join('\n\n') };
+  }
+  return { ask: '', body: String(text) };
+}
+const MENTIONS_OWN_TEXT = /\b(?:my|our)\s+(?:story|novel|manuscript|draft|book|screenplay|script|poem|essay|article|piece|chapters?|ending|opening|middle|scene|characters?|protagonist|villain)\b/i;
+
+/** The compact record kept on the reply: what was shown of a long text. */
+const summarizeRead = (r) => ({ complete: r.complete, sections: r.sections, words: r.words, subject: r.subject, shown: r.shown.map((x) => x.i + 1) });
+
 /** After this many model readings in a row fail, stop asking for a few messages (the rules read them) so a broken model never doubles the wait. */
 const READING_FAILURES_BEFORE_PAUSE = 2;
 const READING_PAUSE_MESSAGES = 5;
@@ -144,7 +167,7 @@ export class Orchestrator {
     let lib = null;
     let libMiss = false;
     let ownProject = false;
-    const libraryCandidate = byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
+    const libraryCandidate = text.length > LONG_MESSAGE_CHARS ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
     if (libraryCandidate) {
       // Naming a character or role ('the detective', 'Samantha', 'he') or "my story" means the writer is talking about their story, not asking the
       // library. Even when the model read it as a general question, that stays a veto for anything but a strong match: a 3B model misreads
@@ -197,11 +220,13 @@ export class Orchestrator {
     const stated = detectKind(text);
     if (stated && (isIdeaAsk || develop || intent.type === 'start-from-zero' || /\b(?:i'?m|i am|i want to|i'?d like to|i need to|let'?s)\s+(?:be\s+)?(?:writing|write|working on|draft)/i.test(text))) bs.detectedKind = stated;
 
-    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note, onToken, signal });
+    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, signal });
 
     // ── Conversation (not an idea request) ───────────────────────────────────
     const interp = interpretProfile(project.profile, { text: project.storyText });
-    const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, text)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, text);
+    const doc = this.#documentFor({ project, text, intent, reading, history: history.slice(0, -1) });
+    const askText = doc.document?.subject === 'passage' && text.length > LONG_MESSAGE_CHARS ? doc.userMessage : text; // notes are found by what was ASKED, not by the pasted text
+    const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, askText);
     const passage = intent.type === 'share-passage' ? text : '';
     const report = passage ? scan({ text: passage, project }) : null;
 
@@ -209,8 +234,8 @@ export class Orchestrator {
       mode: 'brainstorm',
       project,
       interp,
-      userMessage: text,
-      passage: intent.type === 'feedback-request' ? project.storyText.slice(-1800) : '',
+      userMessage: doc.userMessage,
+      document: doc.document,
       history: history.slice(0, -1),
       retrieved,
       extra: [readingNote(reading, text, { ownProject }), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
@@ -254,8 +279,39 @@ export class Orchestrator {
       extra = { ...extra, fallback: asked.failure ? { reason: 'error', detail: describeModelFailure(asked.failure) } : { reason: 'withheld' } };
     }
     if (route === 'builtin') onToken?.(reply, reply);
-    else if (shortenedNote(asked.trimmed)) reply = `${reply}\n\n${shortenedNote(asked.trimmed)}`;
+    else {
+      // Say what was looked at. (Only when a model answered: a built-in reply never read the text, and must not seem to.)
+      const looked = asked.read && !asked.read.complete ? `(${describeReading(asked.read)})` : '';
+      const tail = [looked, shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
+      if (tail) reply = `${reply}\n\n${tail}`;
+      if (asked.read) extra = { ...extra, read: summarizeRead(asked.read) };
+    }
     return this.#finish(project, intent, reply, route, false, extra);
+  }
+
+  /**
+   * The long text (if there is one) this message is about, and what the writer actually asked.
+   *  - a long pasted message is the text itself; its short first/last paragraph is the ask;
+   *  - a follow-up soon after such a paste is about that paste, unless it says "my story/draft…";
+   *  - otherwise the project's Story Text, for anything about the writer's own work.
+   * Nothing is cut off: the composer shows an outline of the whole plus the parts that matter, and `read` records what was shown.
+   * @returns {{ document: {text:string,query:string,topic:string,subject:string}|null, userMessage: string }}
+   */
+  #documentFor({ project, text, intent, reading, history }) {
+    const task = reading?.task ?? null;
+    const aboutWork = !['craft', 'about-nie', 'chat', 'write', 'edit'].includes(task) && !['library-question', 'greeting', 'about-nie'].includes(intent.type);
+    const topic = reading?.topic ?? '';
+    if (text.length > LONG_MESSAGE_CHARS) {
+      const { ask, body } = splitPaste(text);
+      return { document: { text: body, query: ask, topic, subject: 'passage' }, userMessage: ask || PASTED_NO_ASK };
+    }
+    if (!aboutWork) return { document: null, userMessage: text };
+    if (!MENTIONS_OWN_TEXT.test(text)) {
+      const recent = history.slice(-12).reverse().find((m) => m.role === 'user' && m.content.length > LONG_MESSAGE_CHARS);
+      if (recent) return { document: { text: splitPaste(recent.content).body, query: text, topic, subject: 'passage' }, userMessage: text };
+    }
+    if (project.storyText.trim().length >= STORY_TEXT_MIN_CHARS) return { document: { text: project.storyText, query: text, topic, subject: 'text' }, userMessage: text };
+    return { document: null, userMessage: text };
   }
 
   /**
@@ -265,6 +321,7 @@ export class Orchestrator {
   async #ask({ composeArgs, onToken, signal, temperature }) {
     const ready = () => this.engine.localStatus?.().state === 'ready';
     const full = composeMessages(composeArgs);
+    const read = full.reading;
     let failure = null;
     let res = null;
     try {
@@ -279,29 +336,32 @@ export class Orchestrator {
       const small = composeMessages({ ...composeArgs, limit: RETRY_TOKEN_LIMIT, minimal: true });
       try {
         const again = await this.engine.chat(small.messages, { onToken, signal, maxTokens: 500, temperature });
-        if (again.text) return { res: again, failure: null, modelReady, trimmed: [...new Set([...full.trimmed, ...small.trimmed, 'earlier messages'])] };
+        if (again.text) return { res: again, failure: null, modelReady, trimmed: [...new Set([...full.trimmed, ...small.trimmed, 'earlier messages'])], read: small.reading ?? read };
         failure = again.error ?? failure;
       } catch (err) {
         if (err?.kind === 'abort') throw err;
         failure = err;
       }
     }
-    return { res: res ?? { text: null, route: 'builtin' }, failure: res?.text ? null : failure, modelReady, trimmed: full.trimmed };
+    return { res: res ?? { text: null, route: 'builtin' }, failure: res?.text ? null : failure, modelReady, trimmed: full.trimmed, read };
   }
 
   /** Idea requests and "develop this idea": the model when it is running, otherwise the built-in idea library. */
-  async #ideas({ project, intent, text, kind, lens, develop, note, onToken, signal }) {
+  async #ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, signal }) {
     const bs = project.brainstorm;
     const history = project.conversation.messages;
-    const gen = develop ? { ideas: [] } : generateIdeas({ project, message: text, kind, lens, count: 3 });
+    const doc = this.#documentFor({ project, text, intent, reading, history: history.slice(0, -1) });
+    const askText = doc.document?.subject === 'passage' && text.length > LONG_MESSAGE_CHARS ? doc.userMessage : text;
+    const gen = develop ? { ideas: [] } : generateIdeas({ project, message: askText, kind, lens, count: 3 });
     const interp = interpretProfile(project.profile, { text: project.storyText });
     const composeArgs = {
       mode: 'brainstorm',
       project,
       interp,
-      userMessage: text,
+      userMessage: doc.userMessage,
+      document: doc.document,
       history: history.slice(0, -1),
-      retrieved: this.retrieve(project, text),
+      retrieved: this.retrieve(project, askText),
       extra: ideaRequestBlock({ kind, lens, develop, note, seeds: gen.ideas.slice(0, 2).map((i) => i.text) }),
     };
     const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.85 });
@@ -321,8 +381,8 @@ export class Orchestrator {
         if (ideas.length) markShown(project, ideas);
         bs.lastLens = lens;
         const lead = [note, parsed.lead].filter(Boolean).join('\n\n');
-        const cut = shortenedNote(asked.trimmed);
-        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens });
+        const cut = [asked.read && !asked.read.complete ? `(${describeReading(asked.read)})` : '', shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
+        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read) } : {}) });
       }
     }
 
@@ -405,6 +465,7 @@ export class Orchestrator {
     // Who understood the message and how it was read ('model' = the language model read it; 'rules' = the built-in rules did).
     const understood = intent.reading ? { by: intent.reading.by, task: intent.reading.task, topic: intent.reading.topic ?? '', ...(intent.reading.overruled ? { overruled: intent.reading.overruled } : {}) } : null;
     if (understood) meta.understood = understood;
+    if (extra.read) meta.read = extra.read; // what was looked at, for a long text
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });
     appendMessage(project, 'assistant', reply, meta);

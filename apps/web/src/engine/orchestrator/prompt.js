@@ -5,7 +5,8 @@ import { LENSES, kindLabel, kindPhrase } from '../brainstorm/lenses.js';
 import { leadNoun } from '../brainstorm/ideas.js';
 import { rulesToPromptBlock } from '../rules/rules.js';
 import { describeForPrompt } from '../knowledge/index.js';
-import { clip, estimateTokens } from '../util/text.js';
+import { clip, estimateTokens, fnv1a } from '../util/text.js';
+import { buildIndex, readingContext } from '../reading/context.js';
 
 /**
  * Prompt composition for conversation (Brainstorm). The 3B local model has a small context window, so every section
@@ -86,17 +87,41 @@ export const PROMPT_TOKEN_LIMIT = 2900;
 /** The smaller prompt used for one automatic retry after the model failed to answer. */
 export const RETRY_TOKEN_LIMIT = 1500;
 
+/** Indexing a long text is quick (about 0.3 s for a 150,000-word novel) but not free, and the same text is asked about turn after turn: keep the last few. */
+const INDEXES = new Map();
+export function indexFor(text) {
+  const key = `${text.length}:${fnv1a(text)}`;
+  let idx = INDEXES.get(key);
+  if (!idx) {
+    idx = buildIndex(text);
+    INDEXES.set(key, idx);
+    if (INDEXES.size > 3) INDEXES.delete(INDEXES.keys().next().value);
+  }
+  return idx;
+}
+export const clearIndexes = () => INDEXES.clear();
+
 /**
  * Sections shrink in steps (reference notes, then history, then the passage) until the whole prompt fits.
  * The writer's own message is only ever shortened as a last resort, and `trimmed` says what was cut so the UI can be honest.
  * @returns {{ messages: {role:string, content:string}[], tokens: number, trimmed: string[] }}
  */
-export function composeMessages({ mode = 'brainstorm', project, interp, userMessage, passage = '', history = [], retrieved = [], extra = '', limit = PROMPT_TOKEN_LIMIT, minimal = false }) {
+export function composeMessages({ mode = 'brainstorm', project, interp, userMessage, passage = '', document = null, history = [], retrieved = [], extra = '', limit = PROMPT_TOKEN_LIMIT, minimal = false }) {
   const system = buildSystem({ mode, project, interp });
   const count = (msgs) => msgs.reduce((a, m) => a + estimateTokens(m.content), 0);
+  // A long text (a pasted passage, or the project's Story Text) is shown as an outline plus the parts that matter for THIS message, within what the
+  // window has left after NIE's own instructions, the writer's message and a little room for earlier turns and reference notes.
+  const docIndex = document?.text ? indexFor(document.text) : null;
+  const docBudget = docIndex ? Math.min(1500, Math.max(450, limit - estimateTokens(system) - estimateTokens(userMessage) - 520)) : 0;
+  let reading = null;
   const build = (scale, message) => {
     const userParts = [];
     if (retrieved.length && scale > 0) userParts.push(`Reference notes (tools the writer may use or break, not rules):\n${describeForPrompt(retrieved, Math.floor(BUDGET.knowledge * scale))}`);
+    if (docIndex) {
+      const ctx = readingContext({ index: docIndex, query: document.query ?? '', topic: document.topic ?? '', budgetTokens: scale > 0 ? Math.max(450, Math.floor(docBudget * scale)) : 450, subject: document.subject });
+      reading = ctx.stats;
+      if (ctx.block) userParts.push(`${ctx.block}\n\n(Reference only: this is the writer's own text. Do not rewrite, continue or quote it back at length.)`);
+    }
     if (passage && scale > 0) userParts.push(`The writer's passage (for reference only; do not rewrite it):\n"""\n${clip(passage, Math.floor(BUDGET.passage * scale))}\n"""`);
     if (extra) userParts.push(extra);
     userParts.push(message);
@@ -119,7 +144,7 @@ export function composeMessages({ mode = 'brainstorm', project, interp, userMess
     messages = build(0, `${clip(userMessage, room)}\n\n(The writer's message was longer than the offline model can read at once; only the first part is shown here.)`);
     trimmed.push('your message');
   }
-  return { messages, tokens: count(messages), trimmed };
+  return { messages, tokens: count(messages), trimmed, reading };
 }
 
 /**
