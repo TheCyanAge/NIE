@@ -225,26 +225,67 @@ test('the rules recognise the usual questions about NIE, and not craft questions
   }
 });
 
-test('with a model, a question about NIE is answered from the facts, in the model\'s words', async () => {
-  const { o, calls } = setup({ reading: read('about-nie'), reply: 'Yes. My offline model runs on this computer, so I do not need the internet.' });
+test('a question about NIE is answered from fixed facts and the real status, never by the model, even when a model is running', async () => {
+  const { o, calls } = setup({ reading: read('about-nie'), reply: 'I can write your chapters and rewrite any paragraph you like!' });
   const r = await o.brainstorm({ project: projectWith(), message: 'does this work without wifi?' });
   assert.equal(r.intent.type, 'about-nie');
-  assert.equal(r.route, 'local');
-  assert.match(r.reply, /do not need the internet/);
-  const prompt = calls[0].messages.at(-1).content;
-  assert.match(prompt, /ONLY these facts/);
-  assert.match(prompt, /offline language model is running on this computer/, 'the facts state the real status');
-});
-
-test('a self-description that claims NIE can write or edit text is never shown; the fixed, exact answer is used instead', async () => {
-  const { o } = setup({ reading: read('about-nie'), reply: 'I can write your chapters and rewrite any paragraph you like!' });
-  const r = await o.brainstorm({ project: projectWith(), message: 'what can you do for a poet?' });
-  assert.doesNotMatch(r.reply, /rewrite any paragraph/);
-  assert.match(r.reply, /never write or edit your text/);
+  assert.equal(calls.length, 0, 'the model is not asked to describe NIE');
   assert.equal(r.route, 'builtin');
+  assert.match(r.reply, /works with no internet/);
+  assert.match(r.reply, /offline language model is running on this computer/, 'and the status line is the real one');
+  assert.deepEqual(r.understood, { by: 'model', task: 'about-nie', topic: '' });
 });
 
-// ── when the model cannot read it ────────────────────────────────────────────
+test('the question picks the facts: internet, model, privacy, Full Scan, writing, or the general description', async () => {
+  const ask = async (message) => (await setup({ reading: read('about-nie') }).o.brainstorm({ project: projectWith(), message })).reply;
+  assert.match(await ask('is the offline model the same as the online one or are they two different assistants'), /Qwen2\.5 3B Instruct by default/);
+  assert.match(await ask('do you store my chapters anywhere or does it stay on my laptop'), /stored on this computer/);
+  assert.match(await ask('what about the scan, does that need a connection'), /works with no internet/);
+  assert.match(await ask('how does the full scan thing work, like what is it looking for'), /Full Scan: you set the rules/);
+  assert.match(await ask('is it true you never edit my text?'), /I never write, rewrite or edit your text/);
+  assert.match(await ask('what are your abilities'), /thinking partner for writers[\s\S]*Brainstorm with you/);
+  for (const reply of [await ask('what are your abilities'), await ask('which model are you')]) assert.doesNotMatch(reply, /I can (?:write|rewrite|edit|draft)/i);
+});
+
+test('what NIE says about its own state matches the real state, word for word', async () => {
+  const say = async (local, online = null, isOnline = () => false) => {
+    const engine = new AIEngine({ local, online, isOnline });
+    return (await new Orchestrator({ engine }).brainstorm({ project: projectWith(), message: 'what can you do?' })).reply;
+  };
+  const fake = (state, phase = null) => ({ status: () => ({ state, phase }), onStatus: () => () => {}, chat: async () => { throw new Error('not used'); } });
+  assert.match(await say(null), /offline language model isn't installed here/);
+  assert.match(await say(fake('starting')), /offline language model is still starting/);
+  assert.match(await say(fake('starting', 'download')), /offline language model is being downloaded/);
+  assert.match(await say(fake('failed')), /offline language model failed to start/);
+  assert.match(await say(fake('ready')), /offline language model is running on this computer/);
+  assert.match(await say(fake('ready'), { configured: true, chat: async () => '{"task":"about-nie","topic":""}' }, () => true), /online model set up in Settings/);
+});
+
+test('a model that reads a plain statement as "write" or "edit" does not get it declined: nothing in it asks for anything', async () => {
+  for (const [msg, said] of [
+    ['My novel is about a lighthouse keeper who starts getting letters from the sea.', 'write'],
+    ['just finished chapter nine. she finally tells him about the fire. took me three weeks', 'edit'],
+    ['ok great, thanks, got it', 'edit'],
+    ['why does he', 'write'],
+    ['...', 'edit'],
+  ]) {
+    const { o, calls } = setup({ reading: read(said), reply: 'Tell me more about that.' });
+    const r = await o.brainstorm({ project: projectWith(), message: msg });
+    assert.equal(r.declined, false, msg);
+    assert.equal(calls.length, 1, `answered by the model, not declined: ${msg}`);
+    assert.equal(r.understood.overruled, said, msg);
+    assert.ok(['tell', 'unclear'].includes(r.understood.task), `${msg} -> ${r.understood.task}`);
+  }
+});
+
+test('a model reading of write/edit is believed when the message does ask, in the ways people ask', async () => {
+  for (const msg of ['can u write my speech for my sisters wedding', 'I was wondering if you might be able to compose the first page of my memoir for me?', 'pls write chapter 3', 'ok shorten it then', 'Cut this down to half the words: The meeting, which had been scheduled for early in the morning, went on for what felt like a very long time.', "is there a better way to say 'very tired'? just swap it in my sentence: He was very tired."]) {
+    const { o, calls } = setup({ reading: read(/shorten|cut|swap|better way/i.test(msg) ? 'edit' : 'write') });
+    const r = await o.brainstorm({ project: projectWith(), message: msg });
+    assert.equal(r.declined, true, msg);
+    assert.equal(calls.length, 0, msg);
+  }
+});
 
 test('an unusable reading falls back to the rules, honestly, and the answer is still given', async () => {
   const { o, calls } = setup({ reading: () => 'I think they want ideas', reply: 'What does the reader expect to happen?' });
@@ -307,34 +348,6 @@ test('where the model agrees with the rules the rules\' richer detail is kept; w
 });
 
 // ── findings from the independent review ─────────────────────────────────────
-
-test('a self-description that claims NIE writes or edits is never shown, however it is phrased, and is never even streamed', async () => {
-  const claims = ['Yes! I can write chapters and dialogue for you, just ask.', "I'm NIE. I work fully offline and I can proofread whatever you paste.", 'NIE can rewrite sentences you paste.', 'I can polish prose.', 'I can help you write your scenes.', "I'll gladly draft it for you.", 'I can generate full drafts.'];
-  for (const claim of claims) {
-    const { o } = setup({ reading: read('about-nie'), reply: claim });
-    const streamed = [];
-    const r = await o.brainstorm({ project: projectWith(), message: 'what are your abilities', onToken: (_d, full) => streamed.push(full) });
-    assert.doesNotMatch(r.reply, /write chapters|proofread|rewrite sentences|polish prose|write your scenes|draft it for you|generate full drafts/i, claim);
-    assert.match(r.reply, /never write or edit your text/, claim);
-    assert.ok(streamed.every((t) => t === r.reply), `nothing but the final reply was streamed for: ${claim}`);
-  }
-});
-
-test('true statements about NIE that contain the same words are not mistaken for claims', async () => {
-  const ok = "I never write or edit your text. I can brainstorm ideas with you, point at where your own rules are broken, and answer craft questions. My offline model is running, so I don't need the internet.";
-  const { o } = setup({ reading: read('about-nie'), reply: ok });
-  const r = await o.brainstorm({ project: projectWith(), message: 'does this work without wifi?' });
-  assert.equal(r.reply, ok);
-  assert.equal(r.route, 'local');
-});
-
-test('a "description" that is really a composed poem or a long text is not shown', async () => {
-  const sonnet = ['The sea is wide and grey beneath the sky', 'The gulls cry out above the harbour wall', 'The tide comes in and then the tide goes by', 'And no one stands to watch the lantern fall', 'The lamp burns low against the winter dark', 'The keeper sleeps beside the cooling stove', 'A single boat goes out beyond the park', 'And nothing waits for her within the cove', 'The morning brings a pale and thinning light', 'The fishermen are gone before the dawn'].join('\n');
-  const { o } = setup({ reading: read('about-nie'), reply: sonnet });
-  const r = await o.brainstorm({ project: projectWith(), message: 'what are your abilities' });
-  assert.doesNotMatch(r.reply, /lantern fall/);
-  assert.match(r.reply, /thinking partner for writers/);
-});
 
 test('Idea Board commands carry a reading too (the rules decide them, and the result says so)', async () => {
   const project = projectWith();

@@ -29,13 +29,14 @@ ideas: wants ideas, twists, what-ifs, complications, names or options for their 
 develop: wants to go deeper on something already being discussed (an idea, a character, a scene, something NIE just said)
 feedback: asks what NIE thinks of their own work, or whether part of it works
 craft: asks a general question about writing, grammar, style, a form, a genre, an author or a book (not about their own project)
-tell: tells NIE about their project or shares their own writing, without asking for anything
-write: asks NIE to write, draft, continue or finish text for them
-edit: asks NIE to rewrite, rephrase, fix, polish or proofread their text
-about-nie: asks about NIE itself: what it can do, how it works, its model, offline use
+tell: tells NIE about their project, shares a piece of their own writing, or gives a progress update, without asking for anything
+write: clearly asks NIE to write, draft, continue or finish text for them
+edit: clearly asks NIE to rewrite, rephrase, fix, polish or proofread their text
+about-nie: asks about NIE itself: what it can do, how it works, its model, whether it needs the internet, what it does with their text
 chat: greeting, thanks or small talk
-unclear: you cannot tell what is being asked
+unclear: too short or vague to tell, or refers to something that is not there
 
+A statement that asks for nothing is tell, never write or edit. Choose write or edit only when the writer is asking NIE to do it.
 topic is the subject in 1 to 5 words, or "" when there is none.
 
 Examples:
@@ -43,12 +44,15 @@ Examples:
 "How do I make my villain scarier?" -> {"task":"ideas","topic":"scarier villain"}
 "tell me more about the second one" -> {"task":"develop","topic":"second idea"}
 "Is my ending too predictable?" -> {"task":"feedback","topic":"ending"}
+"Does my voice stay consistent across the chapters?" -> {"task":"feedback","topic":"voice"}
 "What's a villanelle?" -> {"task":"craft","topic":"villanelle"}
 "Can I start a sentence with And?" -> {"task":"craft","topic":"starting a sentence with And"}
-"A lighthouse keeper starts getting letters from the sea." -> {"task":"tell","topic":"lighthouse keeper"}
+"My novel is a slow-burn mystery on a fishing island. The narrator is a retired ferry captain." -> {"task":"tell","topic":"mystery novel"}
+"just finished chapter nine, took me three weeks" -> {"task":"tell","topic":""}
 "Write a scene where they argue" -> {"task":"write","topic":"argument scene"}
 "Tighten this: She walked slowly down the long road." -> {"task":"edit","topic":""}
 "What can you do?" -> {"task":"about-nie","topic":""}
+"does this work without wifi?" -> {"task":"about-nie","topic":"internet"}
 "thanks!" -> {"task":"chat","topic":""}
 "hmm" -> {"task":"unclear","topic":""}`;
 
@@ -108,15 +112,33 @@ export async function understandMessage({ engine, text, history = [], signal, ti
 const TASK_OF_INTENT = { 'request-ideas': 'ideas', 'what-if': 'ideas', 'start-from-zero': 'ideas', 'craft-question': 'craft', 'feedback-request': 'feedback', 'share-premise': 'tell', 'share-passage': 'tell', 'direction-change': 'tell', greeting: 'chat', 'develop-idea': 'develop', 'request-write': 'write', 'request-edit': 'edit', 'about-nie': 'about-nie' };
 export const taskOfIntent = (type) => TASK_OF_INTENT[type] ?? null;
 
+const REQUEST_VERBS = 'write|draft|compose|rewrite|rephrase|reword|redo|edit|proofread|fix|polish|tighten|improve|correct|revise|smooth|finish|continue|expand|make|change|cut|shorten|trim|rework|turn|convert|give\\s+me|add|swap|replace|simplify|punch|extend|complete|generate|create|produce|summari[sz]e|translate|paraphrase|clean\\s+up|flesh';
+const REQUEST_MARKER = new RegExp(
+  String.raw`\b(?:can|could|would|will|won'?t|might)\s+(?:you|u|ya)\b|\byou\s+(?:can|could|might|please)\b|\bplease\b|\bpls\b|\bplz\b|\bfor\s+(?:me|us)\b|\bhelp\s+me\b|\bI\s+(?:need|want|'?d\s+like)\s+you\b|\bI\s+was\s+wondering\b|\bgo\s+ahead\b|\b(?:better|another)\s+way\s+to\s+(?:phrase|say|word|put)\b|\bjust\s+(?:${REQUEST_VERBS})\b|(?:^|[.!?:;]\s+|\bthen\s+|\bnow\s+|\bok(?:ay)?[,\s]+|\bso\s+)(?:please\s+|just\s+)?(?:${REQUEST_VERBS})\b`,
+  'i'
+);
+/**
+ * Does the message actually ASK for something to be done? A small model sometimes reads a plain statement ("My novel is about a lighthouse
+ * keeper…", "just finished chapter nine") or a fragment as "write" or "edit". Declining those would turn a writer's own words into an
+ * accusation, so a model reading of write/edit is only believed when the message has a visible request in it.
+ */
+export const looksLikeARequest = (text) => REQUEST_MARKER.test(String(text ?? ''));
+
 /**
  * Let the model's reading decide the intent. Where it agrees with the rules the rules' richer detail is kept (their direction-change
  * cue, a "what if"…); where it disagrees the model wins. The rules' own guess stays on `reading.rules` for the record.
  */
 export function applyReading(intent, reading, text) {
-  intent.reading = { by: 'model', task: reading.task, topic: reading.topic, rules: intent.type };
-  if (reading.task === taskOfIntent(intent.type)) return intent;
   const wc = words(text).length;
-  switch (reading.task) {
+  let task = reading.task;
+  let overruled = null;
+  if ((task === 'write' || task === 'edit') && !looksLikeARequest(text)) {
+    overruled = task; // the model said "write"/"edit" but nothing in the message asks for it: not a request, so nothing is declined
+    task = /\?\s*$/.test(text) || wc < 3 ? 'unclear' : 'tell';
+  }
+  intent.reading = { by: 'model', task, topic: reading.topic, rules: intent.type, ...(overruled ? { overruled } : {}) };
+  if (task === taskOfIntent(intent.type)) return intent;
+  switch (task) {
     case 'write': intent.type = 'request-write'; break;
     case 'edit': intent.type = 'request-edit'; break;
     case 'about-nie': intent.type = 'about-nie'; break;

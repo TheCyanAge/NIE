@@ -5,7 +5,7 @@ import { appendMessage } from '../project/memory.js';
 import { addToBoard, boardToChat, emptyBrainstorm, ideaId } from '../project/board.js';
 import { scan, scanWithModel } from '../analysis/scan.js';
 import { composeMessages, ideaRequestBlock, RETRY_TOKEN_LIMIT } from './prompt.js';
-import { aboutNieFacts, aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
+import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply } from './guard.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { ideaSuggestions, nextSuggestions, STARTER } from './suggestions.js';
@@ -21,13 +21,6 @@ const GENERAL_Q = /^\s*(?:what(?:'s|\s+is|\s+are|\s+does|\s+do)\b|how\s+(?:do|sh
 const STORY_TALK = /\b(?:my|our|his|her|their|the)\s+(?:story|novel|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|draft|ending|opening|twist|narrator|manuscript)\b|\b(?:he|she|him|they|them)\b/i;
 const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they cover the question, answer from them and say which style guide or source they come from, and mention when practice varies. If they do not cover it, say so plainly. Never invent citations, section numbers, titles, dates or quotations.";
 const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
-const ABOUT_NIE_NOTE = "The writer is asking about NIE itself. Answer their actual question in your own words, briefly, using ONLY these facts. Do not claim any ability that is not listed, and never say you can write, rewrite or edit their text.";
-/** A self-description that claims NIE writes or edits is wrong whatever the model says, so it is replaced by the fixed one. Any first-person
- *  ability claim with a writing verb is rejected (no determiner needed: "I can write chapters for you" must not slip through). */
-const WRITE_VERBS = 'write|rewrite|edit|proofread|draft|polish|fix|compose|continue|generate|create|finish|expand|rephrase|reword|revise|correct|improve|tighten|ghost-?write';
-const CLAIMS_TO_WRITE = new RegExp(`\\b(?:I|NIE|we)(?:'ll|'d|'m able to| am able to| will| can| could| would| do| also| gladly| happily| often| usually)*\\s+(?:also\\s+|gladly\\s+|happily\\s+)?(?:${WRITE_VERBS})\\b(?!\\s+(?:nothing|anything)\\b)|\\b(?:help|helps|helping)\\s+(?:you|writers?)\\s+(?:to\\s+)?(?:${WRITE_VERBS})\\b|\\b(?:${WRITE_VERBS})\\s+(?:it\\s+)?for\\s+you\\b`, 'i');
-/** A truthful answer about NIE is a few sentences. Anything long or verse-like is composed text, not a description. */
-const aboutReplyOk = (t) => !CLAIMS_TO_WRITE.test(t) && words(t).length <= 120 && t.split(/\n/).filter((l) => l.trim()).length <= 8;
 const RANK = { none: 0, weak: 1, strong: 2 };
 const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|draft|screenplay|script|poem|essay|article|book|memoir|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|ending|opening|narrator)\b/i;
 /** After this many model readings in a row fail, stop asking for a few messages (the rules read them) so a broken model never doubles the wait. */
@@ -143,7 +136,7 @@ export class Orchestrator {
     const reading = await this.#read({ intent, text, history: history.slice(0, -1), signal, button: Boolean(lensOpt) }); // a tapped quick-action already says what it is
     userMsg.intent = intent.type;
     if (declines()) return decline();
-    if (intent.type === 'about-nie') return this.#about({ project, intent, text, onToken, signal });
+    if (intent.type === 'about-nie') return this.#about({ project, intent, text, onToken });
     const byModel = reading.by === 'model';
 
     // A general question about craft, style, usage, a form, genre or work: answer from the offline library, with its sources.
@@ -364,33 +357,14 @@ export class Orchestrator {
   }
 
   /**
-   * "What can you do? Do you work offline?" is answered from facts about NIE: by the model in its own words when one is running
-   * (so it can answer the question actually asked), otherwise by a fixed answer. A reply that claims NIE writes or edits text is
-   * never used, and neither is one that cannot be trusted about the state of the model: the fixed answer states it exactly.
+   * "What can you do? Do you work offline? Which model are you?" is answered from fixed, checked facts about NIE and the real status, whether or
+   * not a model is running: a small model asked to describe its own app invents abilities and rambles (measured on the real model), and what NIE says
+   * about itself, above all about its own state, has to be exact. The model's part is recognising that this is what the writer asked.
    */
-  async #about({ project, intent, text, onToken, signal }) {
-    const status = this.engine.status?.() ?? null;
-    let honesty = '';
-    let fallback = null;
-    if ((this.engine.route?.() ?? 'builtin') !== 'builtin') {
-      const composeArgs = { mode: 'brainstorm', project, userMessage: text, history: project.conversation.messages.slice(0, -1), extra: `${ABOUT_NIE_NOTE}\n${aboutNieFacts(status)}` };
-      // Not streamed: the reply is checked first, so a self-description that claims NIE writes is never even briefly on screen.
-      const asked = await this.#ask({ composeArgs, signal, temperature: 0.3 });
-      if (asked.res.text) {
-        const guarded = guardReply(asked.res.text, [text, project.storyText]).text;
-        if (aboutReplyOk(guarded)) {
-          onToken?.(guarded, guarded);
-          return this.#finish(project, intent, guarded, asked.res.route, false);
-        }
-      }
-      if (asked.failure && asked.modelReady) {
-        honesty = modelFailedNote(asked.failure);
-        fallback = { reason: 'error', detail: describeModelFailure(asked.failure) };
-      }
-    }
-    const reply = [honesty, aboutNieReply(status)].filter(Boolean).join('\n\n');
+  #about({ project, intent, text, onToken }) {
+    const reply = aboutNieReply(this.engine.status?.() ?? null, text);
     onToken?.(reply, reply);
-    return this.#finish(project, intent, reply, 'builtin', false, fallback ? { fallback } : {});
+    return this.#finish(project, intent, reply, 'builtin', false);
   }
 
   /** "Remember this": keep what the writer said, or the ideas NIE just offered, on this project's Idea Board. */
@@ -429,7 +403,7 @@ export class Orchestrator {
     const ideas = extra.ideas ?? [];
     const meta = { route };
     // Who understood the message and how it was read ('model' = the language model read it; 'rules' = the built-in rules did).
-    const understood = intent.reading ? { by: intent.reading.by, task: intent.reading.task, topic: intent.reading.topic ?? '' } : null;
+    const understood = intent.reading ? { by: intent.reading.by, task: intent.reading.task, topic: intent.reading.topic ?? '', ...(intent.reading.overruled ? { overruled: intent.reading.overruled } : {}) } : null;
     if (understood) meta.understood = understood;
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });

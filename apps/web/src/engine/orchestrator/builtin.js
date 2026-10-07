@@ -25,24 +25,29 @@ export function describeStatus(status) {
   return "The offline language model isn't installed here, so I'm using my built-in library and guidance.";
 }
 
-/** Plain facts about NIE, for answering "what can you do?" (given to the language model as its only source, and used as the built-in answer). */
-export function aboutNieFacts(status) {
-  return [
-    "NIE is a thinking partner for writers: stories, poems, essays, articles, memoir, scripts, worldbuilding.",
-    "NIE never writes, rewrites or edits the writer's text. Their words stay theirs.",
-    "Brainstorm (this chat): ideas, angles, twists, complications and questions, never drafted text. The writer can keep favourites on the project's Idea Board.",
-    "Full Scan: the writer sets their own rules, and NIE marks the exact places where the text breaks them and says briefly why. A flag is not always a mistake, so findings are sorted by how sure NIE is, and anything the writer calls deliberate is respected.",
-    'Read: opens a document and reads it aloud.',
-    "A built-in library of writing craft, style, usage, forms, genres and notable works answers general questions with no internet, says when practice varies, and says so when it has nothing instead of guessing. It is large but not complete.",
-    'Projects are stored on this computer and kept separate from each other.',
-    describeStatus(status),
-  ].join('\n');
-}
+/**
+ * Questions about NIE itself are answered from fixed, checked facts, never by a language model: a small model describing its own app
+ * invents abilities and rambles, and what NIE says about its own state must be exact. The question picks which facts to lead with.
+ */
+const ABOUT_TOPICS = [
+  { id: 'writing', re: /\b(?:write|rewrite|edit|fix|proofread|ghost-?write)\b/i, status: false,
+    text: "No. I never write, rewrite or edit your text; your words stay yours. What I can do is brainstorm with you, ask the questions that sharpen an idea, answer craft questions, and, in Full Scan, mark the exact places where your text breaks the rules you set and say why." },
+  { id: 'model', re: /\b(?:which|what)\s+(?:language\s+)?(?:model|ai)\b|\bchat\s?gpt\b|\bgpt\b|\bllm\b|\bqwen\b|\b(?:offline|online)\s+(?:model|one|assistant|ai)\b|\bwho\s+(?:made|built|created|developed)\b|\bhow\s+(?:smart|good)\b/i, status: true,
+    text: "I'm NIE. When I have a language model it is either the small offline one on this computer (Qwen2.5 3B Instruct by default) or the online model you chose in Settings. A small model is good company for ideas and questions but it is not an expert editor, and I say so when I can't give you a reliable read." },
+  { id: 'internet', re: /\b(?:offline|off-?line|internet|wi-?fi|online|connection|connected)\b/i, status: true,
+    text: "NIE works with no internet. My built-in library and the checks in Full Scan run on this computer, and so does the offline language model once it has been downloaded (about 1.9 GB, one time). An online model is optional and only used if you set one up in Settings." },
+  { id: 'privacy', re: /\b(?:store|stored|storing|save|saved|private|privacy|upload\w*|sent|share[ds]?|leave|keep)\b/i, status: false,
+    text: "Your projects are stored on this computer and kept separate from each other. What you write is not sent anywhere unless you set up an online model in Settings; then the messages I send for a reply go to that provider." },
+  { id: 'scan', re: /\bscan\b/i, status: true,
+    text: "Full Scan: you set the rules for your project in plain words, and I mark the exact places in your text where a rule is broken and say briefly why. Rules that need meaning are judged by the language model when one is running; with no model they are approximated by keywords and labelled as such. Nothing is rewritten." },
+];
 
-export function aboutNieReply(status) {
+export function aboutNieReply(status, text = '') {
+  const topic = ABOUT_TOPICS.find((t) => t.re.test(text));
+  if (topic) return [topic.text, ...(topic.status ? [describeStatus(status)] : [])].join('\n\n');
   return [
     "I'm NIE, a thinking partner for writers. I never write or edit your text; I help you think, and I show you where your own rules are broken.",
-    ['Here is what I can do:', '- Brainstorm with you: ideas, twists, complications and questions for a story, essay, poem or anything else, kept on your Idea Board if you like.', "- Full Scan: you set the rules for your project, and I mark the exact places that break them and say why.", '- Read your document aloud.', '- Answer questions about craft, style, grammar, forms, genres and well-known works from my built-in library, which works with no internet.'].join('\n'),
+    ['Here is what I can do:', '- Brainstorm with you: ideas, twists, complications and questions for a story, essay, poem or anything else, kept on your Idea Board if you like.', '- Full Scan: you set the rules for your project, and I mark the exact places that break them and say why.', '- Read your document aloud.', '- Answer questions about craft, style, grammar, forms, genres and well-known works from my built-in library, which works with no internet.'].join('\n'),
     describeStatus(status),
   ].join('\n\n');
 }
@@ -73,7 +78,7 @@ export function builtinReply({ intent, project, message, report = null, modelRea
       return DECLINE_WRITE;
 
     case 'about-nie':
-      return aboutNieReply(status);
+      return aboutNieReply(status, message);
 
     case 'greeting':
       return pick(

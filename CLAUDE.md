@@ -29,8 +29,10 @@
   repeats until a lens is exhausted, `ideas.js` also parses a model's numbered list into cards and drops over-long "ideas"). The Idea
   Board is project data (`project.brainstorm`, `project/board.js`): isolated, deleted with the project, never edited by NIE.
 - Understanding: `engine/orchestrator/understand.js` (the prompt, the schema, `parseReading`, `applyReading`, the label each rule-intent stands for)
-  and `orchestrator/index.js#read` (when to ask, the circuit breaker that stops asking a model that keeps failing). `about-nie` questions are
-  answered from facts (`aboutNieFacts`) and the real status (`describeStatus`), and a reply that claims NIE writes text is never shown.
+  and `orchestrator/index.js#read` (when to ask, the circuit breaker that stops asking a model that keeps failing). A model's `write`/`edit`
+  reading is only believed when the message really contains a request (`looksLikeARequest`): the real 3B model sometimes read plain statements
+  as "write" and declined a writer's own premise. `about-nie` questions are answered by fixed, checked facts and the real status
+  (`aboutNieReply`, `describeStatus`), never by the model: measured on the real model, a 3B asked to describe NIE rambles and invents abilities.
 - `apps/web`: UI (native ES modules, no bundler) and the shared engine in `apps/web/src/engine` (also imported by the desktop main process).
 - `apps/desktop`: Electron main, preload bridge, llama-server service, model manager/downloader, updater.
 - `tests/`: `npm test` (node:test; engine + desktop services against a fake llama-server), `npm run test:ui` (Playwright, real UI).

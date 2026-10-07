@@ -8,7 +8,9 @@
 //        [--e2e]                             also run a short real conversation through the whole orchestrator (slow: it generates answers)
 //        [--rules-only]                      no model: just the rule-based baseline (works anywhere)
 //
-// "accuracy" is exact label agreement. The two numbers that matter for NIE's promise are declineRecall (how many requests to write or
+// Numbers are AS SHIPPED: the rules decide first what they decide on their own (exact commands, bare greetings, the requests they recognise as
+// write/edit, none of which wait for the model), then the model's reading is applied with the same request check the app uses. "model alone" shows
+// the raw label on the messages the model actually read. "accuracy" is exact label agreement. The two numbers that matter for NIE's promise are declineRecall (how many requests to write or
 // edit were recognised, so NIE declines them) and falseDecline (how many ordinary requests were wrongly taken for one).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,7 +19,7 @@ import { LlamaService } from '../apps/desktop/src/llama-service.js';
 import { DEFAULT_MODEL } from '../apps/desktop/src/runtime.js';
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
-import { TASKS, UNDERSTAND_SYSTEM, buildUnderstandMessages, taskOfIntent, understandMessage } from '../apps/web/src/engine/orchestrator/understand.js';
+import { TASKS, UNDERSTAND_SYSTEM, applyReading, buildUnderstandMessages, taskOfIntent, understandMessage } from '../apps/web/src/engine/orchestrator/understand.js';
 import { detectIntent } from '../apps/web/src/engine/intent/intent.js';
 import { createProjectData } from '../apps/web/src/engine/project/store.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
@@ -64,11 +66,25 @@ if (flag('--rules-only')) {
   // Warm-up (the first call also loads the prompt cache), not counted.
   await understandMessage({ engine, text: 'hi there' });
 
+  const DECIDED_BY_RULES = ['request-write', 'request-edit', 'greeting', 'remember', 'recall', 'develop-idea'];
   for (const it of items) {
+    const intent = detectIntent(it.text, { hasHistory: Boolean(it.history?.length) });
+    const base = { id: it.id, text: it.text, expected: it.task, hard: Boolean(it.hard), history: Boolean(it.history?.length), rules: rulesTask(it) };
+    if (DECIDED_BY_RULES.includes(intent.type)) {
+      results.push({ ...base, got: base.rules, model: null, ms: 0, ok: true, decidedBy: 'rules' });
+      continue;
+    }
     const t = Date.now();
     const r = await understandMessage({ engine, text: it.text, history: it.history ?? [] });
     const ms = Date.now() - t;
-    results.push({ id: it.id, text: it.text, expected: it.task, hard: Boolean(it.hard), history: Boolean(it.history?.length), got: r.ok ? r.task : 'FAILED', topic: r.ok ? r.topic : '', raw: r.ok ? undefined : r.raw, error: r.ok ? undefined : String(r.error?.message ?? ''), rules: rulesTask(it), ms, ok: r.ok });
+    let got = base.rules;
+    let overruled;
+    if (r.ok) {
+      applyReading(intent, r, it.text);
+      got = intent.reading.task;
+      overruled = intent.reading.overruled;
+    }
+    results.push({ ...base, got: r.ok ? got : 'FAILED', model: r.ok ? r.task : 'FAILED', overruled, topic: r.ok ? r.topic : '', raw: r.ok ? undefined : r.raw, error: r.ok ? undefined : String(r.error?.message ?? ''), ms, ok: r.ok, decidedBy: 'model' });
     if (results.length % 20 === 0) console.log(`  ${results.length}/${items.length} read…`);
   }
 }
@@ -90,7 +106,7 @@ const summary = {
   falseDecline: shouldNot.filter((r) => declines.has(r.got)).length / (shouldNot.length || 1),
   rulesFalseDecline: shouldNot.filter((r) => declines.has(r.rules)).length / (shouldNot.length || 1),
   unusable: results.filter((r) => r.got === 'FAILED').length,
-  latencyMs: { mean: Math.round(results.reduce((a, r) => a + r.ms, 0) / results.length), p50: quantile(results.map((r) => r.ms), 0.5), p90: quantile(results.map((r) => r.ms), 0.9), max: Math.max(...results.map((r) => r.ms)) },
+  latencyMs: (() => { const ms = results.filter((r) => r.decidedBy === 'model').map((r) => r.ms); return { mean: Math.round(ms.reduce((a, b) => a + b, 0) / (ms.length || 1)), p50: quantile(ms, 0.5), p90: quantile(ms, 0.9), max: ms.length ? Math.max(...ms) : 0 }; })(),
 };
 
 console.log(`\n=== understanding: ${summary.model ? 'the language model' : 'rules only'} on ${summary.n} labelled messages ===`);
@@ -99,7 +115,14 @@ console.log(`hard cases            ${pct(acc(results.filter((r) => r.hard)), res
 console.log(`with chat history     ${pct(acc(results.filter((r) => r.history)), results.filter((r) => r.history).length)}`);
 console.log(`declineRecall         ${pct(should.filter((r) => declines.has(r.got)).length, should.length)}   (requests to write/edit recognised; the old rules: ${pct(should.filter((r) => declines.has(r.rules)).length, should.length)})`);
 console.log(`falseDecline          ${pct(shouldNot.filter((r) => declines.has(r.got)).length, shouldNot.length)}   (ordinary requests wrongly taken for write/edit; the old rules: ${pct(shouldNot.filter((r) => declines.has(r.rules)).length, shouldNot.length)})`);
+const readByModel = results.filter((r) => r.decidedBy === 'model');
+if (readByModel.length) {
+  const raw = readByModel.filter((r) => r.model !== 'FAILED');
+  const rawDecline = raw.filter((r) => declines.has(r.model) && !declines.has(r.expected)).length;
+  console.log(`model alone           read ${readByModel.length} (the rules decided the other ${results.length - readByModel.length}): ${pct(raw.filter((r) => r.model === r.expected).length, raw.length)} exact; wrongly taken for write/edit ${rawDecline}; of those the request check overruled ${raw.filter((r) => r.overruled && !declines.has(r.expected)).length}`);
+}
 console.log(`unusable readings     ${summary.unusable}`);
+summary.modelRead = results.filter((r) => r.decidedBy === 'model').length;
 console.log(`latency per reading   mean ${summary.latencyMs.mean} ms, p50 ${summary.latencyMs.p50}, p90 ${summary.latencyMs.p90}, max ${summary.latencyMs.max}`);
 
 console.log('\nper task (recall = of the messages that ARE this task, how many were read as it):');
@@ -123,7 +146,7 @@ if (svc && flag('--e2e')) {
   const o = new Orchestrator({ engine: new AIEngine({ local, online: null, isOnline: () => false }) });
   const project = createProjectData({ title: 'Probe' });
   console.log('\n=== end to end: reading + answering with the real model ===');
-  for (const message of ["What's a villanelle?", 'My novel is about a lighthouse keeper who starts getting letters from the sea.', 'give me some twists', 'tell me more about the second one', 'is my ending too predictable?', 'Can you write the opening paragraph for me?', 'what can you do?', 'does this work without wifi?']) {
+  for (const message of ["What's a villanelle?", 'My novel is about a lighthouse keeper who starts getting letters from the sea.', 'give me some twists', 'is my ending too predictable?', 'does this work without wifi?', 'what can you do?', 'I was wondering if you might be able to compose the first page of my memoir for me?', 'thanks!']) {
     const t = Date.now();
     const r = await o.brainstorm({ project, message });
     const row = { message, ms: Date.now() - t, understood: r.understood, route: r.route, type: r.intent.type, declined: r.declined, reply: r.reply.slice(0, 600) };
