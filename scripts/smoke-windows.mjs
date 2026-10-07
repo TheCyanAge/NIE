@@ -233,18 +233,24 @@ try {
 
     // 4. a real answer from the real model, through the same NIE
     await page.click('.nav-btn[data-view=brainstorm]');
+    // A profile that was used before (the portable run follows the installed run in the same profile) already shows an old
+    // conversation, so "an assistant bubble exists" proves nothing: wait for NIE's NEW reply (two more stored messages, none pending).
+    const countMessages = () => page.evaluate(() => window.NIE_APP.project.conversation.messages.length);
+    const answered = (before) => page.waitForFunction((n) => window.NIE_APP.project.conversation.messages.length >= n + 2 && !document.querySelector('.msg-pending'), before, { timeout: 240000 });
+    const before1 = await countMessages();
     await page.fill('#brainstorm-input', 'In one or two sentences, what is a villanelle?');
     await page.press('#brainstorm-input', 'Enter');
-    await page.waitForSelector('.msg-assistant:not(.msg-pending)', { timeout: 240000 });
-    const reply = (await page.textContent('.msg-assistant:not(.msg-pending)')).trim();
+    await answered(before1);
+    const reply = (await page.evaluate(() => [...document.querySelectorAll('.msg-assistant:not(.msg-pending)')].at(-1)?.textContent ?? '')).trim();
     const route = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).route);
     report.sampleReply = reply.slice(0, 400);
     step('Brainstorm answer comes from the offline model', route === 'local' && reply.length > 20, `route=${route}; "${reply.slice(0, 140).replace(/\s+/g, ' ')}"`);
     await page.screenshot({ path: path.join(outDir, '3-answer.png') });
 
     // an idea request: either cards (model followed the format) or a plain reply; never an error
+    const before2 = await countMessages();
     await page.click('#lens-row [data-lens=twist]');
-    await page.waitForFunction(() => document.querySelectorAll('.msg-assistant:not(.msg-pending)').length >= 2, null, { timeout: 240000 });
+    await answered(before2);
     const ideaRoute = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).route);
     step('an idea request is answered by the offline model too', ideaRoute === 'local', `route=${ideaRoute}`);
   }
