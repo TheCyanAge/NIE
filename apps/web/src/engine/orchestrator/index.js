@@ -8,7 +8,7 @@ import { composeMessages, ideaRequestBlock, RETRY_TOKEN_LIMIT } from './prompt.j
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply } from './guard.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
-import { describeReading } from '../reading/context.js';
+import { describeReading, describeSending } from '../reading/context.js';
 import { ideaSuggestions, nextSuggestions, STARTER } from './suggestions.js';
 import { ASKS_FOR_IDEAS, WANTS_MORE } from '../brainstorm/commands.js';
 import { KIND_IDS, LENSES, LENSES_BY_KIND, detectKind, detectLens, kindLabel } from '../brainstorm/lenses.js';
@@ -307,7 +307,7 @@ export class Orchestrator {
     else {
       // Say what was looked at. (Only when a model answered: a built-in reply never read the text, and must not seem to.)
       const looked = asked.read && !asked.read.complete ? `(${describeReading(asked.read)})` : '';
-      const tail = [looked, shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
+      const tail = [looked, describeSending(asked.read, route), shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
       if (tail) reply = `${reply}\n\n${tail}`;
       if (asked.read) extra = { ...extra, read: summarizeRead(asked.read) };
     }
@@ -407,7 +407,7 @@ export class Orchestrator {
         if (ideas.length) markShown(project, ideas);
         bs.lastLens = lens;
         const lead = [note, parsed.lead].filter(Boolean).join('\n\n');
-        const cut = [asked.read && !asked.read.complete ? `(${describeReading(asked.read)})` : '', shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
+        const cut = [asked.read && !asked.read.complete ? `(${describeReading(asked.read)})` : '', describeSending(asked.read, res.route), shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
         return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read) } : {}) });
       }
     }

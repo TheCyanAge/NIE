@@ -520,6 +520,20 @@ test('switching views puts the cursor in the main input, but never takes it from
   });
 });
 
+test('project isolation: the cached reading index of a text does not outlive the project it came from', async () => {
+  await run({}, async ({ page }) => {
+    const same = await page.evaluate(async () => {
+      const { indexFor } = await import(new URL('/src/engine/orchestrator/prompt.js', location.href).href);
+      const text = 'Monday.\n\n' + 'A boat came in late. '.repeat(200);
+      const a = indexFor(text);
+      const before = indexFor(text) === a;
+      window.NIE_APP.createProject('Another book');
+      return { before, after: indexFor(text) === a };
+    });
+    assert.deepEqual(same, { before: true, after: false });
+  });
+});
+
 test('Read mode: any supported file becomes Story Text, with the format recognised, and flows into Full Scan', async () => {
   await run({}, async ({ page }) => {
     await page.click('.nav-btn[data-view=read]');
@@ -1150,7 +1164,7 @@ test('with the model reading messages: "does this work without wifi?" is answere
   });
 });
 
-test('"What NIE understands" says how NIE reads your text: all of it when it is short, an outline plus the parts that matter when it is long', async () => {
+test('"What NIE understands" says how NIE reads your text: whole when it is short, the parts that matter plus a sample of the rest when it is long', async () => {
   await run({}, async ({ page }) => {
     await openBrainstorm(page);
     assert.ok(!/Your text/.test(await page.textContent('#understands, .info-grid') ?? ''), 'nothing is claimed when there is no text');
@@ -1159,12 +1173,12 @@ test('"What NIE understands" says how NIE reads your text: all of it when it is 
     await page.click('.nav-btn[data-view=brainstorm]');
     await page.fill('#board-add', 'x');
     await page.press('#board-add', 'Enter');
-    assert.match(await page.textContent('.info-grid'), /Your text\s*9 words: NIE reads all of it/);
+    assert.match(await page.textContent('.info-grid'), /Your text\s*9 words: short enough to be read whole, and each reply says if it wasn't/);
     const long = Array.from({ length: 40 }, (_, c) => `Chapter ${c + 1}\n\n${'The tide went out and the tide came in and nobody wrote it down. '.repeat(30)}`).join('\n\n');
     await page.evaluate((t) => { window.NIE_APP.project.storyText = t; }, long);
     await page.fill('#board-add', 'y');
     await page.press('#board-add', 'Enter');
-    assert.match(await page.textContent('.info-grid'), /Your text\s*[\d,]+ words in \d+ sections: NIE keeps an outline of all of it and looks closely at the parts that matter for each question/);
+    assert.match(await page.textContent('.info-grid'), /Your text\s*[\d,]+ words in \d+ sections: for each question NIE looks closely at the parts that matter and the most recent part, sees how some of the others begin, and tells you what it looked at/);
   });
 });
 

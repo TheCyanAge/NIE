@@ -3,6 +3,7 @@ import { AIEngine } from '../engine/ai/engine.js';
 import { createDesktopLocal, createHttpLocal } from '../engine/ai/local.js';
 import { createBridgeOnline, createDirectOnline } from '../engine/ai/online.js';
 import { Orchestrator } from '../engine/orchestrator/index.js';
+import { clearIndexes } from '../engine/orchestrator/prompt.js';
 import { createIngestClient } from '../engine/ingest/client.js';
 import { debounce } from './dom.js';
 import { loadLibrary, libraryStats } from '../engine/knowledge/index.js';
@@ -113,6 +114,7 @@ export function createApp() {
   function swap(project) {
     app.session.abort?.abort();
     app.session.chatAbort?.abort();
+    clearIndexes(); // the reading index of the project being left (a copy of its text, kept for speed) goes with it
     app.project = project;
     app.session = newSession();
     emit('project', project);

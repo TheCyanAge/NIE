@@ -72,8 +72,8 @@ A text longer than what is left used to be cut off after its first part. Now not
    matching sentence, not blindly from the start), and the most recent part. Questions about the ending, the opening or the middle are recognised.
 3. `orchestrator` decides which long text a message is about: a long paste (its short first or last paragraph is the ask), a follow-up soon after one, or the
    project's Story Text for questions about the writer's own work. Craft questions and questions about NIE never pull the writer's text in.
-4. The reply says what was looked at ("I can't hold all of that in mind at once, so for this I looked closely at sections 1, 128 and 129 ... and skimmed an
-   outline of the rest"), the sections are recorded on the message, and the sidebar says how NIE reads the text. A built-in (no model) reply claims no reading.
+4. The reply says what was looked at ("I can't hold all of that in mind at once, so for this I looked at sections 1, 128 and 129 ... For the other 126 I only saw
+   how 36 of them begin", counted from the outline lines the model was really given), the sections are recorded on the message, and the sidebar says how NIE reads the text. A built-in (no model) reply claims no reading.
 
 Honest limits: the model still sees only a few thousand tokens per message, so a question that needs the whole text at once ("list every place X appears")
 is answered from the best matches and the outline, and NIE says so. Finding a passage needs no model and is instant; understanding it is the 3B model's job.

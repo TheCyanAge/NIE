@@ -43,13 +43,20 @@ export async function* sseData(body) {
 }
 
 export class OpenAICompatClient {
-  /** `jsonSchema`: the server can constrain a reply to a JSON schema (llama-server can; an arbitrary online provider may not, so it is opt-in). */
-  constructor({ baseUrl, apiKey = '', model = 'default', fetchImpl = globalThis.fetch?.bind(globalThis), timeoutMs = 120000, headers = {}, jsonSchema = false } = {}) {
+  /**
+   * `jsonSchema`: the server can constrain a reply to a JSON schema (llama-server can; an arbitrary online provider may not, so it is opt-in).
+   * Time limits: `timeoutMs` is how long to wait for the model to start answering (a long text takes a slow computer minutes to read before the first
+   * word) or, for a reply that is not streamed, for the whole reply; `idleMs` is the longest silence allowed between words once it is answering;
+   * `maxTotalMs` caps one whole streamed reply. A slow machine that is still producing words is never cut off at a fixed 2 minutes.
+   */
+  constructor({ baseUrl, apiKey = '', model = 'default', fetchImpl = globalThis.fetch?.bind(globalThis), timeoutMs = 240000, idleMs = 60000, maxTotalMs = 900000, headers = {}, jsonSchema = false } = {}) {
     this.baseUrl = String(baseUrl ?? '').replace(/\/+$/, '');
     this.apiKey = apiKey;
     this.model = model;
     this.fetch = fetchImpl;
     this.timeoutMs = timeoutMs;
+    this.idleMs = idleMs;
+    this.maxTotalMs = maxTotalMs;
     this.headers = headers;
     this.jsonSchema = jsonSchema;
   }
@@ -81,7 +88,10 @@ export class OpenAICompatClient {
   async chat(messages, { stream = true, onToken, signal, maxTokens = 700, temperature = 0.7, extra = {}, json = null, timeoutMs = null } = {}) {
     if (!this.configured) throw new AIError('No AI endpoint configured', { kind: 'error' });
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(new AIError('The model took too long to respond', { kind: 'timeout' })), timeoutMs ?? this.timeoutMs);
+    const tooLong = () => ctrl.abort(new AIError('The model took too long to respond', { kind: 'timeout' }));
+    let timer = setTimeout(tooLong, timeoutMs ?? this.timeoutMs);
+    const cap = stream ? setTimeout(tooLong, this.maxTotalMs) : null;
+    const stillAnswering = () => { clearTimeout(timer); timer = setTimeout(tooLong, this.idleMs); };
     const onAbort = () => ctrl.abort(signal.reason ?? new AIError('Cancelled', { kind: 'abort' }));
     signal?.addEventListener('abort', onAbort, { once: true });
     if (signal?.aborted) onAbort();
@@ -122,6 +132,7 @@ export class OpenAICompatClient {
           const delta = json?.choices?.[0]?.delta?.content ?? json?.choices?.[0]?.text ?? '';
           if (delta) {
             full += delta;
+            stillAnswering();
             onToken?.(delta, full);
           }
         }
@@ -133,6 +144,7 @@ export class OpenAICompatClient {
       return full;
     } finally {
       clearTimeout(timer);
+      clearTimeout(cap);
       signal?.removeEventListener('abort', onAbort);
     }
   }

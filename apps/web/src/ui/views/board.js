@@ -95,8 +95,8 @@ export function mountBoard(app, { onDevelop, onChange = null }) {
     if (story.trim()) {
       const n = words(story).length;
       rows.push(['Your text', estimateTokens(story) <= 1400
-        ? `${n.toLocaleString('en-US')} words: NIE reads all of it`
-        : `${n.toLocaleString('en-US')} words in ${sectionCount(story)} sections: NIE keeps an outline of all of it and looks closely at the parts that matter for each question`]);
+        ? `${n.toLocaleString('en-US')} words: short enough to be read whole, and each reply says if it wasn't`
+        : `${n.toLocaleString('en-US')} words in ${sectionCount(story)} sections: for each question NIE looks closely at the parts that matter and the most recent part, sees how some of the others begin, and tells you what it looked at`]);
     }
     if (wp.summary) rows.push(['Premise', clip(wp.summary, 150)]);
     if (wp.characters?.length) rows.push(['Cast', wp.characters.slice(0, 5).join(', ')]);

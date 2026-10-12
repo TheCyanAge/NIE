@@ -74,6 +74,45 @@ test('client reports http errors, unreachable servers and aborts distinctly', as
   } finally { slow.stop(); }
 });
 
+// A stand-in for fetch that streams `tokens`, each after its own delay, so the three time limits can be tested without a real model.
+const streamingFetch = (steps) => async (_url, { signal }) => {
+  const enc = new TextEncoder();
+  const body = new ReadableStream({
+    async start(controller) {
+      const stop = () => controller.error(signal.reason);
+      signal.addEventListener('abort', stop, { once: true });
+      try {
+        for (const [wait, token] of steps) {
+          await new Promise((r) => setTimeout(r, wait));
+          if (signal.aborted) return;
+          controller.enqueue(enc.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: token } }] })}\n\n`));
+        }
+        controller.enqueue(enc.encode('data: [DONE]\n\n'));
+        controller.close();
+      } catch { /* aborted */ }
+    },
+  });
+  return { ok: true, status: 200, body, text: async () => '' };
+};
+const askWith = (steps, opts) => new OpenAICompatClient({ baseUrl: 'http://x/v1', fetchImpl: streamingFetch(steps), ...opts }).chat([{ role: 'user', content: 'hi' }]);
+
+test('a slow computer is not cut off while it is still answering: the limit is on silence, not on the whole reply', async () => {
+  // 6 words, 60 ms apart = 360 ms in all, far more than the 150 ms the old single limit would have allowed
+  const steps = ['one ', 'two ', 'three ', 'four ', 'five ', 'six'].map((w) => [60, w]);
+  assert.equal(await askWith(steps, { timeoutMs: 150, idleMs: 150 }), 'one two three four five six');
+});
+
+test('reading a long text may take a long time before the first word, but not forever', async () => {
+  assert.equal(await askWith([[120, 'ok']], { timeoutMs: 400, idleMs: 50 }), 'ok', 'the wait for the first word has its own, longer limit');
+  await assert.rejects(askWith([[300, 'late']], { timeoutMs: 80, idleMs: 400 }), (e) => e instanceof AIError && e.kind === 'timeout');
+});
+
+test('a reply that goes silent half way is stopped, and a runaway reply is capped', async () => {
+  await assert.rejects(askWith([[10, 'start '], [300, 'stalled']], { timeoutMs: 400, idleMs: 80 }), (e) => e.kind === 'timeout');
+  const endless = Array.from({ length: 40 }, () => [20, 'w ']);
+  await assert.rejects(askWith(endless, { timeoutMs: 400, idleMs: 400, maxTotalMs: 150 }), (e) => e.kind === 'timeout');
+});
+
 const provider = (state, chat = async () => 'local says hi') => {
   const listeners = new Set();
   return { state, status: () => ({ state: provider.s ?? state }), onStatus: (cb) => (listeners.add(cb), () => listeners.delete(cb)), chat, emit: (cb) => listeners.forEach((l) => l()), set(s) { this.state = s; this.status = () => ({ state: s }); listeners.forEach((l) => l()); } };

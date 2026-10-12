@@ -210,17 +210,33 @@ function rank([i, role], ranked, N) {
 }
 
 /**
- * What NIE tells the writer it looked at, in plain words. Never says "read" about parts it only saw in an outline.
+ * What NIE tells the writer it looked at, in plain words. Never says "read" about parts it only saw in an outline, and counts exactly how many of the
+ * other sections it saw even a line of (a very long text gets an even sample of them, and a tight window may leave room for none).
  */
 export function describeReading(stats) {
   const w = stats.words.toLocaleString('en-US');
   if (stats.complete) return `I read all of it (about ${w} words).`;
   const closely = stats.shown.map((x) => x.i + 1).sort((a, b) => a - b);
-  const list = closely.length <= 1 ? String(closely[0]) : `${closely.slice(0, -1).join(', ')} and ${closely.at(-1)}`;
+  const list = closely.length <= 1 ? String(closely[0] ?? '') : `${closely.slice(0, -1).join(', ')} and ${closely.at(-1)}`;
   const roles = new Set(stats.shown.map((x) => x.role));
   const why = [roles.has('opening') && 'the opening', roles.has('middle') && 'the middle', roles.has('latest') && 'the most recent part', roles.has('match') && 'what matched what you asked'].filter(Boolean);
   const whyText = why.length <= 1 ? why[0] : `${why.slice(0, -1).join(', ')} and ${why.at(-1)}`;
-  return `${stats.subject === 'passage' ? 'The passage you pasted' : 'Your text'} is about ${w} words in ${stats.sections} sections. I can't hold all of that in mind at once, so for this I looked closely at section${closely.length === 1 ? '' : 's'} ${list} (${whyText}) and skimmed an outline of the rest. Ask about any part and I'll look at it.`;
+  const cut = stats.shown.some((x) => x.whole === false);
+  const others = Math.max(0, stats.sections - closely.length);
+  const outlined = Math.min(others, stats.outlined ?? 0);
+  const rest = !others ? '' : !outlined ? ` I did not see the other ${others}.` : outlined >= others ? ` For the other ${others} I only saw how each one begins.` : ` For the other ${others} I only saw how ${outlined} of them begin.`;
+  const subject = stats.subject === 'passage' ? 'The passage you pasted' : 'Your text';
+  return `${subject} is about ${w} words in ${stats.sections} sections. I can't hold all of that in mind at once, so for this I looked at section${closely.length === 1 ? '' : 's'} ${list} (${whyText}${cut ? '; some of it cut short to fit' : ''}).${rest} Ask about any part and I'll look at it.`;
+}
+
+/**
+ * An online model reads the parts of the text it is shown on someone else's computer. Say so, with roughly how much, so the writer is never surprised
+ * about where their words went. (Nothing for an offline model, which keeps everything on this computer.)
+ */
+export function describeSending(stats, route) {
+  if (route !== 'online' || !stats?.tokens) return '';
+  const words = Math.max(10, Math.round((stats.tokens * 0.63) / 10) * 10);
+  return `Because this was answered by your online model, about ${words.toLocaleString('en-US')} words of your text were sent to that provider.`;
 }
 
 /**

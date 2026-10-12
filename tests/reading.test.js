@@ -129,9 +129,23 @@ test('what NIE says it looked at never claims more than it saw', () => {
   const said = describeReading(ctx.stats);
   assert.match(said, /about 39,907 words in 129 sections/);
   assert.match(said, /I can't hold all of that in mind at once/);
-  assert.match(said, /looked closely at sections 1, 128 and 129/);
-  assert.match(said, /skimmed an outline of the rest/);
+  assert.match(said, /looked at sections 1, 128 and 129/);
+  assert.match(said, /For the other 126 I only saw how \d+ of them begin/);
   assert.doesNotMatch(said, /I read all of it/);
+  assert.doesNotMatch(said, /skimmed|outline of the rest/, 'it never claims more than it counted');
+  // the number said is the number of outline lines the model was actually given
+  const given = Number(said.match(/how (\d+) of them begin/)[1]);
+  assert.equal(given, Math.min(126, ctx.stats.outlined));
+  assert.equal(ctx.block.split('Outline of the other sections')[1].split('\n\n')[0].split('\n').length - 1, ctx.stats.outlined);
+});
+
+test('the note says plainly when no outline of the rest fitted, and when each other section was outlined', () => {
+  const base = { complete: false, words: 5000, sections: 6, subject: 'text', shown: [{ i: 0, role: 'opening', whole: true }, { i: 5, role: 'latest', whole: false }] };
+  assert.match(describeReading({ ...base, outlined: 0 }), /I did not see the other 4\./);
+  assert.match(describeReading({ ...base, outlined: 4 }), /For the other 4 I only saw how each one begins\./);
+  assert.match(describeReading({ ...base, outlined: 2 }), /only saw how 2 of them begin/);
+  assert.match(describeReading({ ...base, outlined: 4 }), /some of it cut short to fit/);
+  assert.doesNotMatch(describeReading({ ...base, shown: base.shown.map((x) => ({ ...x, whole: true })), outlined: 4 }), /cut short/);
 });
 
 test('the same text always gives the same context (no randomness)', () => {
@@ -171,8 +185,24 @@ test('a long pasted message is no longer cut off: the model gets an outline of a
   assert.ok(approxTokens(calls) <= 2900 * 1.08, `${approxTokens(calls)} tokens`);
   assert.doesNotMatch(r.reply, /longer than I can read at once/);
   assert.match(r.reply, /The passage you pasted is about 8,0\d\d words in 2\d sections\. I can't hold all of that in mind at once/);
-  assert.match(r.reply, /skimmed an outline of the rest/);
+  assert.match(r.reply, /For the other \d+ I only saw how each one begins/);
   assert.equal(r.route, 'local');
+});
+
+test('an online model is told plainly: the reply says how much of the text was sent to the provider; an offline model says nothing of the kind', async () => {
+  const { text } = makeLongText({ words: 8000 });
+  const message = `What do you think of the ending?\n\n${text}`;
+  const online = { configured: true, chat: modelWithReading(() => 'The ending lands softly.', { reading: () => ({ task: 'feedback', topic: 'ending' }) }) };
+  const local = { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: async () => { throw new Error('should not be used'); } };
+  const o = new Orchestrator({ engine: new AIEngine({ local, online, isOnline: () => true }) });
+  const r = await o.brainstorm({ project: projectWith(), message });
+  assert.equal(r.route, 'online');
+  const sent = Number(r.reply.match(/about ([\d,]+) words of your text were sent to that provider/)?.[1].replace(',', ''));
+  assert.ok(sent >= 200 && sent <= 1500, `says roughly how much was sent (${sent})`);
+  const offline = await setup({ reading: { task: 'feedback', topic: 'ending' } }).o.brainstorm({ project: projectWith(), message });
+  assert.doesNotMatch(offline.reply, /sent to that provider/);
+  const short = await new Orchestrator({ engine: new AIEngine({ local, online, isOnline: () => true }) }).brainstorm({ project: projectWith(), message: 'What would make a ghost story scarier?' });
+  assert.doesNotMatch(short.reply, /sent to that provider/, 'nothing of the writer\'s text was sent, so nothing is said');
 });
 
 test('the record kept on the reply says exactly which sections were shown', async () => {
@@ -248,7 +278,7 @@ test('with no model running a long paste is still checked against the writer\'s 
   const o = new Orchestrator({ engine: new AIEngine({ local: null, online: null, isOnline: () => false }) });
   const r = await o.brainstorm({ project: projectWith(), message: text });
   assert.equal(r.route, 'builtin');
-  assert.doesNotMatch(r.reply, /I read all of it|looked closely at section/);
+  assert.doesNotMatch(r.reply, /I read all of it|looked at section/);
 });
 
 test('only the newest long paste is kept in full: an older one keeps its start, and says so, so the project cannot outgrow its storage', async () => {
@@ -343,4 +373,13 @@ test('the model is told to answer from the text and not to guess when the writer
   assert.match(opinion, /Reference only: this is the writer's own text/);
   assert.match(opinion, /you were not shown all of it, so say so/);
   assert.equal(documentNote('who?', { complete: true }).includes('not shown all'), false, 'a text shown whole does not say it was partial');
+});
+
+test('the reading index is cached for speed and can be cleared', async () => {
+  const { indexFor, clearIndexes } = await import('../apps/web/src/engine/orchestrator/prompt.js');
+  const { text } = makeLongText({ words: 3000 });
+  const a = indexFor(text);
+  assert.equal(indexFor(text), a, 'the same text is indexed once');
+  clearIndexes();
+  assert.notEqual(indexFor(text), a, 'after clearing it is built again');
 });
