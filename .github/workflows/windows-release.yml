@@ -218,6 +218,11 @@ jobs:
           STATE="$(gh release list --limit 100 --json tagName,isDraft --jq ".[] | select(.tagName==\"$TAG\") | .isDraft" || true)"
           if [ "$STATE" = "true" ]; then
             gh release upload "$TAG" $FILES --clobber        # refreshing a draft is fine
+            # A draft has no tag yet: the tag is made at publish time, at the commit the draft points to. Point it at THIS build, so the source
+            # snapshot and the version that gets tagged are the code the downloads were built from (and refresh the notes).
+            if [ "${GITHUB_REF_TYPE}" != "tag" ]; then
+              gh release edit "$TAG" --target "$GITHUB_SHA" --notes-file RELEASE_NOTES.md || echo "::warning::Could not move the draft release to this build's commit; check its target before publishing."
+            fi
           elif [ -n "$STATE" ]; then
             echo "Release $TAG is already PUBLISHED. Refusing to replace public downloads from a build; use a new tag."; exit 1
           elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
