@@ -1,6 +1,6 @@
 {
   "title": "The Counterpoise Lines",
-  "words": 10369,
+  "words": 10374,
   "sections": 25,
   "cast": [
     {
@@ -272,7 +272,7 @@
     },
     {
       "label": "Year four, March",
-      "event": "Linnet hears the Second Line's rope go flat; the guild's sandbag test",
+      "event": "Linnet hears the Second Line's rope go flat; the guild's load test",
       "section": 18
     },
     {
@@ -380,8 +380,12 @@
       "ask": "How many barrels of water does a belly hold when it is filled to the Mark?",
       "mustMention": [
         [
-          "ninety",
-          "90"
+          "ninety barrels",
+          "90 barrels",
+          "ninety tallies",
+          "90 tallies",
+          "ninety-barrel",
+          "90-barrel"
         ]
       ],
       "sections": [
@@ -398,10 +402,12 @@
           "12"
         ],
         [
-          "sedge"
-        ],
-        [
-          "steel"
+          "sedge fibre",
+          "sedge fiber",
+          "fibre",
+          "fiber",
+          "sedge core",
+          "core of sedge"
         ]
       ],
       "sections": [
@@ -414,8 +420,10 @@
       "ask": "How many years did it take to finish building the Ladder?",
       "mustMention": [
         [
-          "nineteen",
-          "19"
+          "nineteen years",
+          "19 years",
+          "nineteen-year",
+          "19-year"
         ]
       ],
       "sections": [
@@ -428,8 +436,16 @@
       "ask": "How old was Rurik Sennet in Year one, and what was his job?",
       "mustMention": [
         [
-          "forty-seven",
-          "47"
+          "was forty-seven",
+          "was 47",
+          "is forty-seven",
+          "is 47",
+          "forty-seven in Year one",
+          "47 in Year one",
+          "forty-seven years old",
+          "47 years old",
+          "aged forty-seven",
+          "aged 47"
         ],
         [
           "brake inspector",
@@ -447,8 +463,7 @@
       "mustMention": [
         [
           "forty crowns",
-          "40 crowns",
-          "forty"
+          "40 crowns"
         ],
         [
           "quarter"
@@ -465,15 +480,11 @@
     {
       "id": "lookup-deaths",
       "kind": "lookup",
-      "ask": "How many of the people who died in the runaway were in the falling car, and how many in the rising one?",
+      "ask": "How many people died when the Fourth Line ran away?",
       "mustMention": [
         [
-          "seven",
-          "7"
-        ],
-        [
-          "four",
-          "4"
+          "eleven",
+          "11"
         ]
       ],
       "sections": [
@@ -538,12 +549,20 @@
         [
           "Haldric",
           "Tolk"
+        ],
+        [
+          "Commissioner",
+          "head of the Commission",
+          "head of the HWC",
+          "Highline Water Commission"
+        ],
+        [
+          "night broker",
+          "broker"
         ]
       ],
       "sections": [
         9,
-        10,
-        11,
         12,
         13,
         14
@@ -555,43 +574,55 @@
       "ask": "How does the story end up for the Ladder and for the main people?",
       "mustMention": [
         [
-          "Seventh Line",
-          "stopped",
+          "Seventh Line stopped",
+          "Seventh Line stops",
           "silent",
-          "the water was gone"
+          "water was gone",
+          "the cars stood"
         ],
         [
           "Reconciliation",
           "Summer Ladder",
+          "Ketterby Cut",
           "shortened"
         ],
         [
           "Linnet",
           "Chief Wright"
+        ],
+        [
+          "Haldric",
+          "resign",
+          "Tobiah",
+          "limp",
+          "knee"
         ]
       ],
       "sections": [
-        9,
-        11,
-        23,
-        25
+        22,
+        23
       ]
     },
     {
       "id": "whole-rules",
       "kind": "whole",
-      "ask": "What are the rules of this world that the characters keep bending?",
+      "ask": "What are the rules of this world, and how do the characters bend them?",
       "mustMention": [
         [
-          "Mark"
+          "the Mark",
+          "overfill"
         ],
         [
-          "key",
-          "two-key"
+          "two keys",
+          "two-key",
+          "both keys",
+          "keys are turned",
+          "keys turned",
+          "dispatcher's key",
+          "inspector's key"
         ],
         [
-          "Held Minute",
-          "Pass"
+          "Held Minute"
         ],
         [
           "seven years",
@@ -599,66 +630,78 @@
         ],
         [
           "sold",
-          "assigned"
+          "sell"
+        ],
+        [
+          "runaway",
+          "Extension Order",
+          "nine years",
+          "gauge",
+          "retainer",
+          "Dessa",
+          "Tobiah",
+          "Haldric"
         ]
       ],
       "sections": [
-        2,
-        4,
-        5,
-        8
+        8,
+        16,
+        17
       ]
     },
     {
       "id": "whole-problem",
       "kind": "whole",
-      "ask": "What is the central problem in the story, and what causes it step by step?",
+      "ask": "What is the central problem in the story, how does it build up step by step, and where does it end?",
       "mustMention": [
         [
           "glacier",
-          "Old Mara",
-          "melt"
+          "Old Mara"
         ],
         [
-          "Brimmer",
-          "lake"
+          "Brimmer"
         ],
         [
-          "Low Day",
-          "earlier",
-          "sooner"
-        ],
-        [
-          "ghost car",
-          "ration",
+          "rationing",
+          "rationed",
           "Weight Cuts",
-          "price"
+          "ghost car"
+        ],
+        [
+          "Reconciliation",
+          "Summer Ladder",
+          "Ketterby Cut",
+          "shortened",
+          "Seventh Line stopped",
+          "Seventh Line stops"
         ]
       ],
       "sections": [
-        1,
-        8
+        8,
+        23
       ]
     },
     {
       "id": "whole-mechanism",
       "kind": "whole",
-      "ask": "How does a line lift freight up the mountain? Walk me through it.",
+      "ask": "How does a line lift freight up the mountain, and where does its water come from and go? Walk me through it.",
       "mustMention": [
         [
           "belly",
-          "tank"
+          "counterpoise"
         ],
         [
-          "water",
-          "ballast"
-        ],
-        [
-          "sheave",
+          "Great Sheave",
+          "haul-rope",
+          "Sheave",
           "rope"
         ],
         [
           "tailrace"
+        ],
+        [
+          "Brimmer",
+          "Sluice"
         ]
       ],
       "sections": [
@@ -692,6 +735,9 @@
       "ask": "Where does the timeline jump backward, and to what moment does it go back?",
       "mustMention": [
         [
+          "Year six"
+        ],
+        [
           "Year one"
         ],
         [
@@ -700,7 +746,7 @@
         [
           "report",
           "shelved",
-          "Haldric"
+          "Prudence"
         ]
       ],
       "sections": [
@@ -714,14 +760,16 @@
       "ask": "How did the date of Low Day change between Year one and Year six?",
       "mustMention": [
         [
-          "September",
           "twenty-fourth",
-          "24"
+          "24th",
+          "24 September",
+          "September 24"
         ],
         [
-          "July",
           "sixteenth",
-          "16"
+          "16th",
+          "16 July",
+          "July 16"
         ]
       ],
       "sections": [
@@ -738,12 +786,16 @@
           "seal"
         ],
         [
-          "Year three",
-          "May"
+          "Year three, May",
+          "May of Year three",
+          "Year three in May",
+          "in May"
         ],
         [
-          "Year four",
-          "March"
+          "Year four, March",
+          "March of Year four",
+          "Year four in March",
+          "in March"
         ]
       ],
       "sections": [
@@ -761,8 +813,12 @@
           "third-person"
         ],
         [
-          "past",
-          "present"
+          "past tense",
+          "past-tense",
+          "in the past",
+          "present tense",
+          "present-tense",
+          "in the present"
         ]
       ],
       "sections": [
@@ -811,16 +867,21 @@
           "few",
           "sparse",
           "rare",
-          "short",
           "handful",
-          "brief"
+          "spare",
+          "minimal",
+          "limited",
+          "scarce",
+          "hardly any"
         ],
         [
-          "dialogue",
-          "speech",
-          "lines",
-          "quote",
-          "said"
+          "short",
+          "brief",
+          "terse",
+          "clipped",
+          "admission",
+          "admit",
+          "confess"
         ]
       ],
       "sections": [
@@ -905,25 +966,32 @@
       "ask": "Is the bible consistent about when Isaura lost her guild seal? Check the cast notes against the dated entries.",
       "mustMention": [
         [
-          "consistent",
-          "agree",
-          "same",
+          "is consistent",
+          "are consistent",
           "no conflict",
+          "no contradiction",
           "not contradict",
-          "do not conflict",
-          "does not conflict"
+          "not conflict",
+          "they agree",
+          "both agree",
+          "both say",
+          "line up"
         ],
         [
           "Year three"
         ],
         [
-          "May"
+          "Year three, May",
+          "May of Year three",
+          "Year three in May",
+          "in May"
         ]
       ],
       "sections": [
         9,
         17
-      ]
+      ],
+      "control": true
     },
     {
       "id": "snippet-heldminute",
@@ -938,7 +1006,8 @@
           "retainer",
           "Tolk",
           "ghost car",
-          "Syndicate"
+          "Syndicate",
+          "Isaura"
         ]
       ],
       "sections": [
@@ -956,15 +1025,12 @@
         ],
         [
           "Ombrecht note",
-          "ear for",
-          "rope",
+          "Held Minute",
           "sedge"
         ],
         [
-          "deaf",
           "left ear",
           "Isaura",
-          "Held Minute",
           "Chief Wright"
         ]
       ],
@@ -983,21 +1049,26 @@
           "Haldric"
         ],
         [
-          "bread",
-          "Pannock",
-          "price"
+          "coppers",
+          "barley",
+          "grain",
+          "Weight Cuts",
+          "First Line",
+          "queued"
         ],
         [
-          "report",
           "Prudence",
-          "told",
-          "nothing",
+          "frightened valley",
+          "shelved",
+          "filed",
           "memo",
-          "frightened valley"
+          "circular"
         ]
       ],
       "sections": [
         14,
+        15,
+        16,
         20,
         21
       ]
@@ -1012,21 +1083,30 @@
           "stakes"
         ],
         [
-          "Syndicate",
+          "quarrel",
+          "when the Ladder",
           "Tolk",
-          "ghost car"
+          "ghost car",
+          "grain carters",
+          "night broker",
+          "thief-pipe",
+          "dusk"
         ],
         [
           "Haldric",
-          "report",
-          "numbers",
-          "memo"
+          "Commissioner",
+          "Commission",
+          "memo",
+          "Prudence"
         ]
       ],
       "sections": [
         6,
         13,
-        15
+        14,
+        15,
+        19,
+        21
       ]
     }
   ]

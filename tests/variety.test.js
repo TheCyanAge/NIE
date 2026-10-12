@@ -395,6 +395,13 @@ test('SHAPES: enough variety, instructions about form only', () => {
   for (const s of readback) assert.match(s.text, /first show you understood the whole text/i, `${s.id} shows understanding of the whole text first`);
 });
 
+test('SHAPES: none asks for story text, a rewrite or wording to copy (NIE never writes the writer\'s text)', () => {
+  for (const s of SHAPES) {
+    assert.ok(!/\b(?:write|writes|rewrite|draft|compose|rephrase|polish|edit|dialogue|scene text|prose)\b/i.test(s.text), s.id);
+    assert.ok(!/\b(?:headline|title|tagline|opening line|first line)\b/i.test(s.text), `${s.id}: no ready-made line`);
+  }
+});
+
 test('shapeFor: honours the kind, is deterministic, and never repeats either of the last two shapes in 30 turns', () => {
   for (const kind of ['conversation', 'question', 'ideas', 'readback']) {
     const history = [];
@@ -531,7 +538,8 @@ test('refine: a stock question as a paragraph between a list and the next paragr
   const reply = "Here are two ways in:\n\n1. Start with the debt the buyer already knows about.\n2. Start with the night she stopped winding the clock.\nWhich of these directions feels right to you?\n\nThe second one gives the chapter a clock to run against, which the draft currently lacks.";
   const r = refine(reply, { history: [] });
   assert.ok(!r.text.includes('Which of these directions'));
-  assert.ok(r.text.includes('2. Start with the night she stopped winding the clock.\nThe second one gives'));
+  assert.ok(r.text.includes('2. Start with the night she stopped winding the clock.\n\nThe second one gives'), 'the blank line stays: the paragraph must not become part of item 2');
+  assert.equal(r.text, reply.replace('Which of these directions feels right to you?\n\n', '').replace('clock.\n', 'clock.\n\n'));
 });
 
 test('refine: retry when the reply still opens with praise, repeats an opener, repeats the last reply, or asks too many questions', () => {
@@ -633,4 +641,306 @@ test('every export survives empty, null, undefined, numbers and 50,000-character
   }
   for (const a of [...small, ...big]) for (const b of [...small.slice(0, 4), big[1]]) assert.ok(time('similarity pair', () => similarity(a, b)) <= 1);
   assert.deepEqual(slow, []);
+});
+
+// ── adversarial review: false positives, paraphrases, dangling cuts ──────────────────────────────────────────────────────────
+
+/** Nineteen more specific replies, several opening on the words a praise rule is tempted by. refine must not touch any of them. */
+const MORE_GOOD = [
+  'Good point of view choices make the narrator trustworthy, and yours already commits: the whole draft stays inside the keeper. The risk is the single paragraph in chapter four that dips into the buyer. Cut the dip or earn it with a signal earlier.',
+  'Great opening lines tend to promise a question the book then refuses to answer, and yours does that well in the first paragraph. The second paragraph answers it too soon. Hold the answer back one scene and the chapter gains its tension.',
+  'Good way to handle exposition is to hide it inside a conflict, as your second chapter already does with the argument over the ledger. The third chapter drops back to explaining, which is why it sags. What does the buyer want from that scene?',
+  'Perfect pitch is the problem for a narrator who hears every lie, because then the reader never gets to doubt anyone. Give her one blind spot, ideally about someone she loves, and the whole confession scene starts to carry weight.',
+  "Interesting choice of tense in chapter one makes the reader lean in, and the shift to past in chapter six is the best structural move in the draft. Keep the shift. What does the narrator know in the past tense that she could not say in the present?",
+  'How exciting the chase is depends on how much the reader fears the fall, so plant the height early. A single line about the drop in chapter two is enough. Then the rooftop scene needs no further description at all.',
+  'Good evening, as the keeper might say to the inspector, is a loaded phrase in your draft because nobody else in the village speaks that way. It marks her as an outsider from the first scene. What do you think the keeper wants from the inspector in that scene?',
+  'What do you think the keeper wants? The draft never says, and that is the strength of the first act. The weakness is that by act three the reader has stopped asking. Let one small want surface in chapter five, and the ending will land harder.',
+  'Which of the two sisters does the keeper trust? Your draft hints at the younger one, but the older one holds the key. I would test the opposite: let the keeper trust the one she should not, and watch what the second half does with that.',
+  'Thanks to the flood in chapter one, the whole valley is cut off, which is why the doctor cannot arrive. Keep that causal chain visible so the reader never wonders why nobody comes. What does the family do with the first day?',
+  'Well, the ending works because the reader has been told twice that the door is never locked. When she finally locks it, nothing else needs to happen. That is the whole scene, and it is enough.',
+  'Sure of herself in the first chapter, the captain is undone by one small fact: the map is hers, not the stolen one. That reversal is quiet and it works. Do you want the crew to learn it at the same time as she does?',
+  "Absolutely nothing in the draft explains why the bridge is out, and that is a strength: the reader supplies a reason and trusts the town more for it. If you add a cause, add it late, and make it smaller than the reader's guess.",
+  'Fantastic creatures in your world never eat, never sleep, and never lie, which makes them useful as witnesses and terrible as characters. Give each one a single appetite and the court scenes change completely. What would the heron want?',
+  "That's a long way to row in the dark, and your second chapter knows it: the oars are muffled, the lamp is covered, and the narrator counts strokes. The counting is the best detail in the book. Carry it into the last scene.",
+  'Exactly the problem with the middle: three scenes of waiting with no change in what anyone wants. Pick one character and give them a deadline. The waiting then has a clock, and the scenes stop sounding alike.',
+  'Which idea would you hand to the keeper? Your draft gives her three, but only the debt costs her anything. Cut the other two or make them cost something, because ideas that are free do not read as choices.',
+  "Who is the keeper? That is the question the reader asks on page one, and the draft answers it with a job title. Let one habit stand in for the biography. The clock winding is already doing that work, so trust it.",
+  'Compelling villains want something the hero also wants. Yours wants the harbor, and so does she, which is why the final confrontation can be a negotiation. Write down what each would give up, and let the scene be about the price.',
+];
+
+/** Opens by saying what the model likes: it may be asked again (that is still praise), but its sentence is content and must never be cut. */
+const LIKES = 'I like how the fog behaves in the second scene, because it arrives late and leaves early, like a guest. That timing is the character. Keep the fog off the page in the third scene and let the characters\' cold hands do the work.';
+
+test('refine: a sentence that praises and then gives its reason is content, never cut', () => {
+  const r = refine(LIKES, { history: [] });
+  assert.equal(r.text, LIKES);
+  assert.deepEqual(r.dropped, []);
+  assert.equal(scrubForPrompt(LIKES), LIKES);
+  const point = 'Good point about the ledger: it means the guild can audit every spell, which makes the mage who forgets the rule even more dangerous because nobody would notice until a spell fails in public.';
+  assert.equal(refine(point, { history: [] }).text, point);
+  assert.equal(scrubForPrompt(point), point);
+});
+
+test('refine: nineteen more specific replies are untouched, including ones that open on praise-like words used as content', () => {
+  for (const reply of MORE_GOOD) {
+    assert.ok(wc(reply) >= 35 && wc(reply) <= 95, `${wc(reply)} words: ${reply.slice(0, 40)}`);
+    for (const history of [[], [user('q'), nie(GOOD.heist), user('q'), nie(GOOD.poem)]]) {
+      const r = refine(reply, { history });
+      assert.equal(r.text, reply, reply.slice(0, 50));
+      assert.deepEqual(r.dropped, [], reply.slice(0, 50));
+      assert.equal(r.retry, false, `${reply.slice(0, 50)}: ${r.reasons.join('; ')}`);
+    }
+    assert.equal(scrubForPrompt(reply), reply);
+  }
+});
+
+test('isPraiseOpener: a praise word that starts a content sentence is not praise (noun phrases, clauses, a reason after the comma)', () => {
+  for (const s of [
+    'Great opening lines tend to promise a question the book then refuses to answer.',
+    'Good way to handle exposition is to hide it inside a conflict, as your second chapter already does.',
+    'Good point of view choices make the narrator trustworthy.',
+    'Interesting choice of tense in chapter one makes the reader lean in.',
+    'Perfect pitch is the problem for a narrator who hears every lie.',
+    'How exciting the chase is depends on how much the reader fears the fall.',
+    'I like how the fog behaves in the second scene, because it arrives late and leaves early, like a guest.',
+    'Your draft is strong on atmosphere but thin on motive, and the thin part is what the reader will notice.',
+    'Your second stanza turns on the word salt.',
+    'Sounds like the narrator is protecting someone.',
+    "That's interesting because the keeper never speaks of the storm at all.",
+    'Sure of herself in the first chapter, the captain is undone by one small fact.',
+    'Absolutely nothing in the draft explains why the bridge is out.',
+  ]) {
+    assert.equal(isPraiseOpener(s), false, s);
+  }
+});
+
+test('isPraiseOpener: more ways of saying the same praise', () => {
+  for (const s of [
+    'Your premise is intriguing!',
+    'Your fog is a wonderful touch.',
+    'Sounds great!',
+    'Sounds like a great idea!',
+    'How exciting!',
+    "That's interesting.",
+    'This is fascinating!',
+    'Great choice of words!',
+    "Sure, let's explore this.",
+  ]) {
+    assert.equal(isPraiseOpener(s), true, s);
+  }
+});
+
+test('splitSentencesLite: markdown emphasis closes with the sentence ("**Great focus!** Let\'s dig")', () => {
+  assert.deepEqual(splitSentencesLite("**Great focus!** Let's dig into the fog."), ['**Great focus!**', "Let's dig into the fog."]);
+  assert.deepEqual(splitSentencesLite('She said *no.* Then she left. _Why?_ Nobody knew.'), ['She said *no.*', 'Then she left.', '_Why?_', 'Nobody knew.']);
+  const r = refine("**Great focus!** Let's dig into the fog and its effect on the crew's sense of time, because that is where the draft is strongest.", { history: [] });
+  assert.equal(r.text, "Let's dig into the fog and its effect on the crew's sense of time, because that is where the draft is strongest.", 'only the praise goes, never the content after it');
+  assert.deepEqual(r.dropped.map((d) => d.kind), ['praise']);
+});
+
+test('isStockQuestion: paraphrases of the same steering question', () => {
+  for (const s of [
+    'Do any of these directions interest you?',
+    'Do any of these ideas grab you?',
+    'Does one of these stand out?',
+    'Do you have a favorite among these?',
+    'Do you have a preference?',
+    'Are any of these what you were looking for?',
+    'How does this sit with you?',
+    'What do you make of these directions?',
+    'What is your reaction?',
+    'What do you think of this direction?',
+    'What do you think about these possibilities?',
+    'Thoughts?',
+    'Any thoughts?',
+    'Would you like help developing any of them?',
+    'Would you like more ideas?',
+    'Do you want more ideas?',
+    'Which of these grabs you?',
+    'Which of these fits your story best?',
+    'Which one fits your vision?',
+    'Which idea do you like best?',
+    'Which idea would you like to develop first?',
+    'Which one catches your attention?',
+    'Is there a direction you prefer?',
+    'Are there any other directions you would like to explore?',
+    'Do you have another direction in mind?',
+    'Do you have something else in mind?',
+    'Do these ideas feel right for your story?',
+    'Does this feel like the right direction?',
+    'Does this align with your vision?',
+    'Do these ideas match your vision?',
+    'Do you think any of these would work for your story?',
+    'Do you think this is a good direction?',
+    'How would you like to proceed?',
+    'What should we explore next?',
+    "What's next?",
+    'Where shall we go from here?',
+    'Want to explore one of these?',
+    'Any of these catch your eye?',
+    'What stands out to you most?',
+    'What feels right to you?',
+  ]) {
+    assert.equal(isStockQuestion(s), true, s);
+  }
+});
+
+test('isStockQuestion: a single word about the story makes a question specific, however generic the rest sounds', () => {
+  for (const s of [
+    'What would change your mind?',
+    'Which idea would you hand to the keeper?',
+    'Which version of the ending do you prefer?',
+    'Do you want the keeper to know about the debt?',
+    'Do you want them to know?',
+    'Do you want this to continue past the funeral?',
+    'What does she want from this?',
+    'What does he want from them?',
+    'Do you think she knew?',
+    'Do you think the keeper lied?',
+    'Is the ending too quiet?',
+    'Does the ending work without the letter?',
+    'Do these two scenes need to be in this order?',
+    'Which of these chapters is the longest?',
+    'How much of this is backstory?',
+    'What do you think the fog is hiding?',
+    'What do you think the keeper wants?',
+    'Is the story told in the first person?',
+    'Which draft do you like better?',
+    'What does the reader learn next?',
+    'What do you want the reader to feel at the end?',
+    'Is that true of the keeper too?',
+    'Who is the story about?',
+    'Which of these 3 chapters is weakest?',
+    'Want to talk through how it might apply to your project?',
+  ]) {
+    assert.equal(isStockQuestion(s), false, s);
+  }
+});
+
+test('refine: a cut never leaves a reply that stops mid-thought', () => {
+  // ends on a colon: the question cannot go (it would leave "Here are some thoughts ...:" with nothing after it), so it asks again instead
+  const intro = 'Here are some thoughts on the harbor scene and the lamp:\n\nWhich of these ideas resonates with you?';
+  const a = refine(intro, { history: [] });
+  assert.equal(a.text, intro);
+  assert.equal(a.retry, true);
+  assert.match(a.reasons.join(' '), /generic question/);
+  // praise followed by a sentence that leans on it: both stay, and it asks again
+  for (const lean of [
+    'Great idea! It works because the reader learns the rule before the keeper breaks it, which makes the break feel earned.',
+    "Great idea! And the keeper's habit of winding the clock backwards gives the third chapter the pressure it needs to carry.",
+    'Great idea! Because the clock is wrong on purpose, every scene in the second act has a second meaning for the reader.',
+  ]) {
+    const r = refine(lean, { history: [] });
+    assert.equal(r.text, lean);
+    assert.deepEqual(r.dropped, []);
+    assert.equal(r.retry, true);
+    assert.match(r.reasons.join(' '), /praise/);
+  }
+  // but a normal sentence after the praise is fine to open on
+  assert.equal(refine('Great idea! The keeper could secretly be the ghost the village fears, and that changes every scene she appears in.', { history: [] }).text, 'The keeper could secretly be the ghost the village fears, and that changes every scene she appears in.');
+  // a stock question first, then a sentence that leans on it
+  const lead = 'Which of these ideas resonates with you?\n\nIt works because the reader learns the rule before the keeper breaks it, which makes the break feel earned.';
+  assert.equal(refine(lead, { history: [] }).text, lead);
+});
+
+test('refine: a question about the same person is not a repeat of an earlier one; the same question reworded is', () => {
+  const asked = (q) => [user('x'), nie(`The keeper winds the clock every night, and the habit is the only fixed point in a draft that otherwise drifts.\n\n${q}`)];
+  const next = (q) => `The villagers fill the silence with stories about her, and the draft lets those stories stand in for facts about her past.\n\n${q}`;
+  for (const [before, after] of [
+    ['Who is the keeper?', 'Why is the keeper afraid?'],
+    ['What does she want?', 'What does she want from the buyer?'],
+    ['Why does the keeper hide the logbook?', 'Who else has seen the logbook?'],
+  ]) {
+    const r = refine(next(after), { history: asked(before) });
+    assert.equal(r.text, next(after), `${before} / ${after}`);
+    assert.deepEqual(r.dropped, []);
+  }
+  const same = refine(next("What's her name?"), { history: asked('What is her name?') });
+  assert.deepEqual(same.dropped.map((d) => d.kind), ['repeat-question'], 'one term each, the same term: a repeat');
+  const reworded = refine(next('Why does the keeper stop winding the clock?'), { history: asked('What makes the keeper stop winding the clock?') });
+  assert.deepEqual(reworded.dropped.map((d) => d.kind), ['repeat-question']);
+});
+
+test('fixed notes as the orchestrator stores them (route "builtin", no declined flag) are not NIE\'s recent replies', () => {
+  const decline = nie("I don't write or continue the story for you; that part is yours. I can help you think, though: tell me the idea.", { route: 'builtin', at: 1 });
+  const model = nie(GOOD.heist, { route: 'local', shape: 'one-thread' });
+  const history = [user('write me a scene'), decline, user('ok'), model];
+  assert.deepEqual(recentAssistant(history), [GOOD.heist]);
+  assert.deepEqual(memoryOf(history).openers.length, 1);
+  assert.equal(avoidBlock([user('write me a scene'), decline]), '', 'a decline is not an opening to avoid');
+  assert.ok(!avoidBlock(history).includes("I don't write"));
+  // a reply that opens like the decline is not flagged as repeating it
+  assert.equal(refine("I don't write or continue the story for you; that part is yours, but I can tell you what the second act is missing.", { history: [user('x'), decline] }).retry, false);
+});
+
+test('refine: output is only ever the input with whole sentences removed (seeded fuzz of 600 assembled replies)', () => {
+  let seed = 20240607;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
+  const pick = (a) => a[Math.floor(rnd() * a.length)];
+  const praise = ['Great focus!', 'Great start!', '**Great focus!**', "Great focus on the fog's psychological impact and the state of the crew!", "That's a fascinating premise!", 'What a striking image!', 'Thanks for sharing!', 'Interesting premise.', 'Love the setup!', 'Good point.', 'Wow!', 'Sounds great!', 'Your premise is intriguing!', 'Absolutely!'];
+  const content = [
+    "The keeper's habit of winding the clock backwards reads as a private ritual.",
+    'If the village notices, her isolation becomes a story other people tell about her.',
+    "Let's dive deeper into that idea:",
+    'Here are a few directions to consider:',
+    'That gives the third chapter a pressure it currently lacks, because every visit risks exposing the ritual.',
+    'It works because the reader learns the rule before the keeper breaks it.',
+    'And the safecracker never learns who sold the plan.',
+    'The debt is the secret here, and the orchard is the lie that hides it from everyone.',
+    'A second reading of the letter changes who the narrator is protecting.',
+  ];
+  const stock = [STOCK_A, STOCK_B, 'What do you think?', 'Would you like to explore any of these further?', 'Let me know what you think.', 'Do any of these ideas appeal to you?'];
+  const specific = ['Why does she stop winding the clock the night the boat is late?', 'What does the harbor master see from the pier that she cannot?', 'Who rowed out to the lighthouse the night the lamp went dark?'];
+  const items = ['1. What if the horror is not external, but internal?', '2. Could the lamp be a signal to someone offshore?', '3. The keeper hides the logbook. Which of these ideas resonates with you?'];
+  const open = /[:;,—–-]\s*$/;
+  const history = [user('x'), nie(`Great focus! Let's dig deeper.\n\n${STOCK_A}\n\nWhy does she stop winding the clock the night the boat is late?`)];
+  for (let t = 0; t < 600; t++) {
+    const paras = [];
+    for (let i = 0, n = 2 + Math.floor(rnd() * 5); i < n; i++) {
+      const r = rnd();
+      paras.push(r < 0.45 ? Array.from({ length: 1 + Math.floor(rnd() * 3) }, () => pick(content)).join(' ') : r < 0.65 ? pick(stock) : r < 0.8 ? pick(specific) : items.slice(0, 1 + Math.floor(rnd() * 3)).join('\n'));
+    }
+    const input = (rnd() < 0.7 ? pick(praise) + (rnd() < 0.5 ? ' ' : '\n\n') : '') + paras.join(rnd() < 0.8 ? '\n\n' : '\n');
+    const r = refine(input, { history: t % 2 ? history : [] });
+    const wi = words(input).map((w) => w.toLowerCase());
+    const wo = words(r.text).map((w) => w.toLowerCase());
+    let at = 0;
+    for (const w of wo) {
+      while (at < wi.length && wi[at] !== w) at++;
+      assert.ok(at < wi.length, `a word was added or reworded: ${w}\n${input}\n=>\n${r.text}`);
+      at++;
+    }
+    if (wi.length >= 8) assert.ok(wo.length >= 8, `fewer than 8 words left\n${input}\n=>\n${r.text}`);
+    if (!open.test(input)) assert.ok(!open.test(r.text), `ends mid-thought\n${input}\n=>\n${r.text}`);
+    const midThought = (t) => /^\p{Ll}/u.test(t.trimStart()) || /^(?:and|or|because|plus|it|they|she|he)\b/i.test(t.trimStart());
+    if (!midThought(input)) assert.ok(!midThought(r.text), `starts mid-thought\n${input}\n=>\n${r.text}`);
+    for (const line of input.split('\n').filter((l) => /^\d\. /.test(l))) assert.ok(r.text.includes(line), `a list item was touched: ${line}`);
+    assert.ok(!/\n{3,}/.test(r.text) || /\n{3,}/.test(input), 'no extra blank lines');
+    assert.ok(r.text.trim().length > 0);
+  }
+});
+
+test('adversarial inputs for the vocabulary and cut rules stay fast', () => {
+  const inputs = [
+    'What do you think?\n\n'.repeat(2500),
+    'Do you?\n\n'.repeat(5500),
+    'Which of these ideas resonates with you? '.repeat(1200),
+    'do you want any of these ideas to resonate '.repeat(1100) + '?',
+    '**Great**! '.repeat(4500),
+    `Great idea, because ${'because which but '.repeat(2500)}`,
+    Array.from({ length: 2500 }, (_, i) => `Why does keeper${i} wind clock${i}?`).join('\n\n'),
+  ];
+  const six = [user('q'), ...Array.from({ length: 6 }, () => nie(inputs[6]))];
+  let worst = 0;
+  for (const v of inputs) {
+    for (const h of [[], six]) {
+      const t0 = performance.now();
+      refine(v, { history: h });
+      scrubForPrompt(v);
+      isStockQuestion(v);
+      isPraiseOpener(v);
+      worst = Math.max(worst, performance.now() - t0);
+    }
+  }
+  assert.ok(worst < 400, `${worst.toFixed(0)} ms for one refine + scrub on 50,000 characters`);
 });

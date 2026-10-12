@@ -16,6 +16,73 @@ const WORLDBUILDING = `Year one, March. The Council of Harbors establishes the f
 
 const LYRICAL = `The sea breathes silver under a pale moon, and the wind folds its quiet wings over the salt dark. Light spills like milk across the tide. Light spills like ash across the stones. Light spills like a whispered name across the empty harbour, and the night hums like a held breath, and the stars hang as if they had been dropped by sleeping hands.`;
 
+// a screenplay: speech sits under the speaker's name, not between quotation marks
+const SCRIPT = `INT. HARBOUR PUB - NIGHT
+
+A low room, thick with smoke. MARA (30s, wet coat) pushes through the door and scans the faces.
+
+TOMAS
+You're late.
+
+MARA
+There was a car at the corner.
+
+TOMAS
+There's always a car at the corner.
+
+MARA
+Not like this one.
+
+Tomas puts down his glass. He looks past her at the window.
+
+TOMAS
+Did you see the plate?
+
+MARA
+Would I be standing here if I had?
+
+A beat. The BARMAN wipes the same spot on the counter.
+
+BARMAN
+Last orders in ten.
+
+TOMAS
+We won't need ten.
+
+He stands, drops a note on the table, and takes her arm.
+
+EXT. QUAY - CONTINUOUS
+
+Rain. The lamps hum. A black saloon idles at the far end, its lights off.
+
+MARA
+That's it.
+
+TOMAS
+Walk slowly.
+
+MARA
+I am walking slowly.
+
+TOMAS
+Walk slower.
+
+They move along the edge of the water. The saloon's door opens. A MAN steps out, holding something long and wrapped in cloth.`;
+
+// a first-person diary that talks mostly about other people: more "he" than "I", but still a diary
+const DIARY = `March 3. Rain again. I stayed in and mended the net, and Pa said nothing about it, which is his way of saying well done.
+
+March 4. The boats did not go out. Ilse came by with a loaf and we ate it standing in the doorway, watching the water climb the steps.
+
+March 7. A letter from Henrik. He is well, he says, and the ship is clean, and the food is bad. He asks after the dog. I will write back tomorrow.
+
+March 9. Pa is ill. He says it is nothing. I do not believe him, and neither does Ilse, and neither does the dog.
+
+March 12. The doctor came. Rest, he says, and broth, and no work. Pa laughed in his face.`;
+
+// not English: every English word list in the module would read it wrongly ("he" is Spanish for "I have")
+const SPANISH = `Ayer fui al mercado con mi madre y compramos tomates, pan y un poco de queso. El vendedor nos saludó con una sonrisa y nos contó que el verano había sido muy seco. Mi madre le dijo que en su pueblo pasaba lo mismo todos los años, y estuvieron hablando durante casi media hora. Yo me quedé mirando las frutas, los colores, las manos de la gente que pasaba con sus bolsas. Cuando volvimos a casa el sol ya estaba muy alto y hacía mucho calor. He visto que el pueblo ha cambiado mucho. Él me dijo que ya no quedan tiendas. He pensado en volver. Me parece que he perdido algo. Me dicen que he cambiado. Yo he vuelto a casa, he comido y he dormido.`;
+
 const profileOf = (text) => styleProfile(text);
 
 // ── labels on small hand-written samples ─────────────────────────────────────
@@ -303,7 +370,7 @@ test('lower-case coined phrases that recur are found, ordinary phrases are not',
 // ── the line for the model and the paragraph for the writer ──────────────────
 
 test('promptLine is one compact line, measured not guessed, within the token budget', () => {
-  const samples = [MEMOIR, NARRATIVE, INSTRUCTIONS, WORLDBUILDING, LYRICAL, makeLongText({ words: 9000 }).text, `Chapter 1\n\n${NARRATIVE}\n\nChapter 2\n\n${NARRATIVE}\n\nChapter 3\n\n${NARRATIVE}`];
+  const samples = [MEMOIR, NARRATIVE, INSTRUCTIONS, WORLDBUILDING, LYRICAL, SCRIPT, SPANISH, DIARY, makeLongText({ words: 9000 }).text, `Chapter 1\n\n${NARRATIVE}\n\nChapter 2\n\n${NARRATIVE}\n\nChapter 3\n\n${NARRATIVE}`];
   for (const text of samples) {
     const { promptLine } = profileOf(text);
     assert.ok(promptLine.startsWith('Style (measured from the text'), promptLine);
@@ -328,14 +395,14 @@ test('promptLine keeps what matters when there is little room: voice first, term
 });
 
 test('describeStyle: 2-3 plain sentences that quote the numbers and say they are measured', () => {
-  for (const text of [MEMOIR, NARRATIVE, INSTRUCTIONS, WORLDBUILDING, `Chapter 1\n\n${NARRATIVE}\n\nChapter 2\n\n${NARRATIVE}\n\nChapter 3\n\n${NARRATIVE}`]) {
+  for (const text of [MEMOIR, NARRATIVE, INSTRUCTIONS, WORLDBUILDING, SCRIPT, SPANISH, DIARY, `Chapter 1\n\n${NARRATIVE}\n\nChapter 2\n\n${NARRATIVE}\n\nChapter 3\n\n${NARRATIVE}`]) {
     const p = profileOf(text);
     const d = describeStyle(p);
     const sentences = d.split(/(?<=[.!?])\s+(?=[A-Z])/);
     assert.ok(sentences.length >= 2 && sentences.length <= 3, `${sentences.length} sentences: ${d}`);
     assert.match(d, /counted from the text|measured from the text/i);
     assert.ok(d.includes(String(Math.round(p.sentence.mean))), 'the average sentence length is quoted');
-    assert.ok(d.includes(`${Math.round(p.dialogue.share * 100)}%`) || /under 1%/.test(d) || (p.dialogue.lines === 0 && /No words sit inside quotation marks/.test(d)), 'the dialogue share is quoted');
+    assert.ok(d.includes(`${Math.round(p.dialogue.share * 100)}%`) || /under 1%/.test(d) || (p.dialogue.lines === 0 && /No (?:quoted speech|speech in English-style quotation marks) was found/.test(d)), 'the dialogue share is quoted');
     assert.ok(!/\b(?:great|good|excellent|beautiful|brilliant|strong|weak|poor|bad|wonderful|well[- ]written|impressive|nice|compelling|engaging)\b/i.test(d), `no praise or judgment: ${d}`);
     assert.ok(/not a judgment of its quality/.test(d));
     assert.ok(!/undefined|NaN|\[object/.test(d), d);
@@ -355,7 +422,7 @@ test('describeStyle says exactly what was found for a known sample', () => {
   assert.match(d, /first person/);
   assert.match(d, /past tense/);
   assert.match(d, /\d+ words in \d+ sentences/);
-  assert.match(d, /No words sit inside quotation marks/);
+  assert.match(d, /No quoted speech was found/);
   const w = describeStyle(profileOf(WORLDBUILDING));
   assert.match(w, /time stamps \("Year one, March"\)/);
   assert.match(w, /expository/);
@@ -400,13 +467,237 @@ test('a text of 60,000 characters in a single paragraph with no punctuation is a
   assertSane(p);
 });
 
+// ── found by review: labels on real-looking prose ───────────────────────────
+
+test('perfect tenses and passives in a present-tense text are not past-tense cues', () => {
+  const text =
+    'The council has made a decision. The tide has taken the boats. Mara has seen the ledger. It is built on sand. Records are kept in the tower. The gate is held by two guards. The harbour has grown quiet. Nobody has told the keeper. The lamps are lit at dusk. The road is cut by floods.';
+  const p = profileOf(text);
+  assert.equal(p.tense.label, 'present');
+  assert.equal(p.tense.past, 0, '"made", "built", "kept", "held" and "told" follow an auxiliary that already carries the tense');
+  // the same sentences in the past are still past
+  const past = profileOf(text.replace(/\bhas\b/g, 'had').replace(/\b(?:is|are)\b/g, (m) => (m === 'is' ? 'was' : 'were')));
+  assert.equal(past.tense.label, 'past');
+  assert.equal(past.tense.present, 0);
+});
+
+test('a first-person diary that talks mostly about other people is "mixed", never confidently "third person"', () => {
+  const p = profileOf(DIARY);
+  assert.notEqual(p.pov.label, 'third person', JSON.stringify(p.pov));
+  assert.equal(p.pov.label, 'mixed');
+  assert.ok(p.pov.first >= 0.3 && p.pov.third >= 0.5, JSON.stringify(p.pov));
+  // the description quotes the numbers a "mixed" rests on instead of just asserting it
+  assert.match(describeStyle(p), /mixed point of view \(first person 33%, third person 67% of the pronouns counted\)/);
+  // a real third-person story with a stray "my" in it is still third person
+  assert.equal(profileOf(`${NARRATIVE} ${NARRATIVE} The note said: my regards to the keeper.`).pov.label, 'third person');
+});
+
+test('a speech that runs over several paragraphs is dialogue all the way down, so the narrator stays third person', () => {
+  const text = `Old Henrik cleared his throat and began. "When I was a boy, the harbour was twice this size. We had forty boats, and every one of them had a name that meant something. You could stand on the quay at dawn and read the whole village by its hulls.
+
+"Then the cannery closed. I remember the day. My father came home early and sat at the table without taking off his coat. He did not say a word for an hour. We understood, my mother and I, that something had ended.
+
+"I tell you this because you think you are the first to lose a living. You are not. Nobody ever is." He looked at the girl. She watched his hands. He held them out as if they were something he had found. "Do you understand me?"
+
+The girl nodded, though she did not. He saw it, and he smiled, and he let her go. She walked down the quay alone, and she thought about the boats. Her mother was waiting at the gate. She took her hand and said nothing.`;
+  const p = profileOf(text);
+  assert.equal(p.pov.label, 'third person', JSON.stringify(p.pov));
+  assert.ok(p.pov.first === 0, 'the first two paragraphs of the speech are speech, not the narrator saying "I" and "my"');
+  assert.ok(p.dialogue.share > 0.45, `dialogue share ${p.dialogue.share}`);
+  // curly marks too, and a paragraph that merely ends without a close is not speech when the next one does not open with a mark
+  assert.equal(profileOf(text.replace(/"/g, (m, i) => (text[i - 1] === ' ' || text[i - 1] === '\n' || i === 0 ? '“' : '”'))).pov.label, 'third person');
+  const stray = profileOf(`She said "hello and then walked on past the mill and the wall. ${'The road ran on and on. '.repeat(30)}\n\nShe never looked back at him, and he never called after her.`);
+  assert.ok(stray.dialogue.share < 0.2, `a stray mark followed by an ordinary paragraph is not speech: ${stray.dialogue.share}`);
+});
+
+test('speech under a speaker name (a screenplay) is dialogue, not the narrator', () => {
+  const p = profileOf(SCRIPT);
+  assert.ok(p.dialogue.cueLines >= 12, `${p.dialogue.cueLines} speeches`);
+  assert.ok(p.dialogue.cueShare > 0.2 && p.dialogue.cueShare < 0.6, `cue share ${p.dialogue.cueShare}`);
+  assert.equal(p.dialogue.lines, 0, 'nothing is inside quotation marks');
+  assert.notEqual(p.pov.label, 'mixed', 'the characters\' I / you / we are not the narrator');
+  assert.match(p.promptLine, /dialogue, set off by speaker names/);
+  assert.match(p.promptLine, /screenplay scene headings/);
+  assert.doesNotMatch(p.promptLine, /almost no/, 'it must not claim there is hardly any dialogue');
+  const d = describeStyle(p);
+  assert.match(d, /No quoted speech was found, but \d+ speeches are set off by a speaker name in capitals on its own line \(\d+% of the words\)/);
+  // a heading in capitals is not a speaker; neither is one speaker who says three things
+  const headings = profileOf(`CHAPTER ONE\n${NARRATIVE}\n\nCHAPTER TWO\n${NARRATIVE}\n\nCHAPTER THREE\n${NARRATIVE}\n\nCHAPTER FOUR\n${NARRATIVE}`);
+  assert.equal(headings.dialogue.cueLines, 0);
+  const lone = profileOf(`MARA\nI know.\n\nMARA\nI know it.\n\nMARA\nI know it well.\n\nMARA\nYes.\n\n${NARRATIVE}`);
+  assert.equal(lone.dialogue.cueLines, 0, 'one speaker is a heading style, not a script');
+  assert.equal(profileOf(SCRIPT.toUpperCase()).dialogue.cueLines, 0, 'in a text that is all capitals nothing marks a speaker');
+});
+
+test('text that is not mainly English is not given an English reading', () => {
+  const p = profileOf(SPANISH);
+  assert.equal(p.language.readable, false);
+  assert.ok(p.language.englishShare < 0.12, `${p.language.englishShare}`);
+  assert.equal(p.pov.label, 'unclear', '"he" is Spanish for "I have", not a third-person pronoun');
+  assert.equal(p.tense.label, 'unclear');
+  assert.match(p.promptLine, /few common English words, so person, tense and register are not measured/);
+  assert.doesNotMatch(p.promptLine, /narrative register|third person|first person|past tense|present tense/);
+  assert.doesNotMatch(p.promptLine, /almost no quoted dialogue/, 'other languages quote in other ways');
+  assert.ok(p.signature.every((t) => !/^[a-zà-ÿ]+ [a-zà-ÿ]+$/.test(t)), `no coined phrase out of Spanish function words: ${JSON.stringify(p.signature)}`);
+  const d = describeStyle(p);
+  assert.match(d, /few of its words are common English words/);
+  assert.doesNotMatch(d, /written in|mixed|expository|lyrical|narrative|conversational/, 'no label is claimed');
+  assert.equal(describeStyle(profileOf(SPANISH)), d, 'deterministic');
+  // English is still English, even with invented names and a scattering of numbers
+  for (const text of [MEMOIR, NARRATIVE, WORLDBUILDING, DIARY, `Mara Voss: 34. Tomas Reed: 41. The Warden: unnamed.\n\n${NARRATIVE}`]) assert.equal(profileOf(text).language.readable, true);
+});
+
+test('the register wording says what was counted, not what the words are', () => {
+  const d = describeStyle(profileOf(WORLDBUILDING));
+  assert.doesNotMatch(d, /technical terms|abstract nouns are/, 'a very long word or a date is not a "technical term"');
+  assert.match(d, /numbers, acronyms and very long words \d+%/);
+  assert.match(d, /words ending in -tion, -ity, -ment/);
+  const narrative = describeStyle(profileOf(MEMOIR));
+  assert.match(narrative, /nothing in the word counts marks it as expository, lyrical or conversational/);
+  const lyrical = profileOf(`${LYRICAL}\n\n${LYRICAL}`);
+  assert.equal(lyrical.register.label, 'lyrical');
+  assert.equal(typeof lyrical.register.imageryShare, 'number');
+  assert.ok(lyrical.register.imageryShare >= 0.08);
+  assert.match(describeStyle(lyrical), /image words, similes and repeated openings score \d+ per 100 words/);
+});
+
+// ── found by review: ways of setting speech apart ────────────────────────────
+
+test("'straight single quotes' are dialogue when the text quotes in no other way; apostrophes are not", () => {
+  const text = `'Where are you going?' asked Elena. 'Out,' said Pavel. 'Out where?' 'Just out. Does it matter?' 'It matters to me,' she said. He stopped at the door and looked back at her. 'I'll be home before dark,' he said. 'You said that yesterday.' 'And yesterday I was.' 'Late.' 'Late,' he agreed, and he almost smiled. Elena turned back to the stove. She heard the door close, and then the gate, and then nothing at all.`;
+  const p = profileOf(text);
+  assert.equal(p.dialogue.lines, 10);
+  assert.ok(p.dialogue.share > 0.3, `${p.dialogue.share}`);
+  assert.equal(p.pov.first, 0, 'the "I" inside the marks is a character, not the narrator');
+  // apostrophes alone: contractions, possessives and dropped letters never pair up into quotations
+  const apostrophes = `It wasn't her place, and she didn't follow him. 'Til morning the dogs' bowls were empty, and Mara's coat hung by the door as it always did. He'd said 'em twice, and she'd heard him both times. They'd gone by dusk, and nobody's lamp was lit in the lane. 'Twas the night before the market, and the baker's boy was late again.`;
+  assert.equal(profileOf(apostrophes).dialogue.lines, 0);
+});
+
+test('speech set off with a dash at the start of the line is not the narrator', () => {
+  const lines = [
+    '— Where are you going? asked Elena.',
+    '— Out, said Pavel.',
+    '— Out where?',
+    '— Just out. Does it matter?',
+    '— It matters to me.',
+    'He stopped at the door and looked back at her. The kitchen was warm and smelled of onions, and a pan hissed on the stove.',
+    '— I will be home before dark, he said.',
+    '— You said that yesterday.',
+    '— And yesterday I was.',
+    '— Late.',
+    '— Late, he agreed, and he almost smiled.',
+    'Elena turned back to the stove. She heard the door close, and then the gate, and then nothing at all. She stirred the pot for a long time, and the steam rose past her face.',
+    'Outside, the dog barked twice and fell silent. She did not look up, and she turned the heat down low. The evening went on like any other, and the light faded from the window.',
+  ];
+  const p = profileOf(lines.join('\n'));
+  assert.equal(p.dialogue.dashLines, 10);
+  assert.equal(p.dialogue.lines, 0);
+  assert.equal(p.pov.first, 0, 'the I and you in the dashed lines are the characters');
+  assert.match(p.promptLine, /many lines open with a dash/);
+  assert.match(describeStyle(p), /No quoted speech was found, but 10 lines open with a dash, which some writers use to set off speech/);
+  // a couple of stray dashes, or a list that uses dashes, is not a way of writing speech
+  const stray = profileOf(`${NARRATIVE}\n\n— a note to self\n\n${NARRATIVE}\n\n— another note`);
+  assert.equal(stray.dialogue.dashLines, 0);
+});
+
+// ── found by review: sentences, stamps, odd spaces ───────────────────────────
+
+test('time stamps may be capitalised any way and use a hyphen; a sentence is still not a stamp', () => {
+  const stamps = (text) => profileOf(text).structure.some((x) => x.startsWith('time stamps'));
+  const body = 'Nothing much happened in the valley that season, and the people there went about their work as they always had done. ';
+  assert.equal(stamps(`DAY 1. ${body}DAY 2. ${body}DAY 3. ${body}`), true);
+  assert.equal(stamps(`Day One\n\n${body}\n\nDay Two\n\n${body}\n\nday three\n\n${body}`), true);
+  assert.equal(stamps(`Year four - September. ${body}Year five - March. ${body}Year six - May. ${body}`), true);
+  assert.equal(stamps(`Year four, the harvest failed and the people went hungry. ${body}Year five, the rains came back late. ${body}Year six, nobody could say what had changed. ${body}`), false);
+});
+
+test('a decimal point or a version number is not the end of a sentence, and a long run of them is quick', () => {
+  const p = profileOf('The unit reaches a COP of 3.5 in mild weather and stays above 2.8 in frost. Version 2.0.1 fixes the defrost timer. Both ran at 4.2 percent of rated load, which nobody expected.');
+  assert.equal(p.sentences, 3);
+  const text = '1.1.1.1'.repeat(8600);
+  const t0 = performance.now();
+  assertSane(styleProfile(text));
+  assert.ok(performance.now() - t0 < 300, 'merging the pieces of a number must not re-scan the sentence each time');
+});
+
+test('a no-break space is a space', () => {
+  // these verbs are only recognised straight after their subject, so a word processor's no-break space must not break the link
+  const cues = 'She pushed the gate. He stared at her. They waited. She nodded. He opened the door. They followed her inside. She turned the lamp. He watched the rain. She smiled. He laughed.';
+  const nbsp = profileOf(cues.replace(/ /g, '\u00a0'));
+  assert.equal(nbsp.tense.label, 'past');
+  assert.deepEqual(nbsp.tense, profileOf(cues).tense);
+  const narrative = profileOf(NARRATIVE.replace(/ /g, '\u00a0'));
+  assert.deepEqual(narrative.pov, profileOf(NARRATIVE).pov);
+  assert.deepEqual(narrative.dialogue, profileOf(NARRATIVE).dialogue);
+});
+
+test('an outline numeral at the start of a line is not the narrator', () => {
+  const text = `I. The Harbour\n\n${NARRATIVE}\n\nII. The Tower\n\n${NARRATIVE}\n\nI. The Return\n\n${NARRATIVE}`;
+  const p = profileOf(text);
+  assert.equal(p.pov.first, 0);
+  assert.equal(p.pov.label, 'third person');
+});
+
+// ── found by review: speed on text built to be slow ──────────────────────────
+
+test('unclosed quotation marks cannot make the profile slow', () => {
+  const quick = (text, label) => {
+    styleProfile(text.slice(0, 2000)); // warm up
+    const t0 = performance.now();
+    assertSane(styleProfile(text));
+    const ms = performance.now() - t0;
+    assert.ok(ms < 250, `${label}: ${ms.toFixed(0)} ms`);
+  };
+  const rep = (s) => s.repeat(Math.ceil(60000 / s.length)).slice(0, 60000);
+  quick(rep(' “a'), 'curly double marks, none closed');
+  quick(rep(' "a'), 'straight marks, none closed');
+  quick(rep(' ‘a'), 'curly single marks, none closed');
+  quick(rep("a' 'b "), 'straight single marks');
+  quick(rep('— a\n'), 'dashes');
+  quick(rep('MARA\n'), 'speaker names with nothing under them');
+  quick(rep('MARA\nhi\n\n'), 'speeches');
+  quick(rep('Year one and '), 'a time stamp that never ends');
+  // the same single-curly-mark reading as before the rewrite: a close more than 1,500 characters away is not a quotation
+  assert.equal(profileOf(`‘${'word '.repeat(400)}’ ${NARRATIVE}`).dialogue.lines, 4, 'too long to be speech');
+  assert.equal(profileOf(`‘Go home now, please,’ she said. ‘No,’ he said. ${NARRATIVE}`).dialogue.lines, 6);
+});
+
+test('a pasted blob is not a recurring term, and no term is long enough to flood the description', () => {
+  const blob = `Z${'x'.repeat(3000)}`;
+  const filler = 'The road ran on between the fields and nobody on it said a word. '.repeat(40);
+  const p = profileOf([blob, filler, `then ${blob}`, filler, `and ${blob}`, filler, `but ${blob}`, filler].join(' '));
+  assert.deepEqual(p.signature, []);
+  assert.ok(describeStyle(p).length < 1200, `${describeStyle(p).length} characters`);
+  for (const t of profileOf(makeLongText({ words: 9000, seed: 4 }).text).signature) assert.ok(t.length <= 60, t);
+});
+
+test('a share that only rounds to 100% is not reported as 100%', () => {
+  // 1 present cue among 300 past ones: 99.7% past is not "100% past"
+  const text = `${'She walked home and she saw the river. '.repeat(150)} He is here. She went on. `;
+  const p = profileOf(text);
+  assert.equal(p.tense.label, 'past');
+  assert.ok(p.tense.past < 1 && p.tense.past >= 0.995, `${p.tense.past}`);
+  const d = describeStyle(p);
+  assert.match(d, /past tense \(over 99% of those counted\)/);
+  assert.doesNotMatch(d, /100%/);
+});
+
+test('the new readings are deterministic too', () => {
+  for (const text of [SCRIPT, SPANISH, DIARY, `“One.\n\n“Two.\n\n“Three.” He left.`]) {
+    assert.deepEqual(profileOf(text), profileOf(`${text}`));
+    assert.equal(describeStyle(profileOf(text)), describeStyle(profileOf(text)));
+  }
+});
+
 // ── helpers ───────────────────────────────────────────────────────────────────
 
 /** Every number is finite and in range, every label is one of the allowed ones, every list holds strings. */
 function assertSane(p) {
-  const nums = [p.words, p.sentences, p.paragraphs, ...Object.values(p.sentence), p.paragraph.meanWords, p.dialogue.share, p.dialogue.lines, p.pov.first, p.pov.second, p.pov.third, p.tense.past, p.tense.present, p.register.abstractShare, p.register.technicalShare];
+  const nums = [p.words, p.sentences, p.paragraphs, ...Object.values(p.sentence), p.paragraph.meanWords, p.dialogue.share, p.dialogue.lines, p.dialogue.dashLines, p.dialogue.cueLines, p.dialogue.cueShare, p.pov.first, p.pov.second, p.pov.third, p.tense.past, p.tense.present, p.register.abstractShare, p.register.technicalShare, p.register.imageryShare, p.language.englishShare];
   for (const n of nums) assert.ok(Number.isFinite(n) && n >= 0, `bad number ${n}`);
-  for (const s of [p.sentence.longShare, p.sentence.shortShare, p.dialogue.share, p.pov.first, p.pov.second, p.pov.third, p.tense.past, p.tense.present, p.register.abstractShare, p.register.technicalShare]) assert.ok(s <= 1, `share ${s}`);
+  assert.equal(typeof p.language.readable, 'boolean');
+  for (const s of [p.sentence.longShare, p.sentence.shortShare, p.dialogue.share, p.dialogue.cueShare, p.language.englishShare, p.pov.first, p.pov.second, p.pov.third, p.tense.past, p.tense.present, p.register.abstractShare, p.register.technicalShare]) assert.ok(s <= 1, `share ${s}`);
   assert.ok(['first person', 'second person', 'third person', 'mixed', 'unclear'].includes(p.pov.label));
   assert.ok(['past', 'present', 'mixed', 'unclear'].includes(p.tense.label));
   assert.ok(['expository', 'narrative', 'lyrical', 'conversational'].includes(p.register.label));

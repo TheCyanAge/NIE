@@ -1,4 +1,4 @@
-import { dialogueSpans, estimateTokens, mean, splitParagraphs, splitSentences, STOPWORDS, words } from '../util/text.js';
+import { estimateTokens, mean, splitParagraphs, splitSentences, STOPWORDS, words } from '../util/text.js';
 import { isHeading } from './sections.js';
 
 /**
@@ -76,6 +76,10 @@ const COGNITION = set(
     'hear hears heard so now'
 );
 const MODALS = set('would could should might must can will shall may have be been do');
+/** Auxiliaries that carry the tense of a verb phrase: the participle after one ("has made", "is built", "had taken") is not a second cue. */
+const AUXILIARY = set("is are am be been being was were isn't aren't wasn't weren't has have had hasn't haven't hadn't get gets got gotten having");
+/** Past forms that are themselves auxiliaries: always a cue, even after another auxiliary. */
+const PAST_AUXILIARY = set("was were wasn't weren't had hadn't did didn't");
 const ADVERB_SKIP = set('not never also always still just often only even already soon then now');
 
 const IMAGERY = set(
@@ -92,9 +96,10 @@ const MAX_SPOKEN_CHARS = 1500; // a longer "quote" is almost certainly two stray
 const NUMBER_WORD =
   '(?:\\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand)';
 const STAMP_NUMBER = `(?:(?:minus|negative)\\s+)?${NUMBER_WORD}(?:\\s+and\\s+a\\s+half)?`;
+// "Year four", "Day One", "DAY 12": any case, followed by a separator or the end; what comes after the separator is checked in `isStamp`
 const STAMP = new RegExp(
-  `^(?:Year|Day|Week|Month|Cycle)\\s+${STAMP_NUMBER}(?:\\s+(?:to|and)\\s+${STAMP_NUMBER})*(?=\\s*(?:[,.:;—–]|$))`,
-  'u'
+  `^(?:Year|Day|Week|Month|Cycle)\\s+${STAMP_NUMBER}(?:\\s+(?:to|and)\\s+${STAMP_NUMBER})*(?=\\s*(?:[,.:;—–-]|$))`,
+  'iu'
 );
 const MONTH = '(?:January|February|March|April|May|June|July|August|September|October|November|December)';
 const DATE_STAMP = new RegExp(`^(?:${MONTH}\\.?\\s+\\d{1,2}(?:st|nd|rd|th)?(?:,?\\s+\\d{4})?|\\d{1,2}(?:st|nd|rd|th)?\\s+${MONTH}(?:,?\\s+\\d{4})?)[.:]?$`, 'u');
@@ -146,12 +151,13 @@ function emptyProfile() {
     paragraphs: 0,
     sentence: { mean: 0, median: 0, longShare: 0, shortShare: 0, longest: 0 },
     paragraph: { meanWords: 0 },
-    dialogue: { share: 0, lines: 0 },
+    dialogue: { share: 0, lines: 0, dashLines: 0, cueLines: 0, cueShare: 0 },
     pov: { label: 'unclear', first: 0, second: 0, third: 0 },
     tense: { label: 'unclear', past: 0, present: 0 },
-    register: { label: 'narrative', abstractShare: 0, technicalShare: 0 }, // with no text the label is only a default; promptLine and describeStyle say nothing about it
+    register: { label: 'narrative', abstractShare: 0, technicalShare: 0, imageryShare: 0 }, // with no text the label is only a default; promptLine and describeStyle say nothing about it
     structure: [],
     signature: [],
+    language: { englishShare: 0, readable: true },
     promptLine: '',
   };
 }
@@ -181,7 +187,7 @@ function tokenize(text) {
         end,
         init: initNext,
         cap: /^\p{Lu}/u.test(raw),
-        prev: last && start - last.end <= 3 && /^[ \t]+$/.test(text.slice(last.end, start)) ? last : null,
+        prev: last && start - last.end <= 3 && /^[ \t\u00a0]+$/.test(text.slice(last.end, start)) ? last : null, // a word processor's no-break space is a space
       };
       initNext = false;
       last = tok;
@@ -204,18 +210,141 @@ const beforeVerb = (t) => (t.prev && isAdverb(t.prev.lo) ? t.prev.prev : t.prev)
 
 // ── dialogue ──────────────────────────────────────────────────────────────────
 
-// Typographic single quotes (British style): an opening mark that starts a word, then a closing mark that does not sit inside one ("don’t" has an apostrophe, not a close)
-const SINGLE_QUOTED = /(?<![\p{L}\p{N}])‘(?:[^’\n]|’(?=[\p{L}\p{N}])){0,1500}?’(?![\p{L}\p{N}])/gu;
+const WORD_CHAR = /[\p{L}\p{N}]/u;
+const BEFORE_OPENER = /[\s(\[—–-]/;
 
-/** Every quoted span: "straight", “curly” and ‘single curly’. A span inside another is part of it. */
-function quotedSpans(src) {
-  const spans = dialogueSpans(src);
-  if (!src.includes('‘')) return spans;
-  for (const m of src.matchAll(SINGLE_QUOTED)) spans.push({ text: m[0], start: m.index, end: m.index + m[0].length });
-  spans.sort((a, b) => a.start - b.start || b.end - a.end);
+/**
+ * The same spans as util/text.js#dialogueSpans ("straight" and “curly”, never across a line break), found in one pass. That regex rescans the rest of the
+ * line from every unclosed “, which is quadratic: a line of 60,000 characters with 10,000 stray marks took a second.
+ */
+function doubleQuoted(src) {
   const out = [];
-  for (const sp of spans) if (!out.length || sp.start >= out.at(-1).end) out.push(sp);
+  const n = src.length;
+  let lineEnd = -1;
+  let straightLeft = true; // false once a line has no closing " left
+  let curlyLeft = true;
+  for (let i = 0; i < n; i++) {
+    const c = src.charCodeAt(i);
+    if (c !== 34 && c !== 0x201c) continue;
+    if (i > lineEnd) {
+      lineEnd = src.indexOf('\n', i);
+      if (lineEnd < 0) lineEnd = n;
+      straightLeft = curlyLeft = true;
+    }
+    if (c === 34 ? !straightLeft : !curlyLeft) continue;
+    const closer = c === 34 ? 34 : 0x201d;
+    let j = i + 1;
+    while (j < lineEnd && src.charCodeAt(j) !== closer) j++;
+    if (j >= lineEnd) {
+      if (c === 34) straightLeft = false;
+      else curlyLeft = false;
+      // Fiction's way of writing one long speech over several paragraphs: no closing mark until the last one, and the next paragraph opens with a mark again.
+      // Without this the first paragraphs of every such speech count as the narrator talking ("I", "my", "we") and a third-person story reads as first person.
+      if (opensNextParagraph(src, lineEnd)) {
+        out.push({ text: src.slice(i, lineEnd), start: i, end: lineEnd });
+        i = lineEnd - 1;
+      }
+      continue;
+    }
+    out.push({ text: src.slice(i, j + 1), start: i, end: j + 1 });
+    i = j;
+  }
   return out;
+}
+
+/** The next line that has anything on it starts with an opening quotation mark. */
+function opensNextParagraph(src, from) {
+  let k = from;
+  while (k < src.length && /\s/.test(src[k])) k++;
+  return k < src.length && (src.charCodeAt(k) === 34 || src.charCodeAt(k) === 0x201c);
+}
+
+/**
+ * Typographic single quotes (British style): ‘an opening mark that starts a word’, closed by the first ’ that does not sit inside a word ("don’t" has an
+ * apostrophe, not a close). Found in one pass: the same pattern as a regex rescans up to 1,500 characters from every unclosed ‘, which took 0.2 s on a line
+ * of 20,000 stray marks. The first closer is remembered, because it is the first closer for every opening mark before it on the line.
+ */
+function curlySingleQuoted(src) {
+  const out = [];
+  let lineEnd = -1;
+  let closer = -1; // the first closing mark after the last opening mark searched; -1 = none on this line
+  let searched = false;
+  for (let i = src.indexOf('‘'); i >= 0; ) {
+    if (i > 0 && WORD_CHAR.test(src[i - 1])) {
+      i = src.indexOf('‘', i + 1);
+      continue;
+    }
+    if (i > lineEnd) {
+      lineEnd = src.indexOf('\n', i);
+      if (lineEnd < 0) lineEnd = src.length;
+      searched = false;
+    }
+    if (!searched || (closer >= 0 && closer <= i)) {
+      closer = -1;
+      searched = true;
+      for (let j = i + 1; j < lineEnd; j++) {
+        if (src.charCodeAt(j) === 0x2019 && !WORD_CHAR.test(src[j + 1] ?? '')) {
+          closer = j;
+          break;
+        }
+      }
+    }
+    if (closer >= 0 && closer - i - 1 <= MAX_SPOKEN_CHARS) {
+      out.push({ text: src.slice(i, closer + 1), start: i, end: closer + 1 });
+      i = src.indexOf('‘', closer + 1);
+    } else i = src.indexOf('‘', i + 1);
+  }
+  return out;
+}
+
+/**
+ * 'Straight single quotes', as typed in a plain text box by writers who quote with single marks. Only used when the text has no other quotation marks, because
+ * an apostrophe looks the same: an opening mark follows a space or dash and precedes a word; a closing one follows punctuation (or a letter and then punctuation)
+ * and does not precede a letter; a candidate that meets another opening mark first was a pair of apostrophes ("'em", "'til") and is dropped.
+ */
+function straightSingleQuoted(src) {
+  const out = [];
+  for (let from = 0; from < src.length; ) {
+    let to = src.indexOf('\n', from);
+    if (to < 0) to = src.length;
+    for (let i = from; i < to; i++) {
+      if (src.charCodeAt(i) !== 39 || (i > from && !BEFORE_OPENER.test(src[i - 1])) || !WORD_CHAR.test(src[i + 1] ?? '')) continue;
+      const limit = Math.min(to, i + MAX_SPOKEN_CHARS);
+      for (let j = i + 2; j < limit; j++) {
+        if (src.charCodeAt(j) !== 39) continue;
+        const next = src[j + 1] ?? '';
+        if (WORD_CHAR.test(next)) {
+          if (BEFORE_OPENER.test(src[j - 1])) break; // another opening mark
+          continue; // an apostrophe inside a word
+        }
+        const prev = src[j - 1];
+        if (/[,.!?…;:]/.test(prev) || (WORD_CHAR.test(prev) && /^[,.;:!?)]?$/.test(next))) {
+          out.push({ text: src.slice(i, j + 1), start: i, end: j + 1 });
+          i = j;
+          break;
+        }
+      }
+    }
+    from = to + 1;
+  }
+  return out;
+}
+
+/** Every quoted span: "straight", “curly” and ‘single curly’; 'straight single' only in a text that quotes in no other way. A span inside another is part of it. */
+function quotedSpans(src) {
+  let spans = doubleQuoted(src);
+  if (src.includes('‘')) {
+    for (const sp of curlySingleQuoted(src)) spans.push(sp);
+    spans.sort((a, b) => a.start - b.start || b.end - a.end);
+    const out = [];
+    for (const sp of spans) if (!out.length || sp.start >= out.at(-1).end) out.push(sp);
+    spans = out;
+  }
+  if (!spans.length && src.includes("'")) {
+    const single = straightSingleQuoted(src);
+    if (single.length >= 3) spans = single;
+  }
+  return spans;
 }
 
 /** Quoted speech, not scare quotes or titles: it ends in punctuation inside the marks or runs four words or more. */
@@ -226,6 +355,81 @@ function spokenSpans(src) {
     const n = words(inner).length;
     return n > 0 && (n >= 4 || /[,.!?…;:—–-]\s*$/.test(inner));
   });
+}
+
+// Some writers set speech off with a dash at the start of the line instead of quotation marks
+const DASH_LEAD = /^[ \t]*[—―–][ \t]*[\p{L}\p{N}"“‘'¿¡]/u;
+
+/** Lines that open with a dash, when there are enough of them (five, and 30% of all lines) to be a way of writing and not a stray dash. */
+function dashLines(src) {
+  const out = [];
+  let lines = 0;
+  for (let from = 0; from < src.length; ) {
+    let to = src.indexOf('\n', from);
+    if (to < 0) to = src.length;
+    if (to > from && /\S/.test(src.slice(from, to))) {
+      lines++;
+      if (DASH_LEAD.test(src.slice(from, Math.min(to, from + 16)))) out.push({ text: src.slice(from, to), start: from, end: to });
+    }
+    from = to + 1;
+  }
+  return out.length >= 5 && out.length >= lines * 0.3 ? out : [];
+}
+
+// A script sets speech off by the speaker's name in capitals on a line of its own, with the speech on the lines below it
+const CUE_NAME = /^\p{Lu}[\p{Lu}\p{N}'’.-]*(?: [\p{Lu}\p{N}'’.-]+){0,3}$/u;
+const CUE_NOTE = /\s*\([^)\n]{0,30}\)\s*$/; // "(V.O.)", "(CONT'D)", "(30s, wet coat)"
+const SLUG_LINE = /^(?:INT|EXT|I\/E)\b/;
+
+/**
+ * Speech in a screenplay or stage script: "TOMAS" on its own line, then what he says. Without this a script reads as "no dialogue" and its lines count as the
+ * narrator's. Only counted when it is clearly a way of writing: four speeches or more, and at least two speakers who speak more than once (so a chapter title in
+ * capitals above a paragraph is never a speaker).
+ */
+function cueBlocks(src) {
+  const blocks = [];
+  const speakers = new Map();
+  const isCue = (line) => {
+    const t = line.trim();
+    if (t.length < 2 || t.length > 40) return null;
+    const name = t.replace(CUE_NOTE, '');
+    if (name.length < 2 || name.length > 28 || !CUE_NAME.test(name) || name !== name.toUpperCase() || name === name.toLowerCase() || SLUG_LINE.test(name)) return null;
+    return name;
+  };
+  let from = 0;
+  let cue = null; // { name, start, speech: [from, to] }
+  const close = () => {
+    if (cue && cue.speechEnd > cue.speechStart) blocks.push(cue);
+    cue = null;
+  };
+  while (from <= src.length) {
+    let to = src.indexOf('\n', from);
+    if (to < 0) to = src.length;
+    const line = src.slice(from, to);
+    if (!/\S/.test(line)) close();
+    else {
+      const name = isCue(line);
+      if (name) {
+        close();
+        cue = { name, start: from, speechStart: to + 1, speechEnd: to + 1 };
+      } else if (cue) cue.speechEnd = to;
+    }
+    from = to + 1;
+  }
+  close();
+  for (const b of blocks) speakers.set(b.name, (speakers.get(b.name) ?? 0) + 1);
+  const repeat = [...speakers.values()].filter((n) => n >= 2).length;
+  if (blocks.length < 4 || repeat < 2) return [];
+  return blocks.map((b) => ({ start: b.start, end: b.speechEnd, speech: src.slice(b.speechStart, b.speechEnd) }));
+}
+
+/** Both kinds of span in order, with any that overlap an earlier one left out. */
+function mergeSpans(a, b) {
+  if (!b.length) return a;
+  const all = [...a, ...b].sort((x, y) => x.start - y.start || y.end - x.end);
+  const out = [];
+  for (const sp of all) if (!out.length || sp.start >= out.at(-1).end) out.push(sp);
+  return out;
 }
 
 function withoutSpans(src, spans) {
@@ -258,19 +462,39 @@ function paragraphsOf(src) {
   return paras;
 }
 
-const isStamp = (s) => STAMP.test(s) || DATE_STAMP.test(s);
+const SEASONISH = /^(?:early |late |mid-?)?(?:spring|summer|autumn|fall|winter|dawn|dusk|morning|evening|night|noon|midday|midnight|\p{L}+day)$/iu;
+
+/**
+ * A label that places what follows in time. "Year four, September" is one; "Year four, the harvest failed and the people went hungry" is a sentence that
+ * happens to start the same way: after the separator only a short name (a month, a season, a capitalised title of up to five words) or a short continuation ("and onward") may follow.
+ */
+function isStamp(s) {
+  if (DATE_STAMP.test(s)) return true;
+  const m = STAMP.exec(s);
+  if (!m) return false;
+  const rest = s.slice(m[0].length).replace(/^[\s,.:;—–-]+/, '').replace(/[.:;\s]+$/, '');
+  if (!rest) return true;
+  const n = words(rest).length;
+  return n <= 5 && (/^[\p{Lu}\d]/u.test(rest) || SEASONISH.test(rest) || /^(?:and|to|until|through|again|onwards?)\b/i.test(rest)); // "Year minus four, and the months that follow."
+}
 
 /** Sentences for length statistics (headings and time stamps are labels, not sentences) plus the time stamps found. */
 function sentencesOf(src) {
   const merged = [];
   for (const p of splitSentences(src)) {
     const prev = merged.at(-1);
-    // `"Where?" she asked.` is one sentence, not a question and a two-word fragment
-    if (prev && CLOSED_BY_QUOTE.test(prev.text) && /^\p{Ll}/u.test(p.text) && !src.slice(prev.end, p.start).includes('\n')) {
-      prev.text += ' ' + p.text;
+    // `"Where?" she asked.` is one sentence, not a question and a two-word fragment. Only the last piece is tested: re-testing a growing sentence is quadratic
+    // on "1.1.1.1.1..." (60,000 characters took 0.8 s)
+    const quoteTag = prev && CLOSED_BY_QUOTE.test(prev.tail) && /^\p{Ll}/u.test(p.text) && !src.slice(prev.end, p.start).includes('\n');
+    // "a COP of 3.5" and "version 2.0.1" are not sentence ends: a full stop with a digit on both sides and no space
+    const decimal = prev && prev.end === p.start && src[prev.end - 1] === '.' && /\d/.test(src[prev.end - 2] ?? '') && /^\d/.test(p.text);
+    if (quoteTag || decimal) {
+      prev.parts.push((decimal ? '' : ' ') + p.text);
+      prev.tail = p.text;
       prev.end = p.end;
-    } else merged.push({ ...p });
+    } else merged.push({ ...p, tail: p.text, parts: [p.text] });
   }
+  for (const s of merged) s.text = s.parts.join('');
   const stamps = [];
   const prose = [];
   const proseStarts = [];
@@ -304,6 +528,7 @@ function countPronouns(tokens, text, allCaps) {
     if (FIRST_I.has(lo)) {
       if (raw[0] === 'I') {
         if (raw === 'I' && t.prev && NUMERAL_CONTEXT.has(t.prev.lo)) continue;
+        if (raw === 'I' && text[t.end] === '.' && (t.start === 0 || text[t.start - 1] === '\n')) continue; // "I. The Beginning": an outline numeral
         first++;
       } else if (raw === 'i' && text[t.start - 1] !== '(' && !/[).]/.test(text[t.end] ?? '')) first++; // all-lowercase typing; "(i)" is a list marker
       continue;
@@ -327,7 +552,8 @@ function povLabel(first, second, third) {
   const s = second / n;
   const t = third / n;
   if (f >= 0.45 && f >= 0.75 * t && f > s) return 'first person';
-  if (t >= 0.5 && t - Math.max(f, s) >= 0.15) return 'third person';
+  // a third-person narrator almost never says I / me / my outside quoted speech: a fifth of the pronouns being first person is a diary or memoir that talks about other people, not a third-person story
+  if (t >= 0.5 && t - Math.max(f, s) >= 0.15 && f < 0.2) return 'third person';
   if (s >= 0.5 && s - Math.max(f, t) >= 0.15) return 'second person';
   return 'mixed';
 }
@@ -351,15 +577,16 @@ function countTense(tokens, allCaps) {
     const t = tokens[i];
     const lo = t.lo;
     if (!allCaps && t.cap && !t.init && !FIRST_I.has(lo)) continue;
+    const p = beforeVerb(t);
     if (PAST_SURE.has(lo)) {
-      past++;
+      // "The council has made a decision" and "records are kept in the tower" are present tense: counting "made" and "kept" as past cues made a plain present-tense text read 33% past
+      if (!(p && AUXILIARY.has(p.lo) && !PAST_AUXILIARY.has(lo))) past++;
       continue;
     }
     if (PRESENT_SURE.has(lo)) {
       present++;
       continue;
     }
-    const p = beforeVerb(t);
     const subject = !!p && (SUBJECT.has(p.lo) || (!allCaps && nameLike(p)));
     if (PAST_AFTER_SUBJECT.has(lo)) {
       if (subject) past++;
@@ -511,6 +738,9 @@ function structureOf(paras, stamps, wordTotal, src) {
 
 // ── signature terms ───────────────────────────────────────────────────────────
 
+const MAX_TERM_CHARS = 40;
+const MIN_ENGLISH_SHARE = 0.12; // English prose is 30-60% common words; Spanish, French and German measured 2-5%
+
 const slicesFor = (n) => (n < 400 ? 1 : 10);
 const bits = (mask) => {
   let n = 0;
@@ -524,7 +754,7 @@ const bits = (mask) => {
  * only because it starts a sentence is never picked) and is not mostly written in lower case elsewhere (so "Tide" can be a term, "Mark" in "mark my words"
  * cannot). Lower-case phrases must be two content words that almost always occur together, and a term must appear in more than one part of a long text.
  */
-function signatureOf(tokens, allCaps) {
+function signatureOf(tokens, allCaps, english = true) {
   if (allCaps || tokens.length < 40) return [];
   const N = tokens.length;
   const S = slicesFor(N);
@@ -551,7 +781,7 @@ function signatureOf(tokens, allCaps) {
   const termOk = (form, s) => {
     if (!s) return false;
     const lo = form.toLowerCase();
-    if (ORDINARY.has(lo) || form.length < 2) return false;
+    if (ORDINARY.has(lo) || form.length < 2 || form.length > MAX_TERM_CHARS) return false; // a 3,000-letter "word" is a pasted blob, not a name
     const acronym = isAcronym(form);
     if (!acronym && form === form.toUpperCase()) return false; // a shouted word, not a name
     if (acronym) return true;
@@ -584,6 +814,7 @@ function signatureOf(tokens, allCaps) {
     while (j + 1 < N && tokens[j + 1].prev === tokens[j] && j - i < 2 && capTerm(j + 1)) j++;
     if (j > i) {
       const key = forms.slice(i, j + 1).join(' ');
+      if (key.length > MAX_TERM_CHARS + 20) continue;
       const e = phrases.get(key) ?? { count: 0, mask: 0, first: i, parts: forms.slice(i, j + 1) };
       e.count++;
       e.mask |= 1 << sliceOf(i);
@@ -600,7 +831,7 @@ function signatureOf(tokens, allCaps) {
   const pairs = new Map();
   // a coined term is a noun phrase: not a verb form, adverb, or function word
   const content = (t, f) =>
-    !t.cap && f.length >= 4 && !ORDINARY.has(t.lo) && !/\d/.test(t.raw) && !/(?:ly|ing|ed)$/.test(t.lo) && !PAST_SURE.has(t.lo) && !PAST_AFTER_SUBJECT.has(t.lo) && !PRESENT_SURE.has(t.lo) && !BASE_VERBS.has(t.lo);
+    !t.cap && f.length >= 4 && f.length <= 24 && !ORDINARY.has(t.lo) && !/\d/.test(t.raw) && !/(?:ly|ing|ed)$/.test(t.lo) && !PAST_SURE.has(t.lo) && !PAST_AFTER_SUBJECT.has(t.lo) && !PRESENT_SURE.has(t.lo) && !BASE_VERBS.has(t.lo);
   for (let i = 1; i < N; i++) {
     const a = tokens[i - 1];
     const b = tokens[i];
@@ -613,6 +844,7 @@ function signatureOf(tokens, allCaps) {
   }
   const minPair = N < 1500 ? 3 : 4;
   for (const [key, e] of pairs) {
+    if (!english) break; // the function words that keep a pair of nouns apart are English ones: in another language "verano había" would look like a coined term
     const cohesion = e.count / Math.max(1, Math.min(lowerCount.get(e.a) ?? 1, lowerCount.get(e.b) ?? 1));
     if (e.count < minPair || cohesion < 0.5 || bits(e.mask) < needSpread) continue;
     found.push({ text: key, count: e.count, score: spreadScore(e.count, e.mask), first: e.first, kind: 'coined', parts: [e.a, e.b] });
@@ -655,39 +887,53 @@ export function styleProfile(text) {
 
   // dialogue, and narration with the dialogue taken out (person and tense are the narrator's, not the characters')
   const spans = spokenSpans(src);
+  const dashes = dashLines(src);
+  const cues = allCaps ? [] : cueBlocks(src);
   const spokenWords = spans.reduce((n, s) => n + words(s.text).length, 0);
+  const cueWords = cues.reduce((n, c) => n + words(c.speech).length, 0);
   const tokens = tokenize(src);
-  const narration = spans.length ? tokenize(withoutSpans(src, spans)) : tokens;
-  const narrationText = spans.length ? withoutSpans(src, spans) : src;
+  const apart = mergeSpans(mergeSpans(spans, dashes), cues); // what is not narration: quoted speech, lines that open with a dash, speeches under a speaker's name
+  const narrationText = apart.length ? withoutSpans(src, apart) : src;
+  const narration = apart.length ? tokenize(narrationText) : tokens;
 
-  const { first, second, third } = countPronouns(narration, narrationText, allCaps);
+  // Every word list here is English. A text with hardly any common English words ("the", "of", "and"...) is another language, or a list of names: "he" is Spanish for
+  // "I have", so person, tense and register read from these lists would be confident nonsense. Say nothing rather than guess.
+  let common = 0;
+  for (const t of tokens) if (STOPWORDS.has(t.lo)) common++;
+  const englishShare = share(common, tokens.length);
+  const english = wordTotal < 40 || englishShare >= MIN_ENGLISH_SHARE;
+
+  const { first, second, third } = english ? countPronouns(narration, narrationText, allCaps) : { first: 0, second: 0, third: 0 };
   const pn = first + second + third;
   const pov = { label: povLabel(first, second, third), first: share(first, pn), second: share(second, pn), third: share(third, pn) };
 
-  const { past, present } = countTense(narration, allCaps);
+  const { past, present } = english ? countTense(narration, allCaps) : { past: 0, present: 0 };
   const tn = past + present;
   const tense = { label: tenseLabel(past, present), past: share(past, tn), present: share(present, tn) };
 
   // register
-  const { abstract, technical } = measureRegister(tokens, allCaps, src);
+  const { abstract, technical } = english ? measureRegister(tokens, allCaps, src) : { abstract: 0, technical: 0 };
   const abstractShare = share(abstract, tokens.length);
   const technicalShare = share(technical, tokens.length);
   const dialogueShare = Math.min(1, share(spokenWords, wordTotal));
+  const cueShare = Math.min(1, share(cueWords, wordTotal));
+  const talk = Math.min(1, dialogueShare + cueShare); // speech of either kind, for the register
   const sentenceMean = lengths.length ? mean(lengths) : 0;
   let contractions = 0;
   for (const t of narration) if (/n't$|'(?:re|ll|ve|m|d)$/.test(t.lo)) contractions++;
   const chatty = narration.length > 0 && contractions / narration.length >= 0.03 && sentenceMean <= 16 && (pov.label === 'first person' || pov.label === 'second person');
+  const imagery = english ? lyricalness(tokens, starts) : 0;
   let label = 'narrative';
-  if (dialogueShare >= 0.45 && wordTotal >= 5) label = 'conversational'; // a measured fact, so it needs no more than a few words
+  if (talk >= 0.45 && wordTotal >= 5) label = 'conversational'; // a measured fact, so it needs no more than a few words
   else if (wordTotal < 30) label = 'narrative';
   else if (chatty) label = 'conversational';
-  else if (abstractShare + technicalShare >= 0.07 && dialogueShare < 0.25) label = 'expository';
+  else if (abstractShare + technicalShare >= 0.07 && talk < 0.25) label = 'expository';
   // long explanatory sentences with abstract and technical words, no real dialogue and not told in the past: an explanation, not a story
-  else if (abstractShare + technicalShare >= 0.035 && sentenceMean >= 20 && dialogueShare < 0.1 && tense.label !== 'past') label = 'expository';
-  else if (lyricalness(tokens, starts) >= 0.08 && abstractShare < 0.03 && dialogueShare < 0.1) label = 'lyrical';
+  else if (abstractShare + technicalShare >= 0.035 && sentenceMean >= 20 && talk < 0.1 && tense.label !== 'past') label = 'expository';
+  else if (imagery >= 0.08 && abstractShare < 0.03 && talk < 0.1) label = 'lyrical';
 
   const structureKinds = structureOf(paras, stamps, wordTotal, src);
-  const signature = signatureOf(tokens, allCaps);
+  const signature = signatureOf(tokens, allCaps, english);
 
   const profile = {
     words: wordTotal,
@@ -701,12 +947,13 @@ export function styleProfile(text) {
       longest: lengths.reduce((m, n) => (n > m ? n : m), 0),
     },
     paragraph: { meanWords: r1(mean(paraWords)) },
-    dialogue: { share: dialogueShare, lines: spans.length },
+    dialogue: { share: dialogueShare, lines: spans.length, dashLines: dashes.length, cueLines: cues.length, cueShare },
     pov,
     tense,
-    register: { label, abstractShare, technicalShare },
+    register: { label, abstractShare, technicalShare, imageryShare: r3(imagery) },
     structure: structureKinds.map((k) => k.text),
     signature,
+    language: { englishShare, readable: english },
     promptLine: '',
   };
   profile.promptLine = promptLineOf(profile, structureKinds.map((k) => k.kind));
@@ -739,12 +986,20 @@ function sentenceWords(profile, expository) {
   return `very short sentences ${avg}`;
 }
 
-function dialogueWords(share) {
-  if (share < 0.03) return 'almost no quoted dialogue';
-  if (share < 0.15) return 'little quoted dialogue';
-  if (share < 0.35) return 'some quoted dialogue';
-  if (share < 0.6) return 'a lot of quoted dialogue';
-  return 'mostly quoted dialogue';
+function dialogueWords({ share, dashLines: dash = 0, cueLines: cue = 0, cueShare = 0 }) {
+  // speech set off by a speaker's name or by a dash, which the quotation count does not see
+  if (cue >= 4 && cueShare >= 0.05) return `${amount(share + cueShare)} dialogue, set off by speaker names`;
+  if (dash >= 5 && share < 0.15) return 'many lines open with a dash';
+  return `${amount(share)} quoted dialogue`;
+}
+
+/** "almost no", "little", "some", "a lot of", "mostly": a share of the words in plain words. */
+function amount(share) {
+  if (share < 0.03) return 'almost no';
+  if (share < 0.15) return 'little';
+  if (share < 0.35) return 'some';
+  if (share < 0.6) return 'a lot of';
+  return 'mostly';
 }
 
 const STRUCTURE_SHORT = {
@@ -762,12 +1017,16 @@ const STRUCTURE_SHORT = {
 function promptLineOf(profile, kinds) {
   if (profile.words < 40) return '';
   const expository = profile.register.label === 'expository';
-  const voice = [profile.pov.label === 'mixed' ? 'mixed point of view' : profile.pov.label === 'unclear' ? '' : profile.pov.label, tenseWords(profile.tense, expository)].filter(Boolean).join(', ');
+  const english = profile.language?.readable !== false;
+  const voice = english
+    ? [profile.pov.label === 'mixed' ? 'mixed point of view' : profile.pov.label === 'unclear' ? '' : profile.pov.label, tenseWords(profile.tense, expository)].filter(Boolean).join(', ')
+    : 'few common English words, so person, tense and register are not measured';
   const parts = [
     voice,
     sentenceWords(profile, expository),
-    profile.words >= 100 ? dialogueWords(profile.dialogue.share) : '',
-    profile.words >= 100 ? `${profile.register.label} register` : '',
+    // other languages quote in other ways (« », „ “, a dash), so "almost no quoted dialogue" would be a claim the count cannot support
+    profile.words >= 100 && (english || profile.dialogue.share >= 0.03 || profile.dialogue.dashLines >= 5) ? dialogueWords(profile.dialogue) : '',
+    profile.words >= 100 && english ? `${profile.register.label} register` : '',
     kinds.map((k) => STRUCTURE_SHORT[k]).filter(Boolean)[0] ?? '',
   ];
   const fits = (s) => estimateTokens(s) <= PROMPT_LINE_MAX_TOKENS;
@@ -799,7 +1058,8 @@ function promptLineOf(profile, kinds) {
 
 const finite = (x) => (Number.isFinite(x) ? x : 0);
 const num = (n) => String(Math.round(finite(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-const pct = (x) => (finite(x) > 0 && x < 0.005 ? 'under 1%' : `${Math.round(finite(x) * 100)}%`);
+// a share that only rounds to 0% or 100% is said as "under 1%" / "over 99%": "100% past tense" would claim that not one cue disagreed
+const pct = (x) => (finite(x) > 0 && x < 0.005 ? 'under 1%' : finite(x) >= 0.995 && x < 1 ? 'over 99%' : `${Math.round(finite(x) * 100)}%`);
 
 /**
  * Plain English for the writer: what was measured, with the numbers it rests on. It says the figures are counts, and it never praises or judges.
@@ -808,36 +1068,89 @@ export function describeStyle(profile) {
   const p = profile ?? {};
   if (!(p.words >= 30)) return 'There is not enough text yet to measure a style from.';
 
-  const voice = [];
-  if (p.pov?.label === 'mixed') voice.push('written from a mixed point of view');
-  else if (p.pov?.label && p.pov.label !== 'unclear') voice.push(`written in ${p.pov.label}`);
-  if (p.tense?.label === 'past' || p.tense?.label === 'present') {
-    voice.push(`mostly in ${p.tense.label} tense (${pct(p.tense[p.tense.label])} of the verb cues counted)`);
-  } else if (p.tense?.label === 'mixed') {
-    voice.push(`moving between past tense (${pct(p.tense.past)}) and present tense (${pct(p.tense.present)})`);
-  }
+  const person = p.pov?.label === 'mixed' ? `written from a mixed point of view (${povShares(p.pov)})` : p.pov?.label && p.pov.label !== 'unclear' ? `written in ${p.pov.label}` : '';
+  const tl = p.tense?.label;
+  const tenseShare = tl === 'past' || tl === 'present' ? finite(p.tense[tl]) : 0;
+  const tense =
+    tl === 'past' || tl === 'present'
+      ? `its verb cues are ${tenseShare >= 0.95 ? '' : 'mostly '}${tl} tense (${pct(tenseShare)} of those counted)`
+      : tl === 'mixed'
+        ? `its verb cues move between past tense (${pct(p.tense.past)}) and present tense (${pct(p.tense.present)})`
+        : '';
   const s = p.sentence ?? {};
+  // the word lists are English ones: say so instead of reporting a point of view that "he" (Spanish for "I have") produced
+  const foreign = p.language?.readable === false;
   const first =
-    `Counted from the text itself (${num(p.words)} words in ${num(p.sentences ?? 0)} sentences), it is ` +
-    (voice.length ? voice.join(' and ') : 'not clear in point of view or tense from the cues available') +
+    `Counted from the text itself (${num(p.words)} words in ${num(p.sentences ?? 0)} sentences), ` +
+    (foreign
+      ? "few of its words are common English words, so its point of view, tense and register could not be read with this tool's English word lists"
+      : person && tense
+        ? `it is ${person}, and ${tense}`
+        : person
+          ? `it is ${person}`
+          : tense || 'its point of view and tense are not clear from the cues available') +
     (p.sentences >= 3 ? `, with sentences averaging ${num(s.mean)} words and the longest running ${num(s.longest)}.` : '.');
 
   const lines = finite(p.dialogue?.lines);
+  const dash = finite(p.dialogue?.dashLines);
   const single = p.paragraphs === 1;
   const structure = (Array.isArray(p.structure) ? p.structure : []).filter((x) => typeof x === 'string' && !(single && /^one unbroken block/.test(x)));
+  // "no headings" is a finding, not a kind of structure
+  const found = structure.length === 1 && structure[0] === 'no headings' ? 'no headings were found' : structure.length ? `structure found: ${structure.join(', ')}` : '';
+  const cue = finite(p.dialogue?.cueLines);
+  const dashed = dash ? `${num(dash)} ${dash === 1 ? 'line opens' : 'lines open'} with a dash, which some writers use to set off speech` : '';
+  const cued = cue ? `${num(cue)} ${cue === 1 ? 'speech is' : 'speeches are'} set off by a speaker name in capitals on its own line (${pct(p.dialogue?.cueShare ?? 0)} of the words)` : '';
+  const other = [dashed, cued].filter(Boolean);
+  const spoken = lines
+    ? `Quoted dialogue makes up ${pct(p.dialogue?.share ?? 0)} of the words (${num(lines)} quoted ${lines === 1 ? 'line' : 'lines'})`
+    : other.length
+      ? `No quoted speech was found, but ${other.shift()}`
+      : foreign
+        ? 'No speech in English-style quotation marks was found'
+        : 'No quoted speech was found';
   const second = [
-    lines ? `Quoted dialogue makes up ${pct(p.dialogue?.share ?? 0)} of the words (${num(lines)} quoted ${lines === 1 ? 'line' : 'lines'})` : 'No words sit inside quotation marks',
+    ...other,
     single ? 'the whole text is a single paragraph' : finite(p.paragraph?.meanWords) > 0 ? `paragraphs average ${Math.round(p.paragraph.meanWords)} words` : '',
-    p.words >= 100 && typeof p.register?.label === 'string'
-      ? `the vocabulary reads as ${p.register.label} (abstract nouns are ${pct(p.register.abstractShare)} of the words, technical terms ${pct(p.register.technicalShare)})`
-      : '',
+    p.words >= 100 && !foreign && typeof p.register?.label === 'string' ? registerClause(p) : '',
     // a single paragraph is already said above
-    structure.length ? `structure found: ${structure.join(', ')}` : '',
+    found,
   ]
     .filter(Boolean)
     .join('; ');
 
   const signature = Array.isArray(p.signature) ? p.signature.filter((x) => typeof x === 'string') : [];
-  const terms = signature.length ? `The terms that recur most are ${signature.join(', ')}; every figure` : 'Every figure';
-  return `${first} ${second}. ${terms} here is counted from the text with simple word lists, not a judgment of its quality.`;
+  const terms = signature.length ? `${signature.length === 1 ? 'A term' : 'Terms'} that recur${signature.length === 1 ? 's' : ''} across the text: ${signature.join(', ')}; every figure` : 'Every figure';
+  return `${first} ${spoken}${second ? `; ${second}` : ''}. ${terms} here is counted from the text with simple word lists, not a judgment of its quality.`;
+}
+
+/** "first person 33%, third person 67% of the pronouns counted": the numbers a 'mixed' label rests on. */
+function povShares(pov) {
+  const parts = [
+    ['first person', pov.first],
+    ['second person', pov.second],
+    ['third person', pov.third],
+  ].filter(([, x]) => finite(x) >= 0.005);
+  return parts.length ? `${parts.map(([name, x]) => `${name} ${pct(x)}`).join(', ')} of the pronouns counted` : 'pronouns point different ways';
+}
+
+/** The register label with the counts it was decided on; "narrative" is only what is left when none of the others applies, and the sentence says so. */
+function registerClause(p) {
+  // what is counted, not what it is called: "technical" is a number, an acronym or a very long word, and "abstract" is a word that ends like "attention", "quality" or "judgement"
+  const abstract = `long words ending in -tion, -ity, -ment and the like are ${pct(p.register.abstractShare)} of the words; numbers, acronyms and very long words ${pct(p.register.technicalShare)}`;
+  switch (p.register.label) {
+    case 'expository':
+      return `the word counts read as expository (${abstract})`;
+    case 'lyrical':
+      return Number.isFinite(p.register.imageryShare)
+        ? `the word counts read as lyrical (image words, similes and repeated openings score ${Math.round(p.register.imageryShare * 100)} per 100 words; ${abstract})`
+        : `the word counts read as lyrical (${abstract})`;
+    case 'conversational':
+      return finite(p.dialogue?.share) + finite(p.dialogue?.cueShare) >= 0.45
+        ? `the word counts read as conversational (speech is ${pct(finite(p.dialogue.share) + finite(p.dialogue.cueShare))} of the words)`
+        : `the word counts read as conversational (short sentences and contractions in the narration; ${abstract})`;
+    case 'narrative':
+      return `nothing in the word counts marks it as expository, lyrical or conversational (${abstract})`;
+    default:
+      return `register: ${p.register.label} (${abstract})`;
+  }
 }

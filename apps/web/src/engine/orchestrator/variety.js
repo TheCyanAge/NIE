@@ -46,7 +46,7 @@ function trimWords(s, n) {
 // quantifiers over a 50,000-character run of punctuation would be quadratic, and this runs on every reply.
 
 const TERMINATORS = '.!?…';
-const CLOSERS = '"\'”’)]';
+const CLOSERS = '"\'”’)]*_'; // '*' and '_' close markdown emphasis: "**Great focus!** Let's dig" is two sentences, not one
 const LIST_MARK = /^(?:\d{1,3}[.)]|[-*•])[ \t]+/;
 const BARE_MARK = /^(?:\d{1,3}[.)]|[-*•])$/;
 const ABBREV_TAIL = /(?:^|[\s("'])(?:mr|mrs|ms|dr|prof|sr|jr|st|vs|e\.g|i\.e|fig|cf|approx)\.$/i;
@@ -139,28 +139,42 @@ export function questionsIn(text) {
 //   1. It BEGINS with a praise lead (case-insensitive): Great, Good, Nice, Wonderful, Excellent, Fantastic, Awesome, Amazing, Brilliant,
 //      Lovely, Terrific, Superb, Interesting, Intriguing, Fascinating, Compelling, Impressive, Perfect, Wow, "What a/an ...",
 //      "That's|This is|It's a (great|fascinating|strong|...) ...", "Love this/the ...", "I love|like|enjoy|appreciate this/the/how ...",
-//      "Thanks|Thank you for sharing ...", "Well done".
+//      "Thanks|Thank you for sharing ...", "Well done", "Your premise is intriguing", "Sounds great", "How exciting", "I'm intrigued by ...",
+//      "Sure|Absolutely, let's ...", and the same after "Oh/Ah".
 //   2. It READS as praise, not as a sentence that happens to start with the same word: it ends with '!', or it is just the lead ("Great."),
 //      or the lead is followed within two or three words by a praise noun (focus, start, idea, premise, concept, choice, opening, setup,
-//      direction, question, way, ...: "Great focus on the fog ...", "Interesting premise."). A warm lead before a comma ("Awesome, ...") counts when short.
-//      Without such a sign the sentence is content: "Great Britain is where the story starts.", "Good and evil swap places in the third act."
-//      ("Great"/"Good" before a capitalised word is a name, never praise.)
-//   3. It is mostly praise: at most 30 words, and nothing substantial after a dash, semicolon or colon (more than 5 words there means the
-//      sentence is carrying content, so it is kept; `opensWithPraise` is the looser test that still tells `refine` to ask again).
+//      direction, question, way, ...: "Great focus on the fog ...", "Interesting premise.") and that noun ENDS the phrase (at the end, or before
+//      on/for/with/about/here/and/so). A warm lead before a comma ("Awesome, ...") counts when short.
+//      Without such a sign the sentence is content: "Great Britain is where the story starts.", "Good and evil swap places in the third act.",
+//      "Great opening lines tend to promise a question ...", "Perfect pitch is the problem ...", "Interesting choice of tense in chapter one makes ...".
+//      ("Great"/"Good" before a capitalised word is a name, never praise. A sentence that ends with '!' needs no such proof of its noun.)
+//   3. It is mostly praise: at most 30 words, and nothing substantial after a dash, semicolon, colon or a "because/which/but ..." clause (more
+//      than 5 words there means the sentence is carrying content, so it is kept; `opensWithPraise` is the looser test that still tells `refine` to ask again).
 
 const ADJ = 'great|good|nice|wonderful|excellent|fantastic|awesome|amazing|brilliant|lovely|terrific|superb|interesting|intriguing|fascinating|compelling|impressive|perfect';
 const ADJ2 = `${ADJ}|powerful|strong|rich|vivid|striking|thoughtful|clever|smart|solid|promising|haunting|evocative`;
 const WARM = new Set(['great', 'wonderful', 'excellent', 'fantastic', 'awesome', 'amazing', 'brilliant', 'lovely', 'terrific', 'superb', 'impressive', 'perfect']);
 const NOUN =
   'focus|start|beginning|idea|premise|concept|choice|opening|setup|set-up|direction|question|way|angle|approach|instinct|thinking|observation|detail|image|hook|twist|thought|point|catch|call|job|work|foundation|spark|theme|vision|take|insight|notion|effort|progress|pitch|step|combination|mix|blend';
-const nounWithin = (filler) => new RegExp(`^[\\s,]*(?:[\\p{L}'-]+\\s+){0,${filler}}?(?:${NOUN})\\b`, 'iu');
+// A praise noun counts only where a praise sentence would put it: at the end, or before "on/for/with/about/here/and/so" ("Great focus on the fog").
+// Followed by anything else it is the start of a noun phrase or a clause, i.e. content: "Great opening lines tend to ...", "Perfect pitch is the
+// problem ...", "Interesting choice of tense in chapter one makes ...". A sentence that ends with '!' needs no such check (`LOOSE`).
+const PRAISE_FOLLOW = '(?=\\s*(?:[!.,;:?—–]|-\\s|$)|\\s+(?:on|for|with|about|here|there|and|so)\\b)';
+const nounWithin = (filler, follow = PRAISE_FOLLOW) => new RegExp(`^[\\s,]*(?:[\\p{L}'-]+\\s+){0,${filler}}?(?:${NOUN})\\b${follow}`, 'iu');
 const NOUN2 = nounWithin(2);
 const NOUN3 = nounWithin(3);
 const NOUN4 = nounWithin(4);
+const NOUN2_LOOSE = nounWithin(2, '');
+const NOUN3_LOOSE = nounWithin(3, '');
 const RE_ADJ = new RegExp(`^(?:(?:really|very|so|truly|just)\\s+)?(${ADJ})\\b`, 'i');
 const RE_WHATA = /^what an?\b/i;
 const RE_THATS = new RegExp(`^(?:that|this|it)(?:'s| is| was| sounds like| seems like) (?:a|an|such a|quite a) (?:(?:really|very|truly|such|incredibly|genuinely) )?(?:${ADJ2})\\b`, 'i');
 const RE_SOUNDS = new RegExp(`^(?:that|this|it) (?:sounds|seems|looks) (?:really |very |truly )?(?:${ADJ2})\\b`, 'i');
+const RE_SOUNDS_BARE = new RegExp(`^sounds (?:like (?:a|an) )?(?:really |very |truly )?(?:${ADJ2})\\b`, 'i');
+const RE_THATS_ADJ = new RegExp(`^(?:that|this|it)(?:'s| is| was) (?:really |very |truly |so |quite )?(?:${ADJ2})\\b`, 'i');
+const RE_YOUR = new RegExp(`^your (?:[\\p{L}'-]+ ){1,8}?(?:is|are|sounds?|seems?|looks?|feels?|has|have) (?:such |really |very |truly |quite |so |already )?(?:a |an )?(?:${ADJ2})\\b`, 'iu');
+const RE_HOWADJ = /^how (?:exciting|interesting|fascinating|intriguing|wonderful|fun|cool|great|lovely)\b/i;
+const RE_IMPRESSED = /^i(?:'m| am) (?:so |really |very |truly )?(?:intrigued|impressed|fascinated|delighted|thrilled|excited)\b/i;
 const RE_HAPPY = /^i(?:'m| am| would be|'d be) (?:so |really |very )?(?:happy|glad|excited|delighted|thrilled|pleased) to\b/i;
 const RE_THANKS = /^(?:thanks|thank you)\b(?: so much| very much| a lot)?(?=\s*[!,.:]|\s*$|\s+for (?:sharing|telling|showing|giving|laying|providing|being|that|this|your|those|these|the (?:detail|context|background|extra|update|description))\b)/i;
 const RE_ILOVE = /^i(?:'d| would)? (?:really |absolutely |totally |truly )?(?:love|like|enjoy|appreciate|admire) (this|that|the|how|your|it|these|those|where|its)\b/i;
@@ -168,6 +182,8 @@ const RE_LOVE = /^love (this|that|the|it|how|your|these|those|what|where)\b/i;
 const RE_WOW = /^wow\b/i;
 const RE_DONE = /^(?:well|nicely) done\b/i;
 const RE_FILLER = /^(?:absolutely|certainly|of course|sure|sure thing|definitely|indeed|exactly)\s*[!.,]*$/i;
+const RE_FILLER_LEAD = /^(?:absolutely|certainly|of course|sure|definitely)[,!]\s*(?:let'?s|i(?:'d| would| can| will|'ll)|here(?:'s| are| is))\b/i; // "Sure, let's explore this."
+
 
 /** A sentence as the praise test sees it: no list marker, no markdown emphasis or quotes around it. (Longer than any praise sentence is cut: it cannot be one.) */
 const tidyText = (s) => dropEmphasis(stripMarker(straight(str(s).slice(0, 2100)).trim()).replace(/^[*_"'\s]+/, '')).trim();
@@ -175,6 +191,7 @@ const tidyText = (s) => dropEmphasis(stripMarker(straight(str(s).slice(0, 2100))
 /** Looser than `isPraiseOpener`: the sentence leads with praise, however much content is attached to it. */
 function opensWithPraise(s) {
   if (!s || s.length > 2000) return false;
+  s = s.replace(/^(?:oh|ooh|ah|aha|whoa)[,!.]*\s+(?=\p{L})/iu, ''); // "Oh, what a fascinating idea!"
   const end = /!["')\]]*$/.test(s);
   let m = RE_ADJ.exec(s);
   if (m) {
@@ -182,22 +199,28 @@ function opensWithPraise(s) {
     if (/^\s+\p{Lu}\p{Ll}/u.test(rest)) return false; // "Great Britain", "Good Omens": a name ("EXCELLENT CHOICE!" is only loud)
     if (/^[\s!.…]*$/.test(rest)) return true; // "Great!"
     if (/^\s*[,;:—–-]/.test(rest)) return WARM.has(m[1].toLowerCase()) && (end || countWords(s) <= 9); // "Awesome, let's dig in!"
-    if (NOUN2.test(rest)) return true; // "Great focus on ...", "Interesting premise."
+    if ((end ? NOUN2_LOOSE : NOUN2).test(rest)) return true; // "Great focus on ...", "Interesting premise."
     return end && /^\s+(?:on|for|with|of|about|to|in|that|how|you|your|the|this|these|those|it)\b/i.test(rest); // "Great to see ...!"
   }
-  if ((m = RE_WHATA.exec(s))) return NOUN3.test(s.slice(m[0].length)) || (end && countWords(s) <= 8); // "What a striking image!"
+  if ((m = RE_WHATA.exec(s))) return (end ? NOUN3_LOOSE : NOUN3).test(s.slice(m[0].length)) || (end && countWords(s) <= 8); // "What a striking image!"
   if ((m = RE_THATS.exec(s))) return end || NOUN2.test(s.slice(m[0].length)); // "That's a fascinating premise!"
-  if (RE_SOUNDS.test(s) || RE_HAPPY.test(s)) return end || countWords(s) <= 8; // "That sounds fascinating.", "I'd be happy to help!"
+  if (RE_SOUNDS.test(s) || RE_SOUNDS_BARE.test(s) || RE_HAPPY.test(s) || RE_IMPRESSED.test(s)) return end || countWords(s) <= 8; // "That sounds fascinating.", "Sounds great!", "I'd be happy to help!"
+  if (RE_THATS_ADJ.test(s)) return end || countWords(s) <= 4; // "That's interesting.", "This is fascinating!"; with more words it is a claim ("That's strong because ...")
+  if (RE_YOUR.test(s)) return end || countWords(s) <= 7; // "Your premise is intriguing!", but "Your draft is strong on atmosphere but thin on motive." is an assessment
+  if (RE_HOWADJ.test(s)) return end || countWords(s) <= 3; // "How exciting!" ("How exciting the chase is depends on ..." is a sentence about something)
   if (RE_THANKS.test(s)) return true; // "Thanks for sharing"
   if ((m = RE_ILOVE.exec(s)) || (m = RE_LOVE.exec(s))) return end || m[1].toLowerCase() === 'how' || NOUN4.test(s.slice(m[0].length));
   if (RE_WOW.test(s)) return end || countWords(s) <= 6;
   if (RE_DONE.test(s) || RE_FILLER.test(s)) return true;
+  if (RE_FILLER_LEAD.test(s)) return end || countWords(s) <= 9;
   return false;
 }
 
+// More than a few words after a dash, colon, semicolon or a "because/which/but ..." clause is content, not praise: dropping it would drop what NIE said.
+const TAIL_SPLIT = /[—–;:]|\s-\s|,?\s(?:because|since|whereas|which|but|however|although|though|while|so that)\s/gi;
 function hasContentTail(s) {
-  const m = /[—–;:]|\s-\s/.exec(s);
-  return m ? countWords(s.slice(m.index + m[0].length)) > 5 : false;
+  for (const m of s.matchAll(TAIL_SPLIT)) if (countWords(s.slice(m.index + m[0].length)) > 5) return true;
+  return false;
 }
 
 /** True when the sentence is praise or filler at the start of a reply ("Great focus!", "That's a fascinating premise!"). See the rule above. */
@@ -223,7 +246,7 @@ const STOCK = [
   new RegExp(`^which (?:one )?(?:of )?${THESE}(?: (?:two|three|four|five|few))? (?:ideas?|directions?|options?|angles?|approaches|suggestions?|possibilities)\\b[^?]{0,60}\\b(?:resonates?|compelling|appeals?|speaks?|stands? out|excites?|intrigues?|interests?|works? (?:best|better)|feels? (?:right|best)|sounds? (?:best|good|right)|you (?:prefer|like|find|think|want|choose|pick))`),
   /\bdo you see (?:(?:any )?room for|another|a different|an alternative|any other|a better|a new|other) (?:a |an |another |any |other )?(?:different |other |new |further |alternative |better )?(?:direction|angle|approach|option|avenue)s?\b/,
   /^(?:what do you think|what are your thoughts|what do you make of (?:this|that|these|those|it)|what is your take|what's your take|what are you thinking)(?: (?:of|about|on) (?:this|that|these|those|it|all (?:this|that)|the above|them|so far)(?: (?:ideas|directions|options|suggestions|thoughts))?)?[\s?.!]*$/,
-  /^how (?:does|do) (?:that|this|it|these|those|all that|these (?:ideas|directions|options)|those (?:ideas|directions|options)) (?:sound|feel|strike you|land|work for you|resonate)(?: with you| to you| for you| so far)*[\s?.!]*$/,
+  /^how (?:does|do) (?:that|this|it|these|those|all that|these (?:ideas|directions|options)|those (?:ideas|directions|options)) (?:sound|feel|sit|strike you|land|work for you|resonate)(?: with you| to you| for you| so far)*[\s?.!]*$/,
   /^how do you (?:feel|like|find) (?:about )?(?:this|that|these|those|it|the above|all (?:this|that))(?: (?:ideas|directions|options|suggestions))?[\s?.!]*$/,
   /^(?:does|do) (?:that|this|it|these|those|any of (?:these|those|this|them)|one of (?:these|those|them)|either of (?:these|those|them))(?: (?:ideas|directions|options|angles|suggestions))? (?:resonate|resonates|sound|sounds|feel|feels|work|works|appeal|appeals|speak|speaks|ring|rings|click|clicks|help|helps|make sense|spark|sparks|inspire|inspires)(?: (?:good|right|true|well|with you|for you|to you|at all|any better|anything|any ideas|something|like a good (?:start|direction|fit)))*[\s?.!]*$/,
   /^(?:does|do) (?:that|this|it|these|those)(?: ideas)? (?:sound|seem|feel) like something you(?:'d| would)?\b/,
@@ -243,8 +266,61 @@ const STOCK = [
   /^(?:does|is) (?:that|this|it) (?:make sense|helpful|clear|useful|what you(?:'re| are) looking for)[\s?.!]*$/,
   /^(?:which|what) (?:do you|would you) (?:prefer|choose|pick|like best)[\s?.!]*$/,
   /^which (?:one )?(?:do|would) you (?:prefer|choose|pick|like|favou?r)\b/,
+  /^(?:any |your |so |and )?(?:thoughts|feedback|preferences|reactions?|takes?)(?: (?:on|about) (?:these|those|this|that|them|the above))?[\s?.!]*$/,
+  /^(?:so )?(?:what|where)(?:'s| is)? next[\s?.!]*$/,
+  /^what next[\s?.!]*$/,
+  /^where (?:shall|should|do|can|would) (?:we|you) (?:go|take (?:this|it)|head|start|begin|move) (?:from here|next|now)\b/,
+  /^how (?:would you like|do you want|shall we|should we) to (?:proceed|continue|move forward|go on|go from here|take (?:this|it) (?:from here|further|forward))\b/,
+  /^(?:want|ready|care) (?:to|me to) (?:explore|dive|dig|continue|go deeper|expand|develop|talk|discuss|brainstorm|focus|move on|pick|choose|try|take)(?: (?:into|on|about|in|through|of|any|one|some|more|these|those|this|that|it|them|further|deeper|together|now|next|first|ideas|directions|options|angles))*[\s?.!]*$/,
+  /^want (?:more|another|some more|a few more)\b/,
 ];
-const FILLER_LEAD = /^(?:(?:also|and|so|now|okay|ok|well|finally|lastly|but|then)\b[,\s]*)+/;
+const FILLER_LEAD = /^(?:(?:also|and|so|now|okay|ok|well|finally|lastly|but|then|or)\b[,\s]*)+/;
+
+// A steering question has no story in it. The patterns above name the common ones; this catches the many ways of asking them by CLOSED VOCABULARY:
+// a question is generic when every word in it is a function word, a generic noun ("idea", "direction", "vision") or a steering verb ("prefer",
+// "resonate", "explore"), it contains a steering verb, and it points back at the list ("these", "any of these", "more ideas"). One word about the
+// story ("keeper", "scene", "she") makes it specific, so "Which idea would you hand to the keeper?" and "Do you want them to know?" are never stock.
+// "this/that/it" are only read as the subject of the question ("Does this fit your vision?"), never as a word inside it.
+const FN_WORDS = new Set(
+  ('a an the of to in on for with about at as be is are was were am do does did will would could can should shall may might you your yours i me my we us our ' +
+    'these those any some all each both either neither none what which how where or and but if so than more most other others further just really very too no not now here there then up out over into from by ' +
+    'have has had been get got let also still yet already maybe perhaps among between toward towards off away ahead along back down far well enough much many few').split(' ')
+);
+const GENERIC_WORD = /^(?:ideas?|directions?|options?|angles?|approach(?:es)?|paths?|possibilit(?:y|ies)|suggestions?|concepts?|visions?|thoughts?|preferences?|favou?rites?|versions?|routes?|avenues?|threads?|twists?|sparks?|premises?|scenarios?|stor(?:y|ies)|drafts?|ways?|ones?|things?|something|anything|everything|else|another|different|new|same|two|three|four|five|first|second|third|last|next|mind|eyes?|attention|start|starting|point|sense|reactions?|takes?|opinions?|feedback|input|feelings?|best|better|good|great|right|true|natural|closest|strongest|compelling|interesting|exciting|promising|useful|helpful|clear|deeper|particular|specific|certain|similar|appealing)$/;
+const STEER_STEMS = 'lik|lov|want|wish|prefer|think|feel|see|mak|sound|seem|look|fit|match|align|resonat|appeal|interest|grab|spark|strik|stand|catch|speak|click|ring|inspir|excit|intrigu|captur|suit|agre|pursu|explor|develop|expand|div|dig|continu|proceed|focus|tackl|elaborat|lean|consider|choos|pick|select|hop|wonder';
+const STEER_WORD = new RegExp(`^(?:${STEER_STEMS}|preferences?|favou?rites?|opinions?|reactions?|thoughts?)(?:e|es|ed|d|s|ing)?$`);
+const VERB_WORD = new RegExp(`^(?:${STEER_STEMS}|work|help|go|take|move|begin|start|try|add|change|know|tell|share|hear|settl|stick|keep|build)(?:e|es|ed|d|s|ing)?$`);
+const POINTS_BACK = /^(?:these|those|any|ones?|ideas?|directions?|options?|angles?|approach(?:es)?|paths?|possibilit(?:y|ies)|suggestions?|concepts?|visions?|thoughts?|preferences?|favou?rites?|versions?|routes?|avenues?|sparks?|twists?|premises?|scenarios?|reactions?|opinions?|takes?|feedback|input|something|anything|else|another|different|more|next|further|deeper|forward|continu(?:e|es|ing)|proceed(?:s|ing)?)$/;
+const SUBJECT = /^(?:(?:do|did|would|could|can) you (?:think|feel|say|find|believe) )?(?:(?:does|do|did|would|could|can|will|is|are) )?(?:this|that|it|these|those|(?:any|one|either|all|none|each) of these)\b/;
+
+function wordOk(w, prev) {
+  if (w === 'them') return prev === 'of';
+  if (/n't$/.test(w)) return true;
+  const base = w.replace(/'(?:d|re|ll|s|ve|m)$/, '');
+  return FN_WORDS.has(base) || GENERIC_WORD.test(base) || VERB_WORD.test(base);
+}
+
+function isGenericByVocabulary(s) {
+  if (!endsWithQ(s) || /[^\x20-\x7e]|[0-9"]/.test(s)) return false;
+  let t = s
+    .replace(/\b(any|one|some|all|either|none|each|both|most|many|few) of (?:them|it|this|that)\b/g, '$1 of these')
+    .replace(/\b(?:this|that) (idea|direction|option|angle|approach|path|take|concept|version|suggestion|possibility|premise|route)\b/g, 'these $1');
+  const subject = SUBJECT.exec(t);
+  if (subject) t = t.slice(subject[0].length); // what is asked ABOUT "this" is what must be generic
+  const toks = t.match(/[a-z]+(?:'[a-z]+)?/g) ?? [];
+  if (toks.length < (subject ? 1 : 2) || toks.length > 18) return false;
+  const inMind = /\bin mind\b/.test(t); // "Do you have another direction in mind?" ("What would change your mind?" is a real question)
+  let steer = inMind;
+  let back = inMind || Boolean(subject) || /^what (?:feel|resonat|appeal|stand|excit|intrigu|interest|speak)/.test(t); // "What stands out to you most?"
+  for (let i = 0; i < toks.length; i++) {
+    if (!wordOk(toks[i], toks[i - 1])) return false;
+    if (STEER_WORD.test(toks[i]) || (subject && /^(?:work|help)(?:s|ed|ing)?$/.test(toks[i]))) steer = true;
+    if (POINTS_BACK.test(toks[i])) back = true;
+  }
+  // "Is this a good direction?": about the direction itself, with nothing about the story in it
+  if (subject && !steer) return toks.some((w) => /^(?:right|good|great|better|best|natural|strong|promising|fit|compelling)$/.test(w)) && toks.some((w) => /^(?:directions?|paths?|angles?|approach(?:es)?|options?|ideas?|starts?|fit|ways?)$/.test(w));
+  return steer && back;
+}
 
 /** True for a generic steering question that would fit any story ("Which of these ideas resonates with you?", "What do you think?"). */
 export function isStockQuestion(sentence) {
@@ -252,7 +328,7 @@ export function isStockQuestion(sentence) {
   if (!s || s.length > 320) return false;
   s = dropEmphasis(stripMarker(s).replace(/^[*_"'\s]+/, '')).toLowerCase().replace(/\s+/g, ' ').replace(FILLER_LEAD, '').trim();
   if (!s) return false;
-  return STOCK.some((re) => re.test(s));
+  return STOCK.some((re) => re.test(s)) || isGenericByVocabulary(s);
 }
 
 // ── similarity ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -327,8 +403,11 @@ export function similarity(a, b) {
 
 // ── what NIE said lately ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** NIE's fixed notes (a decline, a canned answer) are not its voice and must not count as "how it has been replying". */
-const isFixedNote = (m) => m.declined === true || m.meta?.declined === true;
+/**
+ * NIE's fixed notes (a decline, a canned answer) are not its voice and must not count as "how it has been replying". The orchestrator stores a
+ * message's `route` on the message itself and does not store `declined`, so a built-in route is what marks them there; `declined` is honoured too.
+ */
+const isFixedNote = (m) => m.declined === true || m.meta?.declined === true || m.route === 'builtin' || m.meta?.route === 'builtin';
 
 function recentMessages(history, n) {
   const h = Array.isArray(history) ? history : [];
@@ -432,13 +511,31 @@ export function avoidBlock(history) {
 
 // ── cleaning a reply ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Remove [from, to) and the gap that joined it to its neighbours, leaving everything else byte for byte. */
+/**
+ * Remove [from, to) and the gap that joined it to its neighbours, leaving everything else byte for byte. Of the two gaps (before and after the
+ * cut) the one with more line breaks stays, so a paragraph that followed a list on a blank line is not glued to the list's last item.
+ */
 function cut(text, from, to) {
+  const before = text.slice(0, from);
   const after = text.slice(to);
   const next = after.search(/\S/);
-  if (next !== -1) return text.slice(0, from) + after.slice(next); // something follows: close the gap after the cut
-  return text.slice(0, from).trimEnd() + after; // it was the end of the reply: close the gap before it
+  if (next === -1) return before.trimEnd() + after; // it was the end of the reply: close the gap before it
+  const rest = after.slice(next);
+  const kept = before.trimEnd();
+  if (!kept) return before + rest; // it was the start of the reply
+  const gapBefore = before.slice(kept.length);
+  const gapAfter = after.slice(0, next);
+  const lines = (g) => g.split('\n').length;
+  return kept + (lines(gapAfter) > lines(gapBefore) ? gapAfter : gapBefore) + rest;
 }
+
+// Two ways a cut could leave a reply that is not whole. It would begin in the middle of a thought: "And ...", "Because ...", a lowercase word, or
+// "It/They/She ..." whose antecedent was the praise just cut. Or it would end on a colon, semicolon, comma or dash, announcing something that is not there.
+const startsDangling = (text) => {
+  const t = text.trimStart();
+  return /^\p{Ll}/u.test(t) || /^(?:and|or|because|plus|it|its|they|their|he|she|his|her|such)\b/i.test(t);
+};
+const endsOpen = (text) => /[:;,—–-]\s*$/.test(text);
 
 /** Sentences grouped into blocks: a paragraph, or a run of list items, or the lines between them. */
 function blocksOf(src, spans) {
@@ -462,6 +559,18 @@ const MAX_QUESTIONS = 2;
 const MAX_ASKED = 60; // the questions of the last replies that a new one is compared with (newest kept)
 
 /**
+ * `simOf` >= threshold AND enough in common to mean it: the same words, or at least two content terms. Jaccard on one or two terms is too
+ * coarse ("Who is the keeper?" / "Why is the keeper afraid?" share one term and score 0.5), and a question about the same person is not a repeat.
+ */
+function alike(p, q, threshold) {
+  if (simOf(p, q) < threshold) return false;
+  if (p.key === q.key) return true;
+  let shared = 0;
+  for (const t of p.terms) if (q.terms.has(t)) shared++;
+  return shared >= 2 || (shared >= 1 && shared === p.terms.size && shared === q.terms.size);
+}
+
+/**
  * The parts of a reply that may be removed whole, last first: a stock or repeated question that stands alone as a paragraph (or as the lines
  * between a list and a paragraph), or that ends the reply. Never anything inside a list item, never part of a sentence.
  */
@@ -471,7 +580,7 @@ function* removals(src, spans, asked) {
     if (isStockQuestion(sp.text)) return 'stock-question';
     if (asked.length && endsWithQ(sp.text)) {
       const p = profile(sp.text);
-      if (asked.some((a) => simOf(p, a) >= SIMILAR_QUESTION)) return 'repeat-question';
+      if (asked.some((a) => alike(p, a, SIMILAR_QUESTION))) return 'repeat-question';
     }
     return null;
   };
@@ -509,7 +618,7 @@ function clean(text, { minWords, asked }) {
     const first = spansOf(cur)[0];
     if (!first || first.item || !isPraiseOpener(first.text)) break;
     const next = cut(cur, first.start, first.end);
-    if (countWords(next) < minWords) break;
+    if (countWords(next) < minWords || startsDangling(next)) break; // what follows leans on the praise ("It works because ..."): keep both, `refine` asks again
     praise.push({ kind: 'praise', text: first.text });
     cur = next;
   }
@@ -518,7 +627,8 @@ function clean(text, { minWords, asked }) {
     let done = false;
     for (const r of removals(cur, spansOf(cur), asked)) {
       const next = cut(cur, r.from, r.to);
-      if (countWords(next) < minWords) continue;
+      // not "Here are some thoughts:" with nothing after the colon; and not a reply that now opens on "It works because ..."
+      if (countWords(next) < minWords || endsOpen(next) || (!cur.slice(0, r.from).trim() && startsDangling(next))) continue;
       questions.unshift(...r.drops); // each removal sits before the last one, so the list stays in reading order
       cur = next;
       done = true;
@@ -561,7 +671,7 @@ export function refine(reply, opts) {
   if (first && !first.item) {
     if (opensWithPraise(tidyText(first.text))) result.reasons.push('it opens with praise');
     const p = profile(first.text);
-    if (prior.some((r) => r.first && simOf(p, profile(r.first.text)) >= SIMILAR_OPENER)) result.reasons.push('its opening repeats an earlier opening');
+    if (prior.some((r) => r.first && alike(p, profile(r.first.text), SIMILAR_OPENER))) result.reasons.push('its opening repeats an earlier opening');
   }
   const last = prior.at(-1);
   if (last) {
@@ -576,6 +686,7 @@ export function refine(reply, opts) {
   if (spans.filter((s) => !s.item && endsWithQ(s.text)).length > MAX_QUESTIONS) result.reasons.push('it asks too many questions');
   // Whatever could not be removed (too little would be left) is all there is: nothing but praise and a generic question says nothing about the story.
   if (spans.length && spans.every((s) => !s.item && (isStockQuestion(s.text) || isPraiseOpener(s.text)))) result.reasons.push('it says nothing but a generic question');
+  else if (spans.length && [spans[0], spans.at(-1)].some((sp) => !sp.item && isStockQuestion(sp.text))) result.reasons.push('it opens or ends on a generic question'); // it could not go: too little (or a colon, or a dangling start) would be left without it
   result.retry = result.reasons.length > 0;
   return result;
 }
@@ -597,7 +708,7 @@ export const SHAPES = Object.freeze([
   shape('two-then-ask', ['conversation', 'question'], "Two sentences at most, the second one a single specific question about the writer's own details."),
   shape('what-if-change', ['conversation', 'ideas'], "One what-if built from the writer's own details, then one sentence on what it would change; no closing question."),
   shape('two-cases', ['conversation', 'question'], "Give the strongest case for each of two directions in a sentence apiece, then say which one the writer's own words lean toward."),
-  shape('small-detail', ['conversation'], 'Start from one small, odd detail in what the writer said and follow it somewhere unexpected, in a short paragraph that ends on a statement.'),
+  shape('small-detail', ['conversation'], 'Start from one small, odd detail in what the writer said and say what it could mean for the story, as commentary and never as story text, in a short paragraph that ends on a statement.'),
   shape('answer-first', ['question'], 'Answer the question in the first sentence, then give one reason in the second; stop there.'),
   shape('it-depends', ['question'], "Say in one sentence what the answer depends on, then give the answer for the writer's own case, with no closing question."),
   shape('answer-watch', ['question'], 'Answer plainly in two or three sentences, then name the one thing to watch for.'),

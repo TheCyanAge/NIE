@@ -5,7 +5,11 @@
 //   const { text, truth } = loadBible();
 //   truth.questions[k] -> { id, kind: 'lookup'|'whole'|'timeline'|'style'|'contradiction'|'snippet', ask, mustMention: [[alt, alt], ...], sections: [..] }
 //
-// An answer to a question is good when, for EACH inner array of `mustMention`, it contains at least one alternative (case-insensitive).
+// An answer to a question is good when, for EACH inner array of `mustMention`, it contains at least one alternative (case-insensitive substring).
+// The alternatives are chosen to survive substring matching (no bare "four", "may", "key", "consistent": they sit inside Fourth, maybe, keyboard,
+// inconsistent), and tests/story-bible.test.js keeps it so: a generic answer fails every question, a single section cannot pass a whole-text, timeline
+// or contradiction question. A question with `control: true` (a "do these conflict?" question whose right answer is "no") has a first group that is the
+// answerer's verdict, not a phrase of the text. Timeline entries carry an `event` line, a plain description for people reading the truth.
 // Section numbers are 1-based and are those of `splitSections(text)` (apps/web/src/engine/reading/sections.js); the story-bible tests recompute them,
 // so if the text or the splitter changes the tests fail instead of the truth silently going stale.
 //
