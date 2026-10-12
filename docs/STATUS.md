@@ -74,6 +74,6 @@ Every rule shows how NIE understood it.
   so a slow computer that is still answering is not cut off. NIE waits up to four minutes for the first word, and once it is answering a minute of silence stops it.
 - The model's reading of a message is wrong about one time in five (above). When it is, NIE's answer can be in the wrong style; the panel under "What NIE understands"
   shows how a message was read. Requests to write or edit were recognised 98.1% of the time with the model running, and about half the time (51.9%) by the rules alone,
-  so with no model running some of them get through to the ordinary answer path (still behind the reply guard).
+  so with no model running the rules decide and the ones they miss get the ordinary built-in guidance (which writes no prose for the writer).
 - With an online model, the parts of the text shown to it leave the computer; each such reply says roughly how many words.
 - The all-in-one installer from the `windows-package` workflow is about 2.2 GB (it carries the offline model), so it is a workflow artifact (sign-in required, kept 30 days). The release installer is small and downloads the model on the first run.
