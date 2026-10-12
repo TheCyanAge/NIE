@@ -16,9 +16,12 @@ import { isHeading, sectionText } from './sections.js';
 export const NOTES_VERSION = 1;
 
 const SHORT_SECTION_WORDS = 40; // fewer words than this: there is nothing to summarise, the text is its own note
+const SHORT_SECTION_CHARS = 600; // ...unless it is long all the same: unspaced scripts and long strings are few "words" but not a short text
+const isShort = (words, chars) => words < SHORT_SECTION_WORDS && chars < SHORT_SECTION_CHARS;
 const MAX_SECTION_NOTES = 160; // cached notes kept per project (a text of 60 sections plus a couple of earlier versions of it)
 const MAX_OVERVIEWS = 6;
 const GIST_WORDS = 30;
+const MAX_GIST_CHARS = 300; // what the cache keeps
 const OVERVIEW_LIST_TOKENS = 1000;
 const OVERVIEW_CHARS = 700;
 
@@ -71,7 +74,7 @@ function clipWords(s, max) {
 }
 
 /** Replies that are the model talking to NIE instead of taking a note. */
-const REFUSAL = /^(?:i\s+(?:cannot|can['’]?t|can\s+not|am\s+(?:sorry|unable)|['’]m\s+(?:sorry|unable))|sorry\b|sure(?:[,.!:]|$)|certainly\b|of\s+course\b|here\s+(?:are|is)\b|note\s*:)|\bas\s+an\s+ai\b/i;
+const REFUSAL = /^(?:i(?:\s+(?:cannot|can['’]?t|can\s+not|am\s+(?:sorry|unable))|['’]m\s+(?:sorry|unable))|sorry\b|sure(?:[,.!:]|$)|certainly\b|of\s+course\b|here\s+(?:are|is)\b|note\s*:)|\bas\s+an\s+ai\b/i;
 
 const unescapeJson = (v) => {
   try {
@@ -84,7 +87,8 @@ const unescapeJson = (v) => {
 /** An answer that is not valid JSON (cut off at the token limit, or wrapped in chatter): pull the fields out one by one. */
 function salvage(s) {
   const str = (key) => {
-    const m = s.match(new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)`, 'i'));
+    // (a string that never closed was cut off by the token limit: half a sentence, or half a word, is not a gist or a voice)
+    const m = s.match(new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`, 'i'));
     return m ? unescapeJson(m[1]) : undefined;
   };
   const arr = (key) => {
@@ -116,16 +120,91 @@ function readObject(raw) {
  */
 function grounder(text) {
   return (candidate) => {
-    const c = squash(candidate).replace(/^["“‘`]+|["”`,;:]+$/g, '').trim();
+    // ("Delton." is Delton: a full stop closing the model's sentence is not part of a name)
+    const c = squash(candidate).replace(/^["“‘`]+|["”`,;:]+$/g, '').replace(/(?<=[\p{L}\p{N}])[.!?]+$/u, '').trim();
     if (c.length < 2 || c.length > 48) return null;
     const pattern = escapeRe(c).replace(/\s+/g, '\\s+').replace(/['’‘]/g, "['’‘]");
-    const m = new RegExp(`(?<![\\p{L}\\p{N}])${pattern}(?![\\p{L}\\p{N}])`, 'iu').exec(text);
-    return m ? squash(m[0]) : null;
+    const found = [...text.matchAll(new RegExp(`(?<![\\p{L}\\p{N}])${pattern}(?![\\p{L}\\p{N}])`, 'giu'))].map((m) => ({ s: squash(m[0]), at: m.index }));
+    const hit = found.find((f) => f.s === squash(c)) ?? found[0]; // the model's own spelling if the text has it, else the text's first
+    if (!hit) return null;
+    // "the", "Then", "that" are in every text: a function word counts as a name only where the writer capitalises it inside a sentence ("Will")
+    if (hit.s.toLowerCase().split(' ').every((w) => STOPWORDS.has(w))) {
+      const proper = found.find((f) => /^\p{Lu}/u.test(f.s) && !startsSentence(text, f.at));
+      return proper ? proper.s : null;
+    }
+    return hit.s;
   };
 }
 
+// A model's one-sentence gist is free text, so the lists above are not enough: it can still bring a character of its own ("Queen Isolde of Valdor")
+// into the notes. These helpers find capitalised words that appear nowhere in what the model was shown.
+const PROPER_WORD = /\p{Lu}[\p{L}\p{N}'’-]*/gu;
+const STRUCTURE_WORDS = new Set('part parts chapter chapters book books section sections act scene prologue epilogue interlude appendix volume'.split(' '));
+const plainForms = (w) => (w.length > 3 ? [w, w.replace(/s$/, ''), w.replace(/es$/, '')] : [w]); // "gates" -> "gate", "boxes" -> "box"
+
+/**
+ * Every word of a text, lower-cased, with possessives, plural endings and the pieces of hyphenated words folded in, plus the first five letters of
+ * each longer word (so "villagers" vouches for "Village" and "Tegano" for "Tegani", but "Isolde" is vouched for by nothing).
+ */
+function vocabulary(text) {
+  const exact = new Set();
+  const prefixes = new Set();
+  for (const w of wordsIn(String(text ?? '').toLowerCase())) {
+    const bare = w.replace(/['’]s$/, '').replace(/['’-]+$/, '');
+    for (const piece of [bare, ...bare.split(/[-'’]/)]) {
+      if (!piece) continue;
+      for (const f of plainForms(piece)) exact.add(f);
+      if (piece.length >= 5) prefixes.add(piece.slice(0, 5));
+    }
+  }
+  return { exact, prefixes };
+}
+
+const knownWord = (word, v) => {
+  const w = word.toLowerCase();
+  return plainForms(w).some((f) => v.exact.has(f)) || (w.length >= 5 && v.prefixes.has(w.slice(0, 5)));
+};
+
+/**
+ * Capitalised words inside a piece of free text that the vocabulary does not contain. Function words and the words of a heading ("Part", "Chapter")
+ * are never reported. The first word of a sentence proves nothing either way ("Describes", "Nobody"), so it is reported only when the model itself
+ * listed it as a name (`declared`): "Isolde rows out" with "Isolde" among its names is an invented subject, "Describes the Ladder" is not.
+ */
+function inventedNames(text, vocab, { phrases = false, declared = new Set() } = {}) {
+  const s = String(text ?? '');
+  const opens = phrases ? /[,:;]\s*$/ : /[:;]\s*$/; // (a voice is a list of phrases: "Dry, Technical" is not two names)
+  const out = [];
+  for (const m of s.matchAll(PROPER_WORD)) {
+    const exempt = startsSentence(s, m.index) || opens.test(s.slice(Math.max(0, m.index - 3), m.index));
+    for (const piece of m[0].replace(/['’]s$/i, '').split(/[-'’]/)) {
+      if (piece.length < 3 || !/^\p{Lu}/u.test(piece)) continue;
+      const low = piece.toLowerCase();
+      if (STOPWORDS.has(low) || STRUCTURE_WORDS.has(low) || knownWord(piece, vocab)) continue;
+      if (!exempt || declared.has(low)) out.push(piece);
+    }
+  }
+  return out;
+}
+
+/** The capitalised words of the names and terms the model listed that the vocabulary does not contain: people it says are there and are not. */
+function declaredButAbsent(lists, vocab) {
+  const out = new Set();
+  for (const value of lists) {
+    const items = Array.isArray(value) ? value.slice(0, 30) : typeof value === 'string' ? value.split(/[,;\n]/).slice(0, 30) : [];
+    for (const item of items) {
+      if (typeof item !== 'string') continue;
+      for (const w of item.split(/[\s-]+/)) {
+        const bare = w.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, '').replace(/['’]s$/i, '');
+        const low = bare.toLowerCase();
+        if (bare.length >= 3 && /^\p{Lu}/u.test(bare) && !STOPWORDS.has(low) && !STRUCTURE_WORDS.has(low) && !knownWord(bare, vocab)) out.add(low);
+      }
+    }
+  }
+  return out;
+}
+
 function groundedList(value, ground, max) {
-  const list = Array.isArray(value) ? value : typeof value === 'string' ? value.split(/[,;\n]/) : [];
+  const list = Array.isArray(value) ? value.slice(0, 30) : typeof value === 'string' ? value.split(/[,;\n]/).slice(0, 30) : []; // (the schema allows 6; never test a thousand)
   const out = [];
   const seen = new Set();
   for (const item of list) {
@@ -146,18 +225,38 @@ function cleanVoice(v) {
   return s ? s[0].toLowerCase() + s.slice(1) : '';
 }
 
+/** A gist that is the prompt read back ("one plain sentence of at most 25 words ...") is the model copying its instructions, not a note. */
+const INSTRUCTION_ECHO = /\b(?:one plain sentence|at most 25 words|saying what happens|up to 6 people|invented or technical terms|3 to 6 words|how this part is written)\b/i;
+
+/** At most `max` characters, cut at a word ("…" when something was left out). Keeps a note the same size in memory as in the cache. */
+function clipChars(s, max) {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max - 1);
+  const sp = cut.lastIndexOf(' ');
+  return `${(sp > max / 2 ? cut.slice(0, sp) : cut).replace(/[\s,;:–—-]+$/, '')}…`;
+}
+
 /**
  * Read the model's note. Tolerates text around the JSON and a cut-off answer; returns null when there is no usable gist.
+ * Names and terms must occur in `sectionText`. The gist and the voice may not name anything that is not in what the model was shown (the section, and the
+ * heading it sits under, `under`/`title`): a gist that does is no note at all, because a character NIE invented here would come back later as a fact.
+ * (The one thing this cannot see is an invented name opening the gist when the model did not list it among its names.)
  * @returns {{ gist: string, names: string[], terms: string[], voice: string, by: 'model' } | null}
  */
-export function parseNote(raw, sectionText = '') {
+export function parseNote(raw, sectionText = '', { under = '', title = '' } = {}) {
   const obj = readObject(raw);
   if (!obj) return null;
   let gist = squash(unquote(squash(typeof obj.gist === 'string' ? obj.gist : '')));
-  if (wordsIn(gist).length < 3 || REFUSAL.test(gist)) return null;
-  gist = clipWords(gist, GIST_WORDS);
-  const ground = grounder(String(sectionText ?? ''));
-  return { gist, names: groundedList(obj.names, ground, 6), terms: groundedList(obj.terms, ground, 4), voice: cleanVoice(obj.voice), by: 'model' };
+  if (wordsIn(gist).length < 3 || REFUSAL.test(gist) || INSTRUCTION_ECHO.test(gist)) return null;
+  gist = clipChars(clipWords(gist, GIST_WORDS), MAX_GIST_CHARS);
+  const text = String(sectionText ?? '');
+  const shown = vocabulary(`${text}\n${under ?? ''}\n${title ?? ''}`);
+  const declared = declaredButAbsent([obj.names, obj.terms], shown);
+  if (inventedNames(gist, shown, { declared }).length) return null;
+  const voiceSaid = typeof obj.voice === 'string' ? unquote(squash(obj.voice)) : '';
+  const voice = inventedNames(voiceSaid, shown, { phrases: true, declared }).length ? '' : cleanVoice(voiceSaid);
+  const ground = grounder(text);
+  return { gist, names: groundedList(obj.names, ground, 6), terms: groundedList(obj.terms, ground, 4), voice, by: 'model' };
 }
 
 // ── the rule-based note (no model needed) ────────────────────────────────────
@@ -259,6 +358,30 @@ const abortError = () => new AIError('Reading was stopped.', { kind: 'abort' });
 const defaultNow = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 const average = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
 
+/** Which sections a pass covers, their cache keys, and which are too short to need the model (shared by `readThrough` and `cachedNotes`). */
+function planOf(index, maxSections) {
+  const all = index?.sections ?? [];
+  const text = index?.text ?? '';
+  // a limit that is not a positive number (NaN, 0) must not turn into "read nothing, and say it is complete"
+  const sections = all.slice(0, maxSections > 0 ? maxSections : 60);
+  // (a section without a hash would share one key with every other such section, and so one note: key it by its own text)
+  const keys = sections.map((s) => sectionKey(s.hash ? s : { ...s, hash: fnv1a(sectionText(text, s)) }));
+  const short = sections.map((s) => isShort(s.words ?? wordsIn(sectionText(text, s)).length, sectionText(text, s).trim().length));
+  return { all, text, sections, n: sections.length, tooLong: sections.length < all.length, keys, short };
+}
+
+/**
+ * What NIE already knows of a text without asking the model anything: the notes in the cache, and the text itself for sections too short to summarise
+ * (counted as read, exactly as `readThrough` counts them). Uncached sections are null and `complete` is false while any remain.
+ * @returns {{ notes: (object|null)[], total: number, modelRead: number, complete: boolean, tooLong: boolean }}
+ */
+export function cachedNotes({ index, cache, maxSections = 60 } = {}) {
+  const store = cache ?? projectNotesCache({});
+  const { all, text, sections, keys, short, tooLong } = planOf(index, maxSections);
+  const notes = sections.map((s, k) => store.get(keys[k]) ?? (short[k] ? { ...rulesNote(sectionText(text, s), s), by: 'text' } : null));
+  return { notes, total: all.length, modelRead: notes.filter((x) => x?.by === 'model').length, complete: !tooLong && notes.every((x) => x && (x.by === 'model' || x.by === 'text')), tooLong };
+}
+
 /**
  * Read a text section by section with the model, keeping a note for each.
  *
@@ -269,19 +392,14 @@ const average = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
  * `total` is how many sections the text has; `notes` covers the first `maxSections` of them (and `tooLong` says there were more).
  * @returns {Promise<{ notes: object[], total: number, modelRead: number, complete: boolean, failed: boolean, tooLong: boolean, stoppedEarly: false, reasons: string[], msPerSection: number }>}
  */
-export async function readThrough({ engine, index, cache = projectNotesCache({}), signal, onProgress, maxSections = 60, coldMs = 150000, warmMs = 90000, maxFailuresInARow = 3, now = defaultNow } = {}) {
-  const all = index?.sections ?? [];
-  const text = index?.text ?? '';
-  const sections = all.slice(0, maxSections);
-  const n = sections.length;
-  const tooLong = all.length > maxSections;
-  const keys = sections.map(sectionKey);
-  const wordCounts = sections.map((s) => s.words ?? wordsIn(sectionText(text, s)).length);
+export async function readThrough({ engine, index, cache: given, signal, onProgress, maxSections = 60, coldMs = 150000, warmMs = 90000, maxFailuresInARow = 3, now = defaultNow } = {}) {
+  const cache = given ?? projectNotesCache({});
+  const { all, text, sections, n, tooLong, keys, short } = planOf(index, maxSections);
   // touching every key up front also keeps this text's notes safe from being pruned while new ones are added
   const earlier = keys.map((key) => cache.get(key) ?? null);
   // how many sections after k still need the model (for the time left)
   const ahead = new Array(n).fill(0);
-  for (let k = n - 2; k >= 0; k--) ahead[k] = ahead[k + 1] + (!earlier[k + 1] && wordCounts[k + 1] >= SHORT_SECTION_WORDS ? 1 : 0);
+  for (let k = n - 2; k >= 0; k--) ahead[k] = ahead[k + 1] + (!earlier[k + 1] && !short[k + 1] ? 1 : 0);
 
   const notes = new Array(n);
   const reasons = [];
@@ -304,7 +422,7 @@ export async function readThrough({ engine, index, cache = projectNotesCache({})
     if (note) {
       cached++;
       if (note.by === 'model') modelRead++;
-    } else if (wordCounts[k] < SHORT_SECTION_WORDS) {
+    } else if (short[k]) {
       note = { ...rulesNote(raw, s), by: 'text' };
     } else if (failed) {
       note = rulesNote(raw, s);
@@ -321,8 +439,8 @@ export async function readThrough({ engine, index, cache = projectNotesCache({})
         if (signal?.aborted) throw abortError();
         thrown = err;
       }
-      ms = Math.max(0, now() - t0);
-      const good = res?.text != null ? parseNote(res.text, raw) : null;
+      ms = Math.round(Math.max(0, now() - t0)) || 0; // (a clock that returns nonsense must not put NaN into the estimate)
+      const good = res?.text != null ? parseNote(res.text, raw, s) : null;
       if (good) {
         cache.set(keys[k], good);
         note = good;
@@ -395,20 +513,33 @@ function tidyEnd(s, max) {
   return cut ? `${s.replace(/\s+\S*$/, '').replace(/[\s,;:–—-]+$/, '')}…` : s;
 }
 
+const LIST_MARK = /^\s*(?:#{1,6}\s+|[-*•+]\s+|\d{1,2}[.)]\s+|>\s+)/;
+
+/** One plain paragraph: markdown markers and emphasis removed, a list item that lacks a full stop gets one, headings dropped. */
 function cleanOverview(raw) {
   const lines = String(raw ?? '')
     .replace(/```\w*/g, ' ')
     .split(/\r?\n/)
     .map((l) => {
-      const marker = /^\s*(?:#{1,6}\s+|[-*•+]\s+|\d{1,2}[.)]\s+|>\s+)/.test(l);
-      let t = l.replace(/^\s*(?:#{1,6}\s+|[-*•+]\s+|\d{1,2}[.)]\s+|>\s+)/, '').replace(/(\*\*|__)(.*?)\1/g, '$2').trim();
+      const marked = LIST_MARK.test(l);
+      let t = l.replace(LIST_MARK, '').replace(/(\*\*|__)(.*?)\1/g, '$2').trim();
       if (/^\s*#{1,6}\s/.test(l) && wordsIn(t).length < 8) return ''; // a heading, not a sentence
-      if (marker && t && !/[.!?…:]["'”’)]*$/.test(t)) t += '.';
+      if (marked && t && !/[.!?…:]["'”’)]*$/.test(t)) t += '.';
       return t;
     })
     .filter(Boolean);
   const s = unquote(squash(lines.join(' ')).replace(/^(?:overview|summary)\s*:\s*/i, ''));
   return tidyEnd(s, OVERVIEW_CHARS);
+}
+
+/**
+ * Keep the sentences that name only what the notes name. A model asked for an overview of 29 one-line notes sometimes adds a character or a place of
+ * its own; that sentence is dropped (never reworded), and what is left is the overview.
+ */
+function onlyWhatTheNotesSay(text, vocab) {
+  const sentences = splitSentences(text);
+  const kept = sentences.filter((x) => !inventedNames(x.text, vocab).length);
+  return kept.length === sentences.length ? text : kept.map((x) => x.text).join(' ');
 }
 
 /**
@@ -424,10 +555,15 @@ export async function makeOverview({ engine, notes, cache, signal, words: wordTo
   if (typeof hit === 'string' && hit) return { text: hit, by: 'model' };
   if (signal?.aborted) throw abortError();
   try {
-    const res = await engine.chat(overviewMessages(notes, { words: wordTotal, sections: sectionTotal }), { purpose: 'overview', stream: false, maxTokens: 170, temperature: 0.3, timeoutMs: 90000, signal });
+    const messages = overviewMessages(notes, { words: wordTotal, sections: sectionTotal });
+    const res = await engine.chat(messages, { purpose: 'overview', stream: false, maxTokens: 170, temperature: 0.3, timeoutMs: 90000, signal });
     if (res?.text == null) return { text: '', by: 'rules' };
-    const text = cleanOverview(res.text);
-    if (wordsIn(text).length < 15 || REFUSAL.test(text) || /^[{[]/.test(text)) return { text: '', by: 'rules' };
+    const cleaned = cleanOverview(res.text);
+    if (REFUSAL.test(cleaned) || /^[{[]/.test(cleaned) || /\bPart \d+\s*:/.test(cleaned)) return { text: '', by: 'rules' }; // (the last one is the notes read back)
+    // what the model was shown, and every name in every note (the prompt may have thinned the list)
+    const vocab = vocabulary([messages[1].content, ...(notes ?? []).flatMap((x) => [x?.gist, ...(Array.isArray(x?.names) ? x.names : []), ...(Array.isArray(x?.terms) ? x.terms : [])])].filter((v) => typeof v === 'string').join('\n'));
+    const text = onlyWhatTheNotesSay(cleaned, vocab);
+    if (wordsIn(text).length < 15) return { text: '', by: 'rules' };
     cache?.setOverview?.(key, text);
     return { text, by: 'model' };
   } catch (err) {
@@ -451,7 +587,7 @@ function storedNote(n) {
   if (!isPlain(n) || typeof n.gist !== 'string' || (n.by !== undefined && n.by !== 'model')) return null;
   const gist = clip(squash(n.gist), 300);
   if (!gist) return null;
-  const list = (v, max) => (Array.isArray(v) ? v : []).filter((x) => typeof x === 'string').map((x) => squash(x).slice(0, 60)).filter(Boolean).slice(0, max);
+  const list = (v, max) => (Array.isArray(v) ? v.slice(0, 40) : []).filter((x) => typeof x === 'string').map((x) => squash(x).slice(0, 60)).filter(Boolean).slice(0, max);
   return { gist, names: list(n.names, 6), terms: list(n.terms, 4), voice: squash(typeof n.voice === 'string' ? n.voice : '').slice(0, 80), by: 'model' };
 }
 
@@ -459,7 +595,8 @@ function storedNote(n) {
 function prune(map, limit) {
   const keys = Object.keys(map);
   if (keys.length <= limit) return;
-  keys.sort((a, b) => map[a].t - map[b].t);
+  const used = (k) => stamp(map[k]?.t); // (an entry that is not even an object counts as the oldest)
+  keys.sort((a, b) => used(a) - used(b));
   for (const k of keys.slice(0, keys.length - limit)) delete map[k];
 }
 
@@ -504,7 +641,7 @@ export function projectNotesCache(project, { now = Date.now } = {}) {
   const store = () => {
     const rn = holder.readingNotes;
     if (!(isPlain(rn) && isPlain(rn.sections) && isPlain(rn.overviews))) holder.readingNotes = sanitizeReadingNotes(rn);
-    else rn.v = 1;
+    else if (rn.v !== 1) rn.v = 1;
     return holder.readingNotes;
   };
   store();
@@ -548,6 +685,6 @@ export function projectNotesCache(project, { now = Date.now } = {}) {
  * The default is the slow end for a 3B model on a laptop CPU; a finished read measures its own `msPerSection`.
  */
 export function estimateReadMs({ sections, cachedCount = 0, msPerSection = 25000, overviewMs = 25000 } = {}) {
-  const count = Array.isArray(sections) ? sections.filter((s) => (s?.words ?? SHORT_SECTION_WORDS) >= SHORT_SECTION_WORDS).length : Math.max(0, Number(sections) || 0);
+  const count = Array.isArray(sections) ? sections.filter((s) => !isShort(s?.words ?? SHORT_SECTION_WORDS, (s?.end ?? 0) - (s?.start ?? 0))).length : Math.max(0, Number(sections) || 0);
   return Math.max(0, count - Math.max(0, cachedCount)) * msPerSection + overviewMs;
 }

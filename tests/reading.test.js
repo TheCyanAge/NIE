@@ -162,31 +162,51 @@ import { Orchestrator, LONG_MESSAGE_CHARS, splitPaste } from '../apps/web/src/en
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { modelWithReading, projectWith } from './helpers.js';
 
-const setup = ({ reading = { task: 'tell', topic: '' }, reply = 'Here is a thought. What does the reader know by now?' } = {}) => {
+const setup = ({ reading = { task: 'tell', topic: '' }, reply = 'Here is a thought. What does the reader know by now?', options = {}, note = null } = {}) => {
   const calls = [];
-  const local = { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: modelWithReading(() => reply, { calls, reading: () => reading }) };
-  return { o: new Orchestrator({ engine: new AIEngine({ local, online: null, isOnline: () => false }) }), calls };
+  const noteCalls = [];
+  const local = { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: modelWithReading(() => reply, { calls, noteCalls, note, reading: () => reading }) };
+  return { o: new Orchestrator({ engine: new AIEngine({ local, online: null, isOnline: () => false }), ...options }), calls, noteCalls };
 };
 const promptOf = (calls) => calls[0].messages.map((m) => m.content).join('\n---\n');
 const approxTokens = (calls) => calls[0].messages.reduce((a, m) => a + Math.ceil(m.content.length / 3.6), 0);
 
-test('a long pasted message is no longer cut off: the model gets an outline of all of it and the parts that matter, and the reply says what was looked at', async () => {
+test('a long pasted message is no longer cut off: every section is read in turn, the model gets a note on each plus the closest passages, and the reply says what was looked at', async () => {
   const { text } = makeLongText({ words: 8000 });
   const message = `Here is my draft, what do you think of how it ends?\n\n${text}`;
   assert.ok(message.length > LONG_MESSAGE_CHARS * 5);
-  const { o, calls } = setup({ reading: { task: 'feedback', topic: 'ending' } });
-  const r = await o.brainstorm({ project: projectWith(), message });
-  assert.equal(calls.length, 1);
+  const { o, calls, noteCalls } = setup({ reading: { task: 'feedback', topic: 'ending' } });
+  const progress = [];
+  const r = await o.brainstorm({ project: projectWith(), message, onProgress: (p) => progress.push(p) });
+  assert.equal(calls.length, 1, 'one answer');
+  const sections = buildIndex(splitPaste(message).body).sections.length;
+  assert.equal(noteCalls.filter((c) => c.opts.purpose === 'notes').length, sections, 'every section was read, one at a time');
+  assert.equal(noteCalls.filter((c) => c.opts.purpose === 'overview').length, 1);
   const prompt = promptOf(calls);
   assert.match(prompt, /The passage the writer just pasted is long: about 8,0\d\d words in 2\d sections/);
-  assert.match(prompt, /Outline of the other sections/);
+  assert.match(prompt, /you read it one section at a time and kept the notes below/);
+  assert.match(prompt, /Your notes, one line per section/);
+  assert.match(prompt, /What it is, from your notes: This text is told in several parts/);
   assert.match(prompt, /what do you think of how it ends/, "the writer's own ask reaches the model");
   assert.ok(prompt.includes('Chapter 13'), 'the end of the text is shown');
   assert.ok(approxTokens(calls) <= 2900 * 1.08, `${approxTokens(calls)} tokens`);
   assert.doesNotMatch(r.reply, /longer than I can read at once/);
-  assert.match(r.reply, /The passage you pasted is about 8,0\d\d words in 2\d sections\. I can't hold all of that in mind at once/);
-  assert.match(r.reply, /For the other \d+ I only saw how each one begins/);
+  assert.match(r.reply, /The passage you pasted is about 8,0\d\d words in 2\d sections\. That is too long for me to hold in mind at once, so I read it one section at a time and kept a short note on each\./);
+  assert.match(r.reply, /For this answer I used my notes (?:on every section|on \d+ of the \d+ sections) and looked closely at section/);
   assert.equal(r.route, 'local');
+  assert.ok(progress.length >= sections, 'progress was reported');
+  assert.deepEqual(progress.filter((p) => p.stage === 'reading' && p.done > 0).map((p) => p.done), [...Array(sections).keys()].map((k) => k + 1), 'in order, once per section');
+});
+
+test('without the section-by-section read (the earlier behaviour, kept to measure against) the model gets an outline of the first words and the parts that matter', async () => {
+  const { text } = makeLongText({ words: 8000 });
+  const message = `Here is my draft, what do you think of how it ends?\n\n${text}`;
+  const { o, calls, noteCalls } = setup({ reading: { task: 'feedback', topic: 'ending' }, options: { readNotes: false } });
+  const r = await o.brainstorm({ project: projectWith(), message });
+  assert.equal(noteCalls.length, 0);
+  const prompt = promptOf(calls);
+  assert.match(prompt, /Outline of the other sections/);
+  assert.match(r.reply, /For the other \d+ I only saw how each one begins/);
 });
 
 test('an online model is told plainly: the reply says how much of the text was sent to the provider; an offline model says nothing of the kind', async () => {

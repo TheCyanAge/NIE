@@ -1,0 +1,1033 @@
+{
+  "title": "The Counterpoise Lines",
+  "words": 10369,
+  "sections": 25,
+  "cast": [
+    {
+      "name": "Isaura Ombrecht",
+      "role": "Master Wright of the Greyfall yard and head of the Ombrecht rope-making family; refuses to certify ropes kept past seven years, loses her guild seal, and ends as Pass-keeper at Greyfall",
+      "aliases": [
+        "Isaura"
+      ],
+      "firstSection": 9,
+      "lastSection": 24
+    },
+    {
+      "name": "Tobiah Ombrecht",
+      "role": "foreman of the Greyfall brake sheds, Isaura's son and Linnet's father; takes the Syndicate's retainer in Year five and bars his brake house against a ghost run in Year eight",
+      "aliases": [
+        "Tobiah"
+      ],
+      "firstSection": 9,
+      "lastSection": 22
+    },
+    {
+      "name": "Linnet Ombrecht",
+      "role": "apprentice and later Chief Wright of Greyfall, the only Ombrecht with the ear for ropes (the Ombrecht note); the book is told mostly through her eyes",
+      "aliases": [
+        "Linnet"
+      ],
+      "firstSection": 9,
+      "lastSection": 25
+    },
+    {
+      "name": "Dessa Varnholt",
+      "role": "dispatcher at Greyfall and keeper of the Book; wrote Mark on the morning of the runaway and later leaks the Commissioner's memo",
+      "aliases": [
+        "Dessa",
+        "Varnholt"
+      ],
+      "firstSection": 9,
+      "lastSection": 23
+    },
+    {
+      "name": "Rurik Sennet",
+      "role": "brake inspector at Greyfall and Dessa's partner at the second key; passed the brake band before the runaway, refuses to ride a car again, and walks to Ostrel to give evidence",
+      "aliases": [
+        "Rurik",
+        "Sennet"
+      ],
+      "firstSection": 9,
+      "lastSection": 23
+    },
+    {
+      "name": "Calla Reth",
+      "role": "chief hydrographer at Tarn House (Dr. Reth), the researcher who measures the retreat of Old Mara and predicts the date of Low Day",
+      "aliases": [
+        "Calla",
+        "Dr. Reth",
+        "Reth"
+      ],
+      "firstSection": 9,
+      "lastSection": 25
+    },
+    {
+      "name": "Emeric Haldric",
+      "role": "Commissioner of the HWC; shelves Calla's report, issues the Weight Cuts and the confidential memo, and resigns in Year seven",
+      "aliases": [
+        "Emeric",
+        "Haldric"
+      ],
+      "firstSection": 9,
+      "lastSection": 25
+    },
+    {
+      "name": "Jessamy Tolk",
+      "role": "the Sill Freight Syndicate's night broker, who runs ghost cars and lends Tobiah money; becomes Night Warden of the Ladder after the Reconciliation",
+      "aliases": [
+        "Jessamy",
+        "Tolk"
+      ],
+      "firstSection": 9,
+      "lastSection": 25
+    }
+  ],
+  "terms": [
+    {
+      "term": "Ladder",
+      "definition": "the chain of seven cableways that is the only way up to Ostrel",
+      "section": 1
+    },
+    {
+      "term": "belly",
+      "definition": "the steel tank under a car that is its water ballast; holds ninety barrels when filled to the Mark",
+      "section": 2
+    },
+    {
+      "term": "Mark",
+      "definition": "the ring of white paint inside a belly that fixes the most water it may take",
+      "section": 2
+    },
+    {
+      "term": "Great Sheave",
+      "definition": "the great iron wheel in the upper station that the haul-rope loops over and the brakes act on",
+      "section": 2
+    },
+    {
+      "term": "counterpoise",
+      "definition": "the margin by which the heavy car outweighs the light one; a line moves only while it is positive",
+      "section": 2
+    },
+    {
+      "term": "tailrace",
+      "definition": "the stone channel that carries a drained belly's water down to the top station of the next line",
+      "section": 2
+    },
+    {
+      "term": "tally",
+      "definition": "the unit of weight equal to one barrel of water",
+      "section": 2
+    },
+    {
+      "term": "draw",
+      "definition": "the number of tallies a line lifts in a working day",
+      "section": 2
+    },
+    {
+      "term": "Brimmer figure",
+      "definition": "the twice-daily reading of the lake's level, telegraphed to every dispatcher",
+      "section": 3
+    },
+    {
+      "term": "sedgewire",
+      "definition": "haul-rope of twelve steel strands braided around a core of treated sedge fibre",
+      "section": 4
+    },
+    {
+      "term": "Pass",
+      "definition": "the short stretch of double track in the middle of every line where the two cars meet",
+      "section": 5
+    },
+    {
+      "term": "Held Minute",
+      "definition": "the full minute both cars halt at the Pass on every run while the keeper listens to the rope",
+      "section": 5
+    },
+    {
+      "term": "two-key rule",
+      "definition": "a line may not start until the dispatcher's key and the inspector's key are turned in the same minute",
+      "section": 5
+    },
+    {
+      "term": "Haul Day",
+      "definition": "the first day of every month, when freight outranks passengers",
+      "section": 5
+    },
+    {
+      "term": "HWC",
+      "definition": "the Highline Water Commission, which owns the water and employs the dispatchers, inspectors, weighers and hydrographers",
+      "section": 6
+    },
+    {
+      "term": "SFS",
+      "definition": "the Sill Freight Syndicate, the grain carters' consortium at Pannock that sells ghost cars",
+      "section": 6
+    },
+    {
+      "term": "ghost car",
+      "definition": "a run made outside the dispatcher's book, usually after the dusk bell, with water taken from a tailrace before its proper turn",
+      "section": 6
+    },
+    {
+      "term": "thief-pipe",
+      "definition": "a hidden pipe tapped into a tailrace and plugged with a wooden bung",
+      "section": 6
+    },
+    {
+      "term": "Low Day",
+      "definition": "the day in the dry stretch of the year when the Brimmer is lowest, which moves earlier as the glacier shrinks",
+      "section": 8
+    },
+    {
+      "term": "Fill Season",
+      "definition": "May to September, when Old Mara is running and the Brimmer is topped daily",
+      "section": 9
+    },
+    {
+      "term": "Weight Cuts",
+      "definition": "the Year two rationing circular that cut the permitted runs on every line by a sixth",
+      "section": 16
+    },
+    {
+      "term": "Extension Order",
+      "definition": "the Year two circular that raised the working life of a haul-rope from seven years to nine",
+      "section": 17
+    },
+    {
+      "term": "Ketterby Cut",
+      "definition": "the feeder channel that brings the springs of the eastern pastures to the top of the Third Line",
+      "section": 23
+    },
+    {
+      "term": "Summer Ladder",
+      "definition": "the Fourth to Seventh Lines, which run only sixteen weeks of the Fill Season after the Reconciliation",
+      "section": 23
+    }
+  ],
+  "timeline": [
+    {
+      "label": "forty-one years before Year one",
+      "event": "the Seventh Line opens, completing the Ladder, and the HWC is chartered",
+      "section": 6
+    },
+    {
+      "label": "sixty years before Year one",
+      "event": "the First Line opens (the Ladder took nineteen years to finish)",
+      "section": 6
+    },
+    {
+      "label": "twenty-nine years before Year one",
+      "event": "the Sill Freight Syndicate is founded by the grain carters of Pannock",
+      "section": 6
+    },
+    {
+      "label": "forty-seven years before Year one",
+      "event": "Isaura goes onto the long walks at fourteen",
+      "section": 9
+    },
+    {
+      "label": "Year one, February",
+      "event": "Calla's stakes show the ice slipping far faster than usual",
+      "section": 15
+    },
+    {
+      "label": "Year one, May",
+      "event": "Tolk visits Tobiah at the Greyfall brake shed; Linnet sees the first ghost car",
+      "section": 15
+    },
+    {
+      "label": "Year one, September",
+      "event": "Low Day falls on the twenty-fourth; Linnet is apprenticed",
+      "section": 15
+    },
+    {
+      "label": "Year two, March",
+      "event": "the Weight Cuts and the seventy-five day brake-band circular",
+      "section": 16
+    },
+    {
+      "label": "Year two, October",
+      "event": "the Fourth Line runs away on Haul Day; eleven people die",
+      "section": 16
+    },
+    {
+      "label": "Year two, December",
+      "event": "the inquiry; then the Extension Order raising rope life from seven years to nine",
+      "section": 17
+    },
+    {
+      "label": "Year three, February",
+      "event": "Isaura refuses to certify the Second Line's rope under the Extension Order",
+      "section": 17
+    },
+    {
+      "label": "Year three, May",
+      "event": "the guild withdraws Isaura's seal; Linnet becomes her ears",
+      "section": 17
+    },
+    {
+      "label": "Year three, August",
+      "event": "Low Day falls on the twenty-seventh; Haldric visits Calla at Tarn House",
+      "section": 18
+    },
+    {
+      "label": "Year four, March",
+      "event": "Linnet hears the Second Line's rope go flat; the guild's sandbag test",
+      "section": 18
+    },
+    {
+      "label": "Year four, November",
+      "event": "Haldric's confidential memorandum to the station chiefs",
+      "section": 18
+    },
+    {
+      "label": "Year five, July",
+      "event": "Tobiah takes the Syndicate's retainer of forty crowns a quarter",
+      "section": 19
+    },
+    {
+      "label": "Year five, November",
+      "event": "Dessa copies the memo and posts it to the Sill Evening Post",
+      "section": 20
+    },
+    {
+      "label": "Year six, April",
+      "event": "Calla's paper On the Retreat of Old Mara is published",
+      "section": 20
+    },
+    {
+      "label": "Year six, July",
+      "event": "Low Day falls on the sixteenth of July, as the table said",
+      "section": 20
+    },
+    {
+      "label": "Year one, November",
+      "event": "the timeline jumps backward: Calla's report to Haldric, filed under Prudence",
+      "section": 21
+    },
+    {
+      "label": "Year seven, February",
+      "event": "Rurik walks to Ostrel and tells the Assembly \"I turned the key\"",
+      "section": 21
+    },
+    {
+      "label": "Year seven, September",
+      "event": "Haldric resigns; Dessa is released",
+      "section": 22
+    },
+    {
+      "label": "Year eight, January",
+      "event": "Tobiah bars the brake house door against a ghost run",
+      "section": 22
+    },
+    {
+      "label": "Year nine, June",
+      "event": "Low Day on the fourth; the Seventh Line stops on the ninth",
+      "section": 23
+    },
+    {
+      "label": "Year nine, August",
+      "event": "the Reconciliation: the Ketterby Cut, the Summer Ladder, a reformed Commission",
+      "section": 23
+    }
+  ],
+  "rules": [
+    {
+      "text": "A belly is never filled past the Mark",
+      "section": 8
+    },
+    {
+      "text": "No run begins until the dispatcher's key and the inspector's key are turned in the same minute",
+      "section": 8
+    },
+    {
+      "text": "Both cars halt at the Pass for the Held Minute on every run",
+      "section": 8
+    },
+    {
+      "text": "A haul-rope is retired after seven years of service, however it looks",
+      "section": 8
+    },
+    {
+      "text": "No flame is carried within thirty paces of a haul-rope",
+      "section": 8
+    },
+    {
+      "text": "Water is assigned, never sold",
+      "section": 8
+    },
+    {
+      "text": "The seal on the Sluice is broken by the Commissioner or by nobody",
+      "section": 8
+    }
+  ],
+  "inconsistencies": [
+    {
+      "description": "The Brimmer is said to hold forty thousand barrels when full in the description of the lake, but sixty thousand barrels when full in the account of Calla's Year one report",
+      "sectionA": 3,
+      "sectionB": 21
+    },
+    {
+      "description": "Rurik Sennet's profile dates the Fourth Line runaway to the October of Year three, but the chronology (and the Year two, December inquiry that follows it) dates it to Year two, October",
+      "sectionA": 12,
+      "sectionB": 16
+    }
+  ],
+  "questions": [
+    {
+      "id": "lookup-belly",
+      "kind": "lookup",
+      "ask": "How many barrels of water does a belly hold when it is filled to the Mark?",
+      "mustMention": [
+        [
+          "ninety",
+          "90"
+        ]
+      ],
+      "sections": [
+        2
+      ]
+    },
+    {
+      "id": "lookup-strands",
+      "kind": "lookup",
+      "ask": "What is sedgewire made of, and how many steel strands does it have?",
+      "mustMention": [
+        [
+          "twelve",
+          "12"
+        ],
+        [
+          "sedge"
+        ],
+        [
+          "steel"
+        ]
+      ],
+      "sections": [
+        4
+      ]
+    },
+    {
+      "id": "lookup-build",
+      "kind": "lookup",
+      "ask": "How many years did it take to finish building the Ladder?",
+      "mustMention": [
+        [
+          "nineteen",
+          "19"
+        ]
+      ],
+      "sections": [
+        6
+      ]
+    },
+    {
+      "id": "lookup-rurik",
+      "kind": "lookup",
+      "ask": "How old was Rurik Sennet in Year one, and what was his job?",
+      "mustMention": [
+        [
+          "forty-seven",
+          "47"
+        ],
+        [
+          "brake inspector",
+          "inspector"
+        ]
+      ],
+      "sections": [
+        12
+      ]
+    },
+    {
+      "id": "lookup-retainer",
+      "kind": "lookup",
+      "ask": "How much was the retainer Tobiah took from the Syndicate, and when did he take it?",
+      "mustMention": [
+        [
+          "forty crowns",
+          "40 crowns",
+          "forty"
+        ],
+        [
+          "quarter"
+        ],
+        [
+          "Year five",
+          "July"
+        ]
+      ],
+      "sections": [
+        19
+      ]
+    },
+    {
+      "id": "lookup-deaths",
+      "kind": "lookup",
+      "ask": "How many of the people who died in the runaway were in the falling car, and how many in the rising one?",
+      "mustMention": [
+        [
+          "seven",
+          "7"
+        ],
+        [
+          "four",
+          "4"
+        ]
+      ],
+      "sections": [
+        16
+      ]
+    },
+    {
+      "id": "lookup-lowday1",
+      "kind": "lookup",
+      "ask": "On what date did Low Day fall in Year one?",
+      "mustMention": [
+        [
+          "twenty-fourth",
+          "24th",
+          "24"
+        ],
+        [
+          "September"
+        ]
+      ],
+      "sections": [
+        15
+      ]
+    },
+    {
+      "id": "lookup-sfs",
+      "kind": "lookup",
+      "ask": "What do the letters SFS stand for, and who founded it?",
+      "mustMention": [
+        [
+          "Sill Freight Syndicate"
+        ],
+        [
+          "grain carters",
+          "carters",
+          "Pannock"
+        ]
+      ],
+      "sections": [
+        6
+      ]
+    },
+    {
+      "id": "whole-people",
+      "kind": "whole",
+      "ask": "Who is this story about, and what does each of the main people do in it?",
+      "mustMention": [
+        [
+          "Ombrecht",
+          "Isaura",
+          "Linnet",
+          "Tobiah"
+        ],
+        [
+          "Dessa",
+          "Rurik"
+        ],
+        [
+          "Calla",
+          "Reth"
+        ],
+        [
+          "Haldric",
+          "Tolk"
+        ]
+      ],
+      "sections": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "id": "whole-ending",
+      "kind": "whole",
+      "ask": "How does the story end up for the Ladder and for the main people?",
+      "mustMention": [
+        [
+          "Seventh Line",
+          "stopped",
+          "silent",
+          "the water was gone"
+        ],
+        [
+          "Reconciliation",
+          "Summer Ladder",
+          "shortened"
+        ],
+        [
+          "Linnet",
+          "Chief Wright"
+        ]
+      ],
+      "sections": [
+        9,
+        11,
+        23,
+        25
+      ]
+    },
+    {
+      "id": "whole-rules",
+      "kind": "whole",
+      "ask": "What are the rules of this world that the characters keep bending?",
+      "mustMention": [
+        [
+          "Mark"
+        ],
+        [
+          "key",
+          "two-key"
+        ],
+        [
+          "Held Minute",
+          "Pass"
+        ],
+        [
+          "seven years",
+          "retired"
+        ],
+        [
+          "sold",
+          "assigned"
+        ]
+      ],
+      "sections": [
+        2,
+        4,
+        5,
+        8
+      ]
+    },
+    {
+      "id": "whole-problem",
+      "kind": "whole",
+      "ask": "What is the central problem in the story, and what causes it step by step?",
+      "mustMention": [
+        [
+          "glacier",
+          "Old Mara",
+          "melt"
+        ],
+        [
+          "Brimmer",
+          "lake"
+        ],
+        [
+          "Low Day",
+          "earlier",
+          "sooner"
+        ],
+        [
+          "ghost car",
+          "ration",
+          "Weight Cuts",
+          "price"
+        ]
+      ],
+      "sections": [
+        1,
+        8
+      ]
+    },
+    {
+      "id": "whole-mechanism",
+      "kind": "whole",
+      "ask": "How does a line lift freight up the mountain? Walk me through it.",
+      "mustMention": [
+        [
+          "belly",
+          "tank"
+        ],
+        [
+          "water",
+          "ballast"
+        ],
+        [
+          "sheave",
+          "rope"
+        ],
+        [
+          "tailrace"
+        ]
+      ],
+      "sections": [
+        2,
+        3
+      ]
+    },
+    {
+      "id": "timeline-memo",
+      "kind": "timeline",
+      "ask": "When was the Commissioner's memo written, and when did it leak out?",
+      "mustMention": [
+        [
+          "Year four"
+        ],
+        [
+          "November"
+        ],
+        [
+          "Year five"
+        ]
+      ],
+      "sections": [
+        18,
+        20
+      ]
+    },
+    {
+      "id": "timeline-jump",
+      "kind": "timeline",
+      "ask": "Where does the timeline jump backward, and to what moment does it go back?",
+      "mustMention": [
+        [
+          "Year one"
+        ],
+        [
+          "November"
+        ],
+        [
+          "report",
+          "shelved",
+          "Haldric"
+        ]
+      ],
+      "sections": [
+        20,
+        21
+      ]
+    },
+    {
+      "id": "timeline-lowday",
+      "kind": "timeline",
+      "ask": "How did the date of Low Day change between Year one and Year six?",
+      "mustMention": [
+        [
+          "September",
+          "twenty-fourth",
+          "24"
+        ],
+        [
+          "July",
+          "sixteenth",
+          "16"
+        ]
+      ],
+      "sections": [
+        15,
+        20
+      ]
+    },
+    {
+      "id": "timeline-order",
+      "kind": "timeline",
+      "ask": "Which came first: Isaura losing her seal, or Linnet hearing the Second Line's rope go flat?",
+      "mustMention": [
+        [
+          "seal"
+        ],
+        [
+          "Year three",
+          "May"
+        ],
+        [
+          "Year four",
+          "March"
+        ]
+      ],
+      "sections": [
+        17,
+        18
+      ]
+    },
+    {
+      "id": "style-voice",
+      "kind": "style",
+      "ask": "What point of view and tense is this bible written in?",
+      "mustMention": [
+        [
+          "third person",
+          "third-person"
+        ],
+        [
+          "past",
+          "present"
+        ]
+      ],
+      "sections": [
+        24
+      ]
+    },
+    {
+      "id": "style-memo",
+      "kind": "style",
+      "ask": "How does the memo differ in register from the rest of the bible?",
+      "mustMention": [
+        [
+          "memo",
+          "memorandum",
+          "Commissioner"
+        ],
+        [
+          "passive",
+          "formal",
+          "official",
+          "bureaucratic",
+          "stiff",
+          "flat"
+        ],
+        [
+          "rest",
+          "elsewhere",
+          "contrast",
+          "plain",
+          "narrat",
+          "different"
+        ]
+      ],
+      "sections": [
+        18,
+        19
+      ]
+    },
+    {
+      "id": "style-dialogue",
+      "kind": "style",
+      "ask": "How much of the bible is dialogue, and what is it like?",
+      "mustMention": [
+        [
+          "little",
+          "few",
+          "sparse",
+          "rare",
+          "short",
+          "handful",
+          "brief"
+        ],
+        [
+          "dialogue",
+          "speech",
+          "lines",
+          "quote",
+          "said"
+        ]
+      ],
+      "sections": [
+        24
+      ]
+    },
+    {
+      "id": "style-structure",
+      "kind": "style",
+      "ask": "How is the bible organised from beginning to end?",
+      "mustMention": [
+        [
+          "world",
+          "how it works",
+          "mechanic",
+          "Ladder",
+          "machine"
+        ],
+        [
+          "cast",
+          "characters",
+          "people"
+        ],
+        [
+          "chronolog",
+          "timeline",
+          "years",
+          "dated"
+        ]
+      ],
+      "sections": [
+        1,
+        9,
+        15,
+        24
+      ]
+    },
+    {
+      "id": "contra-brimmer",
+      "kind": "contradiction",
+      "ask": "The bible says how much water the Brimmer holds when it is full. Does it say the same thing everywhere?",
+      "mustMention": [
+        [
+          "forty thousand",
+          "40,000",
+          "40000"
+        ],
+        [
+          "sixty thousand",
+          "60,000",
+          "60000"
+        ]
+      ],
+      "sections": [
+        3,
+        21
+      ]
+    },
+    {
+      "id": "contra-runaway",
+      "kind": "contradiction",
+      "ask": "Does the bible give the same year for the Fourth Line runaway in the character notes and in the dated entries?",
+      "mustMention": [
+        [
+          "Year two"
+        ],
+        [
+          "Year three"
+        ],
+        [
+          "October"
+        ]
+      ],
+      "sections": [
+        12,
+        16
+      ]
+    },
+    {
+      "id": "contra-seal",
+      "kind": "contradiction",
+      "ask": "Is the bible consistent about when Isaura lost her guild seal? Check the cast notes against the dated entries.",
+      "mustMention": [
+        [
+          "consistent",
+          "agree",
+          "same",
+          "no conflict",
+          "not contradict",
+          "do not conflict",
+          "does not conflict"
+        ],
+        [
+          "Year three"
+        ],
+        [
+          "May"
+        ]
+      ],
+      "sections": [
+        9,
+        17
+      ]
+    },
+    {
+      "id": "snippet-heldminute",
+      "kind": "snippet",
+      "ask": "New idea for the book: what if the Pass-keeper at Greyfall could be paid to cut the Held Minute short on certain nights? I think it adds a nice complication. Does that fit what I have?",
+      "mustMention": [
+        [
+          "Held Minute"
+        ],
+        [
+          "Tobiah",
+          "retainer",
+          "Tolk",
+          "ghost car",
+          "Syndicate"
+        ]
+      ],
+      "sections": [
+        5,
+        19
+      ]
+    },
+    {
+      "id": "snippet-linnet-ear",
+      "kind": "snippet",
+      "ask": "I had an idea for the last act: Linnet starts to lose her hearing. Could that work with how I've set her up?",
+      "mustMention": [
+        [
+          "Linnet"
+        ],
+        [
+          "Ombrecht note",
+          "ear for",
+          "rope",
+          "sedge"
+        ],
+        [
+          "deaf",
+          "left ear",
+          "Isaura",
+          "Held Minute",
+          "Chief Wright"
+        ]
+      ],
+      "sections": [
+        9,
+        11,
+        23
+      ]
+    },
+    {
+      "id": "snippet-haldric-sister",
+      "kind": "snippet",
+      "ask": "What if Haldric had a sister in Pannock who runs a bakery, so the bread prices hit her family? Is that useful for his character?",
+      "mustMention": [
+        [
+          "Haldric"
+        ],
+        [
+          "bread",
+          "Pannock",
+          "price"
+        ],
+        [
+          "report",
+          "Prudence",
+          "told",
+          "nothing",
+          "memo",
+          "frightened valley"
+        ]
+      ],
+      "sections": [
+        14,
+        20,
+        21
+      ]
+    },
+    {
+      "id": "snippet-calla-stakes",
+      "kind": "snippet",
+      "ask": "Idea: someone moves Calla's stakes on the glacier at night, and I'm thinking the Syndicate is behind it. Does that make sense with what I've set up?",
+      "mustMention": [
+        [
+          "Calla",
+          "stakes"
+        ],
+        [
+          "Syndicate",
+          "Tolk",
+          "ghost car"
+        ],
+        [
+          "Haldric",
+          "report",
+          "numbers",
+          "memo"
+        ]
+      ],
+      "sections": [
+        6,
+        13,
+        15
+      ]
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+name: notes-lab
+
+# Measures, with the REAL model (Qwen2.5-3B) and the app's own llama-server arguments, what reading a long text section by section is worth and costs, and
+# whether NIE still sounds the same from one reply to the next (scripts/notes-lab.mjs, on the invented 10,000-word story bible in tests/fixtures).
+# Nothing here builds, ships or publishes anything: it only reports numbers (job log + the notes-lab-report artifact), so prompts are tuned on evidence.
+on:
+  workflow_dispatch:
+    inputs:
+      notes:
+        description: 'The notes pass on the story bible: seconds per section, form, names and terms noted, the overview (about 10 minutes)'
+        type: boolean
+        default: true
+      contexts:
+        description: "The bible's questions asked the old way and the new way (about 12 minutes on top)"
+        type: boolean
+        default: false
+      variety:
+        description: 'One 10-message conversation under three settings: does NIE still sound the same? (about 20 minutes on top)'
+        type: boolean
+        default: true
+      per_kind:
+        description: 'Questions per kind for the contexts experiment'
+        type: string
+        default: '2'
+      threads:
+        description: 'Model-server threads (empty = what the app picks: half the cores)'
+        type: string
+        default: ''
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch the llama.cpp runtime (Linux)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p rt apps/desktop/bin
+          gh release download b9085 --repo ggml-org/llama.cpp --pattern 'llama-*-bin-ubuntu-x64*' --dir rt
+          for f in rt/*; do
+            case "$f" in
+              *.zip) unzip -q -o "$f" -d rt/x ;;
+              *.tar.gz|*.tgz) mkdir -p rt/x && tar -xzf "$f" -C rt/x ;;
+            esac
+          done
+          find rt/x \( -type f -o -type l \) \( -name 'llama-server' -o -name '*.so' -o -name '*.so.*' \) -exec cp -P {} apps/desktop/bin/ \;
+          chmod +x apps/desktop/bin/llama-server
+
+      - name: Fetch the real model (about 1.9 GB, resumable)
+        run: node scripts/fetch-runtime.mjs --no-runtime
+
+      - name: Run the lab
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/apps/desktop/bin
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.notes }}" = "true" ]; then FLAGS="$FLAGS --notes"; fi
+          if [ "${{ inputs.contexts }}" = "true" ]; then FLAGS="$FLAGS --contexts"; fi
+          if [ "${{ inputs.variety }}" = "true" ]; then FLAGS="$FLAGS --variety"; fi
+          T=""
+          if [ -n "${{ inputs.threads }}" ]; then T="--threads ${{ inputs.threads }}"; fi
+          node scripts/notes-lab.mjs $FLAGS $T --per-kind "${{ inputs.per_kind }}" --out notes-lab-report.json
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: notes-lab-report
+          path: notes-lab-report.json
+          if-no-files-found: ignore

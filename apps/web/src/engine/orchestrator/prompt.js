@@ -7,6 +7,7 @@ import { rulesToPromptBlock } from '../rules/rules.js';
 import { describeForPrompt } from '../knowledge/index.js';
 import { clip, estimateTokens, fnv1a } from '../util/text.js';
 import { buildIndex, documentNote, readingContext } from '../reading/context.js';
+import { scrubForPrompt } from './variety.js';
 
 /**
  * Prompt composition for conversation (Brainstorm). The 3B local model has a small context window, so every section
@@ -68,14 +69,17 @@ export function buildSystem({ mode = 'brainstorm', project, interp, legacy = fal
   );
 }
 
-/** Trim history to a character budget, newest messages first. */
-export function trimHistory(messages, maxChars = BUDGET.history) {
+/**
+ * Trim history to a character budget, newest messages first. With `scrub`, NIE's own earlier replies lose their praise opener and stock closing
+ * question before the model sees them: a small model copies the shape of its own earlier replies, which is how every reply came to sound the same.
+ */
+export function trimHistory(messages, maxChars = BUDGET.history, scrub = false) {
   const out = [];
   let used = 0;
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i];
     if (m.role !== 'user' && m.role !== 'assistant') continue;
-    const content = clip(m.content, 900);
+    const content = clip(scrub && m.role === 'assistant' ? scrubForPrompt(m.content) : m.content, 900);
     if (used + content.length > maxChars) break;
     out.unshift({ role: m.role, content });
     used += content.length;
@@ -133,7 +137,7 @@ export function composeMessages({ mode = 'brainstorm', project, interp, userMess
     if (passage && scale > 0) userParts.push(`The writer's passage (for reference only; do not rewrite it):\n"""\n${clip(passage, Math.floor(BUDGET.passage * scale))}\n"""`);
     if (extra) userParts.push(extra);
     userParts.push(message);
-    return [{ role: 'system', content: system }, ...(scale > 0 ? trimHistory(history, Math.floor(BUDGET.history * scale)) : []), { role: 'user', content: userParts.join('\n\n') }];
+    return [{ role: 'system', content: system }, ...(scale > 0 ? trimHistory(history, Math.floor(BUDGET.history * scale), !legacy) : []), { role: 'user', content: userParts.join('\n\n') }];
   };
 
   let messages = build(minimal ? 0 : 1, userMessage);

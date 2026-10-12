@@ -23,9 +23,19 @@ export const messageOfReading = (messages) => messages.at(-1).content.match(/"""
  * Wrap a fake model's chat function so it also answers the "what does the writer mean?" call. By default it answers the way the rules
  * read the message, so older tests keep their meaning; pass `reading(text, messages)` to script it (return an Error to make the call fail).
  * Reading calls go to `reads`, never to `calls`, so tests that count or inspect the ANSWER calls see only those.
+ * Notes calls (purpose 'notes' | 'overview') answer with a note made of the section's own first words and names, unless `note(sectionText)` scripts them.
  */
-export function modelWithReading(replyFn, { calls = [], reads = [], reading = null } = {}) {
+export function modelWithReading(replyFn, { calls = [], reads = [], reading = null, noteCalls = [], note = null, overview = 'This text is told in several parts and follows a few named people. It is organised in numbered sections, each taking up one thread.' } = {}) {
   return async (messages, opts) => {
+    // The section-by-section reading ("notes") and the overview made from it are their own calls too: they go to `noteCalls`, never to `calls`.
+    if (opts?.purpose === 'notes' || opts?.purpose === 'overview') {
+      noteCalls.push({ messages, opts });
+      if (opts.purpose === 'overview') return typeof overview === 'function' ? overview(messages) : overview;
+      const part = messageOfReading(messages);
+      const r = note ? note(part, messages) : { gist: (part.match(/[^.!?]+[.!?]?/)?.[0] ?? part).trim().split(/\s+/).slice(0, 14).join(' ') || 'A part of the text.', names: [...new Set(part.match(/\b[A-Z][a-z]{2,}\b/g) ?? [])].slice(0, 4), terms: [], voice: 'plain, matter-of-fact' };
+      if (r instanceof Error) throw r;
+      return typeof r === 'string' ? r : JSON.stringify(r);
+    }
     if (opts?.purpose === 'understand') {
       reads.push({ messages, opts });
       const text = messageOfReading(messages);

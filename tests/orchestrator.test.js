@@ -123,7 +123,7 @@ test('a model reply that is mostly a drafted passage is replaced by built-in gui
 
 test('with a model: prompt is built from this project only, history is included, reply is stored', async () => {
   const calls = [];
-  const o = withModel(() => 'Tell me more about what he wants from the cat.', calls);
+  const o = withModel((_m, n) => (n === 1 ? 'Tell me more about what he wants from the cat.' : 'What is Tom most afraid of losing now that the cat trusts him?'), calls);
   const a = projectWith({ title: 'A' });
   rememberCharacter(a, { name: 'Samantha' });
   const b = withRules(projectWith({ title: 'B', profile: { genre: { primary: 'Slice of life' } } }), ['No adverbs']);

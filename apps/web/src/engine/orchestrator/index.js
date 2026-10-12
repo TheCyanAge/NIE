@@ -4,16 +4,19 @@ import { answerFromLibrary, forProfile, search } from '../knowledge/index.js';
 import { appendMessage } from '../project/memory.js';
 import { addToBoard, boardToChat, emptyBrainstorm, ideaId } from '../project/board.js';
 import { scan, scanWithModel } from '../analysis/scan.js';
-import { composeMessages, ideaRequestBlock, RETRY_TOKEN_LIMIT } from './prompt.js';
+import { composeMessages, ideaRequestBlock, indexFor, RETRY_TOKEN_LIMIT } from './prompt.js';
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
-import { guardReply } from './guard.js';
+import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
+import { avoidBlock, refine, shapeFor } from './variety.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
-import { describeReading, describeSending } from '../reading/context.js';
+import { describeReading, describeSending, isLookupQuestion } from '../reading/context.js';
+import { makeOverview, projectNotesCache, readThrough, sectionKey } from '../reading/notes.js';
+import { styleProfile } from '../reading/style.js';
 import { ideaSuggestions, nextSuggestions, STARTER } from './suggestions.js';
 import { ASKS_FOR_IDEAS, WANTS_MORE } from '../brainstorm/commands.js';
 import { KIND_IDS, LENSES, LENSES_BY_KIND, detectKind, detectLens, kindLabel } from '../brainstorm/lenses.js';
 import { composeDevelopReply, composeIdeaReply, generateIdeas, leadNoun, markShown, parseIdeas, resolveKind } from '../brainstorm/ideas.js';
-import { clip, words } from '../util/text.js';
+import { clip, estimateTokens, fnv1a, words } from '../util/text.js';
 
 export { STARTER };
 
@@ -28,7 +31,15 @@ const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|dr
 export const LONG_MESSAGE_CHARS = 3600;
 const STORY_TEXT_MIN_CHARS = 400;
 const ASK_WORDS = /\?|\bplease\b|\b(?:can|could|would)\s+you\b|\bwhat\b|\bhow\b|\bwhy\b|\bthoughts?\b|\bthink\b|\bfeedback\b|\bhere(?:'s| is| are)\b|\bbelow\b|:\s*$/i;
-const PASTED_NO_ASK = "(The writer pasted a text and did not say what they want from it. Respond to what stands out in it and ask one or two good questions. This line is not the writer's wording.)";
+const PASTED_NO_ASK = "(The writer pasted a text and did not say what they want from it. This line is not the writer's wording.)";
+/** A text this long (in sections of about 2,200 characters, so about 22,000 words) is not read through section by section: it is searched instead, as before. */
+export const MAX_NOTE_SECTIONS = 60;
+const COLD_NOTE_MS = 240000;
+const WARM_NOTE_MS = 150000;
+/** Asking about the whole text, not one fact in it: reading every section first is worth the wait. */
+const WHOLE_HINTS = /\b(?:summar\w+|overall|big picture|whole|entire|throughout|structure[ds]?|pacing|paced|consisten\w+|contradict\w*|conflict\w*|inconsisten\w*|timeline|chronolog\w*|theme\w*|style|voice|tone|register|arc|plot holes?|what(?:'s| is) (?:my|the|this) (?:story|text|piece|draft|bible|world|book) (?:about|like)|understand\w*|feedback|thoughts?|make of)\b/i;
+/** One retry of a reply that repeats itself (the same opener, the same questions) costs another answer's time, so it is spent only when the repeat is clear. */
+const VARIETY_RETRY = true;
 /** Which of the writer's own words is the ask, and which is the pasted text? A short first or last paragraph around a long body is the ask. */
 export function splitPaste(text) {
   const paras = String(text).split(/\n[ \t]*\n/).map((p) => p.trim()).filter(Boolean);
@@ -66,7 +77,19 @@ function pasteIntent(paste, ctx) {
 const MENTIONS_OWN_TEXT = /\b(?:my|our)\s+(?:story|novel|manuscript|draft|book|screenplay|script|poem|essay|article|piece|chapters?|ending|opening|middle|scene|characters?|protagonist|villain)\b/i;
 
 /** The compact record kept on the reply: what was shown of a long text. */
-const summarizeRead = (r) => ({ complete: r.complete, sections: r.sections, words: r.words, subject: r.subject, shown: r.shown.map((x) => x.i + 1) });
+const summarizeRead = (r) => ({ complete: r.complete, sections: r.sections, words: r.words, subject: r.subject, shown: r.shown.map((x) => x.i + 1), ...(r.notes ? { notes: { read: r.notes.modelRead, of: r.notes.total, listed: r.notes.listed } } : {}) });
+
+const isShortQuestion = (t) => /\?\s*$/.test(String(t).trim()) && words(t).length <= 25;
+/** Which questions are about the whole text (worth reading all of it first) and which ask for one fact in it (answered from the closest passages). */
+export function wantsWholeText({ query = '', reading = null } = {}) {
+  if (WHOLE_HINTS.test(query)) return true;
+  if (reading?.task === 'feedback' || reading?.task === 'develop') return true;
+  return !isLookupQuestion(query);
+}
+const NO_MODEL = { chat: async () => ({ text: null, route: 'builtin' }) };
+/** What is kept on the reply about how it was made (small, for the writer's panel and for tests). */
+const varietyRecord = (shape, got) => ({ ...(shape ? { shape: shape.id } : {}), ...(got?.polished?.rf?.dropped?.length || got?.retried ? { variety: { dropped: (got.polished?.rf?.dropped ?? []).map((d) => d.kind), retried: Boolean(got.retried) } } : {}) });
+const retryNote = (rf, text) => `Your first attempt at this reply repeated how you have been replying (${rf.reasons.join('; ') || 'the same opening and questions'}). Write it again from scratch, differently: do not begin the way that attempt began ("${clip(String(text).split(/(?<=[.!?])\s+/)[0] ?? '', 90)}"), do not praise, and do not end with a question you have asked before.`;
 
 /** After this many model readings in a row fail, stop asking for a few messages (the rules read them) so a broken model never doubles the wait. */
 const READING_FAILURES_BEFORE_PAUSE = 2;
@@ -103,10 +126,17 @@ export class Orchestrator {
   #readFailures = 0;
   #readPause = 0;
   #readWarm = false;
+  #styles = new Map();
 
-  /** @param {{ engine: import('../ai/engine.js').AIEngine }} o */
-  constructor({ engine }) {
+  /**
+   * @param {{ engine: import('../ai/engine.js').AIEngine, readNotes?: boolean, variety?: 'full'|'prompt'|'legacy' }} o
+   *   `readNotes: false` and `variety` exist so scripts/notes-lab.mjs can measure each new layer against the one before on the real model:
+   *   'legacy' = the earlier prompt wording and nothing else; 'prompt' = the new wording; 'full' (the app) = + a different shape each turn, what not to repeat, and cleaning.
+   */
+  constructor({ engine, readNotes = true, variety = 'full' }) {
     this.engine = engine;
+    this.readNotes = readNotes;
+    this.variety = variety;
   }
 
   /**
@@ -148,7 +178,7 @@ export class Orchestrator {
    * @returns {Promise<{ reply: string, intent: object, route: string, suggestions: object[], declined: boolean,
    *   ideas: {id:string,kind:string,lens:string,lensLabel:string,text:string}[], lead: string, tail: string, kind: string|null, lens: string|null }>}
    */
-  async brainstorm({ project, message, onToken, signal, kind: kindOpt = null, lens: lensOpt = null }) {
+  async brainstorm({ project, message, onToken, onProgress, signal, kind: kindOpt = null, lens: lensOpt = null }) {
     const text = String(message ?? '').trim();
     project.brainstorm ??= emptyBrainstorm();
     const bs = project.brainstorm;
@@ -252,26 +282,35 @@ export class Orchestrator {
     const stated = detectKind(askText);
     if (stated && (isIdeaAsk || develop || intent.type === 'start-from-zero' || /\b(?:i'?m|i am|i want to|i'?d like to|i need to|let'?s)\s+(?:be\s+)?(?:writing|write|working on|draft)/i.test(askText))) bs.detectedKind = stated;
 
-    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, signal });
+    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, onProgress, signal });
 
     // ── Conversation (not an idea request) ───────────────────────────────────
     const interp = interpretProfile(project.profile, { text: project.storyText });
-    const doc = this.#documentFor({ project, text, intent, reading, history: history.slice(0, -1) });
+    const past = history.slice(0, -1);
+    const doc = this.#documentFor({ project, text, intent, reading, history: past });
+    const noAsk = doc.userMessage === PASTED_NO_ASK;
+    // A long text is read section by section first (once: the notes are kept), so NIE can talk about all of it, not five excerpts.
+    const notes = await this.#notesFor({ project, doc, reading, noAsk, onProgress, signal });
     const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, askText);
-    const passage = intent.type === 'share-passage' ? text : '';
-    const report = passage ? scan({ text: passage, project }) : null;
+    const shared = intent.type === 'share-passage' ? text : '';
+    const passage = doc.document ? '' : shared; // a long paste is already shown through the reading block; do not show its opening a second time
+    const report = shared ? scan({ text: doc.document?.subject === 'passage' ? doc.document.text : shared, project }) : null;
+    // How to build this reply, which differs from the last ones; and what not to say again (openers, questions already asked).
+    const shape = this.variety !== 'full' || lib || libMiss || reading.task === 'chat' ? null : shapeFor({ history: past, kind: noAsk ? 'readback' : isShortQuestion(askText) ? 'question' : 'conversation', seed: text });
 
     const composeArgs = {
       mode: 'brainstorm',
       project,
       interp,
       userMessage: doc.userMessage,
-      document: doc.document,
-      history: history.slice(0, -1),
+      document: doc.document ? { ...doc.document, notes } : null,
+      history: past,
       retrieved,
-      extra: [readingNote(reading, text, { ownProject }), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      legacy: this.variety === 'legacy',
+      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk ? '' : readingNote(reading, text, { ownProject }), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
-    const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.7 });
+    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.7 });
+    const asked = got.asked;
     const res = asked.res;
     const modelReady = asked.modelReady;
     const status = this.engine.status?.() ?? null;
@@ -281,7 +320,7 @@ export class Orchestrator {
     let extra = {};
     let honesty = asked.failure && modelReady ? modelFailedNote(asked.failure) : '';
     if (res.text) {
-      const guarded = guardReply(res.text, [text, project.storyText]);
+      const guarded = got.polished.guarded;
       reply = guarded.text;
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
@@ -316,6 +355,7 @@ export class Orchestrator {
       const tail = [looked, describeSending(asked.read, route), shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
       if (tail) reply = `${reply}\n\n${tail}`;
       if (asked.read) extra = { ...extra, read: summarizeRead(asked.read) };
+      extra = { ...extra, ...varietyRecord(shape, got) };
     }
     return this.#finish(project, intent, reply, route, false, extra);
   }
@@ -344,6 +384,83 @@ export class Orchestrator {
     // Telling NIE something new about the project does not need the old text in front of it (and costs the model time to read): feedback, ideas and talk do.
     if (task !== 'tell' && project.storyText.trim().length >= STORY_TEXT_MIN_CHARS) return { document: { text: project.storyText, query: text, topic, subject: 'text' }, userMessage: text };
     return { document: null, userMessage: text };
+  }
+
+  /**
+   * Read a long text one section at a time (the model, locally, once: every note is kept by the section's hash, so only new or edited sections are read
+   * again and a stopped read carries on where it stopped). Returns what NIE knows of the text, or null when the text is short enough to show whole, no
+   * model is running here, or the question is one fact that the closest passages answer (nothing is read for that; notes made earlier are still used).
+   * Progress goes to `onProgress`; Stop (the signal) rethrows with the notes made so far already kept.
+   */
+  async #notesFor({ project, doc, reading, noAsk, onProgress, signal }) {
+    const document = doc.document;
+    if (!document?.text || !this.readNotes) return null;
+    const index = indexFor(document.text);
+    const N = index.sections.length;
+    if (N < 2 || estimateTokens(document.text) <= 1500) return null; // short enough to be shown whole (the reading block does that itself)
+    try {
+      const cache = projectNotesCache(project);
+      const mayRead = (this.engine.route?.() ?? 'builtin') === 'local' && N <= MAX_NOTE_SECTIONS && (noAsk || wantsWholeText({ query: document.query ?? '', reading }));
+      let per;
+      let modelRead;
+      let complete = false;
+      let failed = false;
+      if (mayRead) {
+        const cached = index.sections.filter((s) => cache.get(sectionKey(s))).length;
+        onProgress?.({ stage: 'reading', done: 0, total: N, cached, etaMs: null });
+        const r = await readThrough({ engine: this.engine, index, cache, signal, maxSections: MAX_NOTE_SECTIONS, coldMs: COLD_NOTE_MS, warmMs: WARM_NOTE_MS, onProgress: (p) => onProgress?.({ stage: 'reading', ...p }) });
+        ({ notes: per, modelRead, complete, failed } = r);
+      } else {
+        per = index.sections.map((s) => cache.get(sectionKey(s)) ?? null);
+        modelRead = per.filter((n) => n && (n.by === 'model' || n.by === 'text')).length;
+        complete = modelRead === N;
+      }
+      if (!modelRead) return null;
+      let overview = '';
+      if (complete) {
+        if (mayRead) onProgress?.({ stage: 'overview', done: N, total: N });
+        const total = index.sections.reduce((a, x) => a + x.words, 0);
+        overview = (await makeOverview({ engine: mayRead ? this.engine : NO_MODEL, notes: per, cache, signal, words: total, sections: N })).text;
+      }
+      const key = `${document.text.length}:${fnv1a(document.text)}`;
+      let style = this.#styles.get(key);
+      if (style === undefined) {
+        style = styleProfile(document.text).promptLine;
+        this.#styles.set(key, style);
+        if (this.#styles.size > 3) this.#styles.delete(this.#styles.keys().next().value);
+      }
+      return { per, overview, style, modelRead, total: N, complete, failed };
+    } catch (err) {
+      if (err?.kind === 'abort') throw err;
+      return null; // notes are an extra: if reading them fails, NIE answers from the closest passages as before
+    }
+  }
+
+  /**
+   * Ask, then clean the reply of what makes NIE sound the same each time (praise openers, stock questions, a question it already asked); when it
+   * still repeats itself clearly, ask once more with a note saying how. Never adds a word of its own.
+   */
+  async #askClean({ composeArgs, history, known, onToken, signal, temperature }) {
+    const polish = (res) => {
+      const g = guardReply(res.text, known);
+      const rf = this.variety === 'full' ? refine(g.remaining, { history }) : { text: g.remaining, dropped: [], retry: false, reasons: [] };
+      return { rf, guarded: { remaining: rf.text, removed: g.removed, text: g.removed ? `${rf.text}\n\n${LEFT_OUT_NOTICE}`.trim() : rf.text } };
+    };
+    let asked = await this.#ask({ composeArgs, onToken, signal, temperature });
+    let polished = asked.res.text ? polish(asked.res) : null;
+    let retried = false;
+    if (VARIETY_RETRY && polished?.rf.retry && asked.res.route !== 'builtin') {
+      retried = true;
+      const again = await this.#ask({ composeArgs: { ...composeArgs, extra: [composeArgs.extra, retryNote(polished.rf, polished.rf.text)].filter(Boolean).join('\n\n') }, onToken, signal, temperature: Math.min(1, temperature + 0.15) });
+      if (again.res.text) {
+        const second = polish(again.res);
+        if (!(second.guarded.removed && words(second.guarded.remaining).length < 8)) {
+          asked = again;
+          polished = second;
+        }
+      }
+    }
+    return { asked, polished, retried };
   }
 
   /**
@@ -379,24 +496,28 @@ export class Orchestrator {
   }
 
   /** Idea requests and "develop this idea": the model when it is running, otherwise the built-in idea library. */
-  async #ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, signal }) {
+  async #ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, onProgress, signal }) {
     const bs = project.brainstorm;
     const history = project.conversation.messages;
-    const doc = this.#documentFor({ project, text, intent, reading, history: history.slice(0, -1) });
+    const past = history.slice(0, -1);
+    const doc = this.#documentFor({ project, text, intent, reading, history: past });
     const askText = doc.document?.subject === 'passage' && text.length > LONG_MESSAGE_CHARS ? doc.userMessage : text;
     const gen = develop ? { ideas: [] } : generateIdeas({ project, message: askText, kind, lens, count: 3 });
     const interp = interpretProfile(project.profile, { text: project.storyText });
+    const notes = await this.#notesFor({ project, doc, reading, noAsk: doc.userMessage === PASTED_NO_ASK, onProgress, signal });
     const composeArgs = {
       mode: 'brainstorm',
       project,
       interp,
       userMessage: doc.userMessage,
-      document: doc.document,
-      history: history.slice(0, -1),
+      document: doc.document ? { ...doc.document, notes } : null,
+      history: past,
       retrieved: this.retrieve(project, askText),
-      extra: ideaRequestBlock({ kind, lens, develop, note, seeds: gen.ideas.slice(0, 2).map((i) => i.text) }),
+      legacy: this.variety === 'legacy',
+      extra: [ideaRequestBlock({ kind, lens, develop, note, seeds: gen.ideas.slice(0, 2).map((i) => i.text) }), this.variety === 'full' ? avoidBlock(past) : ''].filter(Boolean).join('\n\n'),
     };
-    const asked = await this.#ask({ composeArgs, onToken, signal, temperature: 0.85 });
+    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.85 });
+    const asked = got.asked;
     const res = asked.res;
     const fallbackNote = asked.failure && asked.modelReady ? modelFailedNote(asked.failure) : '';
 
@@ -405,7 +526,7 @@ export class Orchestrator {
     const firstTime = !history.some((m) => m.role === 'assistant' && m.ideas?.length);
 
     if (res.text) {
-      const guarded = guardReply(res.text, [text, project.storyText]);
+      const guarded = got.polished.guarded;
       if (!(guarded.removed && words(guarded.remaining).length < 8)) {
         const parsed = develop ? { ideas: [] } : parseIdeas(guarded.remaining);
         const ideas = toCards(parsed.ideas);
@@ -414,7 +535,7 @@ export class Orchestrator {
         bs.lastLens = lens;
         const lead = [note, parsed.lead].filter(Boolean).join('\n\n');
         const cut = [asked.read && !asked.read.complete ? `(${describeReading(asked.read)})` : '', describeSending(asked.read, res.route), shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
-        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read) } : {}) });
+        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read) } : {}), ...varietyRecord(null, got) });
       }
     }
 
@@ -498,6 +619,8 @@ export class Orchestrator {
     const understood = intent.reading ? { by: intent.reading.by, task: intent.reading.task, topic: intent.reading.topic ?? '', ...(intent.reading.overruled ? { overruled: intent.reading.overruled } : {}), ...(/^model-reading-/.test(intent.reading.why ?? '') ? { why: intent.reading.why } : {}) } : null; // 'why' only when a running model could not read it
     if (understood) meta.understood = understood;
     if (extra.read) meta.read = extra.read; // what was looked at, for a long text
+    if (extra.shape) meta.shape = extra.shape; // how the reply was built, so the next one is built differently
+    if (extra.variety) meta.variety = extra.variety;
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });
     appendMessage(project, 'assistant', reply, meta);
