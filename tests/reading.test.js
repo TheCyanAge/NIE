@@ -206,7 +206,8 @@ test('without the section-by-section read (the earlier behaviour, kept to measur
   assert.equal(noteCalls.length, 0);
   const prompt = promptOf(calls);
   assert.match(prompt, /Outline of the other sections/);
-  assert.match(r.reply, /For the other \d+ I only saw how each one begins/);
+  assert.match(r.reply, /For the other \d+ I only saw how (?:each one begins|\d+ of them begin)/, 'it says how many lines of the others it really had');
+  assert.match(prompt, /Style \(measured from the text/, 'the measured style is part of what the model is shown');
 });
 
 test('an online model is told plainly: the reply says how much of the text was sent to the provider; an offline model says nothing of the kind', async () => {
@@ -403,3 +404,48 @@ test('the reading index is cached for speed and can be cleared', async () => {
   clearIndexes();
   assert.notEqual(indexFor(text), a, 'after clearing it is built again');
 });
+
+// ── a question about the writer's own long text is asked of the text, even when the model calls it "general" ───
+import { loadBible } from './fixtures/story-bible.mjs';
+
+test('"What is sedgewire made of?" is asked of the Story Text, not the craft library, even though a small model labels it a general question', async () => {
+  const { text, truth } = loadBible();
+  const lookup = truth.questions.find((q) => q.kind === 'lookup');
+  const project = projectWith({ storyText: text });
+  const { o, calls } = setup({ reading: { task: 'craft', topic: '' }, reply: 'It is made of braided steel.' });
+  const r = await o.brainstorm({ project, message: lookup.ask });
+  assert.equal(r.route, 'local');
+  const prompt = promptOf(calls);
+  assert.match(prompt, /The writer's text is long: about 10,\d{3} words/, 'the text is in front of the model');
+  assert.doesNotMatch(prompt, /built-in library has nothing on this question|These notes come from NIE's built-in library/, 'not answered as a library question');
+  assert.match(prompt, /The writer is asking what their text says/, 'told to answer from the text and name the section');
+  assert.equal(r.intent.type !== 'library-question', true);
+});
+
+test('a general craft question is still answered from the library even when the project has a long text', async () => {
+  const { text } = loadBible();
+  const project = projectWith({ storyText: text });
+  const { o, calls } = setup({ reading: { task: 'craft', topic: 'villanelle' }, reply: 'A villanelle is a nineteen-line poem.' });
+  await o.brainstorm({ project, message: 'In one or two sentences, what is a villanelle?' });
+  assert.doesNotMatch(promptOf(calls), /The writer's text is long/, 'the text is not dragged in');
+});
+
+test('a question that says "this bible" or "the text" is about the text; its measured style reaches the model', async () => {
+  const { text } = loadBible();
+  const project = projectWith({ storyText: text });
+  const { o, calls } = setup({ reading: { task: 'craft', topic: '' }, reply: 'Third person, past and present.' });
+  await o.brainstorm({ project, message: 'What point of view and tense is this bible written in?' });
+  const prompt = promptOf(calls);
+  assert.match(prompt, /The writer's text is long/);
+  assert.match(prompt, /Style \(measured from the text/);
+});
+
+test('comparing parts of the text ("does the number change?") gets the passages themselves, not one line on each', () => {
+  const { text, truth } = loadBible();
+  const index = buildIndex(text);
+  const compare = readingContext({ index, query: truth.questions.find((q) => q.kind === 'contradiction').ask, budgetTokens: 1400 });
+  const shown = new Set(compare.stats.shown.filter((x) => x.role === 'match').map((x) => x.i + 1));
+  assert.ok(shown.size >= 3, 'several matching passages are shown for a comparison');
+  for (const k of truth.questions.find((q) => q.kind === 'contradiction').sections) assert.ok(shown.has(k), `section ${k}, where one of the two statements is, is shown word for word`);
+});
+

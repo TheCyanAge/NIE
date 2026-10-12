@@ -9,7 +9,7 @@ import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissRe
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
 import { avoidBlock, refine, shapeFor } from './variety.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
-import { describeReading, describeSending, isLookupQuestion } from '../reading/context.js';
+import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
 import { makeOverview, projectNotesCache, readThrough, sectionKey } from '../reading/notes.js';
 import { styleProfile } from '../reading/style.js';
 import { ideaSuggestions, nextSuggestions, STARTER } from './suggestions.js';
@@ -38,6 +38,10 @@ const COLD_NOTE_MS = 240000;
 const WARM_NOTE_MS = 150000;
 /** Asking about the whole text, not one fact in it: reading every section first is worth the wait. */
 const WHOLE_HINTS = /\b(?:summar\w+|overall|big picture|whole|entire|throughout|structure[ds]?|pacing|paced|consisten\w+|contradict\w*|conflict\w*|inconsisten\w*|timeline|chronolog\w*|theme\w*|style|voice|tone|register|arc|plot holes?|what(?:'s| is) (?:my|the|this) (?:story|text|piece|draft|bible|world|book) (?:about|like)|understand\w*|feedback|thoughts?|make of)\b/i;
+/** Words that point at the writer's own text even when no one says "my story": "this bible", "in the text", "what I pasted". */
+const ABOUT_TEXT_MARKERS = /\b(?:this|the|my|our|that)\s+(?:bible|text|draft|manuscript|document|piece|chapter|outline|story|novel|book|script|essay|passage|world|timeline|notes|memo)\b|\bin\s+(?:the|my|this)\s+(?:text|draft|story|bible|book|chapter|document)\b|\bwhat\s+i\s+(?:pasted|shared|wrote|sent)\b|\byou\s+(?:just\s+)?read\b/i;
+/** A question whose own words are found strongly in the writer's long text is about that text (BM25 over its sections), whatever it is called. */
+const TEXT_MATCH_SCORE = 4.5;
 /** One retry of a reply that repeats itself (the same opener, the same questions) costs another answer's time, so it is spent only when the repeat is clear. */
 const VARIETY_RETRY = true;
 /** Which of the writer's own words is the ask, and which is the pasted text? A short first or last paragraph around a long body is the ask. */
@@ -224,12 +228,16 @@ export class Orchestrator {
     if (intent.type === 'about-nie') return this.#about({ project, intent, text: askText, onToken });
     const byModel = reading.by === 'model';
 
+    // Is this a question about the writer's own long text (a recent paste, or the project's Story Text) even though it never says "my story"?
+    // "What is sedgewire made of?" is asked of the text, not of the craft library, and a small model labels it a general question.
+    const aboutText = this.#aboutLongText({ project, text: askText, history: history.slice(0, -1) });
+
     // A general question about craft, style, usage, a form, genre or work: answer from the offline library, with its sources.
     // (Not a premise: it must not become the story's working premise.)
     let lib = null;
     let libMiss = false;
     let ownProject = false;
-    const libraryCandidate = text.length > LONG_MESSAGE_CHARS ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
+    const libraryCandidate = text.length > LONG_MESSAGE_CHARS || aboutText ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
     if (libraryCandidate) {
       // Naming a character or role ('the detective', 'Samantha', 'he') or "my story" means the writer is talking about their story, not asking the
       // library. Even when the model read it as a general question, that stays a veto for anything but a strong match: a 3B model misreads
@@ -287,7 +295,7 @@ export class Orchestrator {
     // ── Conversation (not an idea request) ───────────────────────────────────
     const interp = interpretProfile(project.profile, { text: project.storyText });
     const past = history.slice(0, -1);
-    const doc = this.#documentFor({ project, text, intent, reading, history: past });
+    const doc = this.#documentFor({ project, text, intent, reading, history: past, aboutText });
     const noAsk = doc.userMessage === PASTED_NO_ASK;
     // A long text is read section by section first (once: the notes are kept), so NIE can talk about all of it, not five excerpts.
     const notes = await this.#notesFor({ project, doc, reading, noAsk, onProgress, signal });
@@ -303,11 +311,11 @@ export class Orchestrator {
       project,
       interp,
       userMessage: doc.userMessage,
-      document: doc.document ? { ...doc.document, notes } : null,
+      document: doc.document ? { ...doc.document, notes, style: notes ? '' : this.#styleOf(doc.document.text) } : null,
       history: past,
       retrieved,
       legacy: this.variety === 'legacy',
-      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk ? '' : readingNote(reading, text, { ownProject }), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.7 });
     const asked = got.asked;
@@ -360,6 +368,34 @@ export class Orchestrator {
     return this.#finish(project, intent, reply, route, false, extra);
   }
 
+  /** The long text a follow-up could be about: a recent long paste (its body), else the project's Story Text; null when there is none. */
+  #candidateText(project, history) {
+    const recent = history.slice(-12).reverse().find((m) => m.role === 'user' && m.content.length > LONG_MESSAGE_CHARS);
+    if (recent) return splitPaste(recent.content).body;
+    const story = project.storyText ?? '';
+    return story.trim().length >= STORY_TEXT_MIN_CHARS ? story : null;
+  }
+
+  #aboutLongText({ project, text, history }) {
+    if (!text || text.length > LONG_MESSAGE_CHARS) return false;
+    const doc = this.#candidateText(project, history);
+    if (!doc || estimateTokens(doc) <= 1500) return false;
+    if (ABOUT_TEXT_MARKERS.test(text)) return true;
+    const top = searchText(indexFor(doc), text, { limit: 1 })[0];
+    return Boolean(top && top.score >= TEXT_MATCH_SCORE);
+  }
+
+  #styleOf(text) {
+    const key = `${text.length}:${fnv1a(text)}`;
+    let style = this.#styles.get(key);
+    if (style === undefined) {
+      style = styleProfile(text).promptLine;
+      this.#styles.set(key, style);
+      if (this.#styles.size > 3) this.#styles.delete(this.#styles.keys().next().value);
+    }
+    return style;
+  }
+
   /**
    * The long text (if there is one) this message is about, and what the writer actually asked.
    *  - a long pasted message is the text itself; its short first/last paragraph is the ask;
@@ -368,9 +404,9 @@ export class Orchestrator {
    * Nothing is cut off: the composer shows an outline of the whole plus the parts that matter, and `read` records what was shown.
    * @returns {{ document: {text:string,query:string,topic:string,subject:string}|null, userMessage: string }}
    */
-  #documentFor({ project, text, intent, reading, history }) {
+  #documentFor({ project, text, intent, reading, history, aboutText = false }) {
     const task = reading?.task ?? null;
-    const aboutWork = !['craft', 'about-nie', 'chat', 'write', 'edit'].includes(task) && !['library-question', 'greeting', 'about-nie'].includes(intent.type);
+    const aboutWork = aboutText || (!['craft', 'about-nie', 'chat', 'write', 'edit'].includes(task) && !['library-question', 'greeting', 'about-nie'].includes(intent.type));
     const topic = reading?.topic ?? '';
     if (text.length > LONG_MESSAGE_CHARS) {
       const { ask, body } = splitPaste(text);
@@ -382,7 +418,7 @@ export class Orchestrator {
       if (recent) return { document: { text: splitPaste(recent.content).body, query: text, topic, subject: 'passage' }, userMessage: text };
     }
     // Telling NIE something new about the project does not need the old text in front of it (and costs the model time to read): feedback, ideas and talk do.
-    if (task !== 'tell' && project.storyText.trim().length >= STORY_TEXT_MIN_CHARS) return { document: { text: project.storyText, query: text, topic, subject: 'text' }, userMessage: text };
+    if ((aboutText || task !== 'tell') && project.storyText.trim().length >= STORY_TEXT_MIN_CHARS) return { document: { text: project.storyText, query: text, topic, subject: 'text' }, userMessage: text };
     return { document: null, userMessage: text };
   }
 
@@ -422,14 +458,7 @@ export class Orchestrator {
         const total = index.sections.reduce((a, x) => a + x.words, 0);
         overview = (await makeOverview({ engine: mayRead ? this.engine : NO_MODEL, notes: per, cache, signal, words: total, sections: N })).text;
       }
-      const key = `${document.text.length}:${fnv1a(document.text)}`;
-      let style = this.#styles.get(key);
-      if (style === undefined) {
-        style = styleProfile(document.text).promptLine;
-        this.#styles.set(key, style);
-        if (this.#styles.size > 3) this.#styles.delete(this.#styles.keys().next().value);
-      }
-      return { per, overview, style, modelRead, total: N, complete, failed };
+      return { per, overview, style: this.#styleOf(document.text), modelRead, total: N, complete, failed };
     } catch (err) {
       if (err?.kind === 'abort') throw err;
       return null; // notes are an extra: if reading them fails, NIE answers from the closest passages as before
@@ -510,7 +539,7 @@ export class Orchestrator {
       project,
       interp,
       userMessage: doc.userMessage,
-      document: doc.document ? { ...doc.document, notes } : null,
+      document: doc.document ? { ...doc.document, notes, style: notes ? '' : this.#styleOf(doc.document.text) } : null,
       history: past,
       retrieved: this.retrieve(project, askText),
       legacy: this.variety === 'legacy',

@@ -183,7 +183,7 @@ export function readingNote(reading, text, { ownProject = false } = {}) {
   const asks = [];
   if (reading.task === 'unclear') asks.push("I could not tell what the writer is asking. Ask one short question to find out; do not guess and do not give a list of ideas.");
   if (reading.task === 'feedback') asks.push("The writer wants your honest read on their own work. Answer in conversation, point at where something is rather than rewriting it, and ask before calling anything a mistake.");
-  if (reading.task === 'tell') asks.push("The writer is telling you about their project. Say back what you understood in a sentence, then ask one or two questions that move it forward.");
+  if (reading.task === 'tell') asks.push("The writer is telling you about their project. Pick up what they said, in your own words and with their details, and build on it.");
   if (reading.task === 'develop') asks.push("The writer wants to go deeper on something already in this chat. Stay with it and use what was said earlier.");
   if (reading.task === 'craft') {
     asks.push(ownProject

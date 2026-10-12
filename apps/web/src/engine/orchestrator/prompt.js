@@ -130,7 +130,7 @@ export function composeMessages({ mode = 'brainstorm', project, interp, userMess
     const userParts = [];
     if (retrieved.length && scale > 0) userParts.push(`Reference notes (tools the writer may use or break, not rules):\n${describeForPrompt(retrieved, Math.floor(BUDGET.knowledge * scale))}`);
     if (docIndex) {
-      const ctx = readingContext({ index: docIndex, query: document.query ?? '', topic: document.topic ?? '', budgetTokens: scale > 0 ? Math.max(450, Math.floor(docBudget * scale)) : 450, subject: document.subject, notes });
+      const ctx = readingContext({ index: docIndex, query: document.query ?? '', topic: document.topic ?? '', budgetTokens: scale > 0 ? Math.max(450, Math.floor(docBudget * scale)) : 450, subject: document.subject, notes, style: document.style ?? '' });
       reading = ctx.stats;
       if (ctx.block) userParts.push(`${ctx.block}\n\n${documentNote(document.query || userMessage, ctx.stats)}`);
     }

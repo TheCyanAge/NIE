@@ -56,6 +56,7 @@ export function search(index, query, { limit = 6, minScore = 0.01 } = {}) {
   return scored.sort((x, y) => y.score - x.score || x.i - y.i).slice(0, limit);
 }
 
+const COMPARE = /\b(?:same|differ\w*|conflict\w*|contradict\w*|consisten\w*|inconsisten\w*|agree\w*|match\w*|compar\w*|mismatch\w*|clash\w*|discrepan\w*|change[sd]?|continuity)\b/i;
 const HEAD_WORDS = /\b(?:opening|beginning|start|starts|first|introduc\w*|prologue|premise|setup|set-up)\b/i;
 const TAIL_WORDS = /\b(?:end|ending|endings|final|finale|last|conclusion|conclude|climax|resolution|epilogue|next|forward|continue|where (?:it|this|the story) goes|what happens|now|latest|so far)\b/i;
 const MIDDLE_WORDS = /\b(?:middle|midpoint|mid-point|second act|act two|act 2|sagging|saggy|slow)\b/i;
@@ -128,7 +129,7 @@ function focusExcerpt(raw, terms, nameTerms, cap, fromEnd = false) {
  *   ({ per: (note|null)[], overview, style, ... }, see reading/notes.js); with notes, one line per section replaces the outline of first words.
  * @returns {{ block: string, stats: { complete: boolean, sections: number, words: number, shown: {i:number, role:string}[], outlined: number, tokens: number, notes: object|null } }}
  */
-export function readingContext({ index, query, topic = '', budgetTokens = 1400, subject = 'text', notes = null }) {
+export function readingContext({ index, query, topic = '', budgetTokens = 1400, subject = 'text', notes = null, style = '' }) {
   const N = index.sections.length;
   const totalWords = index.sections.reduce((a, s) => a + s.words, 0);
   const stats = { complete: false, sections: N, words: totalWords, shown: [], outlined: 0, tokens: 0, subject, notes: null };
@@ -149,7 +150,9 @@ export function readingContext({ index, query, topic = '', budgetTokens = 1400, 
   const nameTerms = names(q);
   const ranked = search(index, q, { limit: 5 });
   // How strongly does the question point at particular passages? (a name or a rare word that appears in few sections)
-  const lookup = ranked.length > 0 && ranked[0].score >= 4 && !hints.tail && !hints.middle && !hints.head;
+  // Comparing parts of the text ("does X say the same in both places?", "does the date change?") needs the passages themselves, not one line on each.
+  const comparing = COMPARE.test(query) && ranked.length >= 2;
+  const lookup = ranked.length > 0 && (ranked[0].score >= 4 || comparing) && !hints.tail && !hints.middle && !hints.head;
 
   const chosen = new Map(); // i -> role
   chosen.set(N - 1, 'latest');
@@ -202,12 +205,12 @@ export function readingContext({ index, query, topic = '', budgetTokens = 1400, 
 
   const intro = `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You cannot see all of it at once, so you are shown an outline of the rest and the parts that matter for this message.`;
   // the outline gets what the budget has left, sampled evenly (first and last always kept) rather than cut off at the end
-  const left = Math.floor(budgetTokens * 3.6) - [intro, ...excerpts].join('\n\n').length - 70;
+  const left = Math.floor(budgetTokens * 3.6) - [intro, style ? clip(style, 420) : '', ...excerpts].join('\n\n').length - 70;
   let lines = outline(index, { maxLines: 36, skip: shownSet }).lines;
   while (lines.length > 2 && lines.join('\n').length > left) lines = lines.filter((_, k) => k % 2 === 0 || k === lines.length - 1);
   if (lines.join('\n').length > left) lines = [];
   stats.outlined = lines.length;
-  const block = [intro, lines.length ? `Outline of the other sections (number: how each begins):\n${lines.join('\n')}` : '', ...excerpts].filter(Boolean).join('\n\n');
+  const block = [intro, style ? clip(style, 420) : '', lines.length ? `Outline of the other sections (number: how each begins):\n${lines.join('\n')}` : '', ...excerpts].filter(Boolean).join('\n\n');
   stats.tokens = estimateTokens(block);
   return { block, stats };
 }
