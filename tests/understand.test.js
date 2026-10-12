@@ -66,8 +66,20 @@ test('the reading call is a short, deterministic, schema-constrained, non-stream
   assert.equal(opts.temperature, 0);
   assert.equal(opts.stream, false);
   assert.ok(opts.maxTokens <= 80);
-  assert.ok(opts.timeoutMs <= 30000);
+  assert.equal(opts.timeoutMs, 100000, 'the first reading also warms the model up, so it is given longer');
   assert.deepEqual(opts.json, READING_SCHEMA);
+});
+
+test('once one reading has worked, a stalled one is given up on quickly; a failed reading says why in the record', async () => {
+  const { o, reads } = setup({ reading: read('ideas') });
+  await o.brainstorm({ project: projectWith(), message: 'Give me some twists for my heist story.' });
+  await o.brainstorm({ project: projectWith(), message: 'Give me more twists for my heist story.' });
+  assert.deepEqual(reads.map((r) => r.opts.timeoutMs), [100000, 25000]);
+  const failing = setup({ reading: () => new Error('timed out') });
+  const r = await failing.o.brainstorm({ project: projectWith(), message: 'In one or two sentences, what is a villanelle?' });
+  assert.equal(r.understood.by, 'rules');
+  assert.equal(r.understood.why, 'model-reading-failed', 'the record says the model could not read it, not just that the rules did');
+  assert.equal(failing.reads[0].opts.timeoutMs, 100000);
 });
 
 test('the HTTP client sends the schema to a server that supports it, and to nobody else', async () => {

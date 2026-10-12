@@ -250,7 +250,23 @@ try {
     // NIE understands the message with the language model (through the desktop bridge, with the constrained JSON reading), not only by rules.
     const understood = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).understood);
     report.understood = understood;
-    step('the language model read the message before answering', understood?.by === 'model' && Boolean(understood.task), JSON.stringify(understood));
+    // If the reading fell back to the rules, find out why straight away: ask the warm model for a constrained reading directly and report how long
+    // it takes (or its error), so a slow first call and a broken constrained call can be told apart from the log alone.
+    let direct = null;
+    if (understood?.by !== 'model') {
+      direct = await page.evaluate(async () => {
+        const t = Date.now();
+        const schema = { type: 'object', properties: { task: { type: 'string', enum: ['chat', 'craft'] }, topic: { type: 'string' } }, required: ['task', 'topic'], additionalProperties: false };
+        try {
+          const r = await window.NIE_LOCAL.chat({ id: `diag-${t}`, messages: [{ role: 'user', content: 'Reply with a reading: task chat, empty topic.' }], options: { json: schema, stream: false, maxTokens: 30, temperature: 0, timeoutMs: 90000 } });
+          return { ms: Date.now() - t, text: String(r?.text ?? '').slice(0, 120), error: r?.error ?? null };
+        } catch (e) {
+          return { ms: Date.now() - t, error: String(e) };
+        }
+      });
+      report.directReading = direct;
+    }
+    step('the language model read the message before answering', understood?.by === 'model' && Boolean(understood.task), `${JSON.stringify(understood)}${direct ? `; a direct reading afterwards: ${JSON.stringify(direct)}` : ''}`);
 
     // a request to write that the old rules did not recognise: the model's reading must get it declined (information only: the
     // exact label is measured by the understanding-eval workflow, and a 3B model is not a deterministic guarantee)

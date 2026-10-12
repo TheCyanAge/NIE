@@ -71,6 +71,10 @@ const summarizeRead = (r) => ({ complete: r.complete, sections: r.sections, word
 /** After this many model readings in a row fail, stop asking for a few messages (the rules read them) so a broken model never doubles the wait. */
 const READING_FAILURES_BEFORE_PAUSE = 2;
 const READING_PAUSE_MESSAGES = 5;
+// The first reading after the model starts also has to load and warm it (a freshly downloaded model on an ordinary PC took longer than 25 s on a
+// Windows runner, so every first message was read by the rules); once one reading has worked, a stalled one is given up on quickly.
+const COLD_READING_MS = 100000;
+const WARM_READING_MS = 25000;
 
 /** Why the offline model could not answer, in words a writer can act on. */
 export function describeModelFailure(err) {
@@ -98,6 +102,7 @@ const WITHHELD_NOTE = "My offline model did answer, but its answer included word
 export class Orchestrator {
   #readFailures = 0;
   #readPause = 0;
+  #readWarm = false;
 
   /** @param {{ engine: import('../ai/engine.js').AIEngine }} o */
   constructor({ engine }) {
@@ -116,7 +121,7 @@ export class Orchestrator {
       this.#readPause--;
       return (intent.reading = rulesReading(intent, 'model-reading-paused'));
     }
-    const r = await understandMessage({ engine: this.engine, text, history, signal });
+    const r = await understandMessage({ engine: this.engine, text, history, signal, timeoutMs: this.#readWarm ? WARM_READING_MS : COLD_READING_MS });
     if (!r.ok) {
       if (++this.#readFailures >= READING_FAILURES_BEFORE_PAUSE) {
         this.#readPause = READING_PAUSE_MESSAGES;
@@ -125,6 +130,7 @@ export class Orchestrator {
       return (intent.reading = rulesReading(intent, 'model-reading-failed'));
     }
     this.#readFailures = 0;
+    this.#readWarm = true;
     applyReading(intent, r, text);
     return intent.reading;
   }
@@ -489,7 +495,7 @@ export class Orchestrator {
     const ideas = extra.ideas ?? [];
     const meta = { route };
     // Who understood the message and how it was read ('model' = the language model read it; 'rules' = the built-in rules did).
-    const understood = intent.reading ? { by: intent.reading.by, task: intent.reading.task, topic: intent.reading.topic ?? '', ...(intent.reading.overruled ? { overruled: intent.reading.overruled } : {}) } : null;
+    const understood = intent.reading ? { by: intent.reading.by, task: intent.reading.task, topic: intent.reading.topic ?? '', ...(intent.reading.overruled ? { overruled: intent.reading.overruled } : {}), ...(/^model-reading-/.test(intent.reading.why ?? '') ? { why: intent.reading.why } : {}) } : null; // 'why' only when a running model could not read it
     if (understood) meta.understood = understood;
     if (extra.read) meta.read = extra.read; // what was looked at, for a long text
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
