@@ -35,7 +35,13 @@ function showView(view) {
   for (const s of $$('.view')) s.hidden = s.dataset.view !== view;
   for (const b of $$('.nav-btn')) b.setAttribute('aria-current', b.dataset.view === view ? 'page' : 'false');
   document.body.dataset.mode = view;
-  requestAnimationFrame(() => { if (!tour.isActive() && !document.querySelector('dialog[open]')) views[view]?.focus?.(); });
+  // Put the cursor in the new view's main input, unless something inside the view already has it: a writer (or a busy machine's late frame) must never have
+  // what they just clicked into taken away, which sent typed text to the wrong box.
+  requestAnimationFrame(() => {
+    const active = document.activeElement;
+    const already = active && active !== document.body && $(`.view[data-view="${view}"]`)?.contains(active);
+    if (!already && !tour.isActive() && !document.querySelector('dialog[open]')) views[view]?.focus?.();
+  });
 }
 app.on('view', showView);
 for (const b of $$('.nav-btn')) b.addEventListener('click', () => app.setView(b.dataset.view));

@@ -69,8 +69,11 @@ const TEXT =
 
 async function addRules(page, ...rules) {
   for (const r of rules) {
+    const before = await page.evaluate(() => window.NIE_APP.project.rules.length);
     await page.fill('#rule-input', r);
     await page.press('#rule-input', 'Enter');
+    // wait until this rule is stored before typing the next one, so two rules can never overlap
+    await page.waitForFunction((n) => window.NIE_APP.project.rules.length > n, before);
   }
 }
 
@@ -418,6 +421,8 @@ test('"NIE is thinking 🪶📜..." shows while waiting, with the three dots wav
     assert.ok(anim.every((a) => a.name === 'nie-wave'));
     assert.equal(new Set(anim.map((a) => a.delay)).size, 3, 'staggered, so it reads as a wave');
     await page.waitForSelector('[data-testid=thinking]', { state: 'detached' });
+    // the dots go as soon as the first piece of the reply streams in, so wait for the rest of it
+    await page.waitForFunction(() => /Here is a thought\./.test(document.querySelector('.msg-assistant')?.textContent || ''));
     assert.match(await page.textContent('.msg-assistant'), /Here is a thought\./);
   });
 });
@@ -497,6 +502,22 @@ test('a real llama-server-style HTTP model: status goes starting → ready by it
 
 const DOCX = () => makeZip({
   'word/document.xml': '<w:document><w:p><w:r><w:t>Monday</w:t></w:r></w:p><w:p><w:r><w:t>He left the room quietly.</w:t></w:r></w:p><w:p><w:r><w:t>Suddenly the lights failed.</w:t></w:r></w:p></w:document>',
+});
+
+test('switching views puts the cursor in the main input, but never takes it from a box inside the view that already has it', async () => {
+  await run({}, async ({ page }) => {
+    await page.click('.nav-btn[data-view=read]');
+    await page.click('.nav-btn[data-view=scan]');
+    await page.waitForFunction(() => document.activeElement?.id === 'story-text');
+    // the writer clicks into the rule box in the same frame as the switch: the late "focus the main input" must not steal it
+    await page.click('.nav-btn[data-view=read]');
+    await page.evaluate(() => { document.querySelector('.nav-btn[data-view=scan]').click(); document.querySelector('#rule-input').focus(); });
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    assert.equal(await page.evaluate(() => document.activeElement?.id), 'rule-input');
+    await page.fill('#rule-input', 'No adverbs');
+    assert.equal(await page.inputValue('#rule-input'), 'No adverbs');
+    assert.equal(await page.inputValue('#story-text'), '', 'the typed rule did not land in the story');
+  });
 });
 
 test('Read mode: any supported file becomes Story Text, with the format recognised, and flows into Full Scan', async () => {
