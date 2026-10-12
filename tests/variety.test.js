@@ -378,7 +378,7 @@ test('SHAPES: enough variety, instructions about form only', () => {
   assert.ok(SHAPES.length >= 8);
   const ids = SHAPES.map((s) => s.id);
   assert.equal(new Set(ids).size, ids.length, 'unique ids');
-  const KINDS = new Set(['conversation', 'readback', 'question', 'ideas']);
+  const KINDS = new Set(['conversation', 'readback', 'question', 'lookup', 'ideas']);
   for (const s of SHAPES) {
     assert.ok(typeof s.id === 'string' && s.id && typeof s.text === 'string');
     assert.ok(Array.isArray(s.kinds) && s.kinds.length > 0 && s.kinds.every((k) => KINDS.has(k)), s.id);
@@ -403,7 +403,7 @@ test('SHAPES: none asks for story text, a rewrite or wording to copy (NIE never 
 });
 
 test('shapeFor: honours the kind, is deterministic, and never repeats either of the last two shapes in 30 turns', () => {
-  for (const kind of ['conversation', 'question', 'ideas', 'readback']) {
+  for (const kind of ['conversation', 'question', 'lookup', 'ideas', 'readback']) {
     const history = [];
     const used = [];
     const pool = SHAPES.filter((s) => s.kinds.includes(kind));

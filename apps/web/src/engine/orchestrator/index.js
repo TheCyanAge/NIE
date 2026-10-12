@@ -91,6 +91,11 @@ export function wantsWholeText({ query = '', reading = null } = {}) {
   return !isLookupQuestion(query);
 }
 const NO_MODEL = { chat: async () => ({ text: null, route: 'builtin' }) };
+/**
+ * What NIE tells the writer about what it looked at (and, for an online model, what left the computer). It is kept on the message and shown under the
+ * reply, not written into it: pasted at the end of every reply it made each reply end the same way.
+ */
+const lookedAt = (read, route) => [read && !read.complete ? describeReading(read) : '', describeSending(read, route)].filter(Boolean).join(' ');
 /** What is kept on the reply about how it was made (small, for the writer's panel and for tests). */
 const varietyRecord = (shape, got) => ({ ...(shape ? { shape: shape.id } : {}), ...(got?.polished?.rf?.dropped?.length || got?.retried ? { variety: { dropped: (got.polished?.rf?.dropped ?? []).map((d) => d.kind), retried: Boolean(got.retried) } } : {}) });
 const retryNote = (rf, text) => `Your first attempt at this reply repeated how you have been replying (${rf.reasons.join('; ') || 'the same opening and questions'}). Write it again from scratch, differently: do not begin the way that attempt began ("${clip(String(text).split(/(?<=[.!?])\s+/)[0] ?? '', 90)}"), do not praise, and do not end with a question you have asked before.`;
@@ -304,7 +309,7 @@ export class Orchestrator {
     const passage = doc.document ? '' : shared; // a long paste is already shown through the reading block; do not show its opening a second time
     const report = shared ? scan({ text: doc.document?.subject === 'passage' ? doc.document.text : shared, project }) : null;
     // How to build this reply, which differs from the last ones; and what not to say again (openers, questions already asked).
-    const shape = this.variety !== 'full' || lib || libMiss || reading.task === 'chat' ? null : shapeFor({ history: past, kind: noAsk ? 'readback' : isShortQuestion(askText) ? 'question' : 'conversation', seed: text });
+    const shape = this.variety !== 'full' || lib || libMiss || reading.task === 'chat' ? null : shapeFor({ history: past, kind: noAsk ? 'readback' : aboutText ? 'lookup' : isShortQuestion(askText) ? 'question' : 'conversation', seed: text });
 
     const composeArgs = {
       mode: 'brainstorm',
@@ -312,12 +317,14 @@ export class Orchestrator {
       interp,
       userMessage: doc.userMessage,
       document: doc.document ? { ...doc.document, notes, style: notes ? '' : this.#styleOf(doc.document.text) } : null,
-      history: past,
+      // A question about what the text SAYS is self-contained: the brainstorm before it only pulls the answer toward the last idea (measured on the real model)
+      // and costs prompt space.
+      history: aboutText ? [] : past,
       retrieved,
       legacy: this.variety === 'legacy',
       extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
-    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.7 });
+    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: aboutText ? 320 : 700 });
     const asked = got.asked;
     const res = asked.res;
     const modelReady = asked.modelReady;
@@ -359,10 +366,9 @@ export class Orchestrator {
     if (route === 'builtin') onToken?.(reply, reply);
     else {
       // Say what was looked at. (Only when a model answered: a built-in reply never read the text, and must not seem to.)
-      const looked = asked.read && !asked.read.complete ? `(${describeReading(asked.read)})` : '';
-      const tail = [looked, describeSending(asked.read, route), shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
+      const tail = shortenedNote(asked.trimmed);
       if (tail) reply = `${reply}\n\n${tail}`;
-      if (asked.read) extra = { ...extra, read: summarizeRead(asked.read) };
+      if (asked.read) extra = { ...extra, read: summarizeRead(asked.read), looked: lookedAt(asked.read, route) };
       extra = { ...extra, ...varietyRecord(shape, got) };
     }
     return this.#finish(project, intent, reply, route, false, extra);
@@ -469,18 +475,18 @@ export class Orchestrator {
    * Ask, then clean the reply of what makes NIE sound the same each time (praise openers, stock questions, a question it already asked); when it
    * still repeats itself clearly, ask once more with a note saying how. Never adds a word of its own.
    */
-  async #askClean({ composeArgs, history, known, onToken, signal, temperature }) {
+  async #askClean({ composeArgs, history, known, onToken, signal, temperature, maxTokens = 700 }) {
     const polish = (res) => {
       const g = guardReply(res.text, known);
       const rf = this.variety === 'full' ? refine(g.remaining, { history }) : { text: g.remaining, dropped: [], retry: false, reasons: [] };
       return { rf, guarded: { remaining: rf.text, removed: g.removed, text: g.removed ? `${rf.text}\n\n${LEFT_OUT_NOTICE}`.trim() : rf.text } };
     };
-    let asked = await this.#ask({ composeArgs, onToken, signal, temperature });
+    let asked = await this.#ask({ composeArgs, onToken, signal, temperature, maxTokens });
     let polished = asked.res.text ? polish(asked.res) : null;
     let retried = false;
     if (VARIETY_RETRY && polished?.rf.retry && asked.res.route !== 'builtin') {
       retried = true;
-      const again = await this.#ask({ composeArgs: { ...composeArgs, extra: [composeArgs.extra, retryNote(polished.rf, polished.rf.text)].filter(Boolean).join('\n\n') }, onToken, signal, temperature: Math.min(1, temperature + 0.15) });
+      const again = await this.#ask({ composeArgs: { ...composeArgs, extra: [composeArgs.extra, retryNote(polished.rf, polished.rf.text)].filter(Boolean).join('\n\n') }, onToken, signal, temperature: Math.min(1, temperature + 0.15), maxTokens });
       if (again.res.text) {
         const second = polish(again.res);
         if (!(second.guarded.removed && words(second.guarded.remaining).length < 8)) {
@@ -496,14 +502,14 @@ export class Orchestrator {
    * Ask the model. If it is ready but the call fails (usually a prompt too long for its window), retry ONCE with a much
    * smaller prompt before giving up. `modelReady` tells the caller whether "the model is missing" would be a lie.
    */
-  async #ask({ composeArgs, onToken, signal, temperature }) {
+  async #ask({ composeArgs, onToken, signal, temperature, maxTokens = 700 }) {
     const ready = () => this.engine.localStatus?.().state === 'ready';
     const full = composeMessages(composeArgs);
     const read = full.reading;
     let failure = null;
     let res = null;
     try {
-      res = await this.engine.chat(full.messages, { onToken, signal, maxTokens: 700, temperature });
+      res = await this.engine.chat(full.messages, { onToken, signal, maxTokens, temperature });
     } catch (err) {
       if (err?.kind === 'abort') throw err;
       failure = err;
@@ -563,8 +569,8 @@ export class Orchestrator {
         if (ideas.length) markShown(project, ideas);
         bs.lastLens = lens;
         const lead = [note, parsed.lead].filter(Boolean).join('\n\n');
-        const cut = [asked.read && !asked.read.complete ? `(${describeReading(asked.read)})` : '', describeSending(asked.read, res.route), shortenedNote(asked.trimmed)].filter(Boolean).join('\n\n');
-        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read) } : {}), ...varietyRecord(null, got) });
+        const cut = shortenedNote(asked.trimmed);
+        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read), looked: lookedAt(asked.read, res.route) } : {}), ...varietyRecord(null, got) });
       }
     }
 
@@ -648,6 +654,7 @@ export class Orchestrator {
     const understood = intent.reading ? { by: intent.reading.by, task: intent.reading.task, topic: intent.reading.topic ?? '', ...(intent.reading.overruled ? { overruled: intent.reading.overruled } : {}), ...(/^model-reading-/.test(intent.reading.why ?? '') ? { why: intent.reading.why } : {}) } : null; // 'why' only when a running model could not read it
     if (understood) meta.understood = understood;
     if (extra.read) meta.read = extra.read; // what was looked at, for a long text
+    if (extra.looked) meta.looked = extra.looked; // ...said in words, shown under the reply
     if (extra.shape) meta.shape = extra.shape; // how the reply was built, so the next one is built differently
     if (extra.variety) meta.variety = extra.variety;
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
@@ -661,6 +668,7 @@ export class Orchestrator {
       route,
       declined,
       ideas,
+      looked: extra.looked ?? '',
       lead: extra.lead ?? '',
       tail: extra.tail ?? '',
       kind: extra.kind ?? null,

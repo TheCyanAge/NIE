@@ -191,8 +191,11 @@ test('a long pasted message is no longer cut off: every section is read in turn,
   assert.ok(prompt.includes('Chapter 13'), 'the end of the text is shown');
   assert.ok(approxTokens(calls) <= 2900 * 1.08, `${approxTokens(calls)} tokens`);
   assert.doesNotMatch(r.reply, /longer than I can read at once/);
-  assert.match(r.reply, /The passage you pasted is about 8,0\d\d words in 2\d sections\. That is too long for me to hold in mind at once, so I read it one section at a time and kept a short note on each\./);
-  assert.match(r.reply, /For this answer I used my notes (?:on every section|on \d+ of the \d+ sections) and looked closely at section/);
+  // what NIE looked at is kept on the message and shown under the reply; it is not pasted onto the end of every reply
+  assert.doesNotMatch(r.reply, /I read it one section at a time|That is too long for me to hold in mind/);
+  assert.match(r.looked, /The passage you pasted is about 8,0\d\d words in 2\d sections\. That is too long for me to hold in mind at once, so I read it one section at a time and kept a short note on each\./);
+  assert.match(r.looked, /For this answer I used my notes (?:on every section|on \d+ of the \d+ sections) and looked closely at section/);
+  assert.equal(o.constructor === Orchestrator, true);
   assert.equal(r.route, 'local');
   assert.ok(progress.length >= sections, 'progress was reported');
   assert.deepEqual(progress.filter((p) => p.stage === 'reading' && p.done > 0).map((p) => p.done), [...Array(sections).keys()].map((k) => k + 1), 'in order, once per section');
@@ -206,7 +209,7 @@ test('without the section-by-section read (the earlier behaviour, kept to measur
   assert.equal(noteCalls.length, 0);
   const prompt = promptOf(calls);
   assert.match(prompt, /Outline of the other sections/);
-  assert.match(r.reply, /For the other \d+ I only saw how (?:each one begins|\d+ of them begin)/, 'it says how many lines of the others it really had');
+  assert.match(r.looked, /For the other \d+ I only saw how (?:each one begins|\d+ of them begin)/, 'it says how many lines of the others it really had');
   assert.match(prompt, /Style \(measured from the text/, 'the measured style is part of what the model is shown');
 });
 
@@ -218,12 +221,12 @@ test('an online model is told plainly: the reply says how much of the text was s
   const o = new Orchestrator({ engine: new AIEngine({ local, online, isOnline: () => true }) });
   const r = await o.brainstorm({ project: projectWith(), message });
   assert.equal(r.route, 'online');
-  const sent = Number(r.reply.match(/about ([\d,]+) words of your text were sent to that provider/)?.[1].replace(',', ''));
+  const sent = Number(r.looked.match(/about ([\d,]+) words of your text were sent to that provider/)?.[1].replace(',', ''));
   assert.ok(sent >= 200 && sent <= 1500, `says roughly how much was sent (${sent})`);
   const offline = await setup({ reading: { task: 'feedback', topic: 'ending' } }).o.brainstorm({ project: projectWith(), message });
-  assert.doesNotMatch(offline.reply, /sent to that provider/);
+  assert.doesNotMatch(offline.looked, /sent to that provider/);
   const short = await new Orchestrator({ engine: new AIEngine({ local, online, isOnline: () => true }) }).brainstorm({ project: projectWith(), message: 'What would make a ghost story scarier?' });
-  assert.doesNotMatch(short.reply, /sent to that provider/, 'nothing of the writer\'s text was sent, so nothing is said');
+  assert.doesNotMatch(short.looked, /sent to that provider/, 'nothing of the writer\'s text was sent, so nothing is said');
 });
 
 test('the record kept on the reply says exactly which sections were shown', async () => {
@@ -254,7 +257,7 @@ test('questions about the writer\'s own long Story Text are answered with the pa
   const { o, calls } = setup({ reading: { task: 'feedback', topic: '' } });
   const r = await o.brainstorm({ project, message: `In my story, ${n.question} Does that work?` });
   assert.ok(promptOf(calls).includes(n.fact), 'the passage that holds the answer is in front of the model');
-  assert.match(r.reply, /Your text is about 39,\d{3} words in 129 sections/);
+  assert.match(r.looked, /Your text is about 39,\d{3} words in 129 sections/);
   assert.ok(approxTokens(calls) <= 2900 * 1.08);
 });
 
@@ -447,5 +450,37 @@ test('comparing parts of the text ("does the number change?") gets the passages 
   const shown = new Set(compare.stats.shown.filter((x) => x.role === 'match').map((x) => x.i + 1));
   assert.ok(shown.size >= 3, 'several matching passages are shown for a comparison');
   for (const k of truth.questions.find((q) => q.kind === 'contradiction').sections) assert.ok(shown.has(k), `section ${k}, where one of the two statements is, is shown word for word`);
+});
+
+test('what NIE knows of a text it has read goes at the end of the SYSTEM prompt and is identical from one question to the next, so the model server can keep it cached', async () => {
+  const { text } = loadBible();
+  const project = projectWith({ storyText: text });
+  const { o, calls } = setup({ reading: { task: 'feedback', topic: '' }, reply: 'It is made of braided steel.' });
+  await o.brainstorm({ project, message: 'Tell me what you make of the pacing in this bible.' });
+  await o.brainstorm({ project, message: 'Who is Isaura and what does she want in this bible?' });
+  assert.equal(calls.length >= 2, true);
+  const a = calls[0].messages[0].content;
+  const b = calls[1].messages[0].content;
+  assert.match(a, /## The writer's text\nThe writer's text is long: about 10,\d{3} words/);
+  assert.match(a, /Your notes, one line per section/);
+  assert.equal(a, b, 'the system prompt (with the notes in it) did not change between two different questions');
+  assert.doesNotMatch(calls[1].messages.at(-1).content, /Your notes, one line per section/, 'the user part holds only what is new: the passages for this question');
+  assert.match(calls[1].messages.at(-1).content, /passages closest to this message/);
+});
+
+test('a question about what the text says is answered without the earlier brainstorm in front of the model (it pulled the answer toward the last idea)', async () => {
+  const { text, truth } = loadBible();
+  const project = projectWith({ storyText: text });
+  const { o, calls } = setup({ reading: { task: 'ideas', topic: '' }, reply: 'A few sparks about the keeper.' });
+  await o.brainstorm({ project, message: 'What if the keeper at the pass could be paid to cut the Held Minute short?' });
+  const before = calls.length;
+  const lookup = truth.questions.find((q) => q.kind === 'lookup');
+  const second = setup({ reading: { task: 'craft', topic: '' }, reply: 'Ninety barrels.' });
+  const p2 = projectWith({ storyText: text });
+  p2.conversation.messages.push({ role: 'user', content: 'What if the keeper at the pass could be paid to cut the Held Minute short?' }, { role: 'assistant', content: 'Here are three sparks about the keeper and the Held Minute.' });
+  await second.o.brainstorm({ project: p2, message: lookup.ask });
+  const msgs = second.calls[0].messages;
+  assert.deepEqual(msgs.map((m) => m.role), ['system', 'user'], 'no earlier turns for a question about what the text says');
+  assert.ok(before >= 1);
 });
 

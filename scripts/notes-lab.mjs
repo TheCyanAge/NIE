@@ -12,6 +12,7 @@
 //                 each turn + what not to repeat + cleaning): praise openers, stock questions, questions asked twice, how alike the replies are
 // options:
 //   --per-kind N  bible questions per kind for --contexts (default 2)      --threads N  model-server threads (default: the app's)
+//   --modes a,b   which variety settings to run for --variety (default legacy,prompt,full)
 //   --out FILE    write every result as JSON
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,6 +28,7 @@ import { NOTE_SCHEMA, buildNoteMessages, makeOverview, projectNotesCache, readTh
 import { describeStyle, styleProfile } from '../apps/web/src/engine/reading/style.js';
 import { isPraiseOpener, isStockQuestion, questionsIn, similarity, splitSentencesLite } from '../apps/web/src/engine/orchestrator/variety.js';
 import { loadBible } from '../tests/fixtures/story-bible.mjs';
+import { estimateTokens } from '../apps/web/src/engine/util/text.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -50,7 +52,31 @@ const service = new LlamaService({ binDir, modelPath, model: DEFAULT_MODEL, slot
 const started = await service.start();
 if (started.state !== 'ready') { console.error(`The model did not start: ${started.detail}`); process.exit(1); }
 console.log(`model ready; threads ${service.threads}; cpus ${(await import('node:os')).default.availableParallelism?.()}`);
-const engine = new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: (m, op) => service.chat(m, op) }, online: null, isOnline: () => false });
+// Every call goes to the server directly (not streamed) so its own timings can be recorded: how many prompt tokens it really read, how many it served from
+// its cache, and how long reading and writing took. The request is otherwise what the app sends.
+const calls = [];
+async function labChat(messages, opts = {}) {
+  const port = service.status.port;
+  const body = { model: 'local', messages, stream: false, max_tokens: opts.maxTokens ?? 700, temperature: opts.temperature ?? 0.7, cache_prompt: true };
+  if (opts.json) body.response_format = { type: 'json_schema', json_schema: { name: 'reading', strict: true, schema: opts.json } };
+  const t0 = Date.now();
+  const res = await fetch(`http://127.0.0.1:${port}/v1/chat/completions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(opts.timeoutMs ?? 300000) });
+  if (!res.ok) throw Object.assign(new Error(`The model returned ${res.status}`), { kind: 'http', status: res.status });
+  const j = await res.json();
+  const t = j.timings ?? {};
+  calls.push({ purpose: opts.purpose ?? 'answer', ms: Date.now() - t0, promptN: t.prompt_n ?? 0, cacheN: t.cache_n ?? 0, promptMs: Math.round(t.prompt_ms ?? 0), genN: t.predicted_n ?? 0, genMs: Math.round(t.predicted_ms ?? 0), estimate: messages.reduce((a, m) => a + estimateTokens(m.content), 0), real: j.usage?.prompt_tokens ?? (t.prompt_n ?? 0) + (t.cache_n ?? 0) });
+  const text = j.choices?.[0]?.message?.content ?? '';
+  opts.onToken?.(text, text);
+  return text;
+}
+const engine = new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: labChat }, online: null, isOnline: () => false });
+function timingSummary(label, from = 0) {
+  const rows = calls.slice(from).filter((c) => c.purpose === 'answer' || c.purpose === undefined);
+  if (!rows.length) return;
+  const med = (f) => quantile(rows.map(f), 0.5);
+  const ratio = rows.reduce((a, c) => a + c.estimate, 0) / Math.max(1, rows.reduce((a, c) => a + c.real, 0));
+  console.log(`  ${label}: ${rows.length} answers; prompt tokens read fresh (median) ${med((c) => c.promptN)}, served from the server's cache ${med((c) => c.cacheN)}, tokens written ${med((c) => c.genN)}; time ${sec(med((c) => c.ms))} (reading ${sec(med((c) => c.promptMs))}, writing ${sec(med((c) => c.genMs))}); NIE's token estimate / the real count = ${ratio.toFixed(2)}`);
+}
 
 const { text: bible, truth } = loadBible();
 const index = buildIndex(bible);
@@ -135,6 +161,7 @@ async function ensureNotes() {
 async function runContexts() {
   await ensureNotes();
   console.log('\n=== the bible\'s questions: the old way (closest passages + outline) vs the new way (notes on every section) ===');
+  const ctxStart = calls.length;
   const perKind = Number(opt('--per-kind', 2));
   const kinds = [...new Set(truth.questions.map((q) => q.kind))];
   const picks = kinds.flatMap((k) => truth.questions.filter((q) => q.kind === k).slice(0, perKind));
@@ -154,6 +181,7 @@ async function runContexts() {
   }
   const by = (mode) => rows.filter((r) => r[mode].ok).length;
   console.log(`\nanswers that mention what they should: old ${by('old')}/${rows.length}, new ${by('new')}/${rows.length}`);
+  timingSummary('all answers in this experiment', ctxStart);
   for (const k of kinds) { const g = rows.filter((r) => r.kind === k); console.log(`  ${k.padEnd(13)} old ${g.filter((r) => r.old.ok).length}/${g.length}  new ${g.filter((r) => r.new.ok).length}/${g.length}`); }
   report.contexts = rows;
 }
@@ -177,7 +205,8 @@ async function runVariety() {
     { say: q('timeline', 0).ask, q: q('timeline', 0) },
   ];
   const out = {};
-  for (const mode of ['legacy', 'prompt', 'full']) {
+  for (const mode of String(opt('--modes', 'legacy,prompt,full')).split(',')) {
+    const from = calls.length;
     const o = new Orchestrator({ engine, readNotes: true, variety: mode });
     const proj = structuredClone(project0);
     proj.storyText = ''; // the first message is the paste itself, as in the writer's screenshot
@@ -209,6 +238,7 @@ async function runVariety() {
     };
     out[mode] = { metrics: m, turns };
     console.log(`\n--- ${mode}: ${JSON.stringify(m)}`);
+    timingSummary(mode, from);
     turns.forEach((t, i) => console.log(`  ${String(i + 1).padStart(2)}. [${sec(t.ms)}${t.shape ? ` ${t.shape}` : ''}${t.variety?.retried ? ' RETRIED' : ''}${t.ok === false ? ' MISS' : ''}] ${oneLine(replies[i], 420)}`));
   }
   report.variety = out;
@@ -219,6 +249,7 @@ try {
   if (want.contexts) await runContexts();
   if (want.variety) await runVariety();
 } finally {
+  report.calls = calls;
   if (opt('--out')) { fs.mkdirSync(path.dirname(path.resolve(opt('--out'))), { recursive: true }); fs.writeFileSync(opt('--out'), JSON.stringify(report, null, 1)); }
   await service.stop();
 }

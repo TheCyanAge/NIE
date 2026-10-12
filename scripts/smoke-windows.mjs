@@ -296,10 +296,11 @@ try {
     await answered(before4, 1500000);
     const longMsg = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1));
     const readSecs = Math.round((Date.now() - t4) / 1000);
+    const lookedLine = await page.evaluate(() => document.querySelector('.msg-assistant:not(.msg-pending):last-of-type .looked')?.textContent ?? '');
     report.longPaste = { words: wordCountOf(pasted), seconds: readSecs, route: longMsg.route, read: longMsg.read, understood: longMsg.understood, progress: report.readProgress, reply: String(longMsg.content).slice(0, 400) };
     step('a pasted text of 3,000 words is read section by section by the real model (notes on every section), and the reply says what was looked at',
-      longMsg.route === 'local' && longMsg.read?.sections > 5 && longMsg.read?.notes?.read === longMsg.read?.sections && !/longer than I can read at once/.test(longMsg.content) && /I read it one section at a time and kept a short note on each/.test(longMsg.content),
-      `route=${longMsg.route}; sections=${longMsg.read?.sections}; notes=${JSON.stringify(longMsg.read?.notes)}; took ${readSecs} s; progress line: "${report.readProgress ?? ''}"; ${String(longMsg.content).slice(0, 160).replace(/\s+/g, ' ')}`);
+      longMsg.route === 'local' && longMsg.read?.sections > 5 && longMsg.read?.notes?.read === longMsg.read?.sections && !/longer than I can read at once/.test(longMsg.content) && /I read it one section at a time and kept a short note on each/.test(longMsg.looked ?? ''),
+      `route=${longMsg.route}; sections=${longMsg.read?.sections}; notes=${JSON.stringify(longMsg.read?.notes)}; took ${readSecs} s; under the reply: "${lookedLine.slice(0, 80)}"; progress line: "${report.readProgress ?? ''}"; ${String(longMsg.content).slice(0, 160).replace(/\s+/g, ' ')}`);
 
     // a follow-up about the same text uses the notes already made (no new read)
     const before5 = await countMessages();

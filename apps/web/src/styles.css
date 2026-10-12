@@ -287,3 +287,9 @@ fieldset { border: 1px solid var(--line); border-radius: 20px; margin: 14px 0; p
   .sidebar-foot { display: none; } .project-chip { max-width: 30vw; } .view { padding: 16px 14px 30px; } .grid2 { grid-template-columns: 1fr; }
   .brand-name { display: none; }
 }
+
+/* what NIE looked at, under a reply */
+.looked { margin-top: 8px; }
+.looked summary { cursor: pointer; color: var(--muted); font-size: 0.82rem; }
+.looked p { margin: 6px 0 0; }
+.nie-progress { margin-left: 8px; font-size: 0.85rem; }

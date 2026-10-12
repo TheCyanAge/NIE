@@ -709,9 +709,10 @@ export const SHAPES = Object.freeze([
   shape('what-if-change', ['conversation', 'ideas'], "One what-if built from the writer's own details, then one sentence on what it would change; no closing question."),
   shape('two-cases', ['conversation', 'question'], "Give the strongest case for each of two directions in a sentence apiece, then say which one the writer's own words lean toward."),
   shape('small-detail', ['conversation'], 'Start from one small, odd detail in what the writer said and say what it could mean for the story, as commentary and never as story text, in a short paragraph that ends on a statement.'),
-  shape('answer-first', ['question'], 'Answer the question in the first sentence, then give one reason in the second; stop there.'),
+  shape('answer-first', ['question', 'lookup'], 'Answer the question in the first sentence, then give one reason in the second; stop there.'),
+  shape('answer-and-where', ['lookup'], 'Answer in the first sentence straight from the text and say which section it is in; if the text does not say, say so plainly. Nothing else.'),
   shape('it-depends', ['question'], "Say in one sentence what the answer depends on, then give the answer for the writer's own case, with no closing question."),
-  shape('answer-watch', ['question'], 'Answer plainly in two or three sentences, then name the one thing to watch for.'),
+  shape('answer-watch', ['question', 'lookup'], 'Answer plainly in two or three sentences, then name the one thing to watch for.'),
   shape('four-quick', ['ideas'], 'A numbered list of 4 short sparks, each one sentence, each a what-if or a complication, no closing question.'),
   shape('two-paths', ['ideas', 'conversation'], 'Two contrasting directions, each in two sentences, then stop.'),
   shape('one-deep', ['ideas'], 'One idea developed in a short paragraph: the what-if, what it costs a character, and what it changes.'),
@@ -723,7 +724,7 @@ export const SHAPES = Object.freeze([
 ]);
 
 /**
- * Pick how to build the next reply: a shape of this `kind` ('conversation' | 'readback' | 'question' | 'ideas'). Deterministic for a given
+ * Pick how to build the next reply: a shape of this `kind` ('conversation' | 'readback' | 'question' | 'lookup' | 'ideas'; 'lookup' = a question about what the writer's own text says: answer it, never hedge or ask back). Deterministic for a given
  * seed and history. Never the shape of either of the last two replies, and the shape used longest ago comes first (a shape comes back only after
  * every other shape of its kind has been used), so a long conversation cycles instead of settling into one pattern.
  */

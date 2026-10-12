@@ -88,6 +88,8 @@ export function mountBrainstorm(root, app) {
     } else {
       body.append(mdLite(text));
     }
+    // What NIE looked at is part of the message's record, shown under it (open it to read): written into the reply it made every reply end the same way.
+    if (role === 'assistant' && meta.looked) body.append(h('details', { class: 'looked' }, h('summary', {}, 'What I looked at'), h('p', { class: 'muted small' }, meta.looked)));
     return h('div', { class: `msg msg-${role}`, dataset: { role } }, h('div', { class: 'msg-who' }, role === 'user' ? 'You' : 'NIE'), body);
   }
 

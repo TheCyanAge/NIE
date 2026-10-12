@@ -22,6 +22,10 @@ on:
         description: 'Questions per kind for the contexts experiment'
         type: string
         default: '2'
+      modes:
+        description: 'Variety settings to run (comma separated: legacy, prompt, full)'
+        type: string
+        default: 'prompt,full'
       threads:
         description: 'Model-server threads (empty = what the app picks: half the cores)'
         type: string
@@ -65,7 +69,7 @@ jobs:
           if [ "${{ inputs.variety }}" = "true" ]; then FLAGS="$FLAGS --variety"; fi
           T=""
           if [ -n "${{ inputs.threads }}" ]; then T="--threads ${{ inputs.threads }}"; fi
-          node scripts/notes-lab.mjs $FLAGS $T --per-kind "${{ inputs.per_kind }}" --out notes-lab-report.json
+          node scripts/notes-lab.mjs $FLAGS $T --per-kind "${{ inputs.per_kind }}" --modes "${{ inputs.modes }}" --out notes-lab-report.json
 
       - name: Upload the report
         if: always()

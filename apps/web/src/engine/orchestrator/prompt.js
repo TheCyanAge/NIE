@@ -6,7 +6,7 @@ import { leadNoun } from '../brainstorm/ideas.js';
 import { rulesToPromptBlock } from '../rules/rules.js';
 import { describeForPrompt } from '../knowledge/index.js';
 import { clip, estimateTokens, fnv1a } from '../util/text.js';
-import { buildIndex, documentNote, readingContext } from '../reading/context.js';
+import { STABLE_LIST_CHARS, buildIndex, documentNote, notesStable, readingContext } from '../reading/context.js';
 import { scrubForPrompt } from './variety.js';
 
 /**
@@ -118,26 +118,39 @@ export const clearIndexes = () => INDEXES.clear();
  */
 export function composeMessages({ mode = 'brainstorm', project, interp, userMessage, passage = '', document = null, history = [], retrieved = [], extra = '', limit = PROMPT_TOKEN_LIMIT, minimal = false, legacy = false }) {
   const notes = document?.notes ?? null;
-  const system = buildSystem({ mode, project, interp, legacy });
+  const systemBase = buildSystem({ mode, project, interp, legacy });
   const count = (msgs) => msgs.reduce((a, m) => a + estimateTokens(m.content), 0);
   // A long text (a pasted passage, or the project's Story Text) is shown as an outline plus the parts that matter for THIS message, within what the
   // window has left after NIE's own instructions, the writer's message and a little room for earlier turns and reference notes.
   const docIndex = document?.text ? indexFor(document.text) : null;
-  // With notes on every section, the text needs more room (one line per section) and earlier turns less: the writer is here to talk about the text.
-  const docBudget = docIndex ? Math.min(notes ? 1800 : 1500, Math.max(450, limit - estimateTokens(system) - estimateTokens(userMessage) - estimateTokens(extra) - (notes ? 380 : 520))) : 0;
+  // With notes on every section, what NIE knows of the text (what it is, its style, one line per section) does not depend on the question, so it goes at
+  // the END OF THE SYSTEM PROMPT: the model server keeps the start of a prompt in its cache, so a follow-up question does not pay to read it again. How
+  // much of the list fits depends only on the window and on the (stable) system prompt, never on the question or the earlier turns, so it stays identical.
+  const usableNotes = Boolean(docIndex && notes?.per?.some((n) => n && (n.by === 'model' || n.by === 'text')));
+  let listChars = 0;
+  if (usableNotes) {
+    const baseChars = notesStable({ index: docIndex, notes, subject: document.subject, listChars: 0 }).text.length;
+    const avail = limit - estimateTokens(systemBase) - 100 /* the message */ - 250 /* this turn's instructions */ - 650 /* earlier turns and the passages */;
+    listChars = Math.max(0, Math.min(STABLE_LIST_CHARS, Math.floor(avail * 3.6) - baseChars));
+    if (minimal) listChars = 0;
+  }
+  const stableFor = (chars) => (usableNotes ? notesStable({ index: docIndex, notes, subject: document.subject, listChars: chars >= 700 ? chars : 0 }) : null);
+  const stable = stableFor(listChars);
+  const system = stable ? `${systemBase}\n\n## The writer's text\n${stable.text}` : systemBase;
+  const docBudget = docIndex ? Math.min(usableNotes ? 1200 : 1500, Math.max(450, limit - estimateTokens(system) - estimateTokens(userMessage) - estimateTokens(extra) - (usableNotes ? (history.length ? 300 : 100) : 520))) : 0;
   let reading = null;
   const build = (scale, message) => {
     const userParts = [];
     if (retrieved.length && scale > 0) userParts.push(`Reference notes (tools the writer may use or break, not rules):\n${describeForPrompt(retrieved, Math.floor(BUDGET.knowledge * scale))}`);
     if (docIndex) {
-      const ctx = readingContext({ index: docIndex, query: document.query ?? '', topic: document.topic ?? '', budgetTokens: scale > 0 ? Math.max(450, Math.floor(docBudget * scale)) : 450, subject: document.subject, notes, style: document.style ?? '' });
+      const ctx = readingContext({ index: docIndex, query: document.query ?? '', topic: document.topic ?? '', budgetTokens: scale > 0 ? Math.max(450, Math.floor(docBudget * scale)) : 450, subject: document.subject, notes, style: document.style ?? '', stable });
       reading = ctx.stats;
-      if (ctx.block) userParts.push(`${ctx.block}\n\n${documentNote(document.query || userMessage, ctx.stats)}`);
+      userParts.push(`${ctx.block ? `${ctx.block}\n\n` : ''}${documentNote(document.query || userMessage, ctx.stats)}`);
     }
     if (passage && scale > 0) userParts.push(`The writer's passage (for reference only; do not rewrite it):\n"""\n${clip(passage, Math.floor(BUDGET.passage * scale))}\n"""`);
     if (extra) userParts.push(extra);
     userParts.push(message);
-    return [{ role: 'system', content: system }, ...(scale > 0 ? trimHistory(history, Math.floor(BUDGET.history * scale), !legacy) : []), { role: 'user', content: userParts.join('\n\n') }];
+    return [{ role: 'system', content: scale >= 0.6 || !usableNotes ? system : `${systemBase}\n\n## The writer's text\n${stableFor(0).text}` }, ...(scale > 0 ? trimHistory(history, Math.floor(BUDGET.history * scale), !legacy) : []), { role: 'user', content: userParts.join('\n\n') }];
   };
 
   let messages = build(minimal ? 0 : 1, userMessage);

@@ -126,10 +126,12 @@ function focusExcerpt(raw, terms, nameTerms, cap, fromEnd = false) {
  * Everything NIE is shown of a long text for one message, within `budgetTokens`.
  * @param {{ index: object, query: string, topic?: string, budgetTokens?: number, subject?: 'text'|'passage', notes?: object|null }} o  `subject`: whose text it is called in the prompt
  *   (the project's Story Text, or the passage the writer just pasted). `notes`: what NIE wrote while reading the text one section at a time
- *   ({ per: (note|null)[], overview, style, ... }, see reading/notes.js); with notes, one line per section replaces the outline of first words.
+ *   ({ per: (note|null)[], overview, style, ... }, see reading/notes.js); with notes, one line per section replaces the outline of first words. `stable`: the
+ *   notes block already built by `notesStable` (the caller put it in the system prompt, where the model server can keep it cached between turns): then
+ *   `block` is only the passages and `budgetTokens` is their budget.
  * @returns {{ block: string, stats: { complete: boolean, sections: number, words: number, shown: {i:number, role:string}[], outlined: number, tokens: number, notes: object|null } }}
  */
-export function readingContext({ index, query, topic = '', budgetTokens = 1400, subject = 'text', notes = null, style = '' }) {
+export function readingContext({ index, query, topic = '', budgetTokens = 1400, subject = 'text', notes = null, style = '', stable = null }) {
   const N = index.sections.length;
   const totalWords = index.sections.reduce((a, s) => a + s.words, 0);
   const stats = { complete: false, sections: N, words: totalWords, shown: [], outlined: 0, tokens: 0, subject, notes: null };
@@ -167,7 +169,9 @@ export function readingContext({ index, query, topic = '', budgetTokens = 1400, 
   // With notes, the model already has a line on every section, so the passages (verbatim, for detail and for the writer's own voice) get a smaller share.
   const read = notes?.per?.filter((n) => n && (n.by === 'model' || n.by === 'text')).length ?? 0;
   const useNotes = read > 0;
-  const totalChars = Math.floor(budgetTokens * 3.6 * (useNotes ? (lookup ? 0.5 : 0.3) : 0.72));
+  // (with notes, `stable` is built first: the passages get what the window has left after it)
+  const stableBlock = useNotes ? stable ?? notesStable({ index, notes, subject }) : null;
+  const totalChars = useNotes ? Math.max(700, Math.floor(budgetTokens * 3.6) - (stable ? 0 : stableBlock.text.length + 120)) : Math.floor(budgetTokens * 3.6 * 0.72);
   const order = [...chosen.entries()].sort((a, b) => rank(a, ranked, N) - rank(b, ranked, N));
   const fixedShare = { latest: hints.tail ? 0.42 : lookup ? 0.13 : 0.26, opening: 0.12, middle: 0.16 };
   const caps = new Map();
@@ -198,9 +202,12 @@ export function readingContext({ index, query, topic = '', budgetTokens = 1400, 
   const excerpts = parts.map((p) => `${label(p)}${p.whole ? '' : ' (cut to fit)'}:\n"""\n${p.excerpt}\n"""`);
 
   if (useNotes) {
-    const block = notesBlock({ index, notes, N, totalWords, what, excerpts, shownSet, budgetTokens, read, stats });
-    stats.tokens = estimateTokens(block);
-    return { block, stats };
+    stats.outlined = stableBlock.listed;
+    stats.notes = { modelRead: stableBlock.read, total: N, complete: stableBlock.readAll, listed: stableBlock.listed, overview: Boolean(notes.overview), style: Boolean(notes.style) };
+    const passages = excerpts.length ? `The passages closest to this message, word for word:\n\n${excerpts.join('\n\n')}` : '';
+    const block = stable ? passages : [stableBlock.text, passages].filter(Boolean).join('\n\n');
+    stats.tokens = estimateTokens(block) + (stable ? estimateTokens(stable.text) : 0);
+    return { block, stable: stable ? stable.text : '', stats };
   }
 
   const intro = `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You cannot see all of it at once, so you are shown an outline of the rest and the parts that matter for this message.`;
@@ -215,46 +222,46 @@ export function readingContext({ index, query, topic = '', budgetTokens = 1400, 
   return { block, stats };
 }
 
+export const STABLE_LIST_CHARS = 2600;
+
 /**
- * The block shown when NIE has read the text section by section: what it is, what it is like, one line on every section (what it says, who is in it),
- * and the closest passages word for word. Every number is real: the header says how many sections were read, and sections that were not read in
- * turn are marked, never passed off as read. Lines are thinned evenly (first and last kept) when there are too many for the room.
+ * What the model is told about a text it has read section by section: what it is, what it is like, and ONE LINE ON EVERY SECTION (what it says, who is in
+ * it). It depends only on the text and the notes, never on the question, so the caller can put it in the system prompt: the model server keeps the
+ * start of a prompt in its cache, so a follow-up question costs only what is new instead of reading all of this again (about 25 seconds on a slow CPU).
+ * Every number is real: the header says how many sections were read, and sections that were not read in turn are marked ~, never passed off as read.
+ * Lines are thinned evenly (first and last kept) only when there are too many for `listChars`.
+ * @returns {{ text: string, listed: number, read: number, readAll: boolean }}
  */
-function notesBlock({ index, notes, N, totalWords, what, excerpts, shownSet, budgetTokens, read, stats }) {
+export function notesStable({ index, notes, subject = 'text', listChars = STABLE_LIST_CHARS }) {
+  const N = index.sections.length;
+  const totalWords = index.sections.reduce((a, x) => a + x.words, 0);
+  const what = subject === 'passage' ? 'The passage the writer just pasted' : "The writer's text";
+  const read = notes.per.filter((n) => n && (n.by === 'model' || n.by === 'text')).length;
   const readAll = read >= N;
   const header = readAll
-    ? `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You cannot hold all of it in mind at once, so you read it one section at a time and kept the notes below; you are also shown the passages that matter for this message, word for word.`
-    : `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You could read ${read} of them in turn and kept notes on those; sections marked ~ you have only seen the first words of. You are also shown the passages that matter for this message, word for word.`;
+    ? `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You cannot hold all of it in mind at once, so you read it one section at a time and kept the notes below; you are also shown the passages that matter for each message, word for word.`
+    : `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You could read ${read} of them in turn and kept notes on those; sections marked ~ you have only seen the first words of. You are also shown the passages that matter for each message, word for word.`;
   const overview = notes.overview ? `What it is, from your notes: ${clip(notes.overview, 700)}` : '';
   const style = notes.style ? clip(notes.style, 420) : '';
-  const total = Math.floor(budgetTokens * 3.6);
-  const fixed = [header, overview, style, ...excerpts].filter(Boolean).join('\n\n').length + 150;
-  const room = Math.max(0, total - fixed);
 
-  const wanted = [];
-  for (let i = 0; i < N; i++) if (!shownSet.has(i)) wanted.push(i);
-  // thin evenly until every line has room for a useful sentence
-  let keep = wanted;
-  const MIN_LINE = 78;
-  while (keep.length > 2 && room / keep.length < MIN_LINE) keep = keep.filter((_, k) => k % 2 === 0 || k === keep.length - 1);
-  const per = keep.length ? Math.floor(room / keep.length) : 0;
+  let keep = [...Array(N).keys()];
+  const MIN_LINE = 56;
+  while (keep.length > 2 && listChars / keep.length < MIN_LINE) keep = keep.filter((_, k) => k % 2 === 0 || k === keep.length - 1);
+  const per = keep.length && listChars >= 400 ? Math.min(150, Math.floor(listChars / keep.length)) : 0;
   const line = (i) => {
     const n = notes.per[i];
     const head = `${i + 1}. `;
     if (n && (n.by === 'model' || n.by === 'text')) {
-      const names = Array.isArray(n.names) && n.names.length && per >= 120 ? ` (${n.names.slice(0, 3).join(', ')})` : '';
-      return `${head}${clip(n.gist, Math.max(40, per - head.length - names.length - 2))}${names}`;
+      const names = Array.isArray(n.names) && n.names.length && per >= 100 ? ` (${n.names.slice(0, 2).join(', ')})` : '';
+      return `${head}${clip(n.gist, Math.max(36, per - head.length - names.length - 2))}${names}`;
     }
-    return `${head}~${clip(n?.gist ?? firstSentence(sectionText(index.text, index.sections[i])), Math.max(40, per - head.length - 3))}`;
+    return `${head}~${clip(n?.gist ?? firstSentence(sectionText(index.text, index.sections[i])), Math.max(36, per - head.length - 3))}`;
   };
   let lines = per >= 40 ? keep.map(line) : [];
-  while (lines.length > 2 && lines.join('\n').length > room) lines = lines.filter((_, k) => k % 2 === 0 || k === lines.length - 1);
-  if (lines.join('\n').length > room) lines = [];
-  stats.outlined = lines.length;
-  stats.notes = { modelRead: read, total: N, complete: readAll, listed: lines.length, overview: Boolean(notes.overview), style: Boolean(notes.style) };
-  const list = lines.length ? `Your notes, one line per section (number: what it says, who is in it)${wanted.length < N ? '; the sections shown in full below are left out here' : ''}${lines.length < wanted.length ? '; some sections are left out of this list to fit' : ''}:\n${lines.join('\n')}` : '';
-  const passages = excerpts.length ? `The passages closest to this message, word for word:\n\n${excerpts.join('\n\n')}` : '';
-  return [header, overview, style, list, passages].filter(Boolean).join('\n\n');
+  while (lines.length > 2 && lines.join('\n').length > listChars) lines = lines.filter((_, k) => k % 2 === 0 || k === lines.length - 1);
+  if (lines.join('\n').length > listChars) lines = [];
+  const list = lines.length ? `Your notes, one line per section (number: what it says, who is in it)${lines.length < N ? '; some sections are left out of this list to fit' : ''}:\n${lines.join('\n')}` : '';
+  return { text: [header, overview, style, list].filter(Boolean).join('\n\n'), listed: lines.length, read, readAll };
 }
 
 /** The most recent part first, then the best matches, then the opening, so the budget is spent where it helps most. */
@@ -282,7 +289,7 @@ export function describeReading(stats) {
   const n = stats.notes;
   if (n?.modelRead > 0) {
     // NIE read the sections one at a time and kept notes: say how many, and how many of those notes this answer actually used.
-    const used = Math.min(stats.sections, (n.listed ?? 0) + closely.length);
+    const used = Math.min(stats.sections, n.listed ?? 0);
     const usedPhrase = used >= stats.sections ? 'on every section' : `on ${used} of the ${stats.sections} sections`;
     const readPhrase = n.complete ? 'I read it one section at a time and kept a short note on each' : `I read ${n.modelRead} of its ${stats.sections} sections one at a time and kept a short note on each (the rest I have only seen the first words of)`;
     return `${subjectName} is about ${w} words in ${stats.sections} sections. That is too long for me to hold in mind at once, so ${readPhrase}. For this answer I used my notes ${usedPhrase} and looked closely at section${closely.length === 1 ? '' : 's'} ${list} (${whyText}${cut ? '; some of it cut short to fit' : ''}). Ask about any part and I'll look at it.`;
