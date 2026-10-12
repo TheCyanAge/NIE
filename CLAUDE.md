@@ -34,13 +34,28 @@
   as "write" and declined a writer's own premise. `about-nie` questions are answered by fixed, checked facts and the real status
   (`aboutNieReply`, `describeStatus`), never by the model: measured on the real model, a 3B asked to describe NIE rambles and invents abilities.
 - Long texts: `engine/reading/` (`sections.js` cuts any text into sections at the writer's own structure with every character in exactly one section;
-  `context.js` ranks sections for a question with BM25 over the writer's own words and builds what the model is shown: an outline of the whole, the
-  opening, the best matches cut around the matching sentence, and the latest part). `orchestrator/prompt.js#composeMessages({document})` fits that into
-  the window and `orchestrator/index.js#documentFor` decides which long text a message is about (a long paste, a follow-up soon after one, or the project's
-  Story Text). **Honesty rule: NIE says exactly what it looked at (`describeReading`), never "I read all of it" unless the whole text was shown, and a
-  built-in (no-model) reply claims no reading.** Nothing is persisted but derived data; only the newest long paste is kept in full in the chat
-  (`compactOldPastes`) so a project cannot outgrow its storage. `tests/fixtures/long-text.mjs` makes deterministic invented texts of any length with
-  planted facts; `scripts/understanding-probe.mjs --long` measures it on the real model.
+  `context.js` ranks sections for a question with BM25 over the writer's own words and builds what the model is shown). Two ways of showing a long text:
+  **with notes** (`reading/notes.js`): the offline model reads the text ONE SECTION AT A TIME (schema-constrained notes: gist, names, terms, voice; every name,
+  term and capitalised word in a note must occur in that section, so a note cannot invent), keeps the notes per section hash in `project.readingNotes`
+  (derived data, bounded, removed with the project), makes a short overview from them, and the model is then shown the overview, the style measured from the
+  text (`reading/style.js`, deterministic), one line on EVERY section and the closest passages word for word; **without notes** (no local model, one fact asked,
+  a text over 60 sections, or a failed read): an outline of first words plus the passages. `orchestrator/index.js#notesFor` decides (`wantsWholeText`: a question
+  about the whole text, feedback or a paste with no ask reads everything first; a single-fact question is answered from the closest passages, as before), shows
+  progress with an honest ETA, and Stop keeps the notes made so far. `#aboutLongText` sends a question to the TEXT, not the craft library, when its own words are
+  found strongly in the writer's long text or it says "this bible/the text" (a small model labels "What is sedgewire made of?" a general craft question).
+  `orchestrator/prompt.js#composeMessages({document})` fits it all into the window and `#documentFor` decides which long text a message is about (a long paste, a
+  follow-up soon after one, or the project's Story Text). **Honesty rule: NIE says exactly what it looked at (`describeReading`: how many sections it read one at a
+  time, how many notes the answer used, which it looked at word for word); it says "I read all of it" only when the whole text was shown, never claims it held the
+  text in mind at once, and a built-in (no-model) reply claims no reading; a reply from an online model says roughly how many words were sent to the provider.**
+  Only the newest long paste is kept in full in the chat (`compactOldPastes`) so a project cannot outgrow its storage. `tests/fixtures/long-text.mjs` makes
+  deterministic invented texts with planted facts; `tests/fixtures/story-bible.*` is an invented 10,000-word bible with answer keys; `scripts/notes-lab.mjs`
+  (workflow `notes-lab`) measures reading time, note accuracy, old-vs-new answers and variety on the real model.
+- Sounding different each time: `orchestrator/variety.js` + the brainstorm prompt in `prompt.js`. The prompt forbids praise openers and announcing what it is
+  about to do, allows at most one question and says many replies end without one; each turn gets a different reply SHAPE (`shapeFor`, never the last two used),
+  an avoid-list (the openers used lately and the questions already asked), NIE's own earlier replies are scrubbed of praise/stock questions in the model's
+  history (a small model copies its own earlier shape), and every reply is cleaned (`refine`: praise opener, stock or repeated question; it only ever REMOVES
+  sentences, never adds or rewords) with one retry when it clearly repeats itself. The earlier prompt wording is kept as `LEGACY` ONLY so the lab can measure
+  against it.
 - `apps/web`: UI (native ES modules, no bundler) and the shared engine in `apps/web/src/engine` (also imported by the desktop main process).
 - `apps/desktop`: Electron main, preload bridge, llama-server service, model manager/downloader, updater.
 - `tests/`: `npm test` (node:test; engine + desktop services against a fake llama-server), `npm run test:ui` (Playwright, real UI).

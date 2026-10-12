@@ -66,15 +66,34 @@ The offline model reads 4,096 tokens at a time (about 3,000 words), and NIE's ow
 A text longer than what is left used to be cut off after its first part. Now nothing is dropped and nothing is claimed that did not happen:
 
 1. `reading/sections.js` cuts the text into sections (~2,200 characters) at its own structure: chapter headings, paragraphs, sentence ends. Every character
-   lies in exactly one section; nothing is rewritten.
-2. `reading/context.js` indexes the sections (BM25 over the writer's own words, names weighted up; 150,000 words indexes in well under a second) and, for each
-   message, builds what the model sees within the window: an outline of the whole text, the opening, the sections that best match the question (cut around the
-   matching sentence, not blindly from the start), and the most recent part. Questions about the ending, the opening or the middle are recognised.
-3. `orchestrator` decides which long text a message is about: a long paste (its short first or last paragraph is the ask), a follow-up soon after one, or the
-   project's Story Text for questions about the writer's own work. Craft questions and questions about NIE never pull the writer's text in.
-4. The reply says what was looked at ("I can't hold all of that in mind at once, so for this I looked at sections 1, 128 and 129 ... For the other 126 I only saw
-   how 36 of them begin", counted from the outline lines the model was really given), the sections are recorded on the message, and the sidebar says how NIE reads the text. A built-in (no model) reply claims no reading.
+   lies in exactly one section; nothing is rewritten. Each section has a hash of its own text.
+2. `reading/context.js` indexes the sections (BM25 over the writer's own words, names weighted up; 150,000 words indexes in well under a second) and finds the
+   sections that best match a message (cut around the matching sentence). Questions about the ending, the opening or the middle are recognised, and a question
+   that compares parts ("does X say the same everywhere?") gets several passages word for word.
+3. `reading/notes.js` READS the text: for a question about the whole text, feedback, or a paste with no ask, the local model reads every section in turn
+   (schema-constrained JSON: gist, names, terms, voice; about 12 seconds a section on a slow 2-thread CPU, so about 5 minutes for 10,000 words; progress and
+   an ETA are shown and Stop keeps what was read). Grounding is enforced: a name, term or capitalised word in a note must occur in that section, the overview
+   may only name things the notes name. Notes are cached by section hash in `project.readingNotes` (bounded, derived, removed with the project), so a text is
+   read once and an edit re-reads only the sections that changed. `reading/style.js` measures point of view, tense, sentence and paragraph shape, dialogue
+   share, register and structure from the text with plain word lists (no model).
+4. What the model is then shown (`context.js#notesBlock`): the overview, the measured style, ONE LINE ON EVERY SECTION (what it says, who is in it) and the
+   closest passages word for word. A single-fact question is answered from the closest passages (nothing is read for it; notes made earlier are still used).
+   A text over 60 sections is not read through; it is searched, as before.
+5. `orchestrator` decides which long text a message is about: a long paste (its short first or last paragraph is the ask), a follow-up soon after one, the
+   project's Story Text, or any question whose own words are found strongly in that text (it need not say "my story"). Craft questions that do not match the text
+   and questions about NIE never pull the writer's text in.
+6. The reply says what was looked at ("I read it one section at a time and kept a short note on each. For this answer I used my notes on every section and looked
+   closely at sections 1, 12 and 29"), the numbers are recorded on the message, and the sidebar says how NIE reads the text. A built-in (no model) reply claims no
+   reading; an online model's reply says roughly how many words of the text were sent to the provider.
 
-Honest limits: the model still sees only a few thousand tokens per message, so a question that needs the whole text at once ("list every place X appears")
-is answered from the best matches and the outline, and NIE says so. Finding a passage needs no model and is instant; understanding it is the 3B model's job.
+Honest limits: the model holds one section at a time, so what it keeps is a short note per section plus the passages shown with a question; a question that needs
+two distant passages side by side is answered from the best matches. Notes can miss detail (names recalled about 86% of the time, defined terms about 83% in the
+lab) and the replies say they are NIE's own notes. Understanding is the 3B model's job; finding and checking are code.
 
+## Sounding different each time
+
+A small model copies the shape of its own earlier replies, which made every reply open with praise, give a numbered list and end with the same stock question.
+`orchestrator/variety.js` and the brainstorm prompt change that at four points: the prompt forbids praise openers, announcing what is about to happen, and more than
+one question; each turn gets a different reply shape (never the last two used); NIE's own earlier replies are scrubbed of praise and stock questions in the model's
+history, and an avoid-list names the openers used lately and the questions already asked; and every reply is cleaned (`refine` only removes: a praise opener, a stock
+or repeated question) with one retry when it clearly repeats itself. `scripts/notes-lab.mjs --variety` measures it against the earlier wording on the real model.
