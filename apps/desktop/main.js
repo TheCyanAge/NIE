@@ -91,7 +91,7 @@ async function streamChat(provider, channel, { id, messages, options = {} }) {
       stream: options.stream !== false,
       // Only a plain schema object and a sane timeout cross from the page; nothing else is forwarded to the model server.
       json: options.json && typeof options.json === 'object' && !Array.isArray(options.json) ? options.json : undefined,
-      timeoutMs: Number.isFinite(options.timeoutMs) ? Math.min(Math.max(options.timeoutMs, 1000), 120000) : undefined,
+      timeoutMs: Number.isFinite(options.timeoutMs) ? Math.min(Math.max(options.timeoutMs, 1000), 300000) : undefined, // a slow PC may need minutes to read one section before its first word
       onToken: (delta) => send(channel, { id, delta }),
     });
     return { text };

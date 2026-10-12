@@ -10,6 +10,7 @@ const QUOTED = /"([^"\n]{1,2000})"|“([^”\n]{1,2000})”|"""([\s\S]{1,4000}?)
 const MAX_FOREIGN_WORDS = 24;
 
 const squash = (s) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+export const LEFT_OUT_NOTICE = "(I left out a passage I'd composed: I don't write text for you, only talk through ideas and point at where things are.)";
 
 /**
  * @param {string} reply     model reply
@@ -33,7 +34,7 @@ export function guardReply(reply, known = []) {
   const cleaned = text.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
   return {
     remaining: cleaned,
-    text: removed ? `${cleaned}\n\n(I left out a passage I'd composed: I don't write text for you, only talk through ideas and point at where things are.)`.trim() : cleaned,
+    text: removed ? `${cleaned}\n\n${LEFT_OUT_NOTICE}`.trim() : cleaned,
     removed,
   };
 }

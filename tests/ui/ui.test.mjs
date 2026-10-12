@@ -1178,7 +1178,7 @@ test('"What NIE understands" says how NIE reads your text: whole when it is shor
     await page.evaluate((t) => { window.NIE_APP.project.storyText = t; }, long);
     await page.fill('#board-add', 'y');
     await page.press('#board-add', 'Enter');
-    assert.match(await page.textContent('.info-grid'), /Your text\s*[\d,]+ words in \d+ sections: for each question NIE looks closely at the parts that matter and the most recent part, sees how some of the others begin, and tells you what it looked at/);
+    assert.match(await page.textContent('.info-grid'), /Your text\s*[\d,]+ words in \d+ sections: ask about the text as a whole and NIE reads it section by section first \(once, with progress\), then keeps notes; for a single fact it looks closely at the passages that match, and every reply says what it looked at/);
   });
 });
 

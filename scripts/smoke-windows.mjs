@@ -237,7 +237,7 @@ try {
     // A profile that was used before (the portable run follows the installed run in the same profile) already shows an old
     // conversation, so "an assistant bubble exists" proves nothing: wait for NIE's NEW reply (two more stored messages, none pending).
     const countMessages = () => page.evaluate(() => window.NIE_APP.project.conversation.messages.length);
-    const answered = (before) => page.waitForFunction((n) => window.NIE_APP.project.conversation.messages.length >= n + 2 && !document.querySelector('.msg-pending'), before, { timeout: 240000 });
+    const answered = (before, timeout = 240000) => page.waitForFunction((n) => window.NIE_APP.project.conversation.messages.length >= n + 2 && !document.querySelector('.msg-pending'), before, { timeout });
     const before1 = await countMessages();
     await page.fill('#brainstorm-input', 'In one or two sentences, what is a villanelle?');
     await page.press('#brainstorm-input', 'Enter');
@@ -285,17 +285,30 @@ try {
     const ideaRoute = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).route);
     step('an idea request is answered by the offline model too', ideaRoute === 'local', `route=${ideaRoute}`);
 
-    // a long text pasted into the chat is read in sections by the real model, not cut off at what fits in its window
-    const pasted = makeLongText({ words: 6000, seed: 5 }).text;
+    // a long text pasted into the chat is READ one section at a time by the real model (notes kept on every section), not cut off at what fits in its window.
+    // That takes minutes on a slow machine: the progress line says so while it happens, and the whole read is waited for here.
+    const pasted = makeLongText({ words: 3000, seed: 5 }).text;
     const before4 = await countMessages();
+    const t4 = Date.now();
     await page.fill('#brainstorm-input', `Here is my opening. What do you think of the ending?\n\n${pasted}`);
     await page.press('#brainstorm-input', 'Enter');
-    await answered(before4);
+    await page.waitForSelector('#read-progress', { timeout: 120000 }).then(async () => report.readProgress = await page.textContent('#read-progress'), () => {});
+    await answered(before4, 1500000);
     const longMsg = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1));
-    report.longPaste = { words: wordCountOf(pasted), route: longMsg.route, read: longMsg.read, understood: longMsg.understood, reply: String(longMsg.content).slice(0, 300) };
-    step('a pasted text of 6,000 words is read in sections by the real model, and the reply says what was looked at',
-      longMsg.route === 'local' && longMsg.read?.sections > 5 && longMsg.read?.complete === false && !/longer than I can read at once/.test(longMsg.content) && /I can't hold all of that in mind at once/.test(longMsg.content),
-      `route=${longMsg.route}; sections=${longMsg.read?.sections}; shown=${JSON.stringify(longMsg.read?.shown)}; ${String(longMsg.content).slice(0, 120).replace(/\s+/g, ' ')}`);
+    const readSecs = Math.round((Date.now() - t4) / 1000);
+    report.longPaste = { words: wordCountOf(pasted), seconds: readSecs, route: longMsg.route, read: longMsg.read, understood: longMsg.understood, progress: report.readProgress, reply: String(longMsg.content).slice(0, 400) };
+    step('a pasted text of 3,000 words is read section by section by the real model (notes on every section), and the reply says what was looked at',
+      longMsg.route === 'local' && longMsg.read?.sections > 5 && longMsg.read?.notes?.read === longMsg.read?.sections && !/longer than I can read at once/.test(longMsg.content) && /I read it one section at a time and kept a short note on each/.test(longMsg.content),
+      `route=${longMsg.route}; sections=${longMsg.read?.sections}; notes=${JSON.stringify(longMsg.read?.notes)}; took ${readSecs} s; progress line: "${report.readProgress ?? ''}"; ${String(longMsg.content).slice(0, 160).replace(/\s+/g, ' ')}`);
+
+    // a follow-up about the same text uses the notes already made (no new read)
+    const before5 = await countMessages();
+    const t5 = Date.now();
+    await page.fill('#brainstorm-input', 'In my opening, how do the middle sections connect to the ending?');
+    await page.press('#brainstorm-input', 'Enter');
+    await answered(before5, 600000);
+    const followMsg = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1));
+    step('a follow-up about the same text reuses the notes (information: no second read)', followMsg.route === 'local' && followMsg.read?.notes?.read === followMsg.read?.sections, `took ${Math.round((Date.now() - t5) / 1000)} s; notes=${JSON.stringify(followMsg.read?.notes)}; ${String(followMsg.content).slice(0, 140).replace(/\s+/g, ' ')}`);
   }
 
   // 5. persistence across a restart

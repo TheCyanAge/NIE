@@ -5,6 +5,7 @@ import { kindLabel } from '../../engine/brainstorm/lenses.js';
 import { resolveKind } from '../../engine/brainstorm/ideas.js';
 import { clip, estimateTokens, words } from '../../engine/util/text.js';
 import { splitSections } from '../../engine/reading/sections.js';
+import { sectionKey } from '../../engine/reading/notes.js';
 
 /**
  * The Idea Board: what the writer kept, plus "what NIE understands" about the project so far.
@@ -78,9 +79,9 @@ export function mountBoard(app, { onDevelop, onChange = null }) {
 
   // The panel is redrawn often; cutting a long text into sections is quick but not free, so remember the last one.
   let lastText = null;
-  let lastSections = 0;
-  const sectionCount = (text) => {
-    if (text !== lastText) [lastText, lastSections] = [text, splitSections(text).length];
+  let lastSections = [];
+  const sectionsOf = (text) => {
+    if (text !== lastText) [lastText, lastSections] = [text, splitSections(text)];
     return lastSections;
   };
 
@@ -94,9 +95,11 @@ export function mountBoard(app, { onDevelop, onChange = null }) {
     const story = p.storyText ?? '';
     if (story.trim()) {
       const n = words(story).length;
+      const secs = estimateTokens(story) <= 1400 ? [] : sectionsOf(story);
+      const kept = secs.filter((x) => p.readingNotes?.sections?.[sectionKey(x)]).length;
       rows.push(['Your text', estimateTokens(story) <= 1400
         ? `${n.toLocaleString('en-US')} words: short enough to be read whole, and each reply says if it wasn't`
-        : `${n.toLocaleString('en-US')} words in ${sectionCount(story)} sections: for each question NIE looks closely at the parts that matter and the most recent part, sees how some of the others begin, and tells you what it looked at`]);
+        : `${n.toLocaleString('en-US')} words in ${secs.length} sections: ${kept && kept === secs.length ? 'NIE has read every section, one at a time, and keeps a short note on each' : kept ? `NIE has read ${kept} of them, one at a time, and keeps a short note on each` : 'ask about the text as a whole and NIE reads it section by section first (once, with progress), then keeps notes'}; for a single fact it looks closely at the passages that match, and every reply says what it looked at`]);
     }
     if (wp.summary) rows.push(['Premise', clip(wp.summary, 150)]);
     if (wp.characters?.length) rows.push(['Cast', wp.characters.slice(0, 5).join(', ')]);

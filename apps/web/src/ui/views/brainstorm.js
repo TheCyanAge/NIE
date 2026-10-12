@@ -131,6 +131,12 @@ export function mountBrainstorm(root, app) {
     return submit(text, { lens });
   }
 
+  /** "about 6 min left": honest, rounded, and only said once there is a measured speed behind it. */
+  const eta = (ms) => (ms == null ? '' : ms < 45000 ? ' · under a minute left' : ` · about ${Math.max(1, Math.round(ms / 60000))} min left`);
+  const progressText = (p) => (p.stage === 'overview'
+    ? 'Putting what I read together…'
+    : `Reading your text, section ${Math.min(p.total, p.done + 1)} of ${p.total}${p.done === 0 && p.cached ? ` (${p.cached} already read earlier)` : ''}${eta(p.etaMs)}`);
+
   async function submit(override = null, { lens = null } = {}) {
     const text = (override ?? input.value).trim();
     if (!text || app.session.chatBusy) return;
@@ -147,12 +153,22 @@ export function mountBrainstorm(root, app) {
     busy(true);
     sess.chatAbort = new AbortController();
     let streamed = false;
+    let lastProgress = null;
+    const progress = h('span', { class: 'muted nie-progress', id: 'read-progress', 'aria-hidden': 'true' });
     try {
       const res = await app.orchestrator.brainstorm({
         project, message: text, lens, kind: kindChoice() === 'auto' ? null : kindChoice(), signal: sess.chatAbort.signal,
+        onProgress: (p) => {
+          if (app.session !== sess || streamed) return;
+          lastProgress = p;
+          progress.textContent = progressText(p);
+          if (!progress.isConnected) thinking.after(progress);
+          // the notes made so far are kept with the project, so a closed window or a Stop loses nothing
+          if (p.stage === 'reading' && p.done > 0 && p.done % 4 === 0) app.saveNow();
+        },
         onToken: (_d, full) => {
           if (app.session !== sess) return;
-          if (!streamed) { streamed = true; thinking.remove(); }
+          if (!streamed) { streamed = true; thinking.remove(); progress.remove(); }
           const body = $('.bubble-body', holder) ?? holder.appendChild(h('div', { class: 'bubble-body' }));
           clear(body).append(mdLite(full));
           log.scrollTop = log.scrollHeight;
@@ -169,7 +185,10 @@ export function mountBrainstorm(root, app) {
       board.refresh();
     } catch (err) {
       if (app.session !== sess) return;
-      holder.replaceWith(h('div', { class: 'msg msg-assistant msg-note' }, err?.kind === 'abort' ? 'Stopped.' : `Something went wrong: ${err?.message ?? err}`));
+      const stopped = err?.kind === 'abort'
+        ? (lastProgress?.stage === 'reading' && lastProgress.modelRead > 0 ? `Stopped. I had read ${lastProgress.modelRead} of ${lastProgress.total} sections of your text and kept notes on them; ask again and I'll carry on from there.` : 'Stopped.')
+        : `Something went wrong: ${err?.message ?? err}`;
+      holder.replaceWith(h('div', { class: 'msg msg-assistant msg-note' }, stopped));
       setChips([{ label: 'Add more details', text: 'Let me add more details: ' }]);
       app.saveNow();
     } finally {

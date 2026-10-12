@@ -22,10 +22,16 @@ Always follow these rules:
 4. An unusual choice may be deliberate. Ask before calling something a mistake.
 5. Protect the writer's voice. Never suggest polishing it into generic prose.
 6. Be specific to what they told you. No generic advice.
-7. If the writer has little to go on, start where they are and ask one to three good questions.
+7. If the writer has little to go on, start where they are: offer a few concrete directions to react to and, at most, one good question.
 Keep replies short unless they ask for more.`;
 
 const MODES = {
+  brainstorm: `Mode: brainstorming partner for any literary project: stories, characters, worlds, articles, essays, memoir, poems, scripts. Respond to what the writer just said, specifically: pick up their own names, terms and details instead of speaking in generalities, and build on them. Be generous with ideas, but change how you reply from turn to turn: sometimes a short paragraph, sometimes a few numbered sparks, sometimes one sharp observation, tension or complication. Ideas are concepts, angles, complications or questions, never drafted prose, dialogue or scene text; make them different from each other, specific to this project, and surprising rather than safe; do not repeat ideas already given or kept. Start with the substance: no praise, no exclamations, and do not announce what you are about to do ("Let's dive deeper"). Ask at most one question, only when the answer would really move the work forward; make it specific to this project, never ask something you have already asked, and let many replies end without a question. If they change direction, follow the new direction and say what it changes.`,
+};
+
+/** The wording before the "sound different each time" rewrite: kept ONLY so scripts/notes-lab.mjs can measure the new prompt against it on the real model. */
+export const LEGACY = {
+  rule7: '7. If the writer has little to go on, start where they are and ask one to three good questions.',
   brainstorm: `Mode: brainstorming partner for any literary project: stories, characters, worlds, articles, essays, memoir, poems, scripts. Be generous with ideas and keep the conversation going. Respond to what the writer just said and build on it. When ideas would help, give 3 to 5 numbered ideas, one or two sentences each: concepts, angles, complications or questions, never drafted prose, dialogue or scene text. Make them different from each other, specific to this project when it has a premise, and surprising rather than safe. Do not repeat ideas already given or kept. End with one question that moves the idea forward. If they change direction, follow the new direction and say what it changes.`,
 };
 
@@ -37,7 +43,7 @@ function section(title, body) {
   return body ? `\n\n## ${title}\n${body}` : '';
 }
 
-export function buildSystem({ mode = 'brainstorm', project, interp }) {
+export function buildSystem({ mode = 'brainstorm', project, interp, legacy = false }) {
   const profile = profileToPromptBlock(project.profile, BUDGET.profile);
   const rules = rulesToPromptBlock(project, BUDGET.rules);
   const memory = memoryToPromptBlock(project, BUDGET.memory);
@@ -51,9 +57,9 @@ export function buildSystem({ mode = 'brainstorm', project, interp }) {
     if (interp.watchesOrnateLanguage) reading.push('The register is clinical/detached; ornate language is worth discussing.');
   }
   return (
-    SYSTEM_CORE +
+    (legacy ? SYSTEM_CORE.replace(/^7\. .*$/m, LEGACY.rule7) : SYSTEM_CORE) +
     '\n\n' +
-    (MODES[mode] ?? MODES.brainstorm) +
+    (legacy ? LEGACY.brainstorm : MODES[mode] ?? MODES.brainstorm) +
     section('Project profile', profile || '(Nothing declared yet. Start from what the writer tells you; do not invent a genre.)') +
     section("The writer's rules for this project", rules) +
     section('Project memory', memory) +
@@ -106,19 +112,21 @@ export const clearIndexes = () => INDEXES.clear();
  * The writer's own message is only ever shortened as a last resort, and `trimmed` says what was cut so the UI can be honest.
  * @returns {{ messages: {role:string, content:string}[], tokens: number, trimmed: string[] }}
  */
-export function composeMessages({ mode = 'brainstorm', project, interp, userMessage, passage = '', document = null, history = [], retrieved = [], extra = '', limit = PROMPT_TOKEN_LIMIT, minimal = false }) {
-  const system = buildSystem({ mode, project, interp });
+export function composeMessages({ mode = 'brainstorm', project, interp, userMessage, passage = '', document = null, history = [], retrieved = [], extra = '', limit = PROMPT_TOKEN_LIMIT, minimal = false, legacy = false }) {
+  const notes = document?.notes ?? null;
+  const system = buildSystem({ mode, project, interp, legacy });
   const count = (msgs) => msgs.reduce((a, m) => a + estimateTokens(m.content), 0);
   // A long text (a pasted passage, or the project's Story Text) is shown as an outline plus the parts that matter for THIS message, within what the
   // window has left after NIE's own instructions, the writer's message and a little room for earlier turns and reference notes.
   const docIndex = document?.text ? indexFor(document.text) : null;
-  const docBudget = docIndex ? Math.min(1500, Math.max(450, limit - estimateTokens(system) - estimateTokens(userMessage) - 520)) : 0;
+  // With notes on every section, the text needs more room (one line per section) and earlier turns less: the writer is here to talk about the text.
+  const docBudget = docIndex ? Math.min(notes ? 1800 : 1500, Math.max(450, limit - estimateTokens(system) - estimateTokens(userMessage) - estimateTokens(extra) - (notes ? 380 : 520))) : 0;
   let reading = null;
   const build = (scale, message) => {
     const userParts = [];
     if (retrieved.length && scale > 0) userParts.push(`Reference notes (tools the writer may use or break, not rules):\n${describeForPrompt(retrieved, Math.floor(BUDGET.knowledge * scale))}`);
     if (docIndex) {
-      const ctx = readingContext({ index: docIndex, query: document.query ?? '', topic: document.topic ?? '', budgetTokens: scale > 0 ? Math.max(450, Math.floor(docBudget * scale)) : 450, subject: document.subject });
+      const ctx = readingContext({ index: docIndex, query: document.query ?? '', topic: document.topic ?? '', budgetTokens: scale > 0 ? Math.max(450, Math.floor(docBudget * scale)) : 450, subject: document.subject, notes });
       reading = ctx.stats;
       if (ctx.block) userParts.push(`${ctx.block}\n\n${documentNote(document.query || userMessage, ctx.stats)}`);
     }
@@ -156,11 +164,11 @@ export function ideaRequestBlock({ kind, lens, seeds = [], develop = null, note 
   if (develop) {
     return [
       `The writer wants to develop this idea (${kindLabel(kind).toLowerCase()}): "${develop}"`,
-      'Ask 2 or 3 sharp questions about it, then offer 2 or 3 directions it could take as short numbered ideas (concepts, not drafted text). End with one question.',
+      'Ask one or two sharp questions about it, then offer 2 or 3 directions it could take as short numbered ideas (concepts, not drafted text).',
     ].join('\n');
   }
   const what = lens ? leadNoun(lens) : 'ideas';
-  const lines = [`The writer wants ${what} for ${kindPhrase(kind)}${lens ? ` (${LENSES[lens]?.label ?? lens})` : ''}. Give 3 to 5 numbered ideas, one or two sentences each, then one question.`];
+  const lines = [`The writer wants ${what} for ${kindPhrase(kind)}${lens ? ` (${LENSES[lens]?.label ?? lens})` : ''}. Give 3 to 5 numbered ideas, one or two sentences each. A closing question is optional: add one only if it is specific to this project and you have not asked it before.`];
   if (note) lines.push(note);
   if (seeds.length) lines.push(`Examples of the size and kind of idea wanted. Do not copy them; be more specific to this writer's project:\n${seeds.map((s, i) => `${i + 1}. ${s}`).join('\n')}`);
   return lines.join('\n');

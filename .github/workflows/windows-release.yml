@@ -24,7 +24,7 @@ on:
 jobs:
   package:
     runs-on: windows-latest
-    timeout-minutes: 70
+    timeout-minutes: 130
     permissions:
       contents: write # only used to create the DRAFT release
     defaults:
@@ -113,8 +113,8 @@ jobs:
           ls -la dist-desktop/*.exe
 
       - name: "Smoke test the INSTALLED app on a first run (no model yet, so it must download the real one, say so, become ready and answer)"
-        timeout-minutes: 32
-        run: node scripts/smoke-windows.mjs "$NIE_INSTALL_DIR" --real-profile --download-model --expect-fresh --max-minutes 27 --out smoke-out/installed
+        timeout-minutes: 50
+        run: node scripts/smoke-windows.mjs "$NIE_INSTALL_DIR" --real-profile --download-model --expect-fresh --max-minutes 45 --out smoke-out/installed
 
       - name: Record the downloaded model's SHA-256 (so a later build can pin it)
         run: |
@@ -123,8 +123,8 @@ jobs:
           sha256sum "$F" | tee smoke-out/model.sha256
 
       - name: "Smoke test the PORTABLE exe (one file; it finds the model the first run saved and answers with it)"
-        timeout-minutes: 18
-        run: node scripts/smoke-windows.mjs --exe dist-desktop/Narrative-Integrity-Engine-Portable.exe --real-profile --download-model --expect-model --ready-timeout 360000 --max-minutes 15 --out smoke-out/portable
+        timeout-minutes: 45
+        run: node scripts/smoke-windows.mjs --exe dist-desktop/Narrative-Integrity-Engine-Portable.exe --real-profile --download-model --expect-model --ready-timeout 360000 --max-minutes 40 --out smoke-out/portable
 
       - name: Uninstall cleanly
         shell: pwsh

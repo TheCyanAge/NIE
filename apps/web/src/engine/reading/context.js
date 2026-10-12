@@ -123,14 +123,15 @@ function focusExcerpt(raw, terms, nameTerms, cap, fromEnd = false) {
 
 /**
  * Everything NIE is shown of a long text for one message, within `budgetTokens`.
- * @param {{ index: object, query: string, topic?: string, budgetTokens?: number, subject?: 'text'|'passage' }} o  `subject`: whose text it is called in the prompt
- *   (the project's Story Text, or the passage the writer just pasted)
- * @returns {{ block: string, stats: { complete: boolean, sections: number, words: number, shown: {i:number, role:string}[], outlined: number, tokens: number } }}
+ * @param {{ index: object, query: string, topic?: string, budgetTokens?: number, subject?: 'text'|'passage', notes?: object|null }} o  `subject`: whose text it is called in the prompt
+ *   (the project's Story Text, or the passage the writer just pasted). `notes`: what NIE wrote while reading the text one section at a time
+ *   ({ per: (note|null)[], overview, style, ... }, see reading/notes.js); with notes, one line per section replaces the outline of first words.
+ * @returns {{ block: string, stats: { complete: boolean, sections: number, words: number, shown: {i:number, role:string}[], outlined: number, tokens: number, notes: object|null } }}
  */
-export function readingContext({ index, query, topic = '', budgetTokens = 1400, subject = 'text' }) {
+export function readingContext({ index, query, topic = '', budgetTokens = 1400, subject = 'text', notes = null }) {
   const N = index.sections.length;
   const totalWords = index.sections.reduce((a, s) => a + s.words, 0);
-  const stats = { complete: false, sections: N, words: totalWords, shown: [], outlined: 0, tokens: 0, subject };
+  const stats = { complete: false, sections: N, words: totalWords, shown: [], outlined: 0, tokens: 0, subject, notes: null };
   const what = subject === 'passage' ? 'The passage the writer just pasted' : "The writer's text";
   if (!N) return { block: '', stats: { ...stats, complete: true } };
 
@@ -160,7 +161,10 @@ export function readingContext({ index, query, topic = '', budgetTokens = 1400, 
 
   // The budget, by what was asked. The most recent part always gets at least a paragraph or two (it says where the text is now); the opening and the
   // middle get a fixed share; the matching passages share what is left, the best match getting the most. A lookup spends nearly all of it on the matches.
-  const totalChars = Math.floor(budgetTokens * 0.72 * 3.6);
+  // With notes, the model already has a line on every section, so the passages (verbatim, for detail and for the writer's own voice) get a smaller share.
+  const read = notes?.per?.filter((n) => n && (n.by === 'model' || n.by === 'text')).length ?? 0;
+  const useNotes = read > 0;
+  const totalChars = Math.floor(budgetTokens * 3.6 * (useNotes ? (lookup ? 0.5 : 0.3) : 0.72));
   const order = [...chosen.entries()].sort((a, b) => rank(a, ranked, N) - rank(b, ranked, N));
   const fixedShare = { latest: hints.tail ? 0.42 : lookup ? 0.13 : 0.26, opening: 0.12, middle: 0.16 };
   const caps = new Map();
@@ -188,8 +192,15 @@ export function readingContext({ index, query, topic = '', budgetTokens = 1400, 
 
   const shownSet = new Set(parts.map((p) => p.i));
   const label = (p) => `Section ${p.i + 1}${index.sections[p.i].under ? ` (${clip(index.sections[p.i].under, 40)})` : ''}${p.role === 'opening' ? ', the opening' : p.role === 'latest' ? ', the most recent part' : p.role === 'middle' ? ', from the middle' : ''}`;
-  const intro = `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You cannot see all of it at once, so you are shown an outline of the rest and the parts that matter for this message.`;
   const excerpts = parts.map((p) => `${label(p)}${p.whole ? '' : ' (cut to fit)'}:\n"""\n${p.excerpt}\n"""`);
+
+  if (useNotes) {
+    const block = notesBlock({ index, notes, N, totalWords, what, excerpts, shownSet, budgetTokens, read, stats });
+    stats.tokens = estimateTokens(block);
+    return { block, stats };
+  }
+
+  const intro = `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You cannot see all of it at once, so you are shown an outline of the rest and the parts that matter for this message.`;
   // the outline gets what the budget has left, sampled evenly (first and last always kept) rather than cut off at the end
   const left = Math.floor(budgetTokens * 3.6) - [intro, ...excerpts].join('\n\n').length - 70;
   let lines = outline(index, { maxLines: 36, skip: shownSet }).lines;
@@ -199,6 +210,48 @@ export function readingContext({ index, query, topic = '', budgetTokens = 1400, 
   const block = [intro, lines.length ? `Outline of the other sections (number: how each begins):\n${lines.join('\n')}` : '', ...excerpts].filter(Boolean).join('\n\n');
   stats.tokens = estimateTokens(block);
   return { block, stats };
+}
+
+/**
+ * The block shown when NIE has read the text section by section: what it is, what it is like, one line on every section (what it says, who is in it),
+ * and the closest passages word for word. Every number is real: the header says how many sections were read, and sections that were not read in
+ * turn are marked, never passed off as read. Lines are thinned evenly (first and last kept) when there are too many for the room.
+ */
+function notesBlock({ index, notes, N, totalWords, what, excerpts, shownSet, budgetTokens, read, stats }) {
+  const readAll = read >= N;
+  const header = readAll
+    ? `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You cannot hold all of it in mind at once, so you read it one section at a time and kept the notes below; you are also shown the passages that matter for this message, word for word.`
+    : `${what} is long: about ${totalWords.toLocaleString('en-US')} words in ${N} sections. You could read ${read} of them in turn and kept notes on those; sections marked ~ you have only seen the first words of. You are also shown the passages that matter for this message, word for word.`;
+  const overview = notes.overview ? `What it is, from your notes: ${clip(notes.overview, 700)}` : '';
+  const style = notes.style ? clip(notes.style, 420) : '';
+  const total = Math.floor(budgetTokens * 3.6);
+  const fixed = [header, overview, style, ...excerpts].filter(Boolean).join('\n\n').length + 150;
+  const room = Math.max(0, total - fixed);
+
+  const wanted = [];
+  for (let i = 0; i < N; i++) if (!shownSet.has(i)) wanted.push(i);
+  // thin evenly until every line has room for a useful sentence
+  let keep = wanted;
+  const MIN_LINE = 78;
+  while (keep.length > 2 && room / keep.length < MIN_LINE) keep = keep.filter((_, k) => k % 2 === 0 || k === keep.length - 1);
+  const per = keep.length ? Math.floor(room / keep.length) : 0;
+  const line = (i) => {
+    const n = notes.per[i];
+    const head = `${i + 1}. `;
+    if (n && (n.by === 'model' || n.by === 'text')) {
+      const names = Array.isArray(n.names) && n.names.length && per >= 120 ? ` (${n.names.slice(0, 3).join(', ')})` : '';
+      return `${head}${clip(n.gist, Math.max(40, per - head.length - names.length - 2))}${names}`;
+    }
+    return `${head}~${clip(n?.gist ?? firstSentence(sectionText(index.text, index.sections[i])), Math.max(40, per - head.length - 3))}`;
+  };
+  let lines = per >= 40 ? keep.map(line) : [];
+  while (lines.length > 2 && lines.join('\n').length > room) lines = lines.filter((_, k) => k % 2 === 0 || k === lines.length - 1);
+  if (lines.join('\n').length > room) lines = [];
+  stats.outlined = lines.length;
+  stats.notes = { modelRead: read, total: N, complete: readAll, listed: lines.length, overview: Boolean(notes.overview), style: Boolean(notes.style) };
+  const list = lines.length ? `Your notes, one line per section (number: what it says, who is in it)${wanted.length < N ? '; the sections shown in full below are left out here' : ''}${lines.length < wanted.length ? '; some sections are left out of this list to fit' : ''}:\n${lines.join('\n')}` : '';
+  const passages = excerpts.length ? `The passages closest to this message, word for word:\n\n${excerpts.join('\n\n')}` : '';
+  return [header, overview, style, list, passages].filter(Boolean).join('\n\n');
 }
 
 /** The most recent part first, then the best matches, then the opening, so the budget is spent where it helps most. */
@@ -222,10 +275,19 @@ export function describeReading(stats) {
   const why = [roles.has('opening') && 'the opening', roles.has('middle') && 'the middle', roles.has('latest') && 'the most recent part', roles.has('match') && 'what matched what you asked'].filter(Boolean);
   const whyText = why.length <= 1 ? why[0] : `${why.slice(0, -1).join(', ')} and ${why.at(-1)}`;
   const cut = stats.shown.some((x) => x.whole === false);
+  const subjectName = stats.subject === 'passage' ? 'The passage you pasted' : 'Your text';
+  const n = stats.notes;
+  if (n?.modelRead > 0) {
+    // NIE read the sections one at a time and kept notes: say how many, and how many of those notes this answer actually used.
+    const used = Math.min(stats.sections, (n.listed ?? 0) + closely.length);
+    const usedPhrase = used >= stats.sections ? 'on every section' : `on ${used} of the ${stats.sections} sections`;
+    const readPhrase = n.complete ? 'I read it one section at a time and kept a short note on each' : `I read ${n.modelRead} of its ${stats.sections} sections one at a time and kept a short note on each (the rest I have only seen the first words of)`;
+    return `${subjectName} is about ${w} words in ${stats.sections} sections. That is too long for me to hold in mind at once, so ${readPhrase}. For this answer I used my notes ${usedPhrase} and looked closely at section${closely.length === 1 ? '' : 's'} ${list} (${whyText}${cut ? '; some of it cut short to fit' : ''}). Ask about any part and I'll look at it.`;
+  }
   const others = Math.max(0, stats.sections - closely.length);
   const outlined = Math.min(others, stats.outlined ?? 0);
   const rest = !others ? '' : !outlined ? ` I did not see the other ${others}.` : outlined >= others ? ` For the other ${others} I only saw how each one begins.` : ` For the other ${others} I only saw how ${outlined} of them begin.`;
-  const subject = stats.subject === 'passage' ? 'The passage you pasted' : 'Your text';
+  const subject = subjectName;
   return `${subject} is about ${w} words in ${stats.sections} sections. I can't hold all of that in mind at once, so for this I looked at section${closely.length === 1 ? '' : 's'} ${list} (${whyText}${cut ? '; some of it cut short to fit' : ''}).${rest} Ask about any part and I'll look at it.`;
 }
 
@@ -254,8 +316,10 @@ export function isLookupQuestion(q) {
 /** What the model is told about the text it was shown. */
 export function documentNote(query, stats) {
   const partial = stats && !stats.complete;
+  const noted = Boolean(stats?.notes?.modelRead);
   if (isLookupQuestion(query)) {
-    return `The writer is asking what their text says. Answer from the text shown above in one or two plain sentences, and name the section it is in. If the parts shown do not say, tell them you cannot see it in the parts you were shown${partial ? ' (you were not shown all of it)' : ''}. Do not guess, do not list possibilities, and do not turn the question into brainstorming.`;
+    return `The writer is asking what their text says. Answer from the text shown above in one or two plain sentences, and name the section it is in. If what is shown does not say, tell them you cannot find it in what you were shown${partial ? (noted ? ' (you have short notes on the sections, but only some passages word for word)' : ' (you were not shown all of it)') : ''}. Do not guess, do not list possibilities, and do not turn the question into brainstorming.`;
   }
+  if (noted) return "(Reference only: this is the writer's own text. Your notes are short and can miss detail or be wrong: check them against the passages when it matters. Draw on the whole text, not just the first and last parts, and name specific people, terms and sections. Do not rewrite, continue, retell or quote it back at length, and do not write any story text.)";
   return `(Reference only: this is the writer's own text. Do not rewrite, continue or quote it back at length. Say only what the text shown actually contains${partial ? '; you were not shown all of it, so say so if you are unsure whether something is in the parts you did not see' : ''}.)`;
 }
