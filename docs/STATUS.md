@@ -28,7 +28,30 @@ Legend: ✅ built and tested here · 🟡 built, needs verification on Windows /
 | 73–76 | Input safety, self-healing guard, Safe Recovery, quiet/throttled diagnostics | ✅ |
 | 69, 72 | Performance (no needless rebuilds, workers, kept-alive model) | ✅ by design; 🟡 not profiled on real hardware |
 | 78 | Settings (AI, updates, tour, application) | ✅ |
+| **new** | The language model reads every message first (what is the writer asking?), with the rules as the fallback; every reply records who understood it | ✅ unit + UI tests; ✅ **measured on the real Qwen model** (below) |
+| **new** | Any length of text: a long paste or a long Story Text is cut into sections at the writer's own structure, ranked against the question, and the model is shown an outline sample, the opening, the best matches and the latest part; the reply says exactly what was looked at | ✅ unit + UI tests; ✅ **measured on the real model** (below). 🟡 slow on a slow CPU; see Known limits |
 | 82 | "Human-level" narrative reasoning | ⬜ aspirational: depends on the model and a much larger library |
+
+## Measured on the real model
+Everything here was measured with the real Qwen2.5-3B-Instruct (Q4_K_M) on GitHub's Linux runner (`understanding-eval` workflow, `scripts/understanding-probe.mjs`),
+not with a fake. Runner speed varies a lot from run to run, so only same-run comparisons mean much.
+
+**Understanding what the writer asks** (260 labelled messages in `tests/fixtures/understanding-messages.json`, 10 kinds of ask):
+- Task read correctly: **78.5%** with the model, against 28.5% for the old rules alone; 69.0% on the hard cases; 75.6% when there is chat history.
+- Requests to write or edit the writer's text recognised and declined: **98.1%** (the old rules: 51.9%).
+- The cost: **1.9%** of ordinary requests are wrongly taken for a write/edit request and declined (the old rules: 0.5%). The first version was 11.3%; a message is now
+  only declined as a write/edit request if it also contains a request (`looksLikeARequest`). A wrong label mostly makes NIE decline too often or answer in the wrong style;
+  every model reply still passes the reply guard (`guardReply`) that withholds prose written for the writer.
+- About one second per message for the reading step (a short, schema-constrained answer).
+- Two model slots (`-np 2`, one for the short reading prompt and one for the long answer prompt) were about 7% faster than one on the same machine, so they stay.
+
+**Reading long texts** (invented texts with six planted facts, asked as questions; `--long`):
+- Facts found, old way (the first part only) against the new way: 8,040 words **0/6 → 6/6**; 39,907 words **0/6 → 6/6**; 146,731 words **0/6 → 6/6**.
+  Before the "answer from the text, name the section" instruction the same test found only 3 to 5 of 6, so that instruction is part of the design, not a detail.
+- The largest prompt was about 2,100 tokens, inside the 4,096-token window.
+- It is slower: about 43 to 55 seconds for an answer against 12 to 14 seconds for the old first-part reading, because more of the text is read first (CPU prefill is
+  the bottleneck). A whole 8,117-word paste through the full path (reading step plus answer) took about 100 seconds on that runner.
+- Six facts in three invented texts is a small test. It shows the method works, not that every question about a long text will be answered correctly.
 
 ## Rules, in detail
 Understood and **checked exactly**: forbidden words/phrases; terminology ("use X not Y"); sentence/paragraph length limits; first/second/third person and
@@ -45,4 +68,12 @@ Every rule shows how NIE understood it.
 - PDF: text PDFs with simple font encodings only; scanned PDFs are reported as unreadable (no OCR).
 - The 3B model is small: its verdicts are shown as *possible issues* and can be marked as exceptions.
 - The installer and the packaged app are tested on GitHub's Windows runner (a fresh machine, but not a consumer PC with other software, antivirus or a different Windows version).
-- The installer is about 2.2 GB (it carries the offline model), so it is distributed as a workflow artifact (sign-in required, kept 30 days), not as a release download.
+- A long text is read in parts, not all at once: a question that needs the whole text at the same time ("list every place she lies", "is the pacing even throughout?")
+  can only be answered from the parts NIE was shown, and the reply says which those were. NIE never says it read all of a text it did not.
+- Reading a long text takes a slow computer minutes (the model must read the shown parts before the first word). Time limits are on silence, not on the whole reply,
+  so a slow computer that is still answering is not cut off. NIE waits up to four minutes for the first word, and once it is answering a minute of silence stops it.
+- The model's reading of a message is wrong about one time in five (above). When it is, NIE's answer can be in the wrong style; the panel under "What NIE understands"
+  shows how a message was read. Requests to write or edit were recognised 98.1% of the time with the model running, and about half the time (51.9%) by the rules alone,
+  so with no model running some of them get through to the ordinary answer path (still behind the reply guard).
+- With an online model, the parts of the text shown to it leave the computer; each such reply says roughly how many words.
+- The all-in-one installer from the `windows-package` workflow is about 2.2 GB (it carries the offline model), so it is a workflow artifact (sign-in required, kept 30 days). The release installer is small and downloads the model on the first run.
