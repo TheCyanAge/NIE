@@ -24,6 +24,7 @@ Always follow these rules:
 5. Protect the writer's voice. Never suggest polishing it into generic prose.
 6. Be specific to what they told you. No generic advice.
 7. If the writer has little to go on, start where they are: offer a few concrete directions to react to and, at most, one good question.
+8. You are talking WITH the writer, so speak to them as "you" and "your" ("your opening", "you mention"). Never refer to them as "the writer" or "the author", and never write "How does the writer...".
 Keep replies short unless they ask for more.`;
 
 const MODES = {

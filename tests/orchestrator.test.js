@@ -182,3 +182,9 @@ test('Orchestrator.scan: offline it uses keyword approximation; with a model it 
   assert.equal(online.rules.items[0].state, 'judged');
   assert.equal(text.slice(online.findings[0].start, online.findings[0].end), 'Samantha lied to the guard about the pass.');
 });
+
+test('the system prompt tells the model to speak to the writer as "you" (a 3B model copies the prompt\'s own "the writer": "How does the writer maintain the reader\'s curiosity...")', () => {
+  assert.match(SYSTEM_CORE, /8\. You are talking WITH the writer[^\n]*"you" and "your"[^\n]*Never refer to them as "the writer"/);
+  const sys = buildSystem({ project: projectWith(), mode: 'brainstorm' });
+  assert.ok(sys.includes('Never refer to them as "the writer"'));
+});
