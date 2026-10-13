@@ -932,6 +932,78 @@ const say = async (page, text) => {
   await page.waitForFunction((n) => document.querySelectorAll('.msg-assistant:not(.msg-pending)').length > n, before);
 };
 
+test('NIE follows the idea: a panel of the writer\'s own words, an offer to keep it, "yes" files it, and "take it back" undoes it', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    assert.match(await page.textContent('#idea-sheet'), /Tell me about what you are making/);
+    for (const m of [
+      'I want to write a cozy mystery set in a small fishing village.',
+      'The main character is Mara, a retired ferry captain who keeps noticing things.',
+      'She wants to find out who sank the harbour bell before the regatta.',
+      'The harbourmaster, Corin, is against her because he is hiding debts.',
+      'If she fails the village loses its only festival and Corin loses everything.',
+    ]) await say(page, m);
+    // the panel shows what NIE recorded, in the writer's words, part by part
+    const rows = await page.$$eval('#idea-sheet .sheet-row', (r) => r.map((x) => x.textContent));
+    assert.ok(rows.some((r) => /Main character/.test(r) && /Mara, a retired ferry captain/.test(r)), rows.join(' | '));
+    assert.ok(rows.some((r) => /Corin, is against her/.test(r)), rows.join(' | '));
+    // and it never claims more than it recorded
+    assert.ok(!rows.some((r) => /Ending/.test(r)));
+    // a reply that asks has a way out of the question
+    const chips = await page.$$eval('#chat-chips .chip', (c) => c.map((x) => x.textContent));
+    assert.ok(chips.some((c) => /Not sure yet|Add more details/.test(c)), chips.join(','));
+    // the writer fixes a part by hand
+    await page.click('#idea-sheet .sheet-row:has-text("Main character") >> text=Edit');
+    await page.fill('#idea-sheet .sheet-row textarea', 'Mara Quill, retired ferry captain');
+    await page.click('#idea-sheet .sheet-row >> text=Save');
+    assert.match(await page.textContent('#idea-sheet'), /Mara Quill, retired ferry captain/);
+    // keep it from the panel: it goes on the Idea Board and into project memory
+    await page.click('#idea-keep');
+    await boardCount(page, 1);
+    assert.match(await page.textContent('#board-list'), /Mara Quill/);
+    assert.equal(await page.evaluate(() => window.NIE_APP.project.memory.characters.some((c) => /Mara/.test(c.name))), true);
+    assert.equal(await page.isDisabled('#idea-keep'), true, 'kept, and unchanged since');
+    await page.click('#idea-undo');
+    await boardCount(page, 0);
+    assert.equal(await page.evaluate(() => window.NIE_APP.project.memory.characters.length), 0, 'exactly what the keep added is gone');
+    // "how often NIE asks" is the writer's to set
+    await page.selectOption('#agent-mode', 'quiet');
+    assert.equal(await page.evaluate(() => window.NIE_APP.project.conversation.agent.mode), 'quiet');
+  });
+});
+
+test('the idea agent\'s offer is answered by chips: "Not yet" holds it and "Yes, keep it" keeps the idea', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    for (const m of [
+      'I want to write a cozy mystery set in a small fishing village.',
+      'The main character is Mara, a retired ferry captain who keeps noticing things.',
+      'She wants to find out who sank the harbour bell before the regatta.',
+      'The harbourmaster, Corin, is against her because he is hiding debts.',
+      'If she fails the village loses its only festival and Corin loses everything.',
+      'The ending is that the bell was never stolen: Corin hid it to stop a sale.',
+      'The story begins when the bell is found missing on the morning of the regatta.',
+      'It should feel warm but a little eerie, like fog in the morning.',
+      'The cast also includes the baker Ines, who sees everything from her window.',
+      'The theme is that small places keep big secrets.',
+    ]) {
+      await say(page, m);
+      if ((await page.$$eval('#chat-chips .chip', (c) => c.map((x) => x.textContent))).includes('Yes, keep it')) break;
+    }
+    const offered = await page.$$eval('#chat-chips .chip', (c) => c.map((x) => x.textContent));
+    assert.deepEqual(offered, ['Yes, keep it', 'Let me add something', 'Not yet']);
+    assert.match(await page.textContent('.msg-assistant:last-child'), /in your words/i);
+    await boardCount(page, 0);
+    await page.click('#chat-chips .chip:has-text("Not yet")');
+    await page.waitForFunction(() => /No rush|keep (?:building|working|going)|nothing is saved|hold off|leave it unsaved|No problem/i.test(document.querySelector('.msg-assistant:last-child')?.textContent ?? ''));
+    await boardCount(page, 0);
+    // asking to keep it is a yes: it is kept straight away, and the reply says what went where
+    await say(page, 'Keep this idea.');
+    await boardCount(page, 1);
+    assert.match(await page.textContent('.msg-assistant:last-child'), /Kept\./);
+  });
+});
+
 test('Brainstorm offers a kind picker, quick idea buttons for what you are making, and an empty Idea Board', async () => {
   await run({}, async ({ page }) => {
     await openBrainstorm(page);

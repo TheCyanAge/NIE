@@ -21,6 +21,7 @@ import defaultAgent from '../agent/index.js';
 import { detectProject } from '../agent/detect.js';
 import { grasp as agentGrasp } from '../agent/sheet.js';
 import { filledIds } from '../agent/state.js';
+import { parseKeepCommand } from '../agent/talk.js';
 
 export { STARTER };
 
@@ -292,7 +293,7 @@ export class Orchestrator {
     if (intent.type === 'remember') {
       intent.reading = rulesReading(intent, 'exact');
       // "remember this" with an idea being followed keeps the whole idea (what is recorded, and what is missing); "remember: the cat can talk" is a single note
-      if (!intent.memory.note) {
+      if (!intent.memory.note || parseKeepCommand(text)) {
         const kept = await this.#agentTurn({ project, text, reading: intent.reading, kindHint: kindOpt, signal, past: history.slice(0, -1) });
         if (kept?.handled) return this.#handled(project, intent, kept, onToken);
       }

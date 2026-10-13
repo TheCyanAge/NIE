@@ -181,6 +181,14 @@ test('"remember this" keeps the whole idea when one is being followed, and a sin
   const yes = await say(o, project, 'yes');
   assert.equal(yes.agent.handled, 'kept');
   assert.equal(project.brainstorm.board.length, 1);
+  // "Keep this idea." names the thing kept: it is never the note ("idea.") that gets filed
+  const typed = projectWith();
+  for (const m of WRITER.slice(0, 5)) await say(o, typed, m);
+  const k = await say(o, typed, 'Keep this idea.');
+  assert.equal(k.agent.handled, 'kept');
+  assert.ok(!typed.brainstorm.board.some((b) => /^idea\.?$/.test(b.text)));
+  const bare = await say(builtinOnly({ agent: null }), projectWith(), 'Keep this idea.');
+  assert.match(bare.reply, /don't have anything to keep/i, 'with nothing to keep, it says so rather than filing a word');
 });
 
 test('projects never share what the agent knows, and it goes when the project goes', async () => {
