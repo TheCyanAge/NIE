@@ -22,6 +22,9 @@ import { detectProject } from '../agent/detect.js';
 import { grasp as agentGrasp } from '../agent/sheet.js';
 import { filledIds } from '../agent/state.js';
 import { parseKeepCommand } from '../agent/talk.js';
+import { describeMind, recall, rememberStatements } from '../mind/index.js';
+import { analyseText, analysisKey, clearGroundingCache, editorialEvidence, findThirdPerson, groundNames, readbackFrame } from '../editor/index.js';
+import { profileCorpus } from '../profile/profile.js';
 
 export { STARTER };
 
@@ -102,6 +105,12 @@ export function finishedSentences(text, maxTokens = 0) {
   const cut = Math.max(t.lastIndexOf('. '), t.lastIndexOf('? '), t.lastIndexOf('! '), t.lastIndexOf('.\n'), t.lastIndexOf('?\n'), t.lastIndexOf('!\n'));
   return cut > 20 ? t.slice(0, cut + 1) : t;
 }
+/** "What do you remember about my project?", "what have I told you?": answered from what is really held, not by the model. */
+const MIND_QUESTION = /\bwhat\s+(?:do|did|have|can|could)\s+you\s+(?:still\s+)?(?:remember|recall|hold|keep)\b|\bwhat\s+do\s+you\s+(?:know|have)\s+(?:so far\s+)?about\s+(?:my|this|our)\s+(?:story|project|idea|book|novel|script|world|plot|characters?)\b|\bwhat\s+(?:have|did)\s+i\s+(?:told|tell|said|say|given|give|shared)\s+you\b|\b(?:recap|summari[sz]e)\s+(?:everything|all|what)\s+(?:we|i|you)\b/i;
+/** Words that make even a "who/what..." question one about what the program has counted (the cast, the pacing, the voice, consistency, the writer's rules). */
+const ASKS_FOR_COUNTS = /\b(?:pac(?:e|es|ing)|rhythm|characters?|cast|protagonists?|consisten\w*|contradict\w*|continuity|timelines?|tense|pov|point of view|voice|repeat\w*|overus\w*|rules?)\b/i;
+const UNGROUNDED_NOTE = "My offline model answered, but everything it said named something I could not find in your text, so I've left it out. Here is built-in guidance instead.";
+const LEFT_OUT_UNGROUNDED = "(I left out part of that reply because it named something I couldn't find in your text.)";
 const BARE_REPLY = /^\W*(?:yes|yeah|yep|yup|sure|ok|okay|no|nope|nah|maybe|perhaps|please|thanks|thank you|right|true|false|hm+|um+)\W*$/i;
 const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|draft|screenplay|script|poem|essay|article|book|memoir|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|ending|opening|narrator)\b/i;
 /** A message longer than this (about 1,000 tokens) is a pasted text, not a sentence to answer: it is read in sections instead of cut off. */
@@ -175,6 +184,8 @@ const NO_MODEL = { chat: async () => ({ text: null, route: 'builtin' }) };
 const lookedAt = (read, route) => [read && !read.complete ? describeReading(read) : '', describeSending(read, route)].filter(Boolean).join(' ');
 /** What is kept on the reply about how it was made (small, for the writer's panel and for tests). */
 const varietyRecord = (shape, got) => ({ ...(shape ? { shape: shape.id } : {}), ...(got?.polished?.rf?.dropped?.length || got?.retried ? { variety: { dropped: (got.polished?.rf?.dropped ?? []).map((d) => d.kind), retried: Boolean(got.retried) } } : {}) });
+/** What NIE drew on from earlier in the project, kept on the reply so the writer can see it: their own words and where each came from. */
+const recalledRecord = (r) => r.items.map((i) => ({ where: i.where, text: clip(i.text, 160) }));
 const retryNote = (rf, text) => `Your first attempt at this reply repeated how you have been replying (${rf.reasons.join('; ') || 'the same opening and questions'}). Write it again from scratch, differently: do not begin the way that attempt began ("${clip(String(text).split(/(?<=[.!?])\s+/)[0] ?? '', 90)}"), do not praise, and do not end with a question you have asked before.`;
 
 /** After this many model readings in a row fail, stop asking for a few messages (the rules read them) so a broken model never doubles the wait. */
@@ -215,18 +226,78 @@ export class Orchestrator {
   #styles = new Map();
   #extractFailures = 0;
   #extractPause = 0;
+  #analyses = new Map();
 
   /**
    * @param {{ engine: import('../ai/engine.js').AIEngine, readNotes?: boolean, variety?: 'full'|'prompt'|'legacy', agent?: object|null }} o
    *   `readNotes: false` and `variety` exist so scripts/notes-lab.mjs can measure each new layer against the one before on the real model:
    *   'legacy' = the earlier prompt wording and nothing else; 'prompt' = the new wording; 'full' (the app) = + a different shape each turn, what not to repeat, and cleaning.
    *   `agent: null` turns the idea agent off (agent/: the sheet of the writer's own words, the paced questions, the offer to keep an idea), for the lab's A/B runs.
+   *   `mind: false` stops NIE recalling what the writer said earlier (mind/), `editor: false` stops the measured facts about a long text (editor/): both only for A/B runs.
    */
-  constructor({ engine, readNotes = true, variety = 'full', agent = defaultAgent }) {
+  constructor({ engine, readNotes = true, variety = 'full', agent = defaultAgent, mind = true, editor = true }) {
     this.engine = engine;
     this.readNotes = readNotes;
     this.variety = variety;
     this.agent = agent;
+    this.mind = mind;
+    this.editor = editor;
+  }
+
+  /** The project is being left: nothing computed from its text or words is kept for the next one (the caches are keyed by content, so this is belt and braces). */
+  reset() {
+    this.#styles.clear();
+    this.#analyses.clear();
+    clearGroundingCache();
+  }
+
+  /** The measured facts about a long text (cast, pacing, voice, figures, the writer's rules...), computed once per text and kept for a few turns. Null if anything goes wrong: they are an extra. */
+  #analysisFor(text, notes, project) {
+    try {
+      const per = notes?.per ?? null;
+      const key = analysisKey({ text, notes: per, project });
+      let a = this.#analyses.get(key);
+      if (!a) {
+        a = analyseText({ text, index: indexFor(text), notes: per, project });
+        this.#analyses.set(key, a);
+        if (this.#analyses.size > 3) this.#analyses.delete(this.#analyses.keys().next().value);
+      }
+      return a;
+    } catch {
+      return null;
+    }
+  }
+
+  /** What NIE can recall of this project for this message, or null. Called BEFORE the message itself is remembered (so it can never recall itself). */
+  #recallFor(project, text, reading, { limit = 5, budgetTokens = 360, agentTurn = null } = {}) {
+    if (!this.mind || !text) return null;
+    try {
+      const r = recall(project, [text, reading?.topic].filter(Boolean).join(' '), { limit, budgetTokens, includeSheet: !agentTurn, excludeText: text });
+      return r.items.length ? r : null;
+    } catch {
+      return null; // the mind is an extra: it never gets in the way of a reply
+    }
+  }
+
+  /** Keep what the writer just told NIE (their own words) for the life of this project. */
+  #remember(project, text, kind = 'told') {
+    if (!this.mind) return;
+    try {
+      rememberStatements(project, text, { kind });
+    } catch {
+      /* an extra */
+    }
+  }
+
+  /** "What do you remember?": the real count and the newest, most deliberate things, in the writer's own words. */
+  #memoryReply(project) {
+    const d = describeMind(project);
+    const pick = d.items.filter((i) => ['said', 'kept', 'character', 'theme', 'premise', 'rule', 'deliberate', 'sheet'].includes(i.source) && !i.by).slice(0, 8);
+    return [
+      d.summary,
+      pick.length ? `A few of them, in your words:\n${pick.map((i) => `• ${clip(i.text, 140)} (${i.where})`).join('\n')}` : '',
+      'All of it is listed under "Everything NIE holds" next to the chat, where you can look through it and remove what you like. It belongs to this project only: no other project can see it.',
+    ].filter(Boolean).join('\n\n');
   }
 
   /**
@@ -293,6 +364,7 @@ export class Orchestrator {
   #handled(project, intent, turn, onToken) {
     const h = turn.handled;
     intent.reading ??= rulesReading(intent, 'exact');
+    if (h.kind === 'added') this.#remember(project, project.conversation.messages.at(-1)?.content ?? '', 'added'); // a detail the writer added before keeping the idea
     onToken?.(h.reply, h.reply);
     return this.#finish(project, intent, h.reply, 'builtin', false, { suggestions: h.suggestions, agent: { handled: h.kind, ...(h.committed ? { kept: true } : {}) } });
   }
@@ -359,6 +431,15 @@ export class Orchestrator {
     const userMsg = appendMessage(project, 'user', text, { intent: intent.type });
     if (text.length > LONG_MESSAGE_CHARS) compactOldPastes(history);
 
+    // "What do you remember about my project?" is answered from what is really held (its count and the writer's own words), never by the model: it would make it up.
+    // (Before the Idea Board commands: "what do you remember" is about everything NIE holds, not only the board.)
+    if (this.mind && !paste && text.length <= 240 && MIND_QUESTION.test(text)) {
+      intent.reading = rulesReading(intent, 'exact');
+      const reply = this.#memoryReply(project);
+      onToken?.(reply, reply);
+      return this.#finish(project, intent, reply, 'builtin', false, { agent: { act: 'memory' } });
+    }
+
     // Idea Board commands are exact and need no model.
     if (intent.type === 'remember') {
       intent.reading = rulesReading(intent, 'exact');
@@ -417,6 +498,13 @@ export class Orchestrator {
       const emit = onToken;
       onToken = emit ? (d, full) => emit(d, lead + full) : emit;
     }
+
+    // What the writer said EARLIER in this project (at any time, not just the last few turns) that bears on this message; then this message is remembered too.
+    // (Recall comes first so that a message can never recall itself.) A turn that only acknowledges and asks gets a few items, a turn that answers or gives ideas gets more.
+    const shortTurn = ['ask', 'reflect'].includes(agentTurn?.plan?.act);
+    const recalled = paste ? null : this.#recallFor(project, askText, reading, { limit: shortTurn ? 3 : 6, budgetTokens: shortTurn ? 230 : 400, agentTurn });
+    const toldNie = !paste && (agentTurn ? agentTurn.act === 'info' || agentTurn.act === 'answer' : ['tell', 'develop'].includes(reading.task) && !/\?\s*$/.test(askText));
+    if (toldNie) this.#remember(project, askText, agentTurn?.act === 'answer' ? 'answered' : 'told');
 
     // Is this a question about the writer's own long text (a recent paste, or the project's Story Text) even though it never says "my story"?
     // "What is sedgewire made of?" is asked of the text, not of the craft library, and a small model labels it a general question.
@@ -480,7 +568,7 @@ export class Orchestrator {
     const stated = detectKind(askText);
     if (stated && (isIdeaAsk || develop || intent.type === 'start-from-zero' || /\b(?:i'?m|i am|i want to|i'?d like to|i need to|let'?s)\s+(?:be\s+)?(?:writing|write|working on|draft)/i.test(askText))) bs.detectedKind = stated;
 
-    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note: [agentTurn?.note, note].filter(Boolean).join('\n\n'), reading, onToken, onProgress, signal });
+    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note: [agentTurn?.note, note].filter(Boolean).join('\n\n'), reading, recalled, onToken, onProgress, signal });
 
     // ── Conversation (not an idea request) ───────────────────────────────────
     const interp = interpretProfile(project.profile, { text: project.storyText });
@@ -488,6 +576,21 @@ export class Orchestrator {
     const noAsk = doc.userMessage === PASTED_NO_ASK;
     // A long text is read section by section first (once: the notes are kept), so NIE can talk about all of it, not five excerpts.
     const notes = await this.#notesFor({ project, doc, reading, noAsk, onProgress, signal });
+    // Measured facts about the text (counted by the program: cast, pacing, voice, figures, the writer's rules): the model is given them instead of having to infer them.
+    const analysis = doc.document?.text && this.editor ? this.#analysisFor(doc.document.text, notes, project) : null;
+    if (analysis && noAsk) {
+      // A text pasted with no question: what NIE found in it, from the counts, and one question put to you. No model has to word it, so it cannot make anything up.
+      const frame = readbackFrame({ analysis, notes: notes?.per ?? null, overview: notes?.overview ?? '', style: notes?.style ?? '', project });
+      const reply = [frame.lines.join('\n'), frame.question].filter(Boolean).join('\n\n');
+      if (reply) {
+        const full = agentTurn?.note ? `${agentTurn.note}\n\n${reply}` : reply;
+        onToken?.(full, full);
+        return this.#finish(project, intent, full, 'builtin', false, { agent: { act: 'readback' } });
+      }
+    }
+    // (A single-fact question — "what colour was the door?" — is answered from the closest passages; the counts only help when it asks about something that is counted.)
+    const measuredQuery = doc.document?.query || askText;
+    const evidence = analysis && !noAsk && (!isLookupQuestion(measuredQuery) || ASKS_FOR_COUNTS.test(measuredQuery)) ? editorialEvidence({ analysis, query: measuredQuery, budgetTokens: 380 }) : null;
     // (A turn that only acknowledges and asks is steered by the idea agent's brief, which carries the genre's conventions; the general reference notes add prompt to read for little.)
     const steeredShort = Boolean(agentTurn) && !lib && !libMiss && !aboutText && !noAsk && ['ask', 'reflect'].includes(agentTurn.plan?.act);
     const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, askText).slice(0, steeredShort ? 2 : 6);
@@ -516,7 +619,7 @@ export class Orchestrator {
       history: aboutText ? [] : past,
       retrieved,
       legacy: this.variety === 'legacy',
-      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const turnTokens = aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700;
     const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: turnTokens, steered: Boolean(brief) });
@@ -529,16 +632,29 @@ export class Orchestrator {
     let route = res.route;
     let extra = {};
     let honesty = asked.failure && modelReady ? modelFailedNote(asked.failure) : '';
+    let ungrounded = '';
     if (res.text) {
       const guarded = got.polished.guarded;
       reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn, askText) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      if (analysis && reply) {
+        // An answer about the writer's text may only name what the text (or the writer) names: measured on the real model, replies invented names, numbers and set-ups.
+        const g = groundNames(reply, {
+          sources: [doc.document.text, profileCorpus(project.profile), evidence?.block ?? '', recalled?.block ?? '', ...project.conversation.messages.filter((m) => m.role === 'user').map((m) => m.content)],
+          known: ['NIE', project.title, ...project.memory.characters.flatMap((c) => [c.name, ...(c.aliases ?? [])])].filter(Boolean),
+          sections: analysis.sectionCount,
+        });
+        if (g.removed.length) {
+          reply = g.text;
+          ungrounded = g.emptied ? 'all' : 'some';
+        }
+      }
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {
         reply = builtinReply({ intent, project, message: askText, report, modelReady: true, status });
         if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : withoutQuestionLists(reply));
         route = 'builtin';
-        honesty = WITHHELD_NOTE;
+        honesty = ungrounded === 'all' ? UNGROUNDED_NOTE : WITHHELD_NOTE;
       }
     } else {
       reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: askText, report, modelReady: modelReady && Boolean(asked.failure), status });
@@ -565,6 +681,8 @@ export class Orchestrator {
       // Say what was looked at. (Only when a model answered: a built-in reply never read the text, and must not seem to.)
       const tail = shortenedNote(asked.trimmed);
       if (tail) reply = `${reply}\n\n${tail}`;
+      if (ungrounded === 'some') reply = `${reply}\n\n${LEFT_OUT_UNGROUNDED}`;
+      if (recalled && !lib && !libMiss) extra = { ...extra, recalled: recalledRecord(recalled) };
       if (asked.read) extra = { ...extra, read: summarizeRead(asked.read), looked: lookedAt(asked.read, route) };
       extra = { ...extra, ...varietyRecord(shape, got) };
     }
@@ -682,7 +800,9 @@ export class Orchestrator {
   async #askClean({ composeArgs, history, known, onToken, signal, temperature, maxTokens = 700, steered = false }) {
     const polish = (res) => {
       const g = guardReply(res.text, known);
-      const rf = this.variety === 'full' ? refine(g.remaining, { history }) : { text: g.remaining, dropped: [], retry: false, reasons: [] };
+      let rf = this.variety === 'full' ? refine(g.remaining, { history }) : { text: g.remaining, dropped: [], retry: false, reasons: [] };
+      // "How does the writer maintain the reader's curiosity...?" said TO the writer: ask once more (the prompt says "you"; a 3B model sometimes copies the instructions' own wording)
+      if (this.variety === 'full' && findThirdPerson(rf.text).length) rf = { ...rf, retry: true, reasons: [...rf.reasons, 'it talks about "the writer" to the writer instead of saying "you"'] };
       return { rf, guarded: { remaining: rf.text, removed: g.removed, text: g.removed ? `${rf.text}\n\n${LEFT_OUT_NOTICE}`.trim() : rf.text } };
     };
     let asked = await this.#ask({ composeArgs, onToken, signal, temperature, maxTokens });
@@ -737,7 +857,7 @@ export class Orchestrator {
   }
 
   /** Idea requests and "develop this idea": the model when it is running, otherwise the built-in idea library. */
-  async #ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, onProgress, signal }) {
+  async #ideas({ project, intent, text, kind, lens, develop, note, reading, recalled = null, onToken, onProgress, signal }) {
     const bs = project.brainstorm;
     const history = project.conversation.messages;
     const past = history.slice(0, -1);
@@ -755,7 +875,7 @@ export class Orchestrator {
       history: past,
       retrieved: this.retrieve(project, askText),
       legacy: this.variety === 'legacy',
-      extra: [ideaRequestBlock({ kind, lens, develop, note, seeds: gen.ideas.slice(0, 2).map((i) => i.text) }), this.variety === 'full' ? avoidBlock(past) : ''].filter(Boolean).join('\n\n'),
+      extra: [ideaRequestBlock({ kind, lens, develop, note, seeds: gen.ideas.slice(0, 2).map((i) => i.text) }), recalled?.block ?? '', this.variety === 'full' ? avoidBlock(past) : ''].filter(Boolean).join('\n\n'),
     };
     const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.85 });
     const asked = got.asked;
@@ -776,7 +896,7 @@ export class Orchestrator {
         bs.lastLens = lens;
         const lead = [note, parsed.lead].filter(Boolean).join('\n\n');
         const cut = shortenedNote(asked.trimmed);
-        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read), looked: lookedAt(asked.read, res.route) } : {}), ...varietyRecord(null, got) });
+        return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read), looked: lookedAt(asked.read, res.route) } : {}), ...(recalled ? { recalled: recalledRecord(recalled) } : {}), ...varietyRecord(null, got) });
       }
     }
 
@@ -864,6 +984,7 @@ export class Orchestrator {
     if (extra.shape) meta.shape = extra.shape; // how the reply was built, so the next one is built differently
     if (extra.variety) meta.variety = extra.variety;
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
+    if (extra.recalled?.length) meta.recalled = extra.recalled; // what was recalled from earlier in the project for this reply
     if (extra.agent) meta.agent = extra.agent; // what the idea agent did this turn (asked, offered, kept...), for the panel and for tests
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });
     appendMessage(project, 'assistant', reply, meta);
@@ -881,6 +1002,7 @@ export class Orchestrator {
       kind: extra.kind ?? null,
       lens: extra.lens ?? null,
       agent: extra.agent ?? null,
+      recalled: extra.recalled ?? [],
       suggestions: extra.suggestions ?? (ideas.length && extra.lens !== 'develop' ? ideaSuggestions({ lens: extra.lens ?? null, ideas }) : nextSuggestions({ intent, project })),
     };
   }

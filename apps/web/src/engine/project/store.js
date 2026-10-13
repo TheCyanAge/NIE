@@ -4,6 +4,7 @@ import { uid } from '../util/text.js';
 import { emptyBrainstorm, normalizeBrainstorm } from './board.js';
 import { emptyReadingNotes, sanitizeReadingNotes } from '../reading/notes.js';
 import { emptyAgentState, sanitizeAgentState } from '../agent/state.js';
+import { emptyMind, sanitizeMind } from '../mind/state.js';
 
 /**
  * Project storage with hard isolation.
@@ -81,6 +82,7 @@ export function createProjectData({ title = 'Untitled project', profile, storyTe
     brainstorm: emptyBrainstorm(), // kind, what was already shown, and the Idea Board the writer keeps
     scans: { history: [] },
     readingNotes: emptyReadingNotes(), // what NIE wrote while reading a long text section by section (derived data, kept by section hash; removed with the project)
+    mind: emptyMind(), // what the writer said about this project, statement by statement (engine/mind): isolated, bounded, removed with the project
     source: null, // { name, format, importedAt } when story text came from Read mode
   };
 }
@@ -119,6 +121,7 @@ function migrate(raw) {
     brainstorm: normalizeBrainstorm(raw.brainstorm),
     scans: { history: Array.isArray(raw.scans?.history) ? raw.scans.history.slice(-20) : [] },
     readingNotes: sanitizeReadingNotes(raw.readingNotes),
+    mind: sanitizeMind(raw.mind),
     source: raw.source && typeof raw.source === 'object' ? raw.source : null,
   };
 }

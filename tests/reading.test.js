@@ -342,8 +342,10 @@ test('dialogue inside a pasted chapter is never mistaken for a request to NIE: n
   const r = await o.brainstorm({ project, message: CHAPTER_WITH_DIALOGUE });
   assert.equal(r.declined, false, 'not declined');
   assert.equal(r.intent.type, 'share-passage');
-  assert.equal(r.route, 'local', 'the model answered');
-  assert.equal(calls.length, 1);
+  // A text pasted with no question gets the read-back built from what was counted in it (editor/readback.js): no model words it, so none was asked.
+  assert.equal(r.route, 'builtin', 'the read-back is built from counts');
+  assert.equal(r.agent?.act, 'readback');
+  assert.equal(calls.length, 0);
   assert.equal(project.brainstorm.board.length, 0, 'nothing was "remembered"');
   assert.doesNotMatch(r.reply, /I don't (?:write|rewrite)/);
 });
