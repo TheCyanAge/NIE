@@ -347,7 +347,8 @@ test('describe: what the panel shows', () => {
   assert.ok(d.open.every((o) => typeof o.label === 'string' && typeof o.core === 'boolean'));
   assert.ok(d.open.some((o) => o.id === 'stakes' && o.core));
   assert.deepEqual(d.extra, ['she hides a key']);
-  assert.equal(d.grasp.totalCore, 7, 'the genre brings a core slot of its own');
+  assert.equal(d.grasp.totalCore, 6, "the genre brings a core slot of its own, which raises the score but is not required for it");
+  assert.ok(d.open.some((o) => o.core && !['premise', 'protagonist', 'want', 'obstacle', 'stakes', 'setting'].includes(o.id)), 'and it is still asked about');
   assert.equal(d.grasp.ready, true, '13 of 17 by weight, five core slots, six turns');
   assert.ok(!d.filled.some((f) => f.id === 'stakes'));
 });

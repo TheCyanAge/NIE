@@ -98,18 +98,25 @@ export function askable(state, ctx, slots = slotsFor(state, ctx), { exclude = nu
   return free.length ? free : open;
 }
 
-/** @returns {{ score: number, filledCore: number, totalCore: number, open: string[], ready: boolean }} */
+/**
+ * How much of the idea NIE has. The kind of piece's own core parts decide it; the defining part a form or genre adds ("what the song comes back to", "who the sleuth is") is
+ * still asked about but only ever raises the score: a writer who has told NIE everything else is not kept waiting for an answer to a genre question the rules cannot read.
+ * @returns {{ score: number, filledCore: number, totalCore: number, open: string[], ready: boolean }}
+ */
 export function grasp(state, ctx) {
   const slots = slotsFor(state, ctx);
+  const kinds = ctx?.packs?.kinds ?? {};
+  const own = new Set((kinds[state?.kind ?? 'other'] ?? kinds.other)?.slots?.map((s) => s.id) ?? slots.map((s) => s.id));
   const core = slots.filter((s) => s.core);
-  const total = core.reduce((n, s) => n + s.weight, 0);
+  const required = core.filter((s) => own.has(s.id));
+  const total = required.reduce((n, s) => n + s.weight, 0);
   const filled = core.filter((s) => getSlot(state, s.id));
   const got = filled.reduce((n, s) => n + s.weight, 0);
-  const score = total ? got / total : 0;
+  const score = total ? Math.min(1, got / total) : 0;
   const cfg = ctx?.config ?? {};
-  const minCore = Math.min(cfg.minCore ?? READY_CORE, core.length);
+  const minCore = Math.min(cfg.minCore ?? READY_CORE, required.length);
   const ready = score >= (cfg.readyScore ?? READY_SCORE) && filled.length >= minCore && state.turn >= (cfg.readyTurns ?? READY_TURNS);
-  return { score, filledCore: filled.length, totalCore: core.length, open: openSlots(state, slots).map((s) => s.id), ready };
+  return { score, filledCore: filled.length, totalCore: required.length, open: openSlots(state, slots).map((s) => s.id), ready };
 }
 
 /** What the UI panel shows: what NIE has recorded (the writer's words), what is still open, and how much it grasps. */

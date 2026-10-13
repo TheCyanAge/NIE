@@ -73,10 +73,14 @@ export function holdToPlan(text, plan, agentTurn) {
   }
   return out;
 }
-/** A reply cut off by the length limit loses its unfinished last sentence rather than showing half of it. */
-export function finishedSentences(text) {
+/**
+ * A reply cut off by the length limit loses its unfinished last sentence rather than showing half of it. Only a reply that came close to the limit can have been cut off
+ * (`maxTokens`): a short reply that ends on a list item or a heading was finished.
+ */
+export function finishedSentences(text, maxTokens = 0) {
   const t = String(text ?? '').trimEnd();
   if (!t || /[.!?…"”’)\]*_]$/.test(t)) return t;
+  if (maxTokens && estimateTokens(t) < maxTokens * 0.85) return t;
   const cut = Math.max(t.lastIndexOf('. '), t.lastIndexOf('? '), t.lastIndexOf('! '), t.lastIndexOf('.\n'), t.lastIndexOf('?\n'), t.lastIndexOf('!\n'));
   return cut > 20 ? t.slice(0, cut + 1) : t;
 }
@@ -494,7 +498,8 @@ export class Orchestrator {
       legacy: this.variety === 'legacy',
       extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
-    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700, steered: Boolean(brief) });
+    const turnTokens = aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700;
+    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: turnTokens, steered: Boolean(brief) });
     const asked = got.asked;
     const res = asked.res;
     const modelReady = asked.modelReady;
@@ -506,7 +511,7 @@ export class Orchestrator {
     let honesty = asked.failure && modelReady ? modelFailedNote(asked.failure) : '';
     if (res.text) {
       const guarded = got.polished.guarded;
-      reply = brief ? holdToPlan(finishedSentences(guarded.text), plan, agentTurn) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {

@@ -108,8 +108,10 @@ things, and the whole agent works with no model.
    what they want, what stands in the way...), each the writer's own words lifted from what they said, never NIE's paraphrase; details that fit no part sit under "Also".
    The panel on the Idea Board shows the sheet, and the writer can edit or remove any part.
 2. **What parts there are** (`agent/packs/`): data, not code. Eight kind packs (story, character, world, article, essay and memoir, poem, script, other) give the parts,
-   what each means (a hint the extractor shows the model), which come first, and a bank of 8 or more differently shaped questions per part. Add-on packs for forms (a song,
-   a picture book, a speech...) and genres (a locked-room mystery, a space opera...) are merged in when the writer's words match (`detect.js`). `packs/schema.js` and
+   what each means (a hint the extractor shows the model), which come first, and a bank of 8 or more differently shaped questions per part. Add-on packs for 37 forms (a song,
+   a picture book, a speech, a sonnet, a memoir, a podcast...) and 42 genres (a cozy mystery, a locked-room mystery, a space opera, a coming-of-age story...) are merged in when the writer's words match
+   (`detect.js`; a keyword matches in any form of the verb, so "writing a speech" finds "write a speech"). Whatever the packs do not name, the offline library's own notes on the genre or form reach the model through the
+   brief (`libraryNotes`), and the kind pack still applies. `packs/schema.js` and
    `tests/agent-packs.test.js` validate every question: one question, plain speech, no praise, no stock steering, nothing that asks the writer to produce text.
 3. **Reading what the writer said** (`extract.js`). With a model: schema-constrained JSON (`purpose: 'extract'`), then GROUNDED: a value is kept only if its words are the
    writer's. Without one, rules route sentences that say what they are for ("the ending is...", "Corin is against her", "she wants to..."), an answer goes to the part that

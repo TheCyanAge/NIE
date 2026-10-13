@@ -67,6 +67,9 @@ test('a reply cut off by the length limit loses its unfinished last sentence, an
   assert.equal(finishedSentences('Mara keeps the lighthouse. What does Corin want?'), 'Mara keeps the lighthouse. What does Corin want?');
   assert.equal(finishedSentences('A short unfinished thought'), 'A short unfinished thought', 'with nothing finished to fall back on, it is kept');
   assert.equal(finishedSentences(''), '');
+  // a short reply that ends on an unpunctuated list item was finished, not cut off
+  const list = 'What does he want from the cat?\n\n- Company\n- Something stranger';
+  assert.equal(finishedSentences(list, 200), list);
 });
 
 test('praise addressed to the writer is recognised ("You\'ve outlined a compelling premise...")', () => {
