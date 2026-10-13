@@ -213,11 +213,11 @@ export function parseKeepCommand(text) {
 
 const DONE = new RegExp(
   String.raw`^\W*(?:(?:ok|okay|so|yeah|yes|well|right|alright|um|hm+|nope|no)[,.!]?\s+)*(?:i (?:think|guess|believe|reckon)\s+)?(?:` +
-    String.raw`that'?s (?:it|all|everything|about (?:it|all)|the (?:whole )?(?:idea|story|gist|lot|thing)|all (?:i have|i got|there is))|` +
+    String.raw`that'?s (?:it|all|everything|(?:about|pretty much|basically) (?:it|all|everything)|the (?:whole )?(?:idea|story|gist|lot|thing)|all (?:i have|i got|there is))|` +
     String.raw`that is (?:it|all|everything)|i'?m (?:done|finished)|i am (?:done|finished)|(?:there'?s |i have |i got )?nothing (?:else|more)|` +
     String.raw`that covers (?:it|everything)|that about covers it|no more (?:details|ideas)|(?:we'?re|we are) done|all done|` +
     String.raw`i (?:think )?(?:have|got) (?:nothing|no more) to add|that'?s all i (?:have|got)` +
-    String.raw`)(?:\s+(?:for now|so far|really|honestly|to be honest|at the moment|right now|i think|i guess|i suppose|thanks|thank you))*\W*` +
+    String.raw`)(?:\s+(?:i have|i got|there is|for now|so far|really|honestly|to be honest|at the moment|right now|i think|i guess|i suppose|thanks|thank you))*\W*` +
     String.raw`(?:(?:so |please |and |go ahead and )?(?:keep|save|commit|remember) (?:it|this|that)(?: all)?(?: please)?\W*)?$`,
   'i'
 );

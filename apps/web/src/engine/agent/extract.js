@@ -199,9 +199,8 @@ const SHRUG = new RegExp(`${SHRUG_FILL}(?:${SHRUGS.join('|')})\\b`, 'i');
 const SKIP = /^\W*(?:(?:ok|okay|so|well|um|let'?s|i'?ll|can we|please)\s+)*(?:skip|pass)(?:\s+(?:that|this|it|that one|this one|for now|please|question))*\W*$/i;
 const HEDGE = /\b(?:maybe|perhaps|possibly|probably|something like|kind of|sort of|or)\b/i;
 const ECHOES_QUESTION = /^[\s,.;:!-]*(?:what|how|why|who|where|when|which|whether|if|about|that|to)\b/i;
-/** The message says "I don't know / not sure / skip" and nothing else worth recording. */
-export function isShrug(message) {
-  const t = squash(typeof message === 'string' ? message.slice(0, 400) : '');
+/** One clause that says "skip" or "I don't know" and nothing else worth recording. */
+function shrugClause(t) {
   if (!t || wordsOf(t).length > 10) return false;
   if (SKIP.test(t)) return true;
   const m = SHRUG.exec(t);
@@ -209,6 +208,13 @@ export function isShrug(message) {
   const rest = t.slice(m.index + m[0].length);
   if (HEDGE.test(rest)) return false; // "I'm not sure, maybe the sea" is a tentative answer
   return stemList(rest).length <= (ECHOES_QUESTION.test(rest) ? 3 : 1); // "I don't know what stands in the way" repeats the question
+}
+/** The message says "I don't know / not sure / skip" and nothing else worth recording ("Skip that one, I'm not sure." is two such clauses). */
+export function isShrug(message) {
+  const t = squash(typeof message === 'string' ? message.slice(0, 400) : '');
+  if (shrugClause(t)) return true;
+  const parts = t.split(/[,;.!]+\s*/).map(squash).filter(Boolean);
+  return parts.length > 1 && parts.every(shrugClause);
 }
 
 /**
@@ -315,11 +321,11 @@ function routeSentence(sentence, slots) {
 function rulesExtract({ message, state, slots, pendingSlot }) {
   const updates = [];
   const touched = new Set(filledIds(state));
-  const put = (slotId, value) => {
+  const put = (slotId, value, src = 'cue') => {
     const v = cleanValue(clipAtBoundary(value, LIMITS.value));
     if (!v || updates.length >= MAX_UPDATES || updates.some((u) => u.slot === slotId)) return false;
     if (getSlot(state, slotId) && sameValue(slotValue(state, slotId), v)) return false;
-    updates.push({ slot: slotId, value: v });
+    updates.push({ slot: slotId, value: v, src });
     touched.add(slotId);
     return true;
   };
@@ -328,13 +334,13 @@ function rulesExtract({ message, state, slots, pendingSlot }) {
   const routed = new Set();
   for (const sentence of isShrug(whole) ? [] : splitSentencesLite(whole)) {
     const hit = routeSentence(squash(sentence), slots);
-    if (hit && !updates.some((u) => u.slot === hit.slot) && put(hit.slot, hit.value)) routed.add(sentence);
+    if (hit && !updates.some((u) => u.slot === hit.slot) && put(hit.slot, hit.value, 'route')) routed.add(sentence);
   }
   const text = routed.size ? squash(splitSentencesLite(whole).filter((x) => !routed.has(x)).join(' ')) : whole;
   const answer = isAnswer(text);
 
   // 1. the writer is answering the question NIE asked: the answer goes to that slot, whole, cut at a sentence or word
-  const answered = Boolean(pendingSlot && slots.some((s) => s.id === pendingSlot) && isAnswer(text, { asked: true }) && put(pendingSlot, text));
+  const answered = Boolean(pendingSlot && slots.some((s) => s.id === pendingSlot) && isAnswer(text, { asked: true }) && put(pendingSlot, text, 'answer'));
   const start = startSlot(slots);
   const pitch = answer && !answered && wordsOf(text).length >= 6; // a first statement that step 3 will file whole
 
@@ -349,7 +355,7 @@ function rulesExtract({ message, state, slots, pendingSlot }) {
       // "her brother" is someone's relative, not the person this is about: a role counts only when it is introduced with "a/an/the"
       const roles = cues.characters.filter((c) => !/^\p{Lu}/u.test(c) && new RegExp(`\\b(?:a|an|the)\\s+(?:[\\p{L}'-]+\\s+){0,2}?${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'iu').test(text));
       const value = name ?? (roles[0] ? lift(text, roles[0]) : '');
-      if (value) put(who.id, value);
+      if (value) put(who.id, value, name ? 'name' : 'cue'); // (a name is sure; a role noun is a guess)
     }
     const place = slotForRole(slots, 'place');
     if (place && !touched.has(place.id) && cues.settings[0]) put(place.id, lift(text, cues.settings[0]));
@@ -363,7 +369,7 @@ function rulesExtract({ message, state, slots, pendingSlot }) {
   }
 
   // 3. the first substantive statement becomes the premise (the first core slot with nothing before it), unless it was just taken as the answer to a question
-  if (start && pitch && !touched.has(start.id)) put(start.id, text);
+  if (start && pitch && !touched.has(start.id)) put(start.id, text, 'pitch');
   // 4. a statement about the story that fits no part is still something the writer said: it is kept under "Also", in their words, so the recap never loses it.
   // (Only when it is plainly about the story: it names someone or somewhere, or uses words already on the sheet. Remarks about the process are not the idea.)
   let detail = false;
@@ -406,8 +412,16 @@ export async function extractSlots({ message, state, ctx, chat = null, pendingSl
         source = `${recorded} ${text}`;
       }
       const grounded = groundExtraction(parsed, { slots, state, vocab, message: source });
-      if (grounded.updates.length || grounded.extra.length) return { ...grounded, by: 'model' };
+      if (grounded.updates.length || grounded.extra.length) {
+        // The model misses things a plain reading catches (measured on the real model: "The detective is Wren Alder, a retired postwoman..." gave no main character).
+        // What the rules are SURE of (a sentence that says which part it is for, a person's name in the part that means it) is added where the model left that part empty.
+        const mine = new Set(grounded.updates.map((u) => u.slot));
+        const plain = rulesExtract({ message: text, state, slots, pendingSlot: null }).updates.filter((u) => (u.src === 'route' || u.src === 'name') && !mine.has(u.slot));
+        const updates = [...grounded.updates, ...plain].slice(0, MAX_UPDATES).map(({ slot, value }) => ({ slot, value }));
+        return { ...grounded, updates, by: 'model' };
+      }
     }
   }
-  return { ...rulesExtract({ message: text, state, slots, pendingSlot: pending }), by: 'rules' };
+  const rules = rulesExtract({ message: text, state, slots, pendingSlot: pending });
+  return { ...rules, updates: rules.updates.map(({ slot, value }) => ({ slot, value })), by: 'rules' };
 }

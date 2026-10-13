@@ -152,7 +152,7 @@ export function questionsIn(text) {
 //      than 5 words there means the sentence is carrying content, so it is kept; `opensWithPraise` is the looser test that still tells `refine` to ask again).
 
 const ADJ = 'great|good|nice|wonderful|excellent|fantastic|awesome|amazing|brilliant|lovely|terrific|superb|interesting|intriguing|fascinating|compelling|impressive|perfect';
-const ADJ2 = `${ADJ}|powerful|strong|rich|vivid|striking|thoughtful|clever|smart|solid|promising|haunting|evocative`;
+const ADJ2 = `${ADJ}|powerful|strong|rich|vivid|striking|thoughtful|clever|smart|solid|promising|haunting|evocative|clear|poignant|moving|bold|fresh|unique|effective|sharp`;
 const WARM = new Set(['great', 'wonderful', 'excellent', 'fantastic', 'awesome', 'amazing', 'brilliant', 'lovely', 'terrific', 'superb', 'impressive', 'perfect']);
 const NOUN =
   'focus|start|beginning|idea|premise|concept|choice|opening|setup|set-up|direction|question|way|angle|approach|instinct|thinking|observation|detail|image|hook|twist|thought|point|catch|call|job|work|foundation|spark|theme|vision|take|insight|notion|effort|progress|pitch|step|combination|mix|blend';
@@ -173,6 +173,8 @@ const RE_SOUNDS = new RegExp(`^(?:that|this|it) (?:sounds|seems|looks) (?:really
 const RE_SOUNDS_BARE = new RegExp(`^sounds (?:like (?:a|an) )?(?:really |very |truly )?(?:${ADJ2})\\b`, 'i');
 const RE_THATS_ADJ = new RegExp(`^(?:that|this|it)(?:'s| is| was) (?:really |very |truly |so |quite )?(?:${ADJ2})\\b`, 'i');
 const RE_YOUR = new RegExp(`^your (?:[\\p{L}'-]+ ){1,8}?(?:is|are|sounds?|seems?|looks?|feels?|has|have) (?:such |really |very |truly |quite |so |already )?(?:a |an )?(?:${ADJ2})\\b`, 'iu');
+// "You've outlined a compelling premise ...", "You're crafting a strong ...": praise addressed to the writer (measured on the real model)
+const RE_YOUVE = new RegExp(`^you(?:'ve|'re| have| are)\\s+(?:[\\p{L}'-]+\\s+){0,2}?(?:a|an|the)\\s+(?:(?:really|very|truly|such)\\s+)?(?:${ADJ2})\\b`, 'iu');
 const RE_HOWADJ = /^how (?:exciting|interesting|fascinating|intriguing|wonderful|fun|cool|great|lovely)\b/i;
 const RE_IMPRESSED = /^i(?:'m| am) (?:so |really |very |truly )?(?:intrigued|impressed|fascinated|delighted|thrilled|excited)\b/i;
 const RE_HAPPY = /^i(?:'m| am| would be|'d be) (?:so |really |very )?(?:happy|glad|excited|delighted|thrilled|pleased) to\b/i;
@@ -206,6 +208,7 @@ function opensWithPraise(s) {
   if ((m = RE_THATS.exec(s))) return end || NOUN2.test(s.slice(m[0].length)); // "That's a fascinating premise!"
   if (RE_SOUNDS.test(s) || RE_SOUNDS_BARE.test(s) || RE_HAPPY.test(s) || RE_IMPRESSED.test(s)) return end || countWords(s) <= 8; // "That sounds fascinating.", "Sounds great!", "I'd be happy to help!"
   if (RE_THATS_ADJ.test(s)) return end || countWords(s) <= 4; // "That's interesting.", "This is fascinating!"; with more words it is a claim ("That's strong because ...")
+  if (RE_YOUVE.test(s)) return true; // "You've outlined a compelling premise ..." leads with praise whatever follows
   if (RE_YOUR.test(s)) return end || countWords(s) <= 7; // "Your premise is intriguing!", but "Your draft is strong on atmosphere but thin on motive." is an assessment
   if (RE_HOWADJ.test(s)) return end || countWords(s) <= 3; // "How exciting!" ("How exciting the chase is depends on ..." is a sentence about something)
   if (RE_THANKS.test(s)) return true; // "Thanks for sharing"

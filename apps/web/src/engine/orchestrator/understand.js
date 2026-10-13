@@ -1,3 +1,4 @@
+import { ASKS_FOR_IDEAS } from '../brainstorm/commands.js';
 import { clip, words } from '../util/text.js';
 
 /**
@@ -150,6 +151,10 @@ export function applyReading(intent, reading, text) {
   if ((task === 'write' || task === 'edit') && !looksLikeARequest(text)) {
     overruled = task; // the model said "write"/"edit" but nothing in the message asks for it: not a request, so nothing is declined
     task = /\?\s*$/.test(text) || wc < 3 ? 'unclear' : 'tell';
+  } else if (task === 'ideas' && !ASKS_FOR_IDEAS.test(text) && !/\?\s*$/.test(text)) {
+    // measured on the real model: a statement that came right after a request for ideas ("Also, the letters are in a dead man's hand.") was read as another request for ideas
+    overruled = task;
+    task = 'tell';
   } else if (task === 'write' || task === 'edit') {
     task = declineKind(text, task);
   } else if (task === 'about-nie' && !looksAddressedToNie(text)) {

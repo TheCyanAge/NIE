@@ -1143,13 +1143,13 @@ const bigState =() => filled(Object.fromEntries(slotsFor(with_({ form: 'picture-
   form: 'picture-book', genres: ['cozy-mystery'], asked: Array.from({ length: 40 }, (_, i) => ({ slot: 'tone', text: `Question number ${i} about the lighthouse and the long winter fog that never lifts over the harbour town at all?`, type: 'open', turn: i, answered: false, skipped: false })),
 });
 
-test('briefFor stays within 330 estimated tokens however much is recorded', () => {
+test('briefFor stays within 380 estimated tokens however much is recorded', () => {
   const notes = ['Cozy mysteries keep the violence offstage and the community at the centre of the story.', 'The puzzle is fair when the reader can see the clues that the detective sees in time.', 'A third note that should not be needed.'];
   const q = { text: pickQuestion({ state: bigState(), slotId: 'voice', ctx, seed: 'x' })?.text ?? askPlan.question.text, type: 'open' };
   for (const plan of [{ act: 'ask', slot: 'stakes', question: q }, { act: 'ask', slot: null, question: KIND_QUESTIONS[0] }, { act: 'reflect' }, { act: 'serve' }, { act: 'serve', alsoAsk: true, slot: 'ending', question: q }]) {
     for (const state of [bigState(), with_(), filled(WRITER)]) {
       const brief = briefFor({ plan, state, ctx, libraryNotes: notes });
-      assert.ok(estimateTokens(brief) <= 330, `${plan.act}: ${estimateTokens(brief)} tokens`);
+      assert.ok(estimateTokens(brief) <= 380, `${plan.act}: ${estimateTokens(brief)} tokens`);
       assert.match(brief, /This turn:/);
     }
   }
@@ -1167,9 +1167,9 @@ test('briefFor: what is understood, what is not, the conventions, what was asked
   assert.ok(!brief.includes('A third note'), 'at most two');
   assert.match(brief, /Questions you have already asked \(do not repeat or reword them\):/);
   assert.ok(brief.includes('Earlier question 5 about Mara?') && brief.includes('Earlier question 2 about Mara?') && !brief.includes('Earlier question 1 about'), 'the last four');
-  assert.match(brief, /This turn:\nReply to what they just said in one or two sentences, then ask exactly ONE question about Stakes \(what the writer says about the stakes, in their own words\)\. Use their own names and terms; make it specific to THIS project\. It should be the kind of question: "What is one small, specific detail that shows the stakes\?"\. Do not copy it; do not ask anything already asked\. Stay with ideas, explanations and questions: their prose, dialogue and lines are theirs alone, so give none of your own\.$/);
+  assert.match(brief, /This turn:\nReply in at most two short sentences that point at one specific detail they gave. Do not retell their idea, guess what happens next, add any detail of your own, or say how good it is. Then ask exactly ONE question about Stakes \(what the writer says about the stakes, in their own words\)\. Use their own names and terms; make it specific to THIS project\. It should be the kind of question: "What is one small, specific detail that shows the stakes\?"\. Do not copy it; do not ask anything already asked\. Stay with ideas, explanations and questions: their prose, dialogue and lines are theirs alone, so give none of your own\.$/);
   assert.ok(!/Conventions/.test(briefFor({ plan, state: filled(WRITER), ctx, libraryNotes: ['x note'] })), 'no conventions without a form or genre');
-  assert.match(briefFor({ plan: { act: 'reflect' }, state, ctx }), /This turn:\nReply to what they just said in one to three sentences that pick up their own details\. Do not ask a question this turn\. Stay with ideas, explanations and questions: their prose, dialogue and lines are theirs alone, so give none of your own\.$/);
+  assert.match(briefFor({ plan: { act: 'reflect' }, state, ctx }), /This turn:\nReply in ONE short sentence \(at most 25 words\) that points at one specific detail they gave and what it makes you wonder about\. Do not retell their idea, guess what happens next, add any detail of your own, or say how good it is\. Do not ask a question this turn\. Stay with ideas, explanations and questions: their prose, dialogue and lines are theirs alone, so give none of your own\.$/);
   assert.match(briefFor({ plan: { act: 'serve' }, state, ctx }), /This turn:\nAnswer what they asked \(or give what they asked for\)\. Do not interview them this turn\. Stay with ideas, explanations and questions/);
   assert.match(briefFor({ plan: { act: 'ask', slot: null, question: KIND_QUESTIONS[2] }, state: emptyAgentState(), ctx }), /ask exactly ONE question about what kind of piece they are making/);
   assert.match(briefFor({ plan: { act: 'reflect' }, state: with_(), ctx }), /- Nothing recorded yet\./);
@@ -1422,7 +1422,7 @@ test('right after a question, a short answer with its article ("the sea", "her b
 test('extraction grounding: no new word, no swapped roles, no negation added or dropped', async () => {
   const run = async (value, message) => {
     const out = await extractSlots({ message, state: with_(), ctx, chat: fakeModel({ updates: [{ slot: 'premise', value }], extra: '' }) });
-    return out.by === 'model' ? out.updates : [];
+    return out.by === 'model' ? out.updates.filter((u) => u.slot === 'premise') : []; // (a name the rules are sure of is added to its own part; only what the model kept is counted here)
   };
   const m = 'Corin hates Mara because she took the lighthouse from his father.';
   assert.equal((await run('Corin hates Mara', m)).length, 1);

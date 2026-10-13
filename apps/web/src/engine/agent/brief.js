@@ -9,7 +9,7 @@ import { getSlot, squash } from './state.js';
  * the question), and it never asks the model to write the writer's text: it asks for a short reply and at most one question.
  */
 
-export const MAX_BRIEF_TOKENS = 330;
+export const MAX_BRIEF_TOKENS = 380;
 
 // How much of each part fits, tried in turn until the whole brief is within budget.
 const TRIES = [
@@ -30,18 +30,22 @@ const trimWords = (s, n) => {
 // (It avoids the words write/draft/compose/rewrite on purpose: no instruction in a brief may even mention producing text.)
 const KEEP_THEIRS = "Stay with ideas, explanations and questions: their prose, dialogue and lines are theirs alone, so give none of your own.";
 
+// Measured on the real model: asked to "reply to what they said", a 3B model retold the writer's plot with details of its own and rated it ("a compelling premise"),
+// in three or four sentences that took 40 seconds to write. What is asked for here is short, specific to something they said, and adds nothing.
+const NO_RETELL = "Do not retell their idea, guess what happens next, add any detail of your own, or say how good it is.";
+
 function instruction(plan, slot, hintChars) {
   const about = slot ? `${slot.label}${hintChars ? ` (${clip(squash(slot.hint), hintChars)})` : ''}` : 'what kind of piece they are making';
   const q = plan.question?.text ? ` It should be the kind of question: "${plan.question.text}". Do not copy it; do not ask anything already asked.` : ' Do not ask anything already asked.';
   const ask = `ask exactly ONE question about ${about}. Use their own names and terms; make it specific to THIS project.${q}`;
-  if (plan.act === 'ask') return `Reply to what they just said in one or two sentences, then ${ask} ${KEEP_THEIRS}`;
+  if (plan.act === 'ask') return `Reply in at most two short sentences that point at one specific detail they gave. ${NO_RETELL} Then ${ask} ${KEEP_THEIRS}`;
   if (plan.act === 'serve') return `Answer what they asked (or give what they asked for). Do not interview them this turn.${plan.alsoAsk ? ` After answering, ${ask}` : ''} ${KEEP_THEIRS}`;
-  return `Reply to what they just said in one to three sentences that pick up their own details. Do not ask a question this turn. ${KEEP_THEIRS}`;
+  return `Reply in ONE short sentence (at most 25 words) that points at one specific detail they gave and what it makes you wonder about. ${NO_RETELL} Do not ask a question this turn. ${KEEP_THEIRS}`;
 }
 
 /**
  * @param {{ plan: object, state: object, ctx: object, libraryNotes?: string[] }} args
- * @returns {string} at most 330 estimated tokens
+ * @returns {string} at most 380 estimated tokens
  */
 export function briefFor({ plan, state, ctx, libraryNotes = [] }) {
   const slots = slotsFor(state, ctx);

@@ -32,6 +32,15 @@ const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they co
 const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
 const RANK = { none: 0, weak: 1, strong: 2 };
 /** "yes", "no", "ok", "maybe": a reply, not a question, so it is never looked up in the library ("yes" found "yes-but"). */
+/** A turn that only acknowledges and asks needs a sentence or two, not 700 tokens: the model is held to that (the writer waits for every token on a CPU). */
+const SHORT_TURN_TOKENS = 200;
+/** A reply cut off by the length limit loses its unfinished last sentence rather than showing half of it. */
+export function finishedSentences(text) {
+  const t = String(text ?? '').trimEnd();
+  if (!t || /[.!?…"”’)\]*_]$/.test(t)) return t;
+  const cut = Math.max(t.lastIndexOf('. '), t.lastIndexOf('? '), t.lastIndexOf('! '), t.lastIndexOf('.\n'), t.lastIndexOf('?\n'), t.lastIndexOf('!\n'));
+  return cut > 20 ? t.slice(0, cut + 1) : t;
+}
 const BARE_REPLY = /^\W*(?:yes|yeah|yep|yup|sure|ok|okay|no|nope|nah|maybe|perhaps|please|thanks|thank you|right|true|false|hm+|um+)\W*$/i;
 const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|draft|screenplay|script|poem|essay|article|book|memoir|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|ending|opening|narrator)\b/i;
 /** A message longer than this (about 1,000 tokens) is a pasted text, not a sentence to answer: it is read in sections instead of cut off. */
@@ -446,7 +455,7 @@ export class Orchestrator {
       legacy: this.variety === 'legacy',
       extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
-    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: aboutText ? 320 : 700, steered: Boolean(brief) });
+    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700, steered: Boolean(brief) });
     const asked = got.asked;
     const res = asked.res;
     const modelReady = asked.modelReady;
@@ -458,7 +467,7 @@ export class Orchestrator {
     let honesty = asked.failure && modelReady ? modelFailedNote(asked.failure) : '';
     if (res.text) {
       const guarded = got.polished.guarded;
-      reply = brief ? agentTurn.enforce(guarded.text) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      reply = brief ? agentTurn.enforce(finishedSentences(guarded.text)) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {

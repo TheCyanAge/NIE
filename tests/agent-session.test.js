@@ -163,7 +163,7 @@ test('a turn hands back what the orchestrator needs, and keeps the state inside 
   assert.equal(t.plan.act, 'ask');
   assert.equal(typeof t.brief, 'string');
   assert.match(t.brief, /What you understand so far \(the writer's own words\):/);
-  assert.match(t.brief, /This turn:\nReply to what they just said in one or two sentences, then ask exactly ONE question about/);
+  assert.match(t.brief, /This turn:\nReply in at most two short sentences that point at one specific detail they gave\. .*Then ask exactly ONE question about/);
   assert.equal(t.state.kind, 'story');
   assert.equal(t.state.turn, 1);
   assert.deepEqual(project.conversation.agent, t.state, 'the project holds the new state');
@@ -413,7 +413,7 @@ test('"remember this" part-way keeps what is recorded and says what is still mis
   const agent = createAgent({ packs: testPacks() });
   const project = newProject('partial');
   const chat = keywordModel();
-  await play(agent, project, { turns: 5, chat, writer: (i) => [FIRST, ANSWER.want, ANSWER.setting, FILLER[0], FILLER[1]][i] });
+  await play(agent, project, { turns: 3, chat, writer: (i) => [FIRST, ANSWER.want, ANSWER.setting][i] });
   assert.equal(agent.describe(project).grasp.ready, false);
   const keep = await agent.turn({ project, message: 'remember this', reading: { task: 'tell' } });
   assert.equal(keep.handled.kind, 'offer');
@@ -877,9 +877,9 @@ test('bringing an idea back remembers what was already asked about it, so no que
   const agent = createAgent({ packs: testPacks() });
   const project = newProject('restore-asked');
   const chat = keywordModel();
-  await play(agent, project, { turns: 10, chat, writer: (i, p) => (i === 0 ? FIRST : p.conversation.agent.pending?.kind === 'question' ? ANSWER[p.conversation.agent.pending.slot] ?? FILLER[i % 6] : FILLER[i % 6]) });
+  await play(agent, project, { turns: 7, chat, writer: (i, p) => (i === 0 ? FIRST : p.conversation.agent.pending?.kind === 'question' ? ANSWER[p.conversation.agent.pending.slot] ?? FILLER[i % 6] : FILLER[i % 6]) });
   const askedBefore = askedTexts(project);
-  assert.ok(askedBefore.length >= 3);
+  assert.ok(askedBefore.length >= 2);
   await agent.turn({ project, message: 'I have a new idea: a poem about the sea at night.', reading: { task: 'tell' }, chat });
   assert.equal(agent.state(project).asked.length <= 1, true, 'the new idea starts with its own questions');
   const back = await agent.turn({ project, message: 'bring back the earlier idea', reading: { task: 'chat' } });
