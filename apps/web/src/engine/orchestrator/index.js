@@ -445,7 +445,7 @@ export class Orchestrator {
       legacy: this.variety === 'legacy',
       extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
-    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: aboutText ? 320 : 700 });
+    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: aboutText ? 320 : 700, steered: Boolean(brief) });
     const asked = got.asked;
     const res = asked.res;
     const modelReady = asked.modelReady;
@@ -605,7 +605,7 @@ export class Orchestrator {
    * Ask, then clean the reply of what makes NIE sound the same each time (praise openers, stock questions, a question it already asked); when it
    * still repeats itself clearly, ask once more with a note saying how. Never adds a word of its own.
    */
-  async #askClean({ composeArgs, history, known, onToken, signal, temperature, maxTokens = 700 }) {
+  async #askClean({ composeArgs, history, known, onToken, signal, temperature, maxTokens = 700, steered = false }) {
     const polish = (res) => {
       const g = guardReply(res.text, known);
       const rf = this.variety === 'full' ? refine(g.remaining, { history }) : { text: g.remaining, dropped: [], retry: false, reasons: [] };
@@ -614,7 +614,9 @@ export class Orchestrator {
     let asked = await this.#ask({ composeArgs, onToken, signal, temperature, maxTokens });
     let polished = asked.res.text ? polish(asked.res) : null;
     let retried = false;
-    if (VARIETY_RETRY && polished?.rf.retry && asked.res.route !== 'builtin') {
+    // (Too many questions alone is not worth a second answer when the idea agent steers the reply: it keeps the one planned question and cuts the rest.)
+    const worthRetry = polished?.rf.retry && !(steered && polished.rf.reasons.every((r) => r === 'it asks too many questions'));
+    if (VARIETY_RETRY && worthRetry && asked.res.route !== 'builtin') {
       retried = true;
       const again = await this.#ask({ composeArgs: { ...composeArgs, extra: [composeArgs.extra, retryNote(polished.rf, polished.rf.text)].filter(Boolean).join('\n\n') }, onToken, signal, temperature: Math.min(1, temperature + 0.15), maxTokens });
       if (again.res.text) {

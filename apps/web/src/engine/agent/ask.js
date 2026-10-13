@@ -258,18 +258,18 @@ function cut(text, from, to) {
   const gapAfter = after.slice(0, next);
   return kept + (gapAfter.split('\n').length > gapBefore.split('\n').length ? gapAfter : gapBefore) + after.slice(next);
 }
-const enoughLeft = (t) => (t.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? []).length >= 8 && !/[:;,—–-]\s*$/.test(t) && !/^\p{Ll}/u.test(t.trimStart());
+const enoughLeft = (t, min = 8) => (t.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? []).length >= min && !/[:;,—–-]\s*$/.test(t) && !/^\p{Ll}/u.test(t.trimStart());
 /** A question that can be removed whole: it stands alone as a paragraph, or it closes its paragraph. Never one inside a list item. */
 const removable = (sp) => sp.q && !sp.item && (sp.alone || sp.last);
 
 /** Remove the questions `drop(spans)` names, last first, one at a time, keeping at least 8 words and never leaving a reply that ends on a colon. */
-function removeQuestions(text, drop, changes, why) {
+function removeQuestions(text, drop, changes, why, min = 8) {
   let cur = text;
   for (let guard = 0; guard < 8; guard++) {
     let done = false;
     for (const target of drop(analyse(cur)).filter(removable).reverse()) {
       const next = cut(cur, target.start, target.end);
-      if (!enoughLeft(next)) continue; // this one cannot go without leaving too little; try the one before it
+      if (!enoughLeft(next, min)) continue; // this one cannot go without leaving too little; try the one before it
       changes.push(`${why}: ${target.text}`);
       cur = next;
       done = true;
@@ -321,6 +321,8 @@ export function enforceReply(reply, plan, { state, ctx, askedTexts, terms } = {}
     return qs.filter((s) => s !== keep);
   };
   text = removeQuestions(text, keepBest, changes, 'dropped an extra question');
+  // a reply that is nothing but questions (the model's praise was cleaned away) still ends up with exactly one
+  if (analyse(text).filter((s) => s.q && !s.item).length > 1) text = removeQuestions(text, keepBest, changes, 'dropped an extra question', 3);
   const left = analyse(text).filter((s) => s.q && !s.item);
   if (!left.length) {
     if (bank) {

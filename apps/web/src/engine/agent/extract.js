@@ -265,7 +265,7 @@ function personIn(text, capitalised) {
 const SAYS = String.raw`(?:is|are|was|will be|should be|must be|has to be|needs to be|would be|feels|sounds|involves)`;
 const SYNONYMS = { theme: ['message', 'moral'], setting: ['location'], tone: ['mood', 'atmosphere'], premise: ['logline', 'pitch'], obstacle: ['conflict', 'problem'], opposition: ['antagonist', 'villain'], motifs: ['motif', 'symbol'], motif: ['symbol'], inciting: ['inciting incident'], voice: ['narrator'], stakes: ['stake'] };
 const PERSONAL = new Set(['want', 'fear', 'flaw', 'contradiction', 'manner', 'relationships', 'history', 'arc', 'secret', 'habits', 'reputation', 'beliefs', 'skills', 'role']);
-const ROUTE_LEAD = String.raw`^(?:(?:and|but|also|oh|so|well|actually|ok|okay)[,\s]+)*`;
+const ROUTE_LEAD = String.raw`^(?:(?:and|but|also|oh|so|well|actually|ok|okay|i think|i guess|i imagine|i feel|maybe|probably|perhaps)[,\s]+)*`;
 const routeCache = new Map();
 function routeRes(id) {
   let r = routeCache.get(id);
@@ -284,6 +284,8 @@ function routeRes(id) {
 const WANTS = /^(?:(?:and|but|also|so|well|actually)[,\s]+)*(?:she|he|they|[\p{Lu}][\p{L}'’-]+(?:\s+[\p{Lu}][\p{L}'’-]+)?)\s+(?:really\s+|just\s+|still\s+|desperately\s+|only\s+)?(?:wants?|needs?|hopes?|longs?|dreams?|wishes)\s+to\b/iu;
 const SET_IN = /^(?:(?:and|but|also|so|well|actually)[,\s]+)*(?:it|this|that|the (?:story|book|piece|film|play|script|world|novel))\s+(?:is\s+|all\s+)?(?:set|takes place|happens|unfolds|begins|starts|opens)\s+(?:in|at|on|during|aboard|inside|beneath|around|across)\b/i;
 const FEELS = /^(?:(?:and|but|also|so|well|actually)[,\s]+)*(?:i\s+(?:think\s+|want\s+|'d like\s+|would like\s+)?)?(?:it|this|the (?:story|piece|book|poem|film|play|script))\s+(?:should|must|needs to|has to|ought to|to)\s+(?:be|feel|read|sound|look)\b/i;
+// "Corin is against her", "the harbourmaster stands in her way", "the villain is a banker": the person or force against the main character
+const AGAINST = /^(?:(?:and|but|also|so|well|actually)[,\s]+)*(?:the\s+)?(?:[\p{Lu}][\p{L}'’-]+(?:\s+[\p{Lu}][\p{L}'’-]+)?|[\p{Ll}][\p{L}'’-]+(?:\s+[\p{L}'’-]+){0,3}?)(?:\s*,[^,]{1,60},)?\s+(?:is|are|was|keeps?|stays?|works?)\s+(?:really\s+|actively\s+)?(?:against|opposed to|working against|standing in)\b|^(?:(?:and|but|also|so|well|actually)[,\s]+)*(?:the\s+)?(?:villain|antagonist|enemy|rival|nemesis)\s+(?:is|are|was)\b/iu;
 const IF_FAILS = /^(?:(?:and|but|also|so|well|actually)[,\s]+)*if\s+(?:she|he|they|it|[\p{Lu}][\p{L}'’-]+)\s+(?:fails?|loses?|doesn'?t|does not|can'?t|cannot|never|gives up|gets caught|is caught)\b/iu;
 
 /** The slot a single sentence is plainly for, and the words to file there; null when it does not say. */
@@ -300,6 +302,10 @@ function routeSentence(sentence, slots) {
   if (SET_IN.test(sentence)) {
     const place = slotForRole(slots, 'place');
     return place ? set(place.id, sentence) : null;
+  }
+  if (AGAINST.test(sentence)) {
+    const foe = slotForRole(slots, 'other', { strict: true });
+    return foe ? set(foe.id, sentence) : null;
   }
   if (IF_FAILS.test(sentence)) return set('stakes', sentence);
   if (FEELS.test(sentence)) return set(ids.has('tone') ? 'tone' : ids.has('feeling') ? 'feeling' : ids.has('tone-outlet') ? 'tone-outlet' : '', sentence);
@@ -320,7 +326,7 @@ function rulesExtract({ message, state, slots, pendingSlot }) {
   const whole = squash(message);
   // 0. sentences that say which slot they are for go there; the rest is read as before
   const routed = new Set();
-  for (const sentence of splitSentencesLite(whole)) {
+  for (const sentence of isShrug(whole) ? [] : splitSentencesLite(whole)) {
     const hit = routeSentence(squash(sentence), slots);
     if (hit && !updates.some((u) => u.slot === hit.slot) && put(hit.slot, hit.value)) routed.add(sentence);
   }

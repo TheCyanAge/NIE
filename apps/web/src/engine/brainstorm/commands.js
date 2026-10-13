@@ -23,7 +23,8 @@ export function parseMemoryCommand(text) {
   const t = String(text ?? '').trim();
   if (!t) return null;
   const r = t.match(REMEMBER);
-  if (r) return { type: 'remember', note: r[1].trim() };
+  // ("Remember this." is a command with no note: the full stop must not become the idea that gets kept)
+  if (r) return { type: 'remember', note: /[\p{L}\p{N}]/u.test(r[1]) ? r[1].trim() : '' };
   if (RECALL.test(t)) return { type: 'recall' };
   return null;
 }
