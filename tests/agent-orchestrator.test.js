@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
+import { Orchestrator, withoutQuestionLists } from '../apps/web/src/engine/orchestrator/index.js';
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { ProjectStore, memoryStorage } from '../apps/web/src/engine/project/store.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
@@ -249,4 +249,16 @@ test('a model that reads the message as a question about the writer\'s text is n
   const r = await say(o, project, 'How many barrels does a belly hold in this text?');
   assert.equal(qmarks(r.reply), 0);
   assert.deepEqual(project.conversation.agent.slots, {}, 'a question is not recorded as part of the idea');
+});
+
+test('the older built-in lists of questions are gone under the agent: one question at a time, never a blurb of them', async () => {
+  assert.equal(withoutQuestionLists('Okay, that changes the shape of it.\n\nSome things worth deciding:\n- Does the core stay?\n- Does the reader find out first?\n\nThat is all.'), 'Okay, that changes the shape of it.\n\nThat is all.');
+  assert.equal(withoutQuestionLists('Plain reply with a list:\n- one thing\n- another'), 'Plain reply with a list:\n- one thing\n- another', 'a list that is not questions stays');
+  const o = builtinOnly();
+  const project = projectWith();
+  for (const m of ['I am writing a quiet story about a lighthouse keeper.', 'Actually, the keeper is a ghost the whole time.', 'Also, the bell is hollow.', 'Actually the setting is Lagos in 1923.']) {
+    const r = await say(o, project, m);
+    assert.ok(qmarks(r.reply) <= 1, `${m}: ${r.reply}`);
+    assert.ok(!/^\s*(?:[-*]|\d+\.)\s.*\?\s*$/m.test(r.reply), `${m}: no list of questions`);
+  }
 });

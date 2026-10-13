@@ -34,6 +34,27 @@ const RANK = { none: 0, weak: 1, strong: 2 };
 /** "yes", "no", "ok", "maybe": a reply, not a question, so it is never looked up in the library ("yes" found "yes-but"). */
 /** A turn that only acknowledges and asks needs a sentence or two, not 700 tokens: the model is held to that (the writer waits for every token on a CPU). */
 const SHORT_TURN_TOKENS = 200;
+/**
+ * The built-in replies of the older design end in a list of questions ("A few things would help me: - ...? - ...?"). The idea agent asks ONE, now and then, so under its
+ * plan those lists go (with the line that introduced them); what is left is the part of the reply that says something.
+ */
+export function withoutQuestionLists(text) {
+  const lines = String(text ?? '').split('\n');
+  const isItem = (l) => /^\s*(?:[-*\u2022]|\d+[.)])\s/.test(l);
+  const out = [];
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (isItem(l) && /\?\s*$/.test(l)) continue;
+    if (/:\s*$/.test(l) && !isItem(l)) {
+      let j = i + 1;
+      while (j < lines.length && !lines[j].trim()) j++;
+      const next = lines[j];
+      if (next !== undefined && isItem(next) && /\?\s*$/.test(next)) continue; // the intro of a list of questions
+    }
+    out.push(l);
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
 /** A reply cut off by the length limit loses its unfinished last sentence rather than showing half of it. */
 export function finishedSentences(text) {
   const t = String(text ?? '').trimEnd();
@@ -472,13 +493,13 @@ export class Orchestrator {
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {
         reply = builtinReply({ intent, project, message: askText, report, modelReady: true, status });
-        if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : reply);
+        if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : withoutQuestionLists(reply));
         route = 'builtin';
         honesty = WITHHELD_NOTE;
       }
     } else {
       reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: askText, report, modelReady: modelReady && Boolean(asked.failure), status });
-      if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : reply); // told something, no model: a short acknowledgement of what was recorded, and the planned question
+      if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : withoutQuestionLists(reply)); // told something, no model: a short acknowledgement of what was recorded, and the planned question
       route = 'builtin';
       // Starting from nothing is where a few sparks help most: offer some to react to, never a draft.
       if (intent.type === 'start-from-zero') {
