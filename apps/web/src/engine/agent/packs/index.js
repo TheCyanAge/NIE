@@ -6,6 +6,7 @@ import essay from './essay.js';
 import poem from './poem.js';
 import script from './script.js';
 import other from './other.js';
+import forms from './forms.js';
 
 /**
  * Everything NIE knows about WHAT to ask, as data: one pack per kind of project, plus add-ons for forms (a song, a picture book, a speech...) and genres
@@ -13,5 +14,5 @@ import other from './other.js';
  * `packs/schema.js` and `tests/agent-packs.test.js`.
  */
 export const kinds = Object.freeze({ story, character, world, article, essay, poem, script, other });
-export const packs = { kinds, forms: [], genres: [] };
+export const packs = { kinds, forms, genres: [] };
 export default packs;

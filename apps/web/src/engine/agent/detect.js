@@ -14,13 +14,18 @@ import { LIMITS, getSlot, isSlotId, squash } from './state.js';
 const MAX_TEXT = 6000;
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const cache = new Map();
+/** A keyword that starts with one of these verbs matches the verb in any of its forms. */
+const VERB_FORMS = { write: 'write|writes|writing|wrote|written', give: 'give|gives|giving|gave', make: 'make|makes|making|made' }; // (not "keep a diary": a character who keeps one is not the writer's form)
 
 /** A keyword as a whole word or phrase, any run of spaces, with a plural ("sonnets"). Compiled once, with its first word for a cheap "could this even be here?" test. */
 function keywordRe(keyword) {
   let k = cache.get(keyword);
   if (!k) {
-    const body = escapeRe(keyword.trim()).replace(/\s+/g, '\\s+').replace(/-/g, '[-\\s]?'); // "picture-book" also matches "picture book"
-    k = { re: new RegExp(`(?<![\\p{L}\\p{N}])${body}(?:e?s)?(?![\\p{L}\\p{N}])`, 'iu'), first: keyword.trim().toLowerCase().split(/[\s-]+/)[0] };
+    const words = keyword.trim().split(/\s+/);
+    const verb = VERB_FORMS[words[0].toLowerCase()];
+    const body = escapeRe(words.slice(verb ? 1 : 0).join(' ')).replace(/\s+/g, '\\s+').replace(/-/g, '[-\\s]?'); // "picture-book" also matches "picture book"
+    const lead = verb ? `(?:${verb})\\s+` : ''; // "write a speech" is also "writing a speech" and "wrote a speech"
+    k = { re: new RegExp(`(?<![\\p{L}\\p{N}])${lead}${body}(?:e?s)?(?![\\p{L}\\p{N}])`, 'iu'), first: verb ? '' : keyword.trim().toLowerCase().split(/[\s-]+/)[0] };
     if (cache.size > 4000) cache.clear();
     cache.set(keyword, k);
   }
