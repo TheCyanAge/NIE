@@ -126,3 +126,38 @@ test('the packs cover the forms and genres writers name, and a cozy mystery on a
   assert.equal(detectProject('I want to write a song about leaving my hometown.', { packs }).form, 'song-lyrics');
   assert.equal(detectProject('a haiku about the first frost', { packs }).form, 'haiku');
 });
+
+test('a comment that stays with what the writer said is kept; a line of story the writer never wrote is not', async () => {
+  const { groundedComment } = await import('../apps/web/src/engine/agent/ask.js');
+  const state = { ...emptyAgentState(), kind: 'other', form: 'song-lyrics', slots: { premise: { value: 'a song about leaving my hometown after the mill closed', turn: 1, via: 'said' } } };
+  const recent = ['The singer is leaving on the night bus and does not look back.', 'The chorus is about the mill whistle that used to wake the whole town.'];
+  const g = (t) => groundedComment(t, { state, ctx, recentMessages: recent }).ok;
+  assert.equal(g("The singer's eyes are fixed on the last glimpse of the mill's smokestacks."), false, 'invented imagery');
+  assert.equal(g("Her humming masks the tools' silent gratitude."), false);
+  assert.equal(g('The night bus and the mill whistle give the chorus its two sides.'), true);
+  assert.equal(g("The singer's night bus makes the leaving concrete."), true, "a possessive is the same word");
+  assert.equal(g('Noted.'), true, 'a few words cannot invent much');
+});
+
+test('a turn that must not ask, answered with invented imagery, says what was recorded instead; an asking turn keeps only its question', async () => {
+  const { holdToPlan } = await import('../apps/web/src/engine/orchestrator/index.js');
+  const turn = (over = {}) => ({ enforce: (t) => t, grounded: (t) => !/smokestack|gratitude/.test(t), ack: 'Noted under what the song comes back to: the mill whistle.', ...over });
+  assert.equal(holdToPlan("The singer's eyes are fixed on the mill's smokestacks.", { act: 'reflect' }, turn()), 'Noted under what the song comes back to: the mill whistle.');
+  assert.equal(holdToPlan('The night bus gives the leaving a place.', { act: 'reflect' }, turn()), 'The night bus gives the leaving a place.');
+  assert.equal(holdToPlan('A silent gratitude fills it. Who is the song for?', { act: 'ask' }, turn()), 'Who is the song for?');
+  assert.equal(holdToPlan('Folk songs run two or three minutes. Want that?', { act: 'serve' }, turn()), 'Folk songs run two or three minutes. Want that?', 'an answer to the writer\'s own question is never filtered');
+});
+
+test('"I want the listener to feel proud and sad" is the writer telling NIE about the piece, even if a model reads it as a craft question', async () => {
+  const { default: agent } = await import('../apps/web/src/engine/agent/index.js');
+  const { projectWith } = await import('./helpers.js');
+  for (const task of ['craft', 'feedback']) {
+    const project = projectWith();
+    await agent.turn({ project, message: 'I want to write a song about leaving my hometown after the mill closed.', reading: { task: 'tell' } });
+    const t = await agent.turn({ project, message: 'I want the listener to feel proud and sad at the same time.', reading: { task } });
+    assert.notEqual(t.plan.act, 'serve', task);
+  }
+  const project = projectWith();
+  const q = await agent.turn({ project, message: 'How long should a folk song like that be?', reading: { task: 'craft' } });
+  assert.equal(q.plan.act, 'serve');
+});

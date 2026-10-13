@@ -2,7 +2,7 @@ import { EXPLICIT_ASK } from '../brainstorm/commands.js';
 import { questionsIn, similarity } from '../orchestrator/variety.js';
 import { addToBoard } from '../project/board.js';
 import { pick } from '../util/text.js';
-import { askTerms, enforceReply } from './ask.js';
+import { askTerms, enforceReply, groundedComment } from './ask.js';
 import { briefFor } from './brief.js';
 import { addedText, changedSinceCommit, commitIdea, confirmText, digest, holdText, lastCommitFor, offerChips, recapText, undoCommit } from './commit.js';
 import { applyDetection, detectProject, slotsFor, validKind } from './detect.js';
@@ -68,6 +68,7 @@ const KIND_CHIPS = [
 ];
 const AFTER_KEPT = [{ label: 'Show my Idea Board', text: '', send: { ask: 'Show my idea board.' } }, { label: 'Add more details', text: 'Let me add more details: ' }];
 const AFTER_HELD = [{ label: 'Add more details', text: 'Let me add more details: ' }, { label: 'Keep this idea', text: '', send: { ask: 'Keep this idea.' } }];
+const STATES_INTENT = /^\s*i(?:'d| would)?\s+(?:really\s+)?(?:want|like|hope|plan|intend|need)\s+(?:the |my |it |them |this |people |readers? |listeners? |viewers? |everyone |anyone |her |him )[^?]*$/i;
 const GREETING = /^\s*(?:hi|hello|hey|yo|thanks|thank you|ok(?:ay)?|cool|nice|great|good (?:morning|afternoon|evening))\b[\s!.,?]*$/i;
 
 /** What the writer is doing this turn (see `reading.task` in understand.js). No reading: a light rule reading. */
@@ -76,8 +77,10 @@ function actOf(reading, text, st, words) {
   const answering = () => (st.pending?.kind === 'question' && isAnswer(text, { asked: true }) ? 'answer' : 'info');
   switch (reading?.task) {
     case 'ideas': return 'ideas';
-    case 'feedback': return 'feedback';
-    case 'craft': return 'craft';
+    // (a 3B model sometimes reads "I want the listener to feel proud and sad" as a craft question or a request for feedback: a first-person statement of intent with no
+    // question in it is the writer telling NIE about their piece)
+    case 'feedback': return STATES_INTENT.test(text) && !looksLikeRequest(text) ? answering() : 'feedback';
+    case 'craft': return STATES_INTENT.test(text) && !looksLikeRequest(text) ? answering() : 'craft';
     case 'chat': return 'chat';
     case 'about-nie': case 'write': case 'edit': return 'question'; // declined or answered elsewhere; never recorded
     // (a message the rules plainly read as a request to NIE is served whatever the reading says: it is never filed as part of the idea or interviewed over)
@@ -189,6 +192,7 @@ export function createAgent({ packs, config = {} } = {}) {
         brief,
         state,
         act,
+        grounded: (comment) => groundedComment(comment, { state, ctx, recentMessages: [...(Array.isArray(recentMessages) ? recentMessages : []), text] }).ok, // does a comment stay with what the writer said?
         ack, // what NIE says itself, with no model, to a writer who has just told it something (reply.js); the planned question is added by enforce()
         ...(note ? { note } : {}),
         enforce: (reply) => enforceReply(reply, plan, { state, ctx, askedTexts: state.asked.map((a) => a.text), terms }).text,

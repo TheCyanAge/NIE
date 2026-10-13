@@ -158,7 +158,7 @@ test('a turn hands back what the orchestrator needs, and keeps the state inside 
   assert.deepEqual(agent.state(project), emptyAgentState(), 'a fresh project\'s agent state is empty');
   assert.deepEqual(project.conversation.agent, emptyAgentState(), 'and is created in the project');
   const t = await agent.turn({ project, message: FIRST, reading: { task: 'tell' } });
-  assert.deepEqual(Object.keys(t).sort(), ['ack', 'act', 'brief', 'enforce', 'handled', 'plan', 'record', 'state']);
+  assert.deepEqual(Object.keys(t).sort(), ['ack', 'act', 'brief', 'enforce', 'grounded', 'handled', 'plan', 'record', 'state']);
   assert.equal(t.handled, null);
   assert.equal(t.plan.act, 'ask');
   assert.equal(typeof t.brief, 'string');

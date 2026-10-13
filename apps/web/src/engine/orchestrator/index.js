@@ -67,11 +67,23 @@ export function withoutQuestionLists(text) {
  */
 export function holdToPlan(text, plan, agentTurn) {
   let out = agentTurn.enforce(text);
+  if (plan?.act === 'ask' || plan?.act === 'reflect') {
+    // The comment (what is not a question) must stay with what the writer said; invented imagery is cut, and a turn left with nothing says what it recorded instead.
+    const sentences = splitSentencesLite(out);
+    const isQ = (x) => /\?["')\]]*\s*$/.test(x);
+    const comment = sentences.filter((x) => !isQ(x)).join(' ').trim();
+    if (comment && agentTurn.grounded && !agentTurn.grounded(comment)) {
+      const questions = sentences.filter(isQ).join(' ').trim();
+      out = plan.act === 'ask' ? questions : '';
+      if (!out) out = agentTurn.ack || '';
+      if (plan.act === 'ask') out = agentTurn.enforce(out);
+    }
+  }
   if (plan?.act === 'reflect' && /\?/.test(out)) {
     const kept = splitSentencesLite(out).filter((s) => !/\?["')\]]*\s*$/.test(s)).join(' ').trim();
     out = words(kept).length >= 4 ? kept : agentTurn.ack || kept || out;
   }
-  return out;
+  return out || text;
 }
 /**
  * A reply cut off by the length limit loses its unfinished last sentence rather than showing half of it. Only a reply that came close to the limit can have been cut off
@@ -470,7 +482,9 @@ export class Orchestrator {
     const noAsk = doc.userMessage === PASTED_NO_ASK;
     // A long text is read section by section first (once: the notes are kept), so NIE can talk about all of it, not five excerpts.
     const notes = await this.#notesFor({ project, doc, reading, noAsk, onProgress, signal });
-    const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, askText);
+    // (A turn that only acknowledges and asks is steered by the idea agent's brief, which carries the genre's conventions; the general reference notes add prompt to read for little.)
+    const steeredShort = Boolean(agentTurn) && !lib && !libMiss && !aboutText && !noAsk && ['ask', 'reflect'].includes(agentTurn.plan?.act);
+    const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, askText).slice(0, steeredShort ? 2 : 6);
     const shared = intent.type === 'share-passage' ? text : '';
     const passage = doc.document ? '' : shared; // a long paste is already shown through the reading block; do not show its opening a second time
     const report = shared ? scan({ text: doc.document?.subject === 'passage' ? doc.document.text : shared, project }) : null;

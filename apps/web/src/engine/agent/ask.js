@@ -342,3 +342,28 @@ export function enforceReply(reply, plan, { state, ctx, askedTexts, terms } = {}
   return { text, changes };
 }
 
+
+
+// ── is a comment on the writer's idea built from the writer's idea? ──────────
+
+// Craft words a comment may use that the writer did not: the vocabulary of the parts of an idea (their labels and hints come from the pack), plus these.
+const CRAFT_WORDS = 'story character detail details tension contrast stakes setting tone voice theme motif scene plot reader listener audience idea piece choice image sets sets-up suggests suggest points point opens open raises raise question questions angle shape structure order pace pacing mood feeling emotion emotional clear specific strong sharp small big first last next early later middle ending beginning moment moments turn turns weight cost change changes shift contrast echo echoes pattern link links connect connects detail part parts way ways idea ideas kind sort thing things people person'.split(/\s+/);
+const craftStems = new Set(CRAFT_WORDS.flatMap((w) => stemList(w)));
+
+/**
+ * Does a comment stay with what the writer said? Measured on the real model: asked to reply to a detail "without adding any detail of your own", a 3B model wrote
+ * "The singer's eyes are fixed on the last glimpse of the mill's smokestacks" and "Her humming masks the tools' silent gratitude": lines of story the writer never wrote,
+ * which is NIE writing their idea. A comment is grounded when nearly all of its content words are the writer's (what they said recently, what is on the sheet), the
+ * vocabulary of the idea's parts, or plain craft words. A comment of two or three words cannot invent much and always passes.
+ * @returns {{ ok: boolean, novel: string[] }}
+ */
+export function groundedComment(text, { state, ctx, recentMessages = [] } = {}) {
+  const plainer = (t) => String(t ?? '').replace(/['’]s?\b/g, '');
+  const mine = stemList(plainer(text));
+  if (mine.length <= 3) return { ok: true, novel: [] };
+  const known = new Set(craftStems);
+  for (const m of [...(Array.isArray(recentMessages) ? recentMessages : []), ...Object.values(state?.slots ?? {}).map((r) => r?.value), ...(state?.extra ?? [])]) for (const x of stemList(plainer(typeof m === 'string' ? m : m?.content))) known.add(x);
+  for (const sl of slotsFor(state, ctx)) for (const x of stemList(`${sl.label} ${sl.hint}`)) known.add(x);
+  const novel = [...new Set(mine.filter((x) => !known.has(x)))];
+  return { ok: novel.length <= 1 || novel.length / new Set(mine).size <= 0.25, novel };
+}
