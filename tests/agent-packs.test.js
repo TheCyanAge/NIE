@@ -95,3 +95,50 @@ for (const f of ['forms.js', 'genres.js']) {
 test('there is a pack for every kind once the packs are written', { skip: kindPacks.length === 0 }, () => {
   assert.deepEqual(kindPacks.map(([, p]) => p.kind).sort(), [...KINDS].sort().filter((k) => kindPacks.some(([, p]) => p.kind === k)));
 });
+
+// ── all add-ons together: what only shows once they meet in one idea ─────────
+const addons = { forms: loaded.find(([f]) => f === 'forms.js')?.[1] ?? [], genres: loaded.find(([f]) => f === 'genres.js')?.[1] ?? [] };
+const everyAddon = [...addons.forms, ...addons.genres];
+
+test('add-ons: ids and slot ids are unique across forms AND genres (a form and two genres can meet in one idea), and no add-on shadows a kind pack\'s slot', { skip: everyAddon.length === 0 }, () => {
+  const ids = everyAddon.map((a) => a.id);
+  assert.equal(new Set(ids).size, ids.length, 'add-on ids are unique across forms and genres');
+  const seen = new Map();
+  for (const a of everyAddon) for (const s of a.add) {
+    assert.ok(!seen.has(s.id), `slot id "${s.id}" is in both ${seen.get(s.id)} and ${a.id}`);
+    seen.set(s.id, a.id);
+    for (const [k, ids2] of Object.entries(baseIds)) assert.ok(!ids2.has(s.id), `${a.id}: slot "${s.id}" is already a slot of the ${k} pack`);
+  }
+});
+
+test('add-ons: every one is found by its own words, and no keyword is claimed by two add-ons of the same kind (form or genre)', { skip: everyAddon.length === 0 }, async () => {
+  const { detectProject } = await import('../apps/web/src/engine/agent/detect.js');
+  const packs = { kinds: Object.fromEntries(kindPacks.map(([, p]) => [p.kind, p])), ...addons };
+  for (const [setName, list] of Object.entries(addons)) {
+    const owner = new Map();
+    for (const a of list) for (const m of a.match) {
+      assert.ok(!owner.has(m), `"${m}" is a keyword of both ${owner.get(m)} and ${a.id}`);
+      owner.set(m, a.id);
+    }
+    for (const a of list) {
+      const kind = a.baseKinds?.[0] ?? 'story';
+      const found = detectProject(`I am working on ${/^[aeiou]/.test(a.match[0]) ? 'an' : 'a'} ${a.match[0]} idea`, { packs, kindHint: kind });
+      const hit = setName === 'forms' ? found.form === a.id : found.genres.includes(a.id);
+      assert.ok(hit, `${a.id}: "${a.match[0]}" does not find it (found ${found.form ?? '-'} / ${found.genres.join(',') || '-'})`);
+    }
+  }
+});
+
+test('add-ons: a form and two genres meet in one idea without losing a slot or breaking order', { skip: everyAddon.length === 0 }, async () => {
+  const { slotsFor } = await import('../apps/web/src/engine/agent/detect.js');
+  const packs = { kinds: Object.fromEntries(kindPacks.map(([, p]) => [p.kind, p])), ...addons };
+  for (const form of addons.forms.slice(0, 6)) {
+    const kind = form.baseKinds?.[0] ?? 'story';
+    const genres = addons.genres.filter((g) => !g.baseKinds || g.baseKinds.includes(kind)).slice(0, 2);
+    const state = { kind, form: form.id, genres: genres.map((g) => g.id), slots: {}, extra: [], asked: [] };
+    const slots = slotsFor(state, { packs });
+    const ids = slots.map((s) => s.id);
+    assert.equal(new Set(ids).size, ids.length, `${form.id}+${genres.map((g) => g.id)}: no slot twice`);
+    for (const a of [form, ...genres]) for (const s of a.add) assert.ok(ids.includes(s.id) || (a.drop ?? []).includes(s.id), `${a.id}: slot ${s.id} is in the merged list`);
+  }
+});
