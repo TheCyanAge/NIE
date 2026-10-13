@@ -1,0 +1,69 @@
+name: agent-lab
+
+# Measures, with the REAL model (Qwen2.5-3B) and the app's own llama-server arguments, how the idea agent behaves over whole conversations with scripted writers
+# (scripts/agent-lab.mjs, tests/fixtures/agent-sessions.mjs): how often it asks, whether it repeats itself, whether its questions are about the writer's own idea,
+# whether its sheet holds what was said (and nothing else), when it offers to keep the idea, and what a turn costs.
+# Nothing here builds, ships or publishes anything: it only reports numbers (job log + the agent-lab-report artifact), so prompts are tuned on evidence.
+on:
+  workflow_dispatch:
+    inputs:
+      sessions:
+        description: 'Scripted writers to run (comma separated: cozy-mystery, character, folk-song, article)'
+        type: string
+        default: 'cozy-mystery,character,folk-song,article'
+      max_steps:
+        description: 'Stop each session after this many messages'
+        type: string
+        default: '99'
+      modes:
+        description: 'agent (the app) and/or off (the agent switched off, for comparison)'
+        type: string
+        default: 'agent'
+      threads:
+        description: 'Model-server threads (empty = what the app picks: half the cores)'
+        type: string
+        default: ''
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch the llama.cpp runtime (Linux)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p rt apps/desktop/bin
+          gh release download b9085 --repo ggml-org/llama.cpp --pattern 'llama-*-bin-ubuntu-x64*' --dir rt
+          for f in rt/*; do
+            case "$f" in
+              *.zip) unzip -q -o "$f" -d rt/x ;;
+              *.tar.gz|*.tgz) mkdir -p rt/x && tar -xzf "$f" -C rt/x ;;
+            esac
+          done
+          find rt/x \( -type f -o -type l \) \( -name 'llama-server' -o -name '*.so' -o -name '*.so.*' \) -exec cp -P {} apps/desktop/bin/ \;
+          chmod +x apps/desktop/bin/llama-server
+
+      - name: Fetch the real model (about 1.9 GB, resumable)
+        run: node scripts/fetch-runtime.mjs --no-runtime
+
+      - name: Run the lab
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/apps/desktop/bin
+        run: |
+          T=""
+          if [ -n "${{ inputs.threads }}" ]; then T="--threads ${{ inputs.threads }}"; fi
+          node scripts/agent-lab.mjs $T --sessions "${{ inputs.sessions }}" --max-steps "${{ inputs.max_steps }}" --modes "${{ inputs.modes }}" --out agent-lab-report.json
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-lab-report
+          path: agent-lab-report.json
+          if-no-files-found: ignore
