@@ -148,6 +148,7 @@ export function placeholderValues(state, ctx) {
 // ── picking a question ───────────────────────────────────────────────────────
 
 const EASY = new Set(['either', 'concrete']);
+const PLAIN_FIRST = new Set(['open', 'either', 'concrete', 'whatif']);
 const wellFormed = (t) => (t.match(/\?/g) ?? []).length === 1 && t.endsWith('?') && !/\n|["“”`]|\s{2}|\s[?,.]/.test(t) && !isStockQuestion(t);
 const isRepeat = (text, asked, limit = SAME_QUESTION) => asked.some((a) => a.toLowerCase() === text.toLowerCase() || similarity(a, text) >= limit);
 
@@ -178,7 +179,9 @@ export function pickQuestion({ state, slotId, ctx, seed = '', easy = false }) {
   }
   if (!cands.length) return null;
   const wantsEasy = easy && cands.some((c) => EASY.has(c.type));
-  const rank = (c) => [wantsEasy && EASY.has(c.type) ? 1 : 0, c.specific, recent.includes(c.type) ? 0 : 1];
+  // the first question about a part starts plainly: "who changes the most?" or "what does it cost them?" assume the writer has already said something about it
+  const fresh = !state.asked.some((a) => a.slot === slotId) && cands.some((c) => PLAIN_FIRST.has(c.type));
+  const rank = (c) => [wantsEasy && EASY.has(c.type) ? 1 : 0, c.specific, fresh && PLAIN_FIRST.has(c.type) ? 1 : 0, recent.includes(c.type) ? 0 : 1];
   const cmp = (a, b) => rank(b).reduce((d, v, i) => d || v - rank(a)[i], 0);
   cands.sort(cmp);
   const best = cands.filter((c) => cmp(cands[0], c) === 0);

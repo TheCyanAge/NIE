@@ -17,6 +17,10 @@ import { ASKS_FOR_IDEAS, WANTS_MORE } from '../brainstorm/commands.js';
 import { KIND_IDS, LENSES, LENSES_BY_KIND, detectKind, detectLens, kindLabel } from '../brainstorm/lenses.js';
 import { composeDevelopReply, composeIdeaReply, generateIdeas, leadNoun, markShown, parseIdeas, resolveKind } from '../brainstorm/ideas.js';
 import { clip, estimateTokens, fnv1a, words } from '../util/text.js';
+import defaultAgent from '../agent/index.js';
+import { detectProject } from '../agent/detect.js';
+import { grasp as agentGrasp } from '../agent/sheet.js';
+import { filledIds } from '../agent/state.js';
 
 export { STARTER };
 
@@ -26,6 +30,8 @@ const STORY_TALK = /\b(?:my|our|his|her|their|the)\s+(?:story|novel|characters?|
 const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they cover the question, answer from them and say which style guide or source they come from, and mention when practice varies. If they do not cover it, say so plainly. Never invent citations, section numbers, titles, dates or quotations.";
 const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
 const RANK = { none: 0, weak: 1, strong: 2 };
+/** "yes", "no", "ok", "maybe": a reply, not a question, so it is never looked up in the library ("yes" found "yes-but"). */
+const BARE_REPLY = /^\W*(?:yes|yeah|yep|yup|sure|ok|okay|no|nope|nah|maybe|perhaps|please|thanks|thank you|right|true|false|hm+|um+)\W*$/i;
 const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|draft|screenplay|script|poem|essay|article|book|memoir|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|ending|opening|narrator)\b/i;
 /** A message longer than this (about 1,000 tokens) is a pasted text, not a sentence to answer: it is read in sections instead of cut off. */
 export const LONG_MESSAGE_CHARS = 3600;
@@ -136,16 +142,98 @@ export class Orchestrator {
   #readPause = 0;
   #readWarm = false;
   #styles = new Map();
+  #extractFailures = 0;
+  #extractPause = 0;
 
   /**
-   * @param {{ engine: import('../ai/engine.js').AIEngine, readNotes?: boolean, variety?: 'full'|'prompt'|'legacy' }} o
+   * @param {{ engine: import('../ai/engine.js').AIEngine, readNotes?: boolean, variety?: 'full'|'prompt'|'legacy', agent?: object|null }} o
    *   `readNotes: false` and `variety` exist so scripts/notes-lab.mjs can measure each new layer against the one before on the real model:
    *   'legacy' = the earlier prompt wording and nothing else; 'prompt' = the new wording; 'full' (the app) = + a different shape each turn, what not to repeat, and cleaning.
+   *   `agent: null` turns the idea agent off (agent/: the sheet of the writer's own words, the paced questions, the offer to keep an idea), for the lab's A/B runs.
    */
-  constructor({ engine, readNotes = true, variety = 'full' }) {
+  constructor({ engine, readNotes = true, variety = 'full', agent = defaultAgent }) {
     this.engine = engine;
     this.readNotes = readNotes;
     this.variety = variety;
+    this.agent = agent;
+  }
+
+  /**
+   * The model call the agent may use to read an idea into its sheet (schema-constrained JSON, purpose 'extract'). Null when no model is running or when
+   * it keeps failing: then the rules read the idea instead, and the sheet only ever holds the writer's own words either way.
+   */
+  #extractChat() {
+    if ((this.engine.route?.() ?? 'builtin') === 'builtin') return null;
+    if (this.#extractPause > 0) {
+      this.#extractPause--;
+      return null;
+    }
+    const failed = () => {
+      if (++this.#extractFailures >= 2) {
+        this.#extractPause = 5;
+        this.#extractFailures = 1;
+      }
+    };
+    return async (messages, opts) => {
+      try {
+        const r = await this.engine.chat(messages, opts);
+        if (r?.text) this.#extractFailures = 0;
+        else failed();
+        return r;
+      } catch (err) {
+        if (err?.kind === 'abort') throw err;
+        failed();
+        return null;
+      }
+    };
+  }
+
+  /** What the offline library says about the form and genres in play, as short lines for the agent's brief (never shown as the writer's own). */
+  #libraryNotes(project, text) {
+    const packs = this.agent.packs;
+    const state = this.agent.state(project);
+    const seen = detectProject(text, { packs });
+    const ids = [seen.form ?? state.form, ...(seen.genres.length ? seen.genres : state.genres)].filter(Boolean);
+    const out = [];
+    for (const id of ids.slice(0, 2)) {
+      const label = [...(packs.forms ?? []), ...(packs.genres ?? [])].find((a) => a.id === id)?.label;
+      const entry = label ? search(label, { limit: 3 }).find((e) => e.kind === 'genre' || e.kind === 'form') : null;
+      if (entry) out.push(`${entry.name}: ${clip([entry.summary, entry.conv?.[0]].filter(Boolean).join(' '), 200)}`);
+    }
+    return out;
+  }
+
+  /** One turn of the idea agent. It never gets in the way of a reply: if it fails (other than a Stop), the message is answered as before. */
+  async #agentTurn({ project, text, reading, kindHint, signal, past }) {
+    if (!this.agent) return null;
+    try {
+      return await this.agent.turn({
+        project, message: text, reading, chat: this.#extractChat(), kindHint, signal,
+        recentMessages: past.filter((m) => m.role === 'user').slice(-6).map((m) => String(m.content).slice(0, 600)),
+        libraryNotes: this.#libraryNotes(project, text),
+      });
+    } catch (err) {
+      if (err?.kind === 'abort') throw err;
+      return null;
+    }
+  }
+
+  /** The agent answered by itself (the offer, the writer's yes, a style command...): no model is needed or called. */
+  #handled(project, intent, turn, onToken) {
+    const h = turn.handled;
+    intent.reading ??= rulesReading(intent, 'exact');
+    onToken?.(h.reply, h.reply);
+    return this.#finish(project, intent, h.reply, 'builtin', false, { suggestions: h.suggestions, agent: { handled: h.kind, ...(h.committed ? { kept: true } : {}) } });
+  }
+
+  /** Chips after a reply that asked a question: an honest way out of it, and the way to keep what there is. */
+  #agentChips(turn, project) {
+    const plan = turn?.plan;
+    if (turn?.handled?.kind === 'asked-kind') return turn.handled.suggestions; // "what are you making?" comes with its answers as chips
+    const n = filledIds(this.agent.state(project)).length;
+    const keep = n >= 2 ? [{ label: 'Keep this idea', text: '', send: { ask: 'Keep this idea.' } }] : [];
+    if (plan?.act === 'ask') return [{ label: 'Not sure yet', text: '', send: { ask: "I'm not sure yet." } }, { label: 'Skip that one', text: '', send: { ask: 'Skip that one.' } }, { label: 'Add more details', text: 'Let me add more details: ' }, ...keep];
+    return null;
   }
 
   /**
@@ -203,6 +291,11 @@ export class Orchestrator {
     // Idea Board commands are exact and need no model.
     if (intent.type === 'remember') {
       intent.reading = rulesReading(intent, 'exact');
+      // "remember this" with an idea being followed keeps the whole idea (what is recorded, and what is missing); "remember: the cat can talk" is a single note
+      if (!intent.memory.note) {
+        const kept = await this.#agentTurn({ project, text, reading: intent.reading, kindHint: kindOpt, signal, past: history.slice(0, -1) });
+        if (kept?.handled) return this.#handled(project, intent, kept, onToken);
+      }
       return this.#keep(project, intent, onToken);
     }
     if (intent.type === 'recall') {
@@ -225,6 +318,14 @@ export class Orchestrator {
       return decline();
     }
 
+    // The writer's answer to an offer to keep the idea ("yes", "not yet", "also, ...") is read by the agent's rules first: it needs no model, so it is instant.
+    const past = history.slice(0, -1);
+    let agentTurn = null;
+    if (this.agent && this.agent.state(project).pending?.kind === 'offer') {
+      agentTurn = await this.#agentTurn({ project, text: askText, reading: null, kindHint: kindOpt, signal, past });
+      if (agentTurn?.handled && agentTurn.handled.kind !== 'asked-kind') return this.#handled(project, intent, agentTurn, onToken);
+    }
+
     // What is the writer asking? The language model reads the message when one is running; the rules read it otherwise.
     // The model only returns a label, so it cannot write anything; a "write"/"edit" label gets the same fixed decline.
     const reading = await this.#read({ intent, text: paste ? paste.ask || text.slice(0, 450) : text, history: history.slice(0, -1), signal, button: Boolean(lensOpt) }); // a tapped quick-action already says what it is
@@ -232,6 +333,19 @@ export class Orchestrator {
     if (declines()) return decline();
     if (intent.type === 'about-nie') return this.#about({ project, intent, text: askText, onToken });
     const byModel = reading.by === 'model';
+
+    // The idea agent: what is being made, what the writer has said about it (in their own words), whether this turn asks something, and whether it is time to offer
+    // to keep the idea. A question, a request or a pasted text is served, never recorded as part of the idea.
+    // (A button or a typed "develop this idea" is a request for help, not something told to the agent.)
+    const requesting = lensOpt || intent.type === 'develop-idea' ? { ...reading, task: 'ideas' } : reading;
+    agentTurn ??= await this.#agentTurn({ project, text: askText, reading: requesting, kindHint: kindOpt, signal, past });
+    if (agentTurn?.handled && agentTurn.handled.kind !== 'asked-kind') return this.#handled(project, intent, agentTurn, onToken);
+    if (agentTurn?.note) {
+      // what the agent did on the way ("Kept.", "I've set the earlier idea aside") comes first, before the answer streams
+      const lead = `${agentTurn.note}\n\n`;
+      const emit = onToken;
+      onToken = emit ? (d, full) => emit(d, lead + full) : emit;
+    }
 
     // Is this a question about the writer's own long text (a recent paste, or the project's Story Text) even though it never says "my story"?
     // "What is sedgewire made of?" is asked of the text, not of the craft library, and a small model labels it a general question.
@@ -242,7 +356,7 @@ export class Orchestrator {
     let lib = null;
     let libMiss = false;
     let ownProject = false;
-    const libraryCandidate = text.length > LONG_MESSAGE_CHARS || aboutText ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
+    const libraryCandidate = text.length > LONG_MESSAGE_CHARS || aboutText || BARE_REPLY.test(text) ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
     if (libraryCandidate) {
       // Naming a character or role ('the detective', 'Samantha', 'he') or "my story" means the writer is talking about their story, not asking the
       // library. Even when the model read it as a general question, that stays a veto for anything but a strong match: a 3B model misreads
@@ -295,11 +409,10 @@ export class Orchestrator {
     const stated = detectKind(askText);
     if (stated && (isIdeaAsk || develop || intent.type === 'start-from-zero' || /\b(?:i'?m|i am|i want to|i'?d like to|i need to|let'?s)\s+(?:be\s+)?(?:writing|write|working on|draft)/i.test(askText))) bs.detectedKind = stated;
 
-    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note, reading, onToken, onProgress, signal });
+    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note: [agentTurn?.note, note].filter(Boolean).join('\n\n'), reading, onToken, onProgress, signal });
 
     // ── Conversation (not an idea request) ───────────────────────────────────
     const interp = interpretProfile(project.profile, { text: project.storyText });
-    const past = history.slice(0, -1);
     const doc = this.#documentFor({ project, text, intent, reading, history: past, aboutText });
     const noAsk = doc.userMessage === PASTED_NO_ASK;
     // A long text is read section by section first (once: the notes are kept), so NIE can talk about all of it, not five excerpts.
@@ -309,7 +422,15 @@ export class Orchestrator {
     const passage = doc.document ? '' : shared; // a long paste is already shown through the reading block; do not show its opening a second time
     const report = shared ? scan({ text: doc.document?.subject === 'passage' ? doc.document.text : shared, project }) : null;
     // How to build this reply, which differs from the last ones; and what not to say again (openers, questions already asked).
-    const shape = this.variety !== 'full' || lib || libMiss || reading.task === 'chat' ? null : shapeFor({ history: past, kind: noAsk ? 'readback' : aboutText ? 'lookup' : isShortQuestion(askText) ? 'question' : 'conversation', seed: text });
+    const plan = agentTurn?.plan ?? null;
+    const asking = plan ? plan.act === 'ask' : undefined; // the shape of the reply agrees with the agent's plan for this turn (ask one question, or none)
+    const shape = this.variety !== 'full' || lib || libMiss || reading.task === 'chat' ? null : shapeFor({ history: past, kind: noAsk ? 'readback' : aboutText ? 'lookup' : isShortQuestion(askText) ? 'question' : 'conversation', seed: text, asks: noAsk || aboutText ? undefined : asking });
+    // What the agent wants of this reply (what it understands so far, what is not known, this turn's job) goes after the reading note.
+    // (Not when the library answers, when the question is about the writer's text, or when the model could not tell what was asked: then the answer is a clarifying question, not the plan.)
+    const steer = Boolean(agentTurn) && !lib && !libMiss && !aboutText && !noAsk && !(reading.by === 'model' && reading.task === 'unclear');
+    const brief = steer ? agentTurn.brief : '';
+    // (With no model, a writer who simply tells NIE about the idea gets an acknowledgement of what was recorded. A reply that has its own content stays: a change of direction, a pasted passage, the first sparks.)
+    const telling = steer && Boolean(agentTurn.ack) && (agentTurn.act === 'info' || agentTurn.act === 'answer') && ['share-premise', 'discuss'].includes(intent.type);
 
     const composeArgs = {
       mode: 'brainstorm',
@@ -322,7 +443,7 @@ export class Orchestrator {
       history: aboutText ? [] : past,
       retrieved,
       legacy: this.variety === 'legacy',
-      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: aboutText ? 320 : 700 });
     const asked = got.asked;
@@ -336,16 +457,18 @@ export class Orchestrator {
     let honesty = asked.failure && modelReady ? modelFailedNote(asked.failure) : '';
     if (res.text) {
       const guarded = got.polished.guarded;
-      reply = guarded.text;
+      reply = brief ? agentTurn.enforce(guarded.text) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {
         reply = builtinReply({ intent, project, message: askText, report, modelReady: true, status });
+        if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : reply);
         route = 'builtin';
         honesty = WITHHELD_NOTE;
       }
     } else {
       reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: askText, report, modelReady: modelReady && Boolean(asked.failure), status });
+      if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : reply); // told something, no model: a short acknowledgement of what was recorded, and the planned question
       route = 'builtin';
       // Starting from nothing is where a few sparks help most: offer some to react to, never a draft.
       if (intent.type === 'start-from-zero') {
@@ -371,7 +494,14 @@ export class Orchestrator {
       if (asked.read) extra = { ...extra, read: summarizeRead(asked.read), looked: lookedAt(asked.read, route) };
       extra = { ...extra, ...varietyRecord(shape, got) };
     }
-    return this.#finish(project, intent, reply, route, false, extra);
+    // Remember the question that was really asked (so it is never asked again), and what the agent did on the way.
+    if (steer) agentTurn.record(reply);
+    if (agentTurn?.note) {
+      reply = `${agentTurn.note}\n\n${reply}`;
+      if (extra.lead) extra = { ...extra, lead: `${agentTurn.note}\n\n${extra.lead}` };
+    }
+    const chips = agentTurn ? this.#agentChips(agentTurn, project) : null;
+    return this.#finish(project, intent, reply, route, false, { ...extra, ...(chips ? { suggestions: chips } : {}), ...(plan ? { agent: { act: plan.act, ...(plan.slot ? { slot: plan.slot } : {}), reason: plan.reason } } : {}) });
   }
 
   /** The long text a follow-up could be about: a recent long paste (its body), else the project's Story Text; null when there is none. */
@@ -658,6 +788,7 @@ export class Orchestrator {
     if (extra.shape) meta.shape = extra.shape; // how the reply was built, so the next one is built differently
     if (extra.variety) meta.variety = extra.variety;
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
+    if (extra.agent) meta.agent = extra.agent; // what the idea agent did this turn (asked, offered, kept...), for the panel and for tests
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });
     appendMessage(project, 'assistant', reply, meta);
     project.conversation.suggestionShown = true;
@@ -673,7 +804,8 @@ export class Orchestrator {
       tail: extra.tail ?? '',
       kind: extra.kind ?? null,
       lens: extra.lens ?? null,
-      suggestions: ideas.length && extra.lens !== 'develop' ? ideaSuggestions({ lens: extra.lens ?? null, ideas }) : nextSuggestions({ intent, project }),
+      agent: extra.agent ?? null,
+      suggestions: extra.suggestions ?? (ideas.length && extra.lens !== 'develop' ? ideaSuggestions({ lens: extra.lens ?? null, ideas }) : nextSuggestions({ intent, project })),
     };
   }
 

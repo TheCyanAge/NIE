@@ -696,7 +696,10 @@ export function refine(reply, opts) {
 // whether to end on a question). A mix on purpose: most are prose, several forbid a closing question, so no single habit can dominate.
 // The words "list" appear only in the shapes that really ask for a list, and "closing question" only where one is forbidden.
 
-const shape = (id, kinds, text) => Object.freeze({ id, kinds: Object.freeze(kinds), text });
+// Does the shape need a question ('must'), forbid one ('never'), or leave it open ('free')? The idea agent decides whether THIS turn asks (agent/plan.js),
+// so the shape has to agree with it: a turn that asks one question is never built from "no closing question", and a turn that does not ask never from "ask one".
+const asking = (text) => (/\bask (?:one|a|exactly one) (?:single )?(?:specific )?question|a single specific question/i.test(text) ? 'must' : /no closing question|\(no question\)|ends on a statement|stop there|then stop/i.test(text) ? 'never' : 'free');
+const shape = (id, kinds, text) => Object.freeze({ id, kinds: Object.freeze(kinds), text, asks: asking(text) });
 
 export const SHAPES = Object.freeze([
   shape('one-thread', ['conversation', 'question'], 'One short paragraph that builds on the single most interesting thing the writer said, then stop; no closing question.'),
@@ -712,7 +715,9 @@ export const SHAPES = Object.freeze([
   shape('answer-first', ['question', 'lookup'], 'Answer the question in the first sentence, then give one reason in the second; stop there.'),
   shape('answer-and-where', ['lookup'], 'Answer in the first sentence straight from the text and say which section it is in; if the text does not say, say so plainly. Nothing else.'),
   shape('it-depends', ['question'], "Say in one sentence what the answer depends on, then give the answer for the writer's own case, with no closing question."),
-  shape('answer-watch', ['question', 'lookup'], 'Answer plainly in two or three sentences, then name the one thing to watch for.'),
+  shape('answer-watch', ['question'], 'Answer plainly in two or three sentences, then name the one thing to watch for.'),
+  // found on the real model (notes-lab, run 3): a lookup answered with 'name the one thing to watch for' ended in an invented 'Watch for ...' line, so a lookup has its own shapes
+  shape('answer-with-detail', ['lookup'], 'Answer in the first sentence straight from the text, then add the one detail from the same passage that matters most to the answer; if the text does not say, say so plainly. Stop there.'),
   shape('four-quick', ['ideas'], 'A numbered list of 4 short sparks, each one sentence, each a what-if or a complication, no closing question.'),
   shape('two-paths', ['ideas', 'conversation'], 'Two contrasting directions, each in two sentences, then stop.'),
   shape('one-deep', ['ideas'], 'One idea developed in a short paragraph: the what-if, what it costs a character, and what it changes.'),
@@ -727,6 +732,7 @@ export const SHAPES = Object.freeze([
  * Pick how to build the next reply: a shape of this `kind` ('conversation' | 'readback' | 'question' | 'lookup' | 'ideas'; 'lookup' = a question about what the writer's own text says: answer it, never hedge or ask back). Deterministic for a given
  * seed and history. Never the shape of either of the last two replies, and the shape used longest ago comes first (a shape comes back only after
  * every other shape of its kind has been used), so a long conversation cycles instead of settling into one pattern.
+ * `asks: true | false` (the idea agent's plan for this turn) keeps out the shapes that contradict it.
  */
 export function shapeFor(opts) {
   const history = Array.isArray(opts?.history) ? opts.history : [];
@@ -738,7 +744,11 @@ export function shapeFor(opts) {
     if (m && m.role === 'assistant' && typeof m.shape === 'string' && m.shape) used.push(m.shape);
   }
   const lastTwo = new Set(used.slice(0, 2));
-  const pool = SHAPES.filter((s) => s.kinds.includes(kind));
+  let pool = SHAPES.filter((s) => s.kinds.includes(kind));
+  if (opts?.asks === true || opts?.asks === false) {
+    const fit = pool.filter((s) => s.asks !== (opts.asks ? 'never' : 'must'));
+    if (fit.length >= 2) pool = fit;
+  }
   let eligible = pool.filter((s) => !lastTwo.has(s.id));
   if (!eligible.length) eligible = pool;
   const age = (s) => {

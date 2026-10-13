@@ -158,7 +158,7 @@ test('a turn hands back what the orchestrator needs, and keeps the state inside 
   assert.deepEqual(agent.state(project), emptyAgentState(), 'a fresh project\'s agent state is empty');
   assert.deepEqual(project.conversation.agent, emptyAgentState(), 'and is created in the project');
   const t = await agent.turn({ project, message: FIRST, reading: { task: 'tell' } });
-  assert.deepEqual(Object.keys(t).sort(), ['brief', 'enforce', 'handled', 'plan', 'record', 'state']);
+  assert.deepEqual(Object.keys(t).sort(), ['ack', 'act', 'brief', 'enforce', 'handled', 'plan', 'record', 'state']);
   assert.equal(t.handled, null);
   assert.equal(t.plan.act, 'ask');
   assert.equal(typeof t.brief, 'string');
@@ -384,7 +384,7 @@ test('"also X" with no model: a detail that fits no slot is still recorded, unde
   const add = await agent.turn({ project, message: 'Also, she hides a brass key under the lamp.', reading: { task: 'tell' } });
   assert.equal(add.handled.kind, 'added');
   assert.match(add.handled.reply, /^Noted under "Also": she hides a brass key under the lamp\. Anything else, or shall I keep it\?$/);
-  assert.deepEqual(add.state.extra, ['she hides a brass key under the lamp']);
+  assert.equal(add.state.extra.at(-1), 'she hides a brass key under the lamp', 'the detail is recorded last, in the writer\'s words');
   await agent.turn({ project, message: 'yes', reading: { task: 'chat' } });
   assert.match(project.brainstorm.board[0].text, /Also: she hides a brass key under the lamp/);
 });
@@ -782,10 +782,11 @@ test('at the offer, a request, a question, a pasted text or a pitch for somethin
   }
   const { agent, project } = await offered('paste');
   const paste = 'Mara keeps the lighthouse and hears the drowned bell in the fog every winter night. '.repeat(40); // 600 words, all of them about this idea
+  const extraBefore = [...agent.state(project).extra];
   const long = await agent.turn({ project, message: paste, reading: { task: 'tell' } });
   assert.equal(long.handled, null);
   assert.equal(long.plan.act, 'serve');
-  assert.deepEqual(long.state.extra, [], 'a pasted text is never filed as a detail');
+  assert.deepEqual(long.state.extra, extraBefore, 'a pasted text is never filed as a detail');
   // a pitch for something else, without a marker such as "new idea", sets the first idea aside rather than being added to it
   const other = await offered('pitch');
   const before = other.agent.state(other.project);
@@ -799,6 +800,7 @@ test('at the offer, a request, a question, a pasted text or a pitch for somethin
 
 test('at the offer, a repeat of what is already there says nothing new was found, and "let me add something" keeps the offer open for the detail', async () => {
   const { agent, project } = await offered('dup');
+  const base = agent.state(project).extra.length; // (what the writer said on the way that fitted no part is already there)
   const first = await agent.turn({ project, message: 'Also, she hides a brass key under the lamp.', reading: { task: 'tell' } });
   assert.match(first.handled.reply, /^Noted under "Also": she hides a brass key under the lamp\./);
   await agent.turn({ project, message: 'Also, there is a cat called Biscuit who steals fish.', reading: { task: 'tell' } });
@@ -806,16 +808,16 @@ test('at the offer, a repeat of what is already there says nothing new was found
   const again = await agent.turn({ project, message: 'Also, she hides a brass key under the lamp.', reading: { task: 'tell' } });
   assert.equal(again.handled.kind, 'added');
   assert.match(again.handled.reply, /^I didn't find anything new to record in that\./, 'it does not claim it noted a different detail');
-  assert.equal(again.state.extra.length, 2);
+  assert.equal(again.state.extra.length, base + 2);
   assert.equal(again.state.turn, turnBefore, 'and a repeat is not a turn that told NIE something');
   const go = await agent.turn({ project, message: 'let me add something', reading: { task: 'tell' } });
   assert.equal(go.handled.kind, 'offer');
   assert.match(go.handled.reply, /what would you like to add|what should I add|what's the detail/i);
-  assert.equal(go.state.extra.length, 2, '"something" is not recorded as a detail');
+  assert.equal(go.state.extra.length, base + 2, '"something" is not recorded as a detail');
   assert.equal(go.state.pending.kind, 'offer');
   const detail = await agent.turn({ project, message: 'The lighthouse is older than the town itself.', reading: { task: 'tell' } });
   assert.equal(detail.handled.kind, 'added');
-  assert.equal(detail.state.extra.length, 3);
+  assert.equal(detail.state.extra.length, base + 3);
 });
 
 test('at the offer, "keep going" and "save it for later" hold the offer: they are never a yes', async () => {

@@ -397,7 +397,9 @@ test('with a model: a plain conversational reply stays a conversation, not idea 
   const o = withModel(() => 'Tell me more about who he is.');
   const r = await ask(o, projectWith(), 'A homeless man befriends a cat.');
   assert.deepEqual(r.ideas, []);
-  assert.equal(r.reply, 'Tell me more about who he is.');
+  // the first turn of an idea asks what is being made, once: the model's own line is kept and the planned question follows it
+  assert.match(r.reply, /^Tell me more about who he is\./);
+  assert.equal((r.reply.match(/\?/g) ?? []).length, 1, 'one question');
 });
 
 test('with a model: a reply that is a drafted passage in an idea list is replaced by built-in ideas, never shown', async () => {

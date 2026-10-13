@@ -50,13 +50,15 @@ export function briefFor({ plan, state, ctx, libraryNotes = [] }) {
   const unknown = openSlots(state, slots).map((s) => s.label);
   const notes = (state.form || state.genres.length) && Array.isArray(libraryNotes) ? libraryNotes.filter((n) => typeof n === 'string' && n.trim()) : [];
   const asked = state.asked.map((a) => a.text);
+  // Nothing recorded and no kind of piece known yet: there is nothing to say about the idea, and listing a generic pack's parts ("What it is, Who it is for") would only mislead.
+  const blank = recorded.length === 0 && !state.kind;
 
   let text = '';
   for (const t of TRIES) {
     const shown = new Set([...recorded].sort((a, b) => getSlot(state, b.id).turn - getSlot(state, a.id).turn).slice(0, t.filled).map((s) => s.id));
     const parts = [];
-    parts.push(`What you understand so far (the writer's own words):\n${recorded.filter((s) => shown.has(s.id)).map((s) => `- ${s.label}: ${clip(getSlot(state, s.id).value, t.clip)}`).join('\n') || '- Nothing recorded yet.'}`);
-    if (unknown.length) parts.push(`Not yet known: ${unknown.slice(0, t.unknown).join(', ')}`);
+    if (!blank) parts.push(`What you understand so far (the writer's own words):\n${recorded.filter((s) => shown.has(s.id)).map((s) => `- ${s.label}: ${clip(getSlot(state, s.id).value, t.clip)}`).join('\n') || '- Nothing recorded yet.'}`);
+    if (unknown.length && !blank) parts.push(`Not yet known: ${unknown.slice(0, t.unknown).join(', ')}`);
     if (notes.length && t.notes) parts.push(`Conventions to keep in mind:\n${notes.slice(0, t.notes).map((n) => `- ${clip(squash(n), 140)}`).join('\n')}`);
     if (asked.length) parts.push(`Questions you have already asked (do not repeat or reword them):\n${asked.slice(-t.asked).map((q) => `- ${trimWords(q, 25)}`).join('\n')}`);
     parts.push(`This turn:\n${instruction(plan ?? {}, slot, t.hint)}`);

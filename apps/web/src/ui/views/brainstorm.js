@@ -20,7 +20,7 @@ export function mountBrainstorm(root, app) {
   const send = h('button', { class: 'btn btn-primary', id: 'brainstorm-send', type: 'submit' }, 'Send');
   const stop = h('button', { class: 'btn', id: 'brainstorm-stop', type: 'button', hidden: true, onclick: () => app.session.chatAbort?.abort() }, 'Stop');
   const form = h('form', { class: 'chat-form', onsubmit: (e) => { e.preventDefault(); submit(); } }, input, h('div', { class: 'chat-buttons' }, send, stop));
-  const board = mountBoard(app, { onDevelop: (text) => ask({ ask: `Let's develop this idea: ${text}`, lens: 'develop' }), onChange: () => refreshStars() });
+  const board = mountBoard(app, { onDevelop: (text) => ask({ ask: `Let's develop this idea: ${text}`, lens: 'develop' }), onChange: () => refreshStars(), onAsk: (text) => ask({ ask: text }) });
 
   root.append(
     pageHead({ eyebrow: 'Brainstorm', title: 'Brainstorm with NIE', sub: 'Stories, characters, worlds, articles, essays, poems, scripts: anything literary. NIE throws ideas at you and asks the questions that sharpen them. Keep the ones that pull. It never writes or edits your text.' }),

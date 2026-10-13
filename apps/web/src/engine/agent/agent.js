@@ -4,11 +4,12 @@ import { addToBoard } from '../project/board.js';
 import { pick } from '../util/text.js';
 import { askTerms, enforceReply } from './ask.js';
 import { briefFor } from './brief.js';
-import { addedText, changedSinceCommit, commitIdea, confirmText, digest, holdText, offerChips, recapText, undoCommit } from './commit.js';
+import { addedText, changedSinceCommit, commitIdea, confirmText, digest, holdText, lastCommitFor, offerChips, recapText, undoCommit } from './commit.js';
 import { applyDetection, detectProject, slotsFor, validKind } from './detect.js';
 import { extractSlots, isAnswer, isShrug } from './extract.js';
 import { planTurn } from './plan.js';
-import { addExtra, describe, grasp, setSlot, startSlot } from './sheet.js';
+import { acknowledge } from './reply.js';
+import { addExtra, clearSlot, describe, grasp, setSlot, startSlot } from './sheet.js';
 import { LIMITS, emptyAgentState, filledIds, freshIdea, getSlot, hasContent, sanitizeAgentState, squash, stemList, stemSet, wordsOf } from './state.js';
 import { isNewIdea, looksLikeCommand, looksLikeQuestion, looksLikeRequest, opensWithYes, parseKeepCommand, parseOfferReply, parseShelfCommand, parseStyleCommand, signalsDone, startsNewIdeaExplicitly } from './talk.js';
 
@@ -63,6 +64,7 @@ const KIND_CHIPS = [
   { label: 'An article', text: '', send: { ask: 'It is an article.' } },
   { label: 'A script', text: '', send: { ask: 'It is a script.' } },
   { label: 'Something else', text: 'It is ' },
+  { label: 'Add more details', text: 'Let me add more details: ' },
 ];
 const AFTER_KEPT = [{ label: 'Show my Idea Board', text: '', send: { ask: 'Show my idea board.' } }, { label: 'Add more details', text: 'Let me add more details: ' }];
 const AFTER_HELD = [{ label: 'Add more details', text: 'Let me add more details: ' }, { label: 'Keep this idea', text: '', send: { ask: 'Keep this idea.' } }];
@@ -178,7 +180,7 @@ export function createAgent({ packs, config = {} } = {}) {
     let st = read(project);
     let note = '';
 
-    const finish = ({ handled = null, plan, brief = '', state }) => {
+    const finish = ({ handled = null, plan, brief = '', state, ack = '', act = null }) => {
       write(project, state);
       const terms = askTerms(state, [...(Array.isArray(recentMessages) ? recentMessages : []), text]);
       return {
@@ -186,6 +188,8 @@ export function createAgent({ packs, config = {} } = {}) {
         plan,
         brief,
         state,
+        act,
+        ack, // what NIE says itself, with no model, to a writer who has just told it something (reply.js); the planned question is added by enforce()
         ...(note ? { note } : {}),
         enforce: (reply) => enforceReply(reply, plan, { state, ctx, askedTexts: state.asked.map((a) => a.text), terms }).text,
         record: (finalReply) => {
@@ -323,7 +327,8 @@ export function createAgent({ packs, config = {} } = {}) {
       s = recordAsk(s, plan, plan.question.text);
       return finish({ state: s, plan, handled: { reply: plan.question.text, suggestions: KIND_CHIPS, kind: 'asked-kind' } });
     }
-    return finish({ state: s, plan, brief: briefFor({ plan, state: s, ctx, libraryNotes }) });
+    const ack = telling && plan.act !== 'serve' ? acknowledge({ plan, shown: learned.shown, seed: `${sd}|${s.idea}`, turn: s.turn }) : '';
+    return finish({ state: s, plan, act, ack, brief: briefFor({ plan, state: s, ctx, libraryNotes }) });
   }
 
   return {
@@ -336,7 +341,11 @@ export function createAgent({ packs, config = {} } = {}) {
       return st;
     },
     turn,
-    describe: (project) => describe(read(project), ctx),
+    describe: (project) => {
+      const st = read(project);
+      const last = lastCommitFor(st);
+      return { ...describe(st, ctx), canKeep: filledIds(st).length >= 2, everKept: Boolean(last), kept: Boolean(last) && !changedSinceCommit(st, ctx) };
+    },
     /** Keep the idea now (the UI's "keep" button). */
     commitNow: (project) => {
       const done = commitIdea(project, read(project), ctx);
@@ -350,6 +359,18 @@ export function createAgent({ packs, config = {} } = {}) {
       return { removed: done.removed, state: done.state };
     },
     setMode: (project, mode) => write(project, sanitizeAgentState({ ...read(project), mode })),
+    /** The writer edits what NIE recorded for a part (the panel): their new words replace the old; an empty value is not recorded. */
+    edit: (project, id, value) => {
+      const st = read(project);
+      return write(project, setSlot(st, id, String(value ?? ''), { turn: st.turn, via: 'added' }));
+    },
+    /** The writer removes what NIE recorded for a part (the panel). */
+    clear: (project, id) => write(project, clearSlot(read(project), id)),
+    /** The writer removes a detail recorded under "Also". */
+    clearExtra: (project, index) => {
+      const st = read(project);
+      return write(project, { ...st, extra: st.extra.filter((_, i) => i !== index) });
+    },
     recordAsk,
   };
 }

@@ -24,8 +24,9 @@ export const messageOfReading = (messages) => messages.at(-1).content.match(/"""
  * read the message, so older tests keep their meaning; pass `reading(text, messages)` to script it (return an Error to make the call fail).
  * Reading calls go to `reads`, never to `calls`, so tests that count or inspect the ANSWER calls see only those.
  * Notes calls (purpose 'notes' | 'overview') answer with a note made of the section's own first words and names, unless `note(sectionText)` scripts them.
+ * The idea agent's reading of an idea into its sheet (purpose 'extract') goes to `extractCalls` and answers "nothing found" (so the rules read it), unless `extract(messages)` scripts it.
  */
-export function modelWithReading(replyFn, { calls = [], reads = [], reading = null, noteCalls = [], note = null, overview = 'This text is told in several parts and follows a few named people. It is organised in numbered sections, each taking up one thread.' } = {}) {
+export function modelWithReading(replyFn, { calls = [], reads = [], reading = null, noteCalls = [], extractCalls = [], extract = null, note = null, overview = 'This text is told in several parts and follows a few named people. It is organised in numbered sections, each taking up one thread.' } = {}) {
   return async (messages, opts) => {
     // The section-by-section reading ("notes") and the overview made from it are their own calls too: they go to `noteCalls`, never to `calls`.
     if (opts?.purpose === 'notes' || opts?.purpose === 'overview') {
@@ -33,6 +34,12 @@ export function modelWithReading(replyFn, { calls = [], reads = [], reading = nu
       if (opts.purpose === 'overview') return typeof overview === 'function' ? overview(messages) : overview;
       const part = messageOfReading(messages);
       const r = note ? note(part, messages) : { gist: (part.match(/[^.!?]+[.!?]?/)?.[0] ?? part).trim().split(/\s+/).slice(0, 14).join(' ') || 'A part of the text.', names: [...new Set(part.match(/\b[A-Z][a-z]{2,}\b/g) ?? [])].slice(0, 4), terms: [], voice: 'plain, matter-of-fact' };
+      if (r instanceof Error) throw r;
+      return typeof r === 'string' ? r : JSON.stringify(r);
+    }
+    if (opts?.purpose === 'extract') {
+      extractCalls.push({ messages, opts });
+      const r = extract ? extract(messages, opts) : { updates: [], extra: [] };
       if (r instanceof Error) throw r;
       return typeof r === 'string' ? r : JSON.stringify(r);
     }

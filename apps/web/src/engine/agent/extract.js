@@ -358,7 +358,16 @@ function rulesExtract({ message, state, slots, pendingSlot }) {
 
   // 3. the first substantive statement becomes the premise (the first core slot with nothing before it), unless it was just taken as the answer to a question
   if (start && pitch && !touched.has(start.id)) put(start.id, text);
-  return { updates, extra: [] };
+  // 4. a statement about the story that fits no part is still something the writer said: it is kept under "Also", in their words, so the recap never loses it.
+  // (Only when it is plainly about the story: it names someone or somewhere, or uses words already on the sheet. Remarks about the process are not the idea.)
+  let detail = false;
+  if (!updates.length && answer && wordsOf(text).length >= 6) {
+    const cues = extractPremiseCues(text);
+    const mine = stemList(text);
+    const held = new Set([...Object.values(state.slots ?? {}).flatMap((r) => stemList(r?.value)), ...(state.extra ?? []).flatMap((e) => stemList(e))]);
+    detail = cues.characters.length > 0 || cues.settings.length > 0 || mine.some((x) => held.has(x));
+  }
+  return { updates, extra: detail ? [text] : [] };
 }
 
 /**

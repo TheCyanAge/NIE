@@ -12,9 +12,10 @@ import { sectionKey } from '../../engine/reading/notes.js';
  * Everything here belongs to the active project (it is read from `app.project` on every render), and nothing on it is
  * ever written or rewritten by NIE: the writer adds, edits and removes.
  */
-export function mountBoard(app, { onDevelop, onChange = null }) {
+export function mountBoard(app, { onDevelop, onChange = null, onAsk = null }) {
   const count = h('span', { class: 'tag', id: 'board-count' }, '0');
   const understands = h('div', { class: 'understands', id: 'understands', 'data-testid': 'understands' });
+  const idea = h('div', { class: 'idea-sheet', id: 'idea-sheet', 'data-testid': 'idea-sheet' });
   const list = h('ul', { class: 'board-list', id: 'board-list' });
   const add = h('input', { class: 'input', id: 'board-add', type: 'text', maxlength: '600', placeholder: 'Add your own idea or note…', 'aria-label': 'Add your own idea to the Idea Board' });
   const addForm = h('form', { class: 'board-add', onsubmit: (e) => { e.preventDefault(); addOwn(); } }, add, h('button', { class: 'btn', type: 'submit' }, 'Add'));
@@ -24,6 +25,8 @@ export function mountBoard(app, { onDevelop, onChange = null }) {
   const el = h('aside', { class: 'board', id: 'idea-board', 'data-testid': 'idea-board', 'aria-label': 'Idea Board' },
     h('div', { class: 'board-head' }, h('div', {}, h('span', { class: 'eyebrow' }, 'Idea Board'), h('h2', { class: 'board-title' }, 'What you\'re keeping')), count),
     list, addForm, h('div', { class: 'row board-actions' }, copy, save),
+    h('div', { class: 'board-sep' }),
+    h('span', { class: 'eyebrow' }, 'The idea we\'re on'), idea,
     h('div', { class: 'board-sep' }),
     h('span', { class: 'eyebrow' }, 'What NIE understands'), understands);
 
@@ -85,6 +88,61 @@ export function mountBoard(app, { onDevelop, onChange = null }) {
     return lastSections;
   };
 
+  /**
+   * The idea NIE is following: what the writer has said about it, part by part and in their own words (nothing here is NIE's wording), what is still open,
+   * and the choice to keep it. The writer can fix or remove any part, keep the idea now, take a keep back, or change how often NIE asks.
+   */
+  function renderIdea() {
+    const agent = app.orchestrator?.agent;
+    clear(idea);
+    if (!agent) return;
+    const d = agent.describe(app.project);
+    const refreshAll = () => { app.saveNow(); refresh(); onChange?.(); };
+    if (!d.filled.length && !d.extra.length && !d.shelf.length) {
+      idea.append(h('p', { class: 'muted small' }, 'Tell me about what you are making and I will follow it here, in your words. When I have enough, I will ask if you want it kept.'));
+      return;
+    }
+    const title = [d.kindLabel ? d.kindLabel[0].toUpperCase() + d.kindLabel.slice(1) : null, d.formLabel, ...d.genreLabels].filter(Boolean).join(' · ');
+    if (title) idea.append(h('p', { class: 'idea-sheet-title' }, title));
+    const rows = d.filled.map((f) => {
+      const row = h('li', { class: 'sheet-row', dataset: { slot: f.id } });
+      const show = () => {
+        clear(row).append(
+          h('span', { class: 'sheet-label' }, f.label), h('span', { class: 'sheet-value' }, f.value),
+          h('span', { class: 'sheet-actions' },
+            h('button', { class: 'link', type: 'button', onclick: edit }, 'Edit'),
+            h('button', { class: 'link link-danger', type: 'button', 'aria-label': `Remove ${f.label}`, onclick: () => { agent.clear(app.project, f.id); refreshAll(); } }, 'Remove')));
+      };
+      const edit = () => {
+        const ta = h('textarea', { class: 'input', rows: '2', maxlength: '220', 'aria-label': `Your words for ${f.label}` }, f.value);
+        clear(row).append(h('span', { class: 'sheet-label' }, f.label), ta,
+          h('span', { class: 'sheet-actions' },
+            h('button', { class: 'btn', type: 'button', onclick: () => { agent.edit(app.project, f.id, ta.value); refreshAll(); } }, 'Save'),
+            h('button', { class: 'link', type: 'button', onclick: show }, 'Cancel')));
+        ta.focus();
+      };
+      show();
+      return row;
+    });
+    if (rows.length) idea.append(h('ul', { class: 'sheet-list' }, ...rows));
+    if (d.extra.length) idea.append(h('ul', { class: 'sheet-list sheet-extra' }, ...d.extra.map((e, i) => h('li', { class: 'sheet-row' }, h('span', { class: 'sheet-label' }, 'Also'), h('span', { class: 'sheet-value' }, e),
+      h('span', { class: 'sheet-actions' }, h('button', { class: 'link link-danger', type: 'button', 'aria-label': 'Remove this detail', onclick: () => { agent.clearExtra(app.project, i); refreshAll(); } }, 'Remove'))))));
+    const open = d.open.filter((o) => o.core).slice(0, 5).map((o) => o.label);
+    if (rows.length && open.length) idea.append(h('p', { class: 'muted small sheet-open' }, `Still open: ${open.join(', ')}.`));
+    if (d.canKeep) {
+      idea.append(h('div', { class: 'row sheet-keep' },
+        h('button', { class: 'btn', id: 'idea-keep', type: 'button', disabled: d.kept, onclick: () => { const r = agent.commitNow(app.project); toast(r.reply, { kind: 'ok' }); refreshAll(); } }, d.kept ? 'Kept' : d.everKept ? 'Update what I kept' : 'Keep this idea'),
+        d.everKept ? h('button', { class: 'link', id: 'idea-undo', type: 'button', onclick: () => { agent.undo(app.project); toast('Took that back.', { kind: 'ok' }); refreshAll(); } }, 'Take it back') : null));
+    }
+    const mode = h('select', { class: 'input', id: 'agent-mode', 'aria-label': 'How often NIE asks questions', onchange: () => { agent.setMode(app.project, mode.value); app.saveNow(); } },
+      ...[['auto', 'Now and then'], ['interview', 'After most things I say'], ['quiet', 'Not at all']].map(([v, l]) => h('option', { value: v, selected: d.mode === v }, l)));
+    idea.append(h('label', { class: 'row sheet-mode' }, h('span', { class: 'muted small' }, 'NIE asks questions: '), mode));
+    if (d.shelf.length) {
+      idea.append(h('div', { class: 'sheet-shelf' }, h('p', { class: 'muted small' }, `Set aside: ${d.shelf.length} earlier idea${d.shelf.length > 1 ? 's' : ''}${d.shelf.at(-1).preview ? ` (${d.shelf.at(-1).preview}…)` : ''}`),
+        onAsk ? h('button', { class: 'link', type: 'button', onclick: () => onAsk('Bring back the earlier idea.') }, 'Bring back the latest') : null));
+    }
+  }
+
   function renderUnderstands() {
     const p = app.project;
     const wp = p.conversation.workingPremise ?? {};
@@ -125,6 +183,7 @@ export function mountBoard(app, { onDevelop, onChange = null }) {
     if (!items.length) list.append(h('li', { class: 'board-empty muted small' }, 'Nothing kept yet. Tap the star on any idea, or say "remember this".'));
     for (const i of [...items].reverse()) list.append(item(i));
     copy.disabled = save.disabled = !items.length;
+    renderIdea();
     renderUnderstands();
   }
 

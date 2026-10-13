@@ -226,6 +226,16 @@ mark.flash, .flash { animation: flash 1.5s ease; }
 .board-add { display: flex; gap: 8px; margin-bottom: 8px; }
 .board-actions { gap: 6px; }
 .board-sep { height: 1px; background: var(--line); margin: 14px 0 10px; }
+.idea-sheet-title { font-weight: 650; margin: 0 0 .4rem; }
+.sheet-list { list-style: none; margin: 0 0 .5rem; padding: 0; display: grid; gap: .45rem; }
+.sheet-row { display: grid; grid-template-columns: 84px 1fr; gap: 2px 10px; font-size: .85rem; align-items: start; }
+.sheet-label { color: var(--muted); font-weight: 650; }
+.sheet-value { overflow-wrap: anywhere; }
+.sheet-actions { grid-column: 2; display: flex; gap: .75rem; }
+.sheet-row textarea { width: 100%; }
+.sheet-keep, .sheet-mode { align-items: center; gap: .6rem; margin-top: .5rem; }
+.sheet-mode select { width: auto; }
+.sheet-shelf { margin-top: .5rem; }
 .board-empty { padding: 6px 2px; }
 .understands .info-grid { grid-template-columns: 84px 1fr; font-size: .85rem; }
 .understands .info-v { word-break: normal; overflow-wrap: anywhere; margin: 0; }

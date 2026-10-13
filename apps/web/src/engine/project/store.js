@@ -3,6 +3,7 @@ import { emptyWorkingPremise } from '../intent/intent.js';
 import { uid } from '../util/text.js';
 import { emptyBrainstorm, normalizeBrainstorm } from './board.js';
 import { emptyReadingNotes, sanitizeReadingNotes } from '../reading/notes.js';
+import { emptyAgentState, sanitizeAgentState } from '../agent/state.js';
 
 /**
  * Project storage with hard isolation.
@@ -76,7 +77,7 @@ export function createProjectData({ title = 'Untitled project', profile, storyTe
       intentional: [], // findings the writer marked as deliberate
       dismissed: [], // finding fingerprints the writer dismissed
     },
-    conversation: { messages: [], workingPremise: emptyWorkingPremise(), suggestionShown: false },
+    conversation: { messages: [], workingPremise: emptyWorkingPremise(), suggestionShown: false, agent: emptyAgentState() }, // agent = the idea NIE is following: what the writer said per part, what was asked, what was kept
     brainstorm: emptyBrainstorm(), // kind, what was already shown, and the Idea Board the writer keeps
     scans: { history: [] },
     readingNotes: emptyReadingNotes(), // what NIE wrote while reading a long text section by section (derived data, kept by section hash; removed with the project)
@@ -113,6 +114,7 @@ function migrate(raw) {
       messages: Array.isArray(raw.conversation?.messages) ? raw.conversation.messages.slice(-MAX_MESSAGES) : [],
       workingPremise: { ...emptyWorkingPremise(), ...(raw.conversation?.workingPremise ?? {}) },
       suggestionShown: Boolean(raw.conversation?.suggestionShown),
+      agent: sanitizeAgentState(raw.conversation?.agent),
     },
     brainstorm: normalizeBrainstorm(raw.brainstorm),
     scans: { history: Array.isArray(raw.scans?.history) ? raw.scans.history.slice(-20) : [] },
