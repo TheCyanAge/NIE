@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       sessions:
-        description: 'Scripted writers to run (comma separated: cozy-mystery, character, folk-song, article)'
+        description: 'Scripted writers to run (comma separated: cozy-mystery, character, folk-song, article, memory)'
         type: string
         default: 'cozy-mystery,character,folk-song,article'
       max_steps:
@@ -16,7 +16,7 @@ on:
         type: string
         default: '99'
       modes:
-        description: 'agent (the app) and/or off (the agent switched off, for comparison)'
+        description: 'agent (the app), nomind (agent on, project mind off) and/or off (agent off), for comparison'
         type: string
         default: 'agent'
       threads:

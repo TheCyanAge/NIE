@@ -107,4 +107,42 @@ export const SESSIONS = [
       { id: 'anonymous', any: ['refused to be named', 'landlord'] },
     ],
   },
+  {
+    // The project's mind: the writer builds an idea over many messages, wanders through requests and craft questions, then asks what NIE remembers. Everything is invented.
+    // `probes` are asked at the end; each is answered correctly only if every group of `mustMention` has one of its alternatives in the reply.
+    id: 'memory',
+    kind: 'story',
+    steps: [
+      { say: 'The story is called The Salt Road and it is set in a drought-struck river delta in 1870.', kind: 'tell' },
+      { say: 'The heroine is Ines Varga, a surveyor who maps wells for the water guild.', kind: 'tell' },
+      { say: 'Her brother Tomas vanished with a caravan of salt traders two summers ago.', kind: 'tell' },
+      { say: 'The caravan master, Oleander Bruck, owes the guild a hundred silver marks.', kind: 'tell' },
+      { say: 'Nobody in the delta may dig a well deeper than nine arm-lengths; that is the guild\'s law.', kind: 'tell' },
+      { say: "Ines carries her brother's brass compass, which points to the nearest water instead of north.", kind: 'tell' },
+      { say: 'I want it to read like a slow, sun-bleached fable, in third person and past tense.', kind: 'tell' },
+      { say: 'Give me some ideas for a complication in the middle.', kind: 'request' },
+      { say: 'What is a MacGuffin?', kind: 'question' },
+      { say: 'Thanks, that helps.', kind: 'chat' },
+      { say: 'Give me some twists for the ending.', kind: 'request' },
+      { say: 'Is it a problem if my heroine is unlikeable at first?', kind: 'question' },
+    ],
+    probes: [
+      { ask: 'Remind me: what is my heroine called and what does she do?', mustMention: [['Ines', 'Varga'], ['surveyor', 'maps wells', 'wells']] },
+      { ask: 'Who owes the guild money, and how much?', mustMention: [['Oleander', 'Bruck'], ['hundred', '100']] },
+      { ask: 'What was the rule about digging wells that I gave you?', mustMention: [['nine']] },
+      { ask: 'What does the compass in my story do?', mustMention: [['nearest water', 'water']] },
+      { ask: 'What tone did I say I wanted?', mustMention: [['fable', 'sun-bleached']] },
+      { ask: 'When and where is my story set?', mustMention: [['1870'], ['delta']] },
+      { ask: 'What happened to my heroine\'s brother?', mustMention: [['Tomas', 'vanished', 'caravan']] },
+    ],
+    facts: [
+      { id: 'title-setting', any: ['Salt Road', 'river delta', '1870'] },
+      { id: 'heroine', any: ['Ines Varga', 'surveyor'] },
+      { id: 'brother', any: ['Tomas', 'brother'] },
+      { id: 'debt', any: ['Oleander Bruck', 'hundred silver marks'] },
+      { id: 'law', any: ['nine arm-lengths', 'guild'] },
+      { id: 'compass', any: ['compass', 'nearest water'] },
+      { id: 'tone', any: ['sun-bleached fable', 'fable'] },
+    ],
+  },
 ];
