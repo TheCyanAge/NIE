@@ -65,17 +65,20 @@ not with a fake. Runner speed varies a lot from run to run, so only same-run com
 - Sounding the same: with the earlier prompt wording alone, a ten-message conversation had 3 praise openers, 1 stock question and 1 question asked twice; with the full change
   (different reply shape each turn, an avoid-list, history scrubbed of praise, replies cleaned) it had **0, 0 and 0**.
 
-**Following an idea like an interviewer** (`agent-lab` workflow, `scripts/agent-lab.mjs`, four scripted writers: a cozy mystery, a character, a folk song, an article; 40 messages in all; 2 CPU threads):
-- Asking: **ask rate 0.42** over the turns where the writer told NIE something (a question every other turn or so, not every turn), never three questions in a row, **no reply with two questions**,
-  **no question asked twice**, no stock "what do you think?" question, every question about the writer's own idea (shares words with it) in 3 of 4 sessions' questions and all of the others.
-  (The first run asked 0.55; a second run, after one wording change in the brief, asked on every turn, because a 3B model told to say what a detail "makes you wonder" writes a question. The planner and the
-  check on the reply now keep a turn that must not ask from asking, whatever the model writes.)
-- Remembering: **7/8, 6/6, 5/6 and 6/7** of the things the writers planted were on the sheet at the end (the first run: 6/8, 5/6, 3/6, 5/7). Nothing on the sheet was a word the writer had not said.
-  What it missed: a detail the model's reading took for a question to NIE, and a feeling stated as "I want the listener to feel...".
+**Following an idea like an interviewer** (`agent-lab` workflow, `scripts/agent-lab.mjs`, four scripted writers: a cozy mystery, a character, a folk song, an article; about 40 messages in all; 2 CPU threads; four runs, the last on the final design):
+- Asking: **ask rate 0.58** over the turns where the writer told NIE something (a question about every other turn, not every turn), three questions in a row in one session of four (a clear statement the model
+  had read as "unclear" got a clarifying question; fixed since), **no reply with two questions**, **no question asked twice**, no stock "what do you think?" question, and 15 of 16 questions in the three sessions
+  that print it share words with the writer's own idea. The first run asked 0.55; a second, after one wording change in the brief, asked on every turn (a 3B model told to say what a detail "makes you wonder" writes a
+  question), so the planner and a check on the reply now keep a turn that must not ask from asking, whatever the model writes.
+- Remembering: **8/8, 6/6, 5/6 and 6/7** of the things the writers planted were on the sheet at the end (the first run: 6/8, 5/6, 3/6, 5/7). Nothing on the sheet was a word the writer had not said.
+  Missed: "I want the listener to feel proud and sad" (read as a craft question) and a point made in a long sentence.
+- Not making things up: the first full runs showed short comments inventing story imagery ("the singer's eyes are fixed on the mill's smokestacks"): a line of story the writer never wrote. A comment is now
+  kept only if its content words are the writer's own, the vocabulary of the idea's parts, or plain craft words; otherwise it is cut and NIE says what it recorded (or keeps only its question).
 - Offering: the offer to keep the idea came at message 9 or 10 in the three sessions where the writer said they were done or asked to keep it, and the yes filed it on the Idea Board and in memory.
-- Cost: about **40 s a turn** on the slow runner (reading the message 4 s, reading the idea into the sheet 5 s, writing the reply 31 s). The offer, the yes, "not yet" and a style command need no model and take no time.
-- Honest limit: these are scripted writers who answer what they are asked. A real conversation wanders more; the sheet records what is said, but a 3B model's comments on an idea are thin next to a large
-  hosted model's, which is why a comment that invents imagery the writer never gave is cut and replaced by what NIE recorded.
+- Cost: about **37 s a turn** on the slow runner (reading the message 4 s, reading the idea into the sheet 5 s, writing the reply 28 s; the first message of a session also loads the model, about 20 s more).
+  The offer, the yes, "not yet" and a style command need no model and take no time.
+- Honest limit: these are scripted writers who answer what they are asked. A real conversation wanders more, and a 3B model's comments on an idea are thin next to a large hosted model's. What makes NIE behave
+  like an attentive interviewer here is the scaffold (the sheet, the planner, questions written by hand for each kind of piece, form and genre, and checks on every reply), not the model's own judgment.
 
 ## Rules, in detail
 Understood and **checked exactly**: forbidden words/phrases; terminology ("use X not Y"); sentence/paragraph length limits; first/second/third person and

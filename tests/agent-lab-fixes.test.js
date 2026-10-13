@@ -145,6 +145,7 @@ test('a turn that must not ask, answered with invented imagery, says what was re
   assert.equal(holdToPlan("The singer's eyes are fixed on the mill's smokestacks.", { act: 'reflect' }, turn()), 'Noted under what the song comes back to: the mill whistle.');
   assert.equal(holdToPlan('The night bus gives the leaving a place.', { act: 'reflect' }, turn()), 'The night bus gives the leaving a place.');
   assert.equal(holdToPlan('A silent gratitude fills it. Who is the song for?', { act: 'ask' }, turn()), 'Who is the song for?');
+  assert.equal(holdToPlan("You've interviewed three gardeners and a parks officer. Will you come at it through one person?", { act: 'ask' }, turn(), "I've interviewed three gardeners and a parks officer."), 'Will you come at it through one person?', 'saying their sentence back is not a comment');
   assert.equal(holdToPlan('Folk songs run two or three minutes. Want that?', { act: 'serve' }, turn()), 'Folk songs run two or three minutes. Want that?', 'an answer to the writer\'s own question is never filtered');
 });
 
@@ -160,4 +161,17 @@ test('"I want the listener to feel proud and sad" is the writer telling NIE abou
   const project = projectWith();
   const q = await agent.turn({ project, message: 'How long should a folk song like that be?', reading: { task: 'craft' } });
   assert.equal(q.plan.act, 'serve');
+});
+
+test('a clear statement of six words or more is never "unclear": the writer is telling NIE, not asking something it cannot make out', () => {
+  const read = (text, task) => {
+    const intent = { type: 'discuss', premiseCues: {}, direction: { changed: false } };
+    applyReading(intent, { task, topic: '' }, text);
+    return intent.reading;
+  };
+  const r = read('The singer is leaving on the night bus and does not look back.', 'unclear');
+  assert.equal(r.task, 'tell');
+  assert.equal(r.overruled, 'unclear');
+  assert.equal(read('that part', 'unclear').task, 'unclear', 'two words really are unclear');
+  assert.equal(read('Which part do you mean by that', 'unclear').task, 'unclear', 'a question stays a question');
 });

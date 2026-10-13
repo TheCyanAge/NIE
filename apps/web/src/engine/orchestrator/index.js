@@ -7,7 +7,7 @@ import { scan, scanWithModel } from '../analysis/scan.js';
 import { composeMessages, ideaRequestBlock, indexFor, RETRY_TOKEN_LIMIT } from './prompt.js';
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
-import { avoidBlock, refine, shapeFor, splitSentencesLite } from './variety.js';
+import { avoidBlock, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
 import { makeOverview, projectNotesCache, readThrough, sectionKey } from '../reading/notes.js';
@@ -65,8 +65,14 @@ export function withoutQuestionLists(text) {
  * to ask) can still come back as a question in one short sentence ("...but what secrets does she carry?"), which `enforce` cannot cut without leaving nothing. Then the question
  * sentences go, and if too little is left NIE's own acknowledgement of what was recorded stands in for the reply. Measured on the real model: without this every turn asked.
  */
-export function holdToPlan(text, plan, agentTurn) {
+export function holdToPlan(text, plan, agentTurn, said = '') {
   let out = agentTurn.enforce(text);
+  if (plan?.act === 'ask' && said) {
+    // A model often opens by saying the writer's own sentence back to them; before a question that is only an echo, so it goes and the question stands.
+    const sentences = splitSentencesLite(out);
+    const kept = sentences.filter((x) => /\?["')\]]*\s*$/.test(x) || similarity(x, said) < 0.7);
+    if (kept.length < sentences.length && kept.some((x) => /\?["')\]]*\s*$/.test(x))) out = kept.join(' ').trim();
+  }
   if (plan?.act === 'ask' || plan?.act === 'reflect') {
     // The comment (what is not a question) must stay with what the writer said; invented imagery is cut, and a turn left with nothing says what it recorded instead.
     const sentences = splitSentencesLite(out);
@@ -525,7 +531,7 @@ export class Orchestrator {
     let honesty = asked.failure && modelReady ? modelFailedNote(asked.failure) : '';
     if (res.text) {
       const guarded = got.polished.guarded;
-      reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn, askText) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {

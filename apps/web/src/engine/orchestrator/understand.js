@@ -151,6 +151,11 @@ export function applyReading(intent, reading, text) {
   if ((task === 'write' || task === 'edit') && !looksLikeARequest(text)) {
     overruled = task; // the model said "write"/"edit" but nothing in the message asks for it: not a request, so nothing is declined
     task = /\?\s*$/.test(text) || wc < 3 ? 'unclear' : 'tell';
+  } else if (task === 'unclear' && wc >= 6 && !/\?/.test(text) && !/^\s*(?:which|what|how|why|who|where|when|do|does|did|is|are|can|could|would|should|will)\b/i.test(text) && !looksLikeARequest(text) && !ASKS_FOR_IDEAS.test(text)) {
+    // measured on the real model: "The singer is leaving on the night bus and does not look back." was read as "I could not tell what is being asked", which sends the
+    // answering model off to ask a clarifying question about a perfectly clear statement. A statement of six words or more that asks nothing is the writer telling NIE.
+    overruled = task;
+    task = 'tell';
   } else if (task === 'ideas' && !ASKS_FOR_IDEAS.test(text) && !/\?\s*$/.test(text)) {
     // measured on the real model: a statement that came right after a request for ideas ("Also, the letters are in a dead man's hand.") was read as another request for ideas
     overruled = task;
