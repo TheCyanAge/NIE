@@ -30,7 +30,7 @@ export default [
         core: true,
         weight: 3,
         hint: 'the line, phrase or idea the song keeps coming back to (the hook or chorus), and what it means by the end',
-        after: [],
+        after: ['idea', 'subject'],
         next: ['song-lyrics-singer', 'song-lyrics-sections'],
         memory: 'motif',
         questions: qs([
@@ -50,7 +50,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'who is singing and who they sing to: the writer, an invented person, a duet or a crowd, and what that listener means',
-        after: [],
+        after: ['song-lyrics-return'],
         next: ['song-lyrics-arc', 'song-lyrics-sections'],
         questions: qs([
           ['open', 'Who is singing this song about {thing}, and who are they singing to?'],
@@ -69,7 +69,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'what changes from the first moments to the last: a story told in order, a picture that deepens, or a feeling that turns',
-        after: [],
+        after: ['song-lyrics-return'],
         next: ['song-lyrics-sections'],
         questions: qs([
           ['open', 'What is different about the singer, or about their situation, by the time the song about {thing} ends?'],
@@ -107,7 +107,7 @@ export default [
         core: false,
         weight: 1,
         hint: 'the music the words must fit: speed, feel, rhythm and rhyme, and whether the words or the tune came first',
-        after: [],
+        after: ['song-lyrics-return'],
         next: [],
         questions: qs([
           ['either', 'Did the words come to you first, or a tune and a beat that the words now have to fit?'],
@@ -137,7 +137,7 @@ export default [
         core: true,
         weight: 3,
         hint: 'how it is performed live: from memory or the page, voice, pace, movement, silence, and where the performer stands',
-        after: [],
+        after: ['subject', 'idea'],
         next: ['spoken-word-grab', 'spoken-word-rhythm'],
         questions: qs([
           ['open', 'Where will you perform this piece about {thing}, and who will be in the room listening?'],
@@ -156,7 +156,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how the piece wins a room in its first moments, before they settle: a question, a story, a rhythm or a silence',
-        after: [],
+        after: ['spoken-word-delivery'],
         next: ['spoken-word-rhythm'],
         questions: qs([
           ['open', 'How should the first ten seconds win over a room that has not yet settled and knows nothing about {thing}?'],
@@ -175,7 +175,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how long it runs and how it moves in the mouth: pace, breath, pauses, repetition, and where the speed changes',
-        after: [],
+        after: ['spoken-word-delivery'],
         next: ['spoken-word-truth'],
         questions: qs([
           ['open', 'When the piece about {thing} is spoken aloud, what running time do you hear, and is it set by you or by the event?'],
@@ -194,7 +194,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'whose story and voice the piece speaks in: the performer, a community or someone else, and what is theirs to say',
-        after: [],
+        after: ['spoken-word-delivery'],
         next: ['spoken-word-landing'],
         questions: qs([
           ['open', 'Whose voice is the piece spoken in, and how close is that voice to your own?'],
@@ -213,7 +213,7 @@ export default [
         core: false,
         weight: 1,
         hint: 'how the piece ends and what happens in the room after the last word: a turn, a quiet, a call, applause or stillness',
-        after: [],
+        after: ['spoken-word-delivery'],
         next: [],
         questions: qs([
           ['open', 'What should the room do in the moment right after your last word?'],
@@ -242,13 +242,13 @@ export default [
         core: true,
         weight: 3,
         hint: 'the one point a listener should still hold a day later, having heard the speech once and never seen it written',
-        after: [],
+        after: ['idea', 'subject'],
         next: ['speech-room', 'speech-opening'],
         memory: 'theme',
         questions: qs([
           ['open', 'If a listener could remember only one sentence from a speech about {thing}, what would you want it to say?'],
           ['either', 'Do you want the room to walk out having decided something, or having felt something?'],
-          ['whatif', 'Suppose someone summed up your speech on {theme} for a friend in ten words the next morning: what would you hope they said?'],
+          ['whatif', 'Suppose someone summed up your speech for a friend in ten words the next morning: what would you hope they said about {theme}?'],
           ['constraint', 'If the speech could carry only one idea, which would you protect and which would you cut?'],
           ['contrast', 'What does the room probably expect you to say about {thing}, and what do you want to say instead?'],
           ['reader', 'What should the audience be able to do or say differently the day after hearing it?'],
@@ -262,7 +262,7 @@ export default [
         core: false,
         weight: 3,
         hint: 'who is in the room and how they feel as you begin: friendly, tired, wary or celebrating, and what they expect',
-        after: [],
+        after: ['speech-single-point'],
         next: ['speech-opening'],
         questions: qs([
           ['open', 'Who will be sitting in front of you when you speak about {thing}, and what kind of day will they have had by then?'],
@@ -281,7 +281,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how the speech wins the room in its first half minute: a story, a question or a surprise, and why you may speak',
-        after: [],
+        after: ['speech-single-point'],
         next: ['speech-example'],
         questions: qs([
           ['open', 'How do you want the first thirty seconds to win the room, before anyone has decided to listen?'],
@@ -338,7 +338,7 @@ export default [
         core: false,
         weight: 1,
         hint: 'how long it runs and how it is spoken: word for word or from notes, pace, pauses, slides, a microphone',
-        after: [],
+        after: ['speech-single-point'],
         next: [],
         questions: qs([
           ['open', 'How many minutes do you have for a speech about {thing}, and who will stop you if you run over?'],
@@ -358,7 +358,7 @@ export default [
   {
     id: 'toast-eulogy',
     label: 'toast or eulogy',
-    match: ['eulogy', 'wedding toast', 'best man speech', 'maid of honor speech', 'funeral tribute', 'memorial speech', 'give a toast', 'make a toast', 'retirement toast', 'celebration of life'],
+    match: ['eulogy', 'wedding toast', 'wedding speech', 'best man speech', 'maid of honor speech', 'funeral tribute', 'memorial speech', 'give a toast', 'make a toast', 'retirement toast'],
     baseKinds: ['other', 'essay'],
     add: [
       {
@@ -367,7 +367,7 @@ export default [
         core: true,
         weight: 3,
         hint: 'who is being honoured (a person or a couple) and who you are to them: how you know each other, what you saw',
-        after: [],
+        after: ['idea', 'subject'],
         next: ['toast-eulogy-story', 'toast-eulogy-mood'],
         memory: 'character',
         questions: qs([
@@ -406,7 +406,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'the mix of feeling the room should leave with: joy, grief, laughter and tenderness, and how much humour is welcome',
-        after: [],
+        after: ['toast-eulogy-person'],
         next: ['toast-eulogy-limits'],
         questions: qs([
           ['open', 'What feelings will people in the room already be carrying when you stand up to speak about {thing}?'],
@@ -444,7 +444,7 @@ export default [
         core: false,
         weight: 1,
         hint: 'how long it runs and when it is given: before the meal or after a reading, standing or at a lectern, notes or memory',
-        after: [],
+        after: ['toast-eulogy-person'],
         next: [],
         questions: qs([
           ['open', 'When in the event will you speak, and who speaks just before and just after you?'],
@@ -463,7 +463,7 @@ export default [
   {
     id: 'stage-play',
     label: 'stage play',
-    match: ['stage play', 'playwriting', 'playwright', 'write a play', 'writing a play', 'one-act play', 'one act play', 'full-length play', 'theatre script', 'theater script'],
+    match: ['stage play', 'playwriting', 'playwright', 'write a play', 'writing a play', 'one-act play', 'two-act play', 'full-length play', 'theatre script', 'theater script'],
     baseKinds: ['script'],
     add: [
       {
@@ -483,6 +483,7 @@ export default [
           ['reader', 'From the back row, what should an audience be able to see and understand without any actor saying it?'],
           ['scale', 'Picture the stage: is it a corner of a café, or a large house with a deep stage?'],
           ['concrete', 'When the audience first sees {who}, where on the stage are they standing, and what is around them?'],
+          ['reflect', 'What can happen in this play only because the actors and the audience share one room?'],
         ]),
       },
       {
@@ -491,7 +492,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'which events happen in front of the audience and which are only reported, and who brings news in from offstage',
-        after: [],
+        after: ['stage-play-space'],
         next: ['stage-play-speech'],
         questions: qs([
           ['open', 'Which important events in {place} will the audience watch happen, and which will they only hear about afterwards?'],
@@ -510,7 +511,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how the play uses stage time: acts or scenes, blackouts and scene changes, an interval, real time or jumps',
-        after: [],
+        after: ['stage-play-space'],
         next: ['stage-play-speech'],
         questions: qs([
           ['open', 'How many acts or scenes do you picture, and where does the audience get a break?'],
@@ -529,7 +530,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how dialogue works live: everyday or heightened, talk to the audience, silences, overlapping speech, who speaks most',
-        after: [],
+        after: ['stage-play-space'],
         next: [],
         questions: qs([
           ['open', 'How do the people in {place} talk to each other: in plain everyday speech, or in something heightened?'],
@@ -549,7 +550,7 @@ export default [
   {
     id: 'monologue',
     label: 'monologue',
-    match: ['monologue', 'soliloquy', 'solo show', 'one-person show', 'one person show', 'one-woman show', 'one-man show', 'solo performance', 'audition piece'],
+    match: ['monologue', 'soliloquy', 'solo show', 'one-person show', 'one-woman show', 'one-man show', 'solo performance', 'audition piece'],
     baseKinds: ['script', 'other'],
     add: [
       {
@@ -558,7 +559,7 @@ export default [
         core: true,
         weight: 3,
         hint: 'who the speaker talks to: someone in the room, someone absent, the audience, a god or themselves, and why that listener',
-        after: [],
+        after: ['premise', 'idea'],
         next: ['monologue-moment', 'monologue-hidden'],
         questions: qs([
           ['open', 'Who is {who} talking to, and what does that listener mean to them?'],
@@ -577,7 +578,7 @@ export default [
         core: false,
         weight: 3,
         hint: 'what forces the speaker to talk now: what just happened, what they hope to gain by speaking, what silence would risk',
-        after: [],
+        after: ['monologue-listener'],
         next: ['monologue-shift'],
         questions: qs([
           ['open', 'What has just happened to {who} that makes it impossible to stay quiet any longer?'],
@@ -634,7 +635,7 @@ export default [
         core: false,
         weight: 1,
         hint: 'how long it runs and what the performer does while speaking: stillness or movement, props, one voice or many',
-        after: [],
+        after: ['monologue-listener'],
         next: [],
         questions: qs([
           ['open', 'How long should the monologue run, and who sets that limit?'],
@@ -683,7 +684,7 @@ export default [
         core: false,
         weight: 3,
         hint: 'how listeners tell characters apart with no faces: voice, rhythm, favourite words, entrances',
-        after: [],
+        after: ['audio-drama-sound-world'],
         next: ['audio-drama-told'],
         questions: qs([
           ['open', 'How will a listener know, with eyes closed, which character is speaking?'],
@@ -703,7 +704,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how the story is told with no pictures: a narrator, voiceover, speaking to the listener, or only dialogue and sound',
-        after: [],
+        after: ['audio-drama-sound-world'],
         next: ['audio-drama-listening'],
         questions: qs([
           ['either', 'Will a narrator tell part of the story, or must everything come through dialogue and sound?'],
@@ -723,7 +724,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how people will listen: commuting or in bed, in one sitting or by episode, and how it holds a half-attentive ear',
-        after: [],
+        after: ['audio-drama-sound-world'],
         next: [],
         questions: qs([
           ['open', 'Where do you picture listeners hearing this, and what else might they be doing at the time?'],
@@ -742,7 +743,7 @@ export default [
   {
     id: 'podcast',
     label: 'podcast',
-    match: ['podcast', 'podcasts', 'podcasting', 'podcaster', 'podcast episode', 'podcast series', 'podcast script', 'interview show', 'audio show', 'radio show'],
+    match: ['podcast', 'podcasting', 'podcaster', 'podcast episode', 'podcast series', 'podcast script', 'interview show', 'audio show', 'radio show'],
     baseKinds: ['other', 'script'],
     add: [
       {
@@ -751,7 +752,7 @@ export default [
         core: true,
         weight: 3,
         hint: 'what the show promises a listener each time: the subject, the angle, and why someone would choose it',
-        after: [],
+        after: ['idea', 'premise'],
         next: ['podcast-format', 'podcast-voice'],
         questions: qs([
           ['open', 'What does a listener get from every episode that they cannot get anywhere else?'],
@@ -770,7 +771,7 @@ export default [
         core: false,
         weight: 3,
         hint: 'the shape of one episode and of the series: solo, interview, co-hosts or narrated, length, how often it comes out',
-        after: [],
+        after: ['podcast-promise'],
         next: ['podcast-voice', 'podcast-sound'],
         questions: qs([
           ['open', 'What does a typical episode about {thing} look like from start to finish, and how long does it run?'],
@@ -789,7 +790,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'who speaks and how they sound: the host, how scripted or loose the talking is, co-hosts, guests and company',
-        after: [],
+        after: ['podcast-promise'],
         next: ['podcast-sources'],
         questions: qs([
           ['open', 'Who is the voice listeners will spend their time with on a show about {thing}, and what are they like to hang out with?'],
@@ -808,7 +809,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'who else is heard: guests or sources, how they are found, how prepared the questions are, what is checked',
-        after: [],
+        after: ['podcast-promise'],
         next: [],
         questions: qs([
           ['open', 'Who else will we hear besides the host when the show turns to {thing}, and why are they the right people?'],
@@ -827,7 +828,7 @@ export default [
         core: false,
         weight: 1,
         hint: 'how the show sounds: music, effects, edits, ad breaks and recording quality, and what is heard besides talking',
-        after: [],
+        after: ['podcast-promise'],
         next: [],
         questions: qs([
           ['open', 'Besides people talking, what else does a listener hear: music, or the sounds of a place?'],
@@ -855,7 +856,7 @@ export default [
         core: true,
         weight: 3,
         hint: 'the single comic idea the sketch plays again and again, getting stranger each time, in a sentence',
-        after: [],
+        after: ['premise'],
         next: ['sketch-comedy-build', 'sketch-comedy-players'],
         questions: qs([
           ['open', 'What is the one odd thing the sketch keeps doing, and what makes a stranger laugh at it?'],
@@ -893,7 +894,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'the few characters and what makes each funny: who reacts like a normal human, who does not, how little we need to know',
-        after: [],
+        after: ['sketch-comedy-pattern'],
         next: ['sketch-comedy-ending'],
         memory: 'character',
         questions: qs([
@@ -933,7 +934,7 @@ export default [
   {
     id: 'stand-up',
     label: 'stand-up comedy',
-    match: ['stand-up', 'stand up comedy', 'standup', 'stand-up comedy', 'comedy set', 'comedy special', 'comedian', 'open mic', 'stand up routine', 'comedy routine'],
+    match: ['stand-up', 'stand-up comedy', 'stand-up routine', 'comedy set', 'comedy special', 'comedian', 'open mic', 'comedy routine'],
     baseKinds: ['script', 'other'],
     add: [
       {
@@ -942,7 +943,7 @@ export default [
         core: true,
         weight: 3,
         hint: 'who the comic is on stage: how close to the real person, their attitude, and what they are angry, baffled or smug about',
-        after: [],
+        after: ['premise', 'idea'],
         next: ['stand-up-routines', 'stand-up-room'],
         questions: qs([
           ['open', 'Who is the person on stage: how close are they to the real you, and what is their attitude to the world?'],
@@ -962,14 +963,14 @@ export default [
         core: false,
         weight: 3,
         hint: 'the subject of each routine (a stretch of jokes on one topic), the angle that makes it fresh, and how a joke surprises',
-        after: [],
+        after: ['stand-up-persona'],
         next: ['stand-up-shape'],
         questions: qs([
           ['open', 'What is the subject of the routine you are proudest of, and what is your unusual way into it?'],
           ['either', 'Does the funny part come from what you noticed, or from what you imagine happening next?'],
           ['concrete', 'Which of your routines has a detail so specific and odd that a stranger could picture it instantly?'],
           ['whatif', 'What if a joke had to work with its last line removed: where would the laugh land instead?'],
-          ['reflect', 'What first made you laugh at {thing}, before it ever became a routine?'],
+          ['reflect', 'Before it ever became a routine, what first made {thing} funny to you?'],
           ['constraint', 'Is any routine built so tightly that changing one word would break the laugh?'],
           ['scale', 'Are you aiming for a steady patter of small laughs, or fewer and bigger ones?'],
           ['reader', 'What should the audience think they know about where a joke is going, just before it turns?'],
@@ -981,7 +982,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how the set is built: the opener, the order of routines, what links them, a callback (a joke returning), the closer',
-        after: [],
+        after: ['stand-up-persona'],
         next: ['stand-up-room'],
         questions: qs([
           ['open', 'In what order do the routines come, and what carries the audience from one to the next?'],
@@ -1000,7 +1001,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'who is in the room and how to work with them: a club, a theatre or online; heckles, and what to do when a joke dies',
-        after: [],
+        after: ['stand-up-persona'],
         next: ['stand-up-edge'],
         questions: qs([
           ['open', 'Who is the crowd you picture, and what do they already find funny?'],
@@ -1019,7 +1020,7 @@ export default [
         core: false,
         weight: 1,
         hint: 'what the set risks: truths the comic is afraid to say, who a joke might hurt, and the line between daring and cruel',
-        after: [],
+        after: ['stand-up-persona'],
         next: [],
         questions: qs([
           ['open', 'Which part of the set makes you a little nervous to say out loud, and why?'],
@@ -1067,7 +1068,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how the story is told in pictures and sound: what is shown rather than said, and the look of the film',
-        after: [],
+        after: ['feature-screenplay-opening'],
         next: ['feature-screenplay-sequences'],
         questions: qs([
           ['open', 'Which important feeling or fact in the film is shown through a picture instead of being said in a line?'],
@@ -1087,7 +1088,7 @@ export default [
         core: false,
         weight: 3,
         hint: 'the lead\'s inner change: what they believe at the start, what they learn or refuse to learn, and who they are at the end',
-        after: [],
+        after: ['feature-screenplay-opening'],
         next: ['feature-screenplay-ending'],
         questions: qs([
           ['open', 'What does {who} believe at the start that the film will test?'],
@@ -1106,7 +1107,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'the handful of big scenes the film is built around, where they fall in the running time, and what each one changes',
-        after: [],
+        after: ['feature-screenplay-opening'],
         next: ['feature-screenplay-ending'],
         questions: qs([
           ['open', 'Which three or four big sequences would you put in a trailer, and what changes in each one?'],
@@ -1126,7 +1127,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'the final act and last image: the climax, how the lead\'s want and need settle, and what the audience takes home',
-        after: [],
+        after: ['feature-screenplay-opening'],
         next: [],
         questions: qs([
           ['open', 'What is the last image of the film, and what does it leave unsaid?'],
@@ -1194,7 +1195,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'the group of characters the series follows, what each brings, and who can carry a story when the lead is offscreen',
-        after: [],
+        after: ['tv-series-engine'],
         next: ['tv-series-arc'],
         memory: 'character',
         questions: qs([
@@ -1214,7 +1215,7 @@ export default [
         core: false,
         weight: 2,
         hint: 'how stories run across episodes and seasons: stand-alone or long arc, finales, cliffhangers, and where it ends',
-        after: [],
+        after: ['tv-series-engine'],
         next: ['tv-series-made'],
         questions: qs([
           ['open', 'What is the big question or journey of the first season for {who}, and when does it get answered?'],
@@ -1233,7 +1234,7 @@ export default [
         core: false,
         weight: 1,
         hint: 'who makes it and how: one writer or a writers room, a showrunner (the person in charge), a platform, a budget',
-        after: [],
+        after: ['tv-series-engine'],
         next: [],
         questions: qs([
           ['open', 'Who do you imagine making this series with you, and who has the final say?'],
