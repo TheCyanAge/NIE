@@ -97,3 +97,35 @@ A small model copies the shape of its own earlier replies, which made every repl
 one question; each turn gets a different reply shape (never the last two used); NIE's own earlier replies are scrubbed of praise and stock questions in the model's
 history, and an avoid-list names the openers used lately and the questions already asked; and every reply is cleaned (`refine` only removes: a praise opener, a stock
 or repeated question) with one retry when it clearly repeats itself. `scripts/notes-lab.mjs --variety` measures it against the earlier wording on the real model.
+
+## Following an idea (the idea agent)
+
+Brainstorm is an agent in the plain sense: it keeps a record of what the writer has said about the idea they are on, decides each turn whether to ask something, asks one
+thing at a time about THIS idea, and offers to keep the idea once it has enough. Everything that decides is code (`apps/web/src/engine/agent/`); the model only words
+things, and the whole agent works with no model.
+
+1. **The sheet** (`state.js`, `sheet.js`; stored at `project.conversation.agent`, removed with the project). One value per part of the idea (premise, main character,
+   what they want, what stands in the way...), each the writer's own words lifted from what they said, never NIE's paraphrase; details that fit no part sit under "Also".
+   The panel on the Idea Board shows the sheet, and the writer can edit or remove any part.
+2. **What parts there are** (`agent/packs/`): data, not code. Eight kind packs (story, character, world, article, essay and memoir, poem, script, other) give the parts,
+   what each means (a hint the extractor shows the model), which come first, and a bank of 8 or more differently shaped questions per part. Add-on packs for forms (a song,
+   a picture book, a speech...) and genres (a locked-room mystery, a space opera...) are merged in when the writer's words match (`detect.js`). `packs/schema.js` and
+   `tests/agent-packs.test.js` validate every question: one question, plain speech, no praise, no stock steering, nothing that asks the writer to produce text.
+3. **Reading what the writer said** (`extract.js`). With a model: schema-constrained JSON (`purpose: 'extract'`), then GROUNDED: a value is kept only if its words are the
+   writer's. Without one, rules route sentences that say what they are for ("the ending is...", "Corin is against her", "she wants to..."), an answer goes to the part that
+   was asked about, and a story statement that fits nothing is kept under "Also". A question, a request, a pasted text or "I don't know" is never recorded as the idea.
+4. **Deciding the turn** (`plan.js`). Asks on about half the turns, never three in a row, with the gap varying (like a person); the first turn asks; "ask me more" and "stop
+   asking questions" are obeyed; the next question is for the next unfilled part whose prerequisites are known, easier after a short answer, never one already asked (or alike).
+5. **Wording it** (`ask.js`, `brief.js`, `reply.js`). The model is given a small brief: what is known, what is not, the conventions of the genre from the offline library,
+   the questions already asked, and this turn's job. Its reply is then held to the plan (`enforceReply`: at most one question, the planned one if the model's names nothing of
+   this session, none on a turn that does not ask) and the question actually shown is recorded. With no model, a short acknowledgement of what was recorded plus the
+   planned question is the whole reply.
+6. **Keeping it** (`commit.js`). When the core parts (by weight) are known, NIE shows a recap in the writer's words, says what is still open, and asks whether to keep it
+   on the Idea Board and in project memory (characters, themes, motifs, setting). The writer can say yes, add or change anything first, or not yet (no new offer for a few turns);
+   "remember this" at any time keeps what there is and says what is missing; a new idea sets the old one aside (nothing is lost) and it can be brought back or kept.
+   A keep can be taken back: exactly the memory it added is removed.
+
+Honest limits: a 3B model cannot match what large hosted assistants do with a long conversation. What brings NIE closer is the scaffold: a record that cannot drift, a planner
+that cannot get bored or pushy, questions written by hand for each kind of piece, and checks on every reply. `scripts/agent-lab.mjs` (workflow `agent-lab`) plays scripted writers
+against the real model and reports how often it asks, whether it repeats itself, whether its questions are about the idea, whether its sheet holds what was said, and what a turn costs.
+

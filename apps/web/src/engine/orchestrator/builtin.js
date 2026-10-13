@@ -49,7 +49,7 @@ export function aboutNieReply(status, text = '') {
   if (topic) return [topic.text, ...(topic.status ? [describeStatus(status)] : [])].join('\n\n');
   return [
     "I'm NIE, a thinking partner for writers. I never write or edit your text; I help you think, and I show you where your own rules are broken.",
-    ['Here is what I can do:', '- Brainstorm with you: ideas, twists, complications and questions for a story, essay, poem or anything else, kept on your Idea Board if you like.', '- Full Scan: you set the rules for your project, and I mark the exact places that break them and say why.', '- Read your document aloud.', '- Answer questions about craft, style, grammar, forms, genres and well-known works from my built-in library, which works with no internet.'].join('\n'),
+    ['Here is what I can do:', '- Brainstorm with you: ideas, twists, complications and questions for a story, essay, poem or anything else. I follow your idea in your own words, ask one question now and then (never the same one twice; say "stop asking questions" whenever you like), and when I think I have it I offer to keep it on your Idea Board and in this project\'s memory. You can add details first.', '- Full Scan: you set the rules for your project, and I mark the exact places that break them and say why.', '- Read your document aloud.', '- Answer questions about craft, style, grammar, forms, genres and well-known works from my built-in library, which works with no internet.'].join('\n'),
     describeStatus(status),
   ].join('\n\n');
 }

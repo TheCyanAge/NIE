@@ -30,6 +30,7 @@ Legend: ✅ built and tested here · 🟡 built, needs verification on Windows /
 | 78 | Settings (AI, updates, tour, application) | ✅ |
 | **new** | The language model reads every message first (what is the writer asking?), with the rules as the fallback; every reply records who understood it | ✅ unit + UI tests; ✅ **measured on the real Qwen model** (below) |
 | **new** | Any length of text: a long paste or a long Story Text is cut into sections at the writer's own structure, ranked against the question, and the model is shown an outline sample, the opening, the best matches and the latest part; the reply says exactly what was looked at | ✅ unit + UI tests; ✅ **measured on the real model** (below). 🟡 slow on a slow CPU; see Known limits |
+| **new** | Brainstorm follows an idea like an interviewer: a sheet of what the writer said (their own words), questions asked now and then, one at a time, never twice, about this idea; a recap and an offer to keep it on the Idea Board and in project memory (the writer can add details first, say not yet, or keep it part-way); a new idea sets the old one aside | ✅ unit + UI tests with no model and with a scripted one; 🟡 real-model numbers in the `agent-lab` workflow (below) |
 | 82 | "Human-level" narrative reasoning | ⬜ aspirational: depends on the model and a much larger library |
 
 ## Measured on the real model
@@ -52,6 +53,17 @@ not with a fake. Runner speed varies a lot from run to run, so only same-run com
 - It is slower: about 43 to 55 seconds for an answer against 12 to 14 seconds for the old first-part reading, because more of the text is read first (CPU prefill is
   the bottleneck). A whole 8,117-word paste through the full path (reading step plus answer) took about 100 seconds on that runner.
 - Six facts in three invented texts is a small test. It shows the method works, not that every question about a long text will be answered correctly.
+
+**Reading a 10,000-word invented story bible one section at a time, and sounding different** (`notes-lab` workflow, 2 CPU threads, `scripts/notes-lab.mjs`):
+- The notes pass reads 25 sections in about 7 to 8 minutes (median 18 s per section, 15 tokens a second writing); every section gets a short note (gist, names, terms, voice) kept with the
+  project, so the second question costs nothing extra. Names the notes caught: **86%** of people who appear at least twice in a section; defined terms caught in the section that defines them: **79 to 83%**.
+  The one-paragraph overview names only about one in eight of the cast, so NIE does not rely on it for "who is in this" (the per-section notes and the measured recurring names carry that).
+- Putting the notes block at the end of the system prompt lets the server reuse it between turns: about 1,580 of ~2,200 prompt tokens were served from its cache, and an answer
+  took 26 to 43 s instead of 60 to 110 s on the same machine. NIE's token estimate is about 16 to 18% above the real count, so it errs on the safe side.
+- Answers to the bible's questions that mention what they should: **2 of 6 either way** in the small run (one question per kind); lookup and style questions are answered correctly, whole-text,
+  timeline and contradiction questions are where a 3B model still falls short. The notes do not fix that; they are what makes the answer come from the whole text rather than the first part.
+- Sounding the same: with the earlier prompt wording alone, a ten-message conversation had 3 praise openers, 1 stock question and 1 question asked twice; with the full change
+  (different reply shape each turn, an avoid-list, history scrubbed of praise, replies cleaned) it had **0, 0 and 0**.
 
 ## Rules, in detail
 Understood and **checked exactly**: forbidden words/phrases; terminology ("use X not Y"); sentence/paragraph length limits; first/second/third person and

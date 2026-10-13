@@ -33,6 +33,13 @@
   reading is only believed when the message really contains a request (`looksLikeARequest`): the real 3B model sometimes read plain statements
   as "write" and declined a writer's own premise. `about-nie` questions are answered by fixed, checked facts and the real status
   (`aboutNieReply`, `describeStatus`), never by the model: measured on the real model, a 3B asked to describe NIE rambles and invents abilities.
+- Following an idea: `engine/agent/` (see docs/ARCHITECTURE.md "Following an idea"). A sheet of the writer's own words per part of the idea (`project.conversation.agent`, sanitized
+  in `project/store.js`, removed with the project), packs of parts and questions per kind/form/genre (`agent/packs/*`, validated by `packs/schema.js` + `tests/agent-packs.test.js`), a
+  planner that decides WHEN to ask (about half the turns, one question, never one already asked, about THIS idea), grounded extraction (a value is the writer's words or it is dropped), and the
+  offer to keep the idea on the Idea Board + project memory (yes / add something first / not yet; "remember this" any time; a new idea sets the old one aside; a keep can be taken back).
+  `orchestrator/index.js` calls `agent.turn` on every message (a pending offer is answered before the model is asked anything), puts the agent's `brief` in the prompt, holds the reply to the plan
+  (`enforce`) and records the question really asked (`record`). It must never put words in the writer's mouth: sheet values and recaps are the writer's own words, NIE's lines are about the sheet.
+  Fake models in tests must answer `opts.purpose === 'extract'` (`modelWithReading` does).
 - Long texts: `engine/reading/` (`sections.js` cuts any text into sections at the writer's own structure with every character in exactly one section;
   `context.js` ranks sections for a question with BM25 over the writer's own words and builds what the model is shown). Two ways of showing a long text:
   **with notes** (`reading/notes.js`): the offline model reads the text ONE SECTION AT A TIME (schema-constrained notes: gist, names, terms, voice; every name,
