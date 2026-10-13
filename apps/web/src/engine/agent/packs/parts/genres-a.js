@@ -27,7 +27,7 @@ export default [
   {
     id: 'cozy-mystery',
     label: 'cozy mystery',
-    match: ['cozy mystery', 'cosy mystery', 'cozy crime', 'cosy crime', 'amateur sleuth', 'village mystery', 'tea shop mystery', 'bookshop mystery'],
+    match: ['cozy-mystery', 'cosy-mystery', 'cozy-crime', 'cosy-crime', 'cozy-murder', 'cosy-murder', 'amateur-sleuth', 'amateur-detective', 'tea-shop-mystery', 'bookshop-mystery'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -40,14 +40,14 @@ export default [
         next: ['cozy-mystery-clues', 'cozy-mystery-sleuth'],
         questions: qs([
           ['open', 'What is the crime at the heart of {thing}, and which few people are close enough to have done it?'],
-          ['either', 'Is the person at the centre of the crime a stranger to the community, or someone everyone thought they knew?'],
+          ['either', 'Is the crime aimed at an outsider, or at someone everyone in the community thought they knew?'],
           ['scale', 'How wide is the circle of people who had the chance: a handful around one table, or half the town?'],
           ['concrete', 'Where in {place} was the crime discovered, and who found it?'],
           ['concrete', 'Which ordinary thing from daily life, a recipe or a closing time perhaps, might quietly matter to the puzzle?'],
           ['whatif', 'Suppose the crime first looked like an accident: who would refuse to believe that, and why?'],
           ['constraint', 'What reason for the crime would an audience accept as human, even if nobody saw it coming?'],
           ['reader', 'By the end of the opening, what question about the crime should an audience be unable to put down?'],
-          ['contrast', 'How does this puzzle differ from the ones fans of {genre} have already solved many times?'],
+          ['contrast', 'How does this puzzle differ from the ones fans of cozy mysteries have already solved many times?'],
         ]),
       },
       {
@@ -85,9 +85,9 @@ export default [
           ['reflect', 'Why does {who} feel the case is their business when nobody has asked them to get involved?'],
           ['whatif', 'Suppose the official investigator and {who} disagree about the facts: who is more likely to be right, and why?'],
           ['concrete', 'Which small everyday habit of {who} could turn out to matter, such as remembering orders or noticing who is late?'],
-          ['constraint', 'What should the person who investigates be unable to do, so the case is not solved by a skill they should not have?'],
+          ['constraint', 'What should {who} be unable to do, so the case is not solved by a skill that would feel like cheating?'],
           ['scale', 'How much does {who} risk to find the truth: a little embarrassment, or real danger?'],
-          ['reader', 'What should an audience come to love about {who} well before the first suspect is named?'],
+          ['reader', 'What will make an audience want to spend a whole case in the company of {who}?'],
         ]),
       },
       {
@@ -115,7 +115,7 @@ export default [
         label: 'How gentle it stays',
         core: false,
         weight: 1,
-        hint: 'how gentle it stays: violence offstage or on, humour, food and small pleasures, and whether the ending restores a calm order',
+        hint: 'how gentle it stays: violence offstage or on, humour, food and small comforts, and whether the ending restores calm',
         after: ['tone'],
         next: [],
         questions: qs([
@@ -124,7 +124,7 @@ export default [
           ['open', 'What does {who} do to unwind after a day of asking awkward questions?'],
           ['either', 'Does the humour come from the quirks of the characters, or from how they talk about the crime?'],
           ['whatif', 'Suppose the answer to the puzzle is someone the audience has grown fond of: how gentle can the story stay?'],
-          ['reflect', 'What does an audience get from a mystery that ends with order restored, and do you want to give them that?'],
+          ['either', 'Does the ending put the community back in order, or leave it changed for good?'],
           ['constraint', 'Is there a subject that would be too dark for the mood of this story, however true to life?'],
           ['contrast', 'How does the mood of the first scene differ from the mood after the answer comes out?'],
           ['reader', 'How should an audience feel at the very end: soothed, amused, or quietly moved?'],
@@ -137,7 +137,7 @@ export default [
   {
     id: 'locked-room-mystery',
     label: 'locked-room mystery',
-    match: ['locked room mystery', 'locked room', 'sealed room', 'impossible crime', 'impossible murder', 'closed circle mystery', 'snowed in mystery'],
+    match: ['locked-room-mystery', 'locked-room-murder', 'locked-room-puzzle', 'sealed-room-mystery', 'impossible-crime', 'impossible-murder', 'closed-circle-mystery', 'closed-circle-whodunit', 'snowed-in-mystery'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -165,13 +165,13 @@ export default [
         label: 'Who was inside',
         core: false,
         weight: 2,
-        hint: 'the closed circle of people who could be involved: who was inside or near, who can vouch for whom, and who is lying about what',
+        hint: 'the closed circle of suspects: who was inside or near, who can vouch for whom, and who is lying about what',
         after: ['locked-room-mystery-seal'],
         next: ['locked-room-mystery-theories'],
         questions: qs([
           ['open', 'Who was inside or nearby when the crime in {thing} happened, and who can vouch for whom?'],
           ['either', 'Do the people involved all know each other well, or are most of them strangers thrown together?'],
-          ['concrete', 'Which of the people inside has a small lie that has nothing to do with the crime?'],
+          ['concrete', 'Who among the people inside is hiding something small that has nothing to do with the crime?'],
           ['whatif', 'Suppose one witness is certain of something that cannot be true: what do they believe they saw?'],
           ['scale', 'How many people should be in the circle: few enough to know each one, or enough to lose track?'],
           ['reflect', 'What keeps the people inside together as the investigation goes on, and how does that strain them?'],
@@ -203,7 +203,7 @@ export default [
         label: 'How it was done',
         core: false,
         weight: 2,
-        hint: 'how the impossible thing was done: the trick, the misreading or the human weakness, and what the audience must see to follow it',
+        hint: 'how the impossible thing was done: the trick, the misreading or the weakness, and what the audience must see',
         after: ['locked-room-mystery-seal'],
         next: ['locked-room-mystery-reveal'],
         questions: qs([
@@ -227,7 +227,7 @@ export default [
         after: ['locked-room-mystery-method'],
         next: [],
         questions: qs([
-          ['open', 'Where does the explanation take place, and does {who} get to give it?'],
+          ['open', 'Is there one scene where the solution is explained, and if so, where does it take place and who gives it?'],
           ['either', 'Is the solution laid out in one long explanation, or revealed in stages through discoveries?'],
           ['concrete', 'Which earlier moment will be shown again, or recalled, so the audience sees what they missed?'],
           ['whatif', 'What if the explanation is interrupted at its most important point: by whom, and why?'],
@@ -244,7 +244,7 @@ export default [
   {
     id: 'hardboiled-noir',
     label: 'hardboiled noir',
-    match: ['noir', 'neo-noir', 'film noir', 'hard-boiled', 'private eye', 'gumshoe', 'noir detective', 'pulp detective'],
+    match: ['noir', 'neo-noir', 'film-noir', 'hard-boiled', 'private-eye', 'gumshoe', 'noir-detective', 'pulp-detective'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -252,18 +252,18 @@ export default [
         label: 'The wrong turn',
         core: true,
         weight: 3,
-        hint: 'the choice or compromise that starts the slide, and whether the main character ends up in control of it or caught in its trap',
+        hint: 'the choice or compromise that starts the slide, and whether the main character stays in control or is caught in a trap',
         after: ['protagonist'],
         next: ['hardboiled-noir-code', 'hardboiled-noir-case'],
         questions: qs([
-          ['open', 'What is the one choice or compromise that {who} makes early on and can never take back?'],
-          ['either', 'Does {who} walk toward the trap with open eyes, or only see it once the door has closed?'],
+          ['open', 'Is there a choice or compromise early on that {who} can never take back, and what is it?'],
+          ['either', 'Does {who} see the trouble coming, or only notice it once the door has closed?'],
           ['reflect', 'Why does {who} not simply walk away: what is the hook that keeps them in?'],
           ['contrast', 'How does {who} look in the first scene compared with how they look after the choice is made?'],
           ['whatif', 'What if the choice was a small kindness rather than a crime: what would it cost {who}?'],
-          ['constraint', 'What must {who} still have to lose when the trap closes, so the trouble matters?'],
+          ['constraint', 'What does {who} still have to lose when the trouble closes in?'],
           ['scale', 'How much of the trouble is {who} doing to themselves, and how much comes from luck and rotten people?'],
-          ['reader', 'Should an audience see the doom coming before {who} admits it?'],
+          ['reader', 'Should an audience sense where this is heading before {who} admits it?'],
         ]),
       },
       {
@@ -290,7 +290,7 @@ export default [
         label: 'The rotten city',
         core: false,
         weight: 2,
-        hint: 'the corrupt place the story moves through: who really holds power, which institutions cannot be trusted, and what its streets say',
+        hint: 'the corrupt place the story moves through: who holds the real power, which institutions cannot be trusted, how it looks',
         after: ['setting'],
         next: ['hardboiled-noir-case'],
         memory: 'setting',
@@ -303,25 +303,6 @@ export default [
           ['constraint', 'Which institution is {who} unable to trust, and what did it do to earn that?'],
           ['scale', 'How decayed is {place}: shabby but working, or nearly rotted through?'],
           ['whatif', 'What if {who} could clean up one corner of {place}: which would it be, and who would object?'],
-        ]),
-      },
-      {
-        id: 'hardboiled-noir-voice',
-        label: 'The narration',
-        core: false,
-        weight: 1,
-        hint: 'how the story is told: the narrator\'s way of seeing and speaking, what they notice, and what they lie to themselves about',
-        after: ['protagonist'],
-        next: [],
-        questions: qs([
-          ['open', 'What does {who} notice about a room that nobody else in the story would?'],
-          ['either', 'Is the story told by {who} looking back with regret, or in the moment without knowing what comes next?'],
-          ['probe', 'What does {who} tell the audience plainly, and what do they leave out or lie about?'],
-          ['scale', 'How sharp and dry is the voice: lightly wry, or bleak all the way down?'],
-          ['whatif', 'Imagine the narration came from the person most hurt by {who}: what would it say that {who} never would?'],
-          ['reflect', 'What does the way {who} talks about people give away about what they are afraid of?'],
-          ['contrast', 'What would make the voice of {who} unlike every other tough narrator the audience has heard?'],
-          ['concrete', 'What small routine shows how {who} gets through a bad night?'],
         ]),
       },
       {
@@ -340,7 +321,26 @@ export default [
           ['reflect', 'Why would the people behind the larger trouble let a small case like this get so far?'],
           ['scale', 'How far down does the rot go beneath the case: one household, or the whole city?'],
           ['reader', 'At what point should an audience realise the case is not what it first looked like?'],
-          ['constraint', 'What must {who} be unable to find out until it is almost too late?'],
+          ['constraint', 'Is there something {who} cannot learn until it is almost too late, and what is it?'],
+        ]),
+      },
+      {
+        id: 'hardboiled-noir-voice',
+        label: 'The narration',
+        core: false,
+        weight: 1,
+        hint: 'how the story is told: the narrator\'s way of seeing and speaking, what they notice and what they lie to themselves about',
+        after: ['protagonist'],
+        next: [],
+        questions: qs([
+          ['open', 'What does {who} notice about a room that nobody else in the story would?'],
+          ['either', 'Is the story told by {who} looking back with regret, or in the moment without knowing what comes next?'],
+          ['probe', 'What does {who} tell the audience plainly, and what do they leave out or lie about?'],
+          ['scale', 'How sharp and dry is the voice: lightly wry, or bleak all the way down?'],
+          ['whatif', 'Imagine the narration came from the person most hurt by {who}: what would it say that {who} never would?'],
+          ['reflect', 'What does the way {who} talks about people give away about what they are afraid of?'],
+          ['contrast', 'What would make the voice of {who} unlike every other tough narrator the audience has heard?'],
+          ['concrete', 'What small routine shows how {who} gets through a bad night?'],
         ]),
       },
     ],
@@ -350,7 +350,7 @@ export default [
   {
     id: 'police-procedural',
     label: 'police procedural',
-    match: ['police procedural', 'crime procedural', 'procedural drama', 'case of the week', 'cop drama', 'cop show', 'homicide squad', 'murder squad'],
+    match: ['police-procedural', 'crime-procedural', 'procedural-drama', 'case-of-the-week', 'cop-drama', 'cop-show', 'police-drama', 'homicide-squad', 'murder-squad'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -363,8 +363,8 @@ export default [
         next: ['police-procedural-team', 'police-procedural-method'],
         questions: qs([
           ['open', 'How does {who} first learn about the case, and what do they know in the first hour?'],
-          ['constraint', 'How long does the team have to solve the case, and what happens if the time runs out?'],
-          ['concrete', 'What is the first piece of evidence they collect, and who handles it?'],
+          ['constraint', 'Is there a clock on the case, and what happens if it runs out?'],
+          ['concrete', 'What is the first piece of evidence the team collects, and who handles it?'],
           ['concrete', 'Where in {place} does the case begin, and who is first on the scene?'],
           ['whatif', 'What if the most promising lead turned out to protect someone innocent: how would the team find out?'],
           ['scale', 'How tangled is the trail: a short chain of leads, or a web with many dead ends?'],
@@ -378,7 +378,7 @@ export default [
         label: 'The team',
         core: false,
         weight: 2,
-        hint: 'the squad or unit working together: who does what, how rank and personality cause friction, and what each carries from home',
+        hint: 'the squad working together: who does what, how rank and personality cause friction, and what each carries home',
         after: ['protagonist'],
         next: ['police-procedural-human'],
         memory: 'character',
@@ -391,7 +391,7 @@ export default [
           ['probe', 'Who on the team knows something about {who} that the rest do not?'],
           ['whatif', 'What if the team lost its most experienced member in the middle of the case: who steps up, and who suffers?'],
           ['reflect', 'Why does {who} stay in this work when it costs so much of their life outside it?'],
-          ['scale', 'How much of their private lives should run beside the case: a glimpse now and then, or whole scenes?'],
+          ['scale', 'How much of the team\'s private lives should run beside the case: a glimpse now and then, or whole scenes?'],
         ]),
       },
       {
@@ -399,7 +399,7 @@ export default [
         label: 'How the work is done',
         core: false,
         weight: 2,
-        hint: 'the real methods on show: interviews, evidence, forensics, paperwork and warrants, and where the writer\'s own knowledge ends',
+        hint: 'the real methods on show: interviews, evidence, forensics, warrants, and where the writer\'s own knowledge ends',
         after: ['police-procedural-case'],
         next: ['police-procedural-system'],
         questions: qs([
@@ -419,11 +419,11 @@ export default [
         label: 'The human reason',
         core: false,
         weight: 2,
-        hint: 'the human question behind the puzzle: what the case does to the people it touches and what the work costs the investigators',
+        hint: 'the human question behind the puzzle: what the case does to the people it touches and what it costs the investigators',
         after: ['police-procedural-case'],
         next: [],
         questions: qs([
-          ['open', 'Beneath the puzzle, what is the human reason for this case?'],
+          ['open', 'Beneath the puzzle, what human story lies behind this case, and who is left hurt by it?'],
           ['reflect', 'What does this case ask of {who} that the job did not prepare them for?'],
           ['either', 'Does the case change the team for good, or do they put it behind them by the next one?'],
           ['concrete', 'Who is the person affected by the case that {who} cannot stop thinking about?'],
@@ -438,7 +438,7 @@ export default [
         label: 'The system around them',
         core: false,
         weight: 1,
-        hint: 'the department and the law around the team: rank, politics, budgets and jurisdiction, and how they help or block the case',
+        hint: 'the department and law around the team: rank, politics, budgets, jurisdiction, and how they help or block the case',
         after: ['police-procedural-method'],
         next: [],
         questions: qs([
@@ -461,7 +461,7 @@ export default [
   {
     id: 'psychological-thriller',
     label: 'psychological thriller',
-    match: ['psychological thriller', 'psychological suspense', 'domestic thriller', 'domestic suspense', 'mind game thriller', 'gaslighting thriller', 'paranoid thriller', 'unreliable narrator thriller'],
+    match: ['psychological-thriller', 'psychological-suspense', 'domestic-thriller', 'domestic-suspense', 'mind-game-thriller', 'gaslighting-thriller', 'paranoid-thriller', 'unreliable-narrator-thriller'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -469,7 +469,7 @@ export default [
         label: 'What cannot be trusted',
         core: true,
         weight: 3,
-        hint: 'the central uncertainty: what the main character cannot be sure of, such as their memory, their senses or someone close to them',
+        hint: 'the central uncertainty: what the main character cannot be sure of, such as their memory, senses or someone close',
         after: ['premise'],
         next: ['psychological-narrator', 'psychological-squeeze'],
         questions: qs([
@@ -477,7 +477,7 @@ export default [
           ['either', 'Is {who} doubting their own mind, or doubting someone they love?'],
           ['whatif', 'What if everything {who} believes about the last year were slightly wrong: what would they discover first?'],
           ['concrete', 'What small thing goes missing, moves or changes that first makes {who} stop and wonder?'],
-          ['reflect', 'Why would {who} choose to doubt themselves rather than the other person?'],
+          ['reflect', 'What makes it easier for {who} to doubt themselves than to doubt someone close?'],
           ['scale', 'How far does the doubt spread: does it stay in one corner of life, or reach everything {who} depends on?'],
           ['reader', 'Should the audience share the doubt of {who}, or know the truth and watch them struggle?'],
           ['constraint', 'What must stay true however much {who} doubts, so the audience has something solid to stand on?'],
@@ -493,11 +493,11 @@ export default [
         next: ['psychological-turn'],
         questions: qs([
           ['open', 'Whose thoughts do we follow most closely, and how much of the truth do they hold?'],
-          ['either', 'Does the person telling the story mislead on purpose, or without knowing?'],
-          ['probe', 'What does {who} leave out when they describe the worst day, and why?'],
+          ['either', 'Is the person whose view we follow fully reliable, or might they mislead the audience, knowingly or not?'],
+          ['probe', 'What might {who} leave out when they describe the worst day, and why would they?'],
           ['whatif', 'Suppose the audience heard the same events from the person {who} fears most: what would be different?'],
           ['constraint', 'What must the audience always be able to rely on, even if {who} cannot be trusted?'],
-          ['contrast', 'What does {who} say about themselves that their actions in the story do not support?'],
+          ['probe', 'Is there anything {who} says about themselves that their actions in the story do not support?'],
           ['reflect', 'Why is this the mind the story should live inside, and not another one?'],
           ['scale', 'How early should an audience suspect that the telling cannot be fully trusted?'],
         ]),
@@ -534,7 +534,7 @@ export default [
           ['open', 'If the truth changes how the earlier scenes look, which earlier scene should look most different afterward?'],
           ['constraint', 'What must the audience be shown before the turn, so that it feels earned and not a trick?'],
           ['whatif', 'What if the audience learned the truth halfway through, and the dread came from watching {who} catch up?'],
-          ['reflect', 'Why does {who} fail to see the truth sooner, and what would it have cost to see it?'],
+          ['reflect', 'If the truth was there to see, why did {who} not see it sooner, and what would it have cost to see it?'],
           ['scale', 'How big should the turn be: a small crack that changes one relationship, or a collapse of everything?'],
           ['reader', 'When the truth lands, should an audience feel shaken, or strangely sad for someone?'],
           ['contrast', 'How does the first scene read differently once the audience knows what {who} knows by the end?'],
@@ -566,7 +566,7 @@ export default [
   {
     id: 'spy-thriller',
     label: 'spy thriller',
-    match: ['spy thriller', 'espionage', 'spy story', 'spy novel', 'secret agent', 'double agent', 'intelligence officer', 'cold war spy'],
+    match: ['spy-thriller', 'espionage', 'spy-story', 'spy-novel', 'spy-film', 'secret-agent', 'double-agent', 'intelligence-officer', 'cold-war-spy'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -574,7 +574,7 @@ export default [
         label: 'The secret at stake',
         core: true,
         weight: 3,
-        hint: 'the secret, operation or piece of information that everyone is after, who holds it, and what happens if it reaches the wrong hands',
+        hint: 'the secret, operation or information everyone is after, who holds it, and what happens if it reaches the wrong hands',
         after: ['premise'],
         next: ['spy-thriller-loyalty', 'spy-thriller-world'],
         questions: qs([
@@ -616,7 +616,7 @@ export default [
         after: ['spy-thriller-secret'],
         next: [],
         questions: qs([
-          ['open', 'What false identity, or cover story, does {who} live under, and who in daily life believes it?'],
+          ['open', 'Does {who} live under a false identity or cover story, and who in daily life believes it?'],
           ['either', 'Should the methods feel authentic and technical, or stylish and loosely true to life?'],
           ['concrete', 'Where in {place} does {who} do their most careful work, and why there?'],
           ['concrete', 'How do two people pass something on without being seen, and what could go wrong with it?'],
@@ -624,7 +624,7 @@ export default [
           ['scale', 'How much detail of method should an audience get: a taste for flavour, or enough to follow every step?'],
           ['whatif', 'What if the plan relied on a method that had worked a hundred times and failed this once: what failed?'],
           ['constraint', 'What small human slip could be enough to expose a false identity in this story?'],
-          ['reader', 'What should an audience feel about living a false life every day?'],
+          ['reader', 'What should an audience feel about the daily strain of keeping a secret from everyone close?'],
         ]),
       },
       {
@@ -651,7 +651,7 @@ export default [
         label: 'The world of the game',
         core: false,
         weight: 1,
-        hint: 'the political backdrop: the powers and agencies involved, the era, the places the story moves through, and the fear of the age',
+        hint: 'the political backdrop: the powers and agencies involved, the era, the places it moves through, and the fear of the age',
         after: ['setting'],
         next: [],
         memory: 'setting',
@@ -674,7 +674,7 @@ export default [
   {
     id: 'legal-thriller',
     label: 'legal thriller',
-    match: ['legal thriller', 'courtroom drama', 'courtroom thriller', 'trial lawyer', 'defense attorney', 'defence attorney', 'courtroom novel', 'legal drama'],
+    match: ['legal-thriller', 'courtroom-drama', 'courtroom-thriller', 'courtroom-novel', 'legal-drama', 'trial-lawyer', 'defense-attorney', 'defence-attorney'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -693,7 +693,7 @@ export default [
           ['scale', 'How public is the case: a quiet matter in a small court, or a story the whole country watches?'],
           ['concrete', 'Where in {place} is the courthouse, and what does the building say about the justice done there?'],
           ['concrete', 'What is the single fact in dispute that everything else in the case depends on?'],
-          ['reflect', 'Why does the case reach {who} when it could have gone to someone else?'],
+          ['contrast', 'What makes this case different from the hundreds of others that pass through the same court?'],
           ['constraint', 'What must be at stake besides the verdict, so the audience cares about more than who wins?'],
           ['reader', 'Which side should an audience lean toward on the first day, and should that lean ever shift?'],
         ]),
@@ -703,7 +703,7 @@ export default [
         label: 'The lawyer under pressure',
         core: false,
         weight: 2,
-        hint: 'the lawyer, prosecutor or judge whose position is tested: what they have staked, what they hide, and why this case is theirs',
+        hint: 'the lawyer, prosecutor or judge under pressure: what they have staked, what they hide, and why this case is theirs',
         after: ['protagonist'],
         next: ['legal-thriller-evidence'],
         memory: 'character',
@@ -728,7 +728,7 @@ export default [
         next: ['legal-thriller-rules'],
         questions: qs([
           ['open', 'What does each side have in its hands at the start, and what is it afraid the other side has?'],
-          ['concrete', 'Which witness do you already see on the stand, and what are they holding back from {who}?'],
+          ['concrete', 'Which witness do you already picture on the stand, and what might they be holding back?'],
           ['either', 'Does the truth come out through documents and records, or through what people say under questioning?'],
           ['whatif', 'What if the strongest piece of evidence turned out to have been gathered the wrong way?'],
           ['constraint', 'Which fact must the audience learn before the verdict, or the verdict will feel arbitrary?'],
@@ -743,7 +743,7 @@ export default [
         label: 'The law and its rules',
         core: false,
         weight: 1,
-        hint: 'which country and legal system the story follows, the rules of procedure and ethics that bind people, and how exact it must be',
+        hint: 'which country and legal system the story follows, the rules of procedure and ethics, and how exact it must be',
         after: ['legal-thriller-case'],
         next: [],
         questions: qs([
@@ -784,7 +784,7 @@ export default [
   {
     id: 'heist-story',
     label: 'heist story',
-    match: ['heist', 'heist story', 'heist film', 'heist movie', 'caper', 'master thief', 'safecracker', 'one last job'],
+    match: ['heist', 'caper', 'master-thief', 'safecracker', 'bank-job'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -824,7 +824,7 @@ export default [
           ['whatif', 'What if the one specialist the plan cannot do without became unavailable a day before: who steps in?'],
           ['concrete', 'What small habit or ritual does each member have before a job?'],
           ['scale', 'How big is the crew: a tight few where everyone matters, or a team large enough that someone is expendable?'],
-          ['reader', 'Which crew member should an audience grow to love, and which should they keep an eye on?'],
+          ['reader', 'Which crew member should an audience feel closest to by the end of the job?'],
         ]),
       },
       {
@@ -832,7 +832,7 @@ export default [
         label: 'The plan',
         core: false,
         weight: 2,
-        hint: 'how the job is meant to work, how much the audience sees of it beforehand, and any part of the plan kept hidden until needed',
+        hint: 'how the job is meant to work, how much the audience sees beforehand, and any part of the plan kept hidden',
         after: ['heist-story-target'],
         next: ['heist-story-wrong'],
         questions: qs([
@@ -856,13 +856,13 @@ export default [
         after: ['heist-story-plan'],
         next: ['heist-story-flair'],
         questions: qs([
-          ['open', 'What is the first thing that goes wrong that nobody planned for?'],
-          ['open', 'How does {who} react in the first minute after the plan starts to break?'],
+          ['open', 'If the job slips off the plan, what is the first thing nobody planned for?'],
+          ['open', 'If the plan began to break, how would {who} react in the first minute?'],
           ['either', 'Does the trouble come from outside the crew, or from someone inside it?'],
           ['whatif', 'What if the job went perfectly except for one person who did something kind: what did they do?'],
           ['probe', 'Which member of the crew will improvise when the plan breaks, and what will it cost?'],
           ['reflect', 'Why would a careful crew miss this particular weakness?'],
-          ['scale', 'How badly does it go wrong: a stumble they recover from, or a collapse that needs a new plan?'],
+          ['scale', 'How badly does the job go wrong: a stumble they recover from, or a collapse that needs a new plan?'],
           ['concrete', 'At what point in the job is {who} closest to being caught?'],
           ['constraint', 'What must the crew still manage to keep, even if the job fails around them?'],
         ]),
@@ -883,7 +883,7 @@ export default [
           ['reader', 'What should an audience feel in the quiet moments before the job begins?'],
           ['contrast', 'How does {who} carry themselves during the job compared with the waiting before it?'],
           ['either', 'Which will an audience enjoy most here: the cleverness of the job or the company of the crew?'],
-          ['constraint', 'Which habit that fans of {genre} expect would feel dishonest to leave out of this story?'],
+          ['contrast', 'Which familiar habits of heist stories do you plan to keep, and which will you set aside?'],
         ]),
       },
     ],
@@ -893,7 +893,7 @@ export default [
   {
     id: 'gangster-saga',
     label: 'gangster saga',
-    match: ['gangster', 'gangster saga', 'mafia', 'mob family', 'crime family', 'organized crime', 'organised crime', 'crime boss'],
+    match: ['gangster', 'mafia', 'mob-family', 'crime-family', 'organized-crime', 'organised-crime', 'crime-boss', 'mob-boss', 'mobster'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -922,7 +922,7 @@ export default [
         label: 'The rise and the fall',
         core: false,
         weight: 2,
-        hint: 'the arc across years: how the main character gets in, the point of no return, and whether the story is a climb, a fall or both',
+        hint: 'the arc across years: how the main character gets in, the point of no return, and whether it is a climb, a fall or both',
         after: ['protagonist'],
         next: ['gangster-saga-business'],
         questions: qs([
@@ -947,7 +947,7 @@ export default [
         questions: qs([
           ['open', 'How does the organisation actually make its money, day to day?'],
           ['concrete', 'Which part of the business does {who} handle first, and what does it teach them?'],
-          ['either', 'Does it run on fear, or on favours that people feel they owe?'],
+          ['either', 'Does the organisation run on fear, or on favours that people feel they owe?'],
           ['concrete', 'Which ordinary business, like a restaurant or a trucking firm, hides the real work, and who really works there?'],
           ['reflect', 'Who outside the family quietly depends on it, and what do they get?'],
           ['whatif', 'What if a rival offered a better deal to one honest business owner who pays the family: what would happen?'],
@@ -961,7 +961,7 @@ export default [
         label: 'What the life takes',
         core: false,
         weight: 2,
-        hint: 'how violence and betrayal are shown and what they cost: the damage to the people who live by it and to the households it reaches',
+        hint: 'how violence and betrayal are shown and what they cost the people who live by it and the households they reach',
         after: ['gangster-saga-family'],
         next: ['gangster-saga-outsider'],
         questions: qs([
@@ -980,7 +980,7 @@ export default [
         label: 'The outsider who sees',
         core: false,
         weight: 1,
-        hint: 'the outsider or doubtful insider whose eyes let the audience see the organisation clearly: who they are and what they notice',
+        hint: 'the outsider or doubtful insider whose eyes show the organisation clearly: who they are and what they notice',
         after: ['protagonist'],
         next: [],
         memory: 'character',
@@ -1004,7 +1004,7 @@ export default [
   {
     id: 'gothic',
     label: 'gothic',
-    match: ['gothic', 'gothic horror', 'gothic romance', 'gothic novel', 'gothic tale', 'southern gothic', 'suburban gothic', 'crumbling mansion'],
+    match: ['gothic', 'gothic-horror', 'gothic-romance', 'gothic-novel', 'gothic-tale', 'southern-gothic', 'suburban-gothic', 'crumbling-mansion'],
     baseKinds: ['story', 'script', 'poem'],
     add: [
       {
@@ -1012,7 +1012,7 @@ export default [
         label: 'The place that presses',
         core: true,
         weight: 3,
-        hint: 'the decaying, enclosing place at the centre: a house, castle, estate or town, how it looks, and how it presses on those inside',
+        hint: 'the decaying, enclosing place (house, castle, estate or town): how it looks and how it presses on those inside',
         after: ['premise', 'subject'],
         next: ['gothic-buried', 'gothic-trapped'],
         memory: 'setting',
@@ -1033,7 +1033,7 @@ export default [
         label: 'What is buried',
         core: false,
         weight: 2,
-        hint: 'the secret, sin or inheritance from the past that is hidden in the place or the family, and how it pushes into the present',
+        hint: 'the secret, sin or inheritance from the past hidden in the place or family, and how it pushes into the present',
         after: ['gothic-house'],
         next: ['gothic-trapped'],
         questions: qs([
@@ -1053,13 +1053,13 @@ export default [
         label: 'The one who is trapped',
         core: false,
         weight: 2,
-        hint: 'the outsider, heir or prisoner caught in the place, the person or force that holds them, and the doubles or mirrors around them',
+        hint: 'the outsider, heir or prisoner caught in the place, who or what holds them, and the doubles or mirrors around them',
         after: ['gothic-house'],
         next: ['gothic-dread'],
         memory: 'character',
         questions: qs([
           ['open', 'Who is caught in the place, and who or what holds them there?'],
-          ['either', 'Did they arrive by choice, or were they brought or born there?'],
+          ['either', 'Did the trapped one arrive by choice, or were they brought or born there?'],
           ['probe', 'Who in the place looks a little like {who}, in face, in habit or in fate?'],
           ['whatif', 'What if the one who holds them were kind in every visible way: what would still be wrong?'],
           ['reflect', 'What does {who} hope to find here, and what does the place offer instead?'],
@@ -1084,7 +1084,7 @@ export default [
           ['constraint', 'What must never be fully explained, so the dread has room to live?'],
           ['reflect', 'Why does the strange hold more fear for the people who live here than for outsiders?'],
           ['concrete', 'Which ordinary thing in the place becomes unbearable once the dread has set in?'],
-          ['reader', 'Should a reader or listener ever be sure what is real?'],
+          ['probe', 'Who in the place is afraid of the strange, and who pretends not to be?'],
         ]),
       },
       {
@@ -1092,7 +1092,7 @@ export default [
         label: 'Feeling and style',
         core: false,
         weight: 1,
-        hint: 'how heightened the emotion and language are: passion, terror, the sublime, ornate or restrained, and what the weather does',
+        hint: 'how heightened the emotion and language are: passion, terror, the sublime, ornate or restrained, and the weather',
         after: ['tone', 'feeling'],
         next: [],
         questions: qs([
@@ -1114,7 +1114,7 @@ export default [
   {
     id: 'ghost-story',
     label: 'ghost story',
-    match: ['ghost story', 'ghost tale', 'ghostly tale', 'haunted house', 'haunted mansion', 'ghost hunter', 'spirit story', 'poltergeist'],
+    match: ['ghost-story', 'ghost-tale', 'ghostly-tale', 'haunted-house', 'haunted-mansion', 'ghost-hunter', 'spirit-story', 'poltergeist'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -1151,11 +1151,11 @@ export default [
           ['either', 'Is the presence seen in full at some point, or only ever glimpsed and implied?'],
           ['concrete', 'What is {who} doing the first time they sense the presence?'],
           ['concrete', 'Which single specific detail, and not a general chill, would make the presence feel real and particular?'],
-          ['scale', 'How often should it appear: rarely enough to keep the audience waiting, or often enough to live with?'],
+          ['scale', 'How often should the presence appear: rarely enough to keep the audience waiting, or often enough to live with?'],
           ['whatif', 'What if the first sign were something comforting: what would turn it frightening?'],
-          ['constraint', 'Which familiar signs of a haunting would feel tired to fans of {genre} in this story?'],
+          ['constraint', 'Which familiar signs of a haunting would feel tired in this story, and what could take their place?'],
           ['reader', 'What image should an audience still be seeing in their minds days later?'],
-          ['contrast', 'How does {place} feel in daylight compared with at night?'],
+          ['either', 'Does the presence keep to certain hours or rooms, or can it show itself anywhere at any time?'],
         ]),
       },
       {
@@ -1175,7 +1175,7 @@ export default [
           ['probe', 'What does {who} want to be true: that the haunting is real, or that it is not?'],
           ['contrast', 'How does {who} act when alone in the place and when others are watching?'],
           ['scale', 'How far does {who} go to prove or disprove it: a quiet look, or an all-night watch?'],
-          ['constraint', 'What explanation, other than a ghost, must a reasonable person be able to offer?'],
+          ['constraint', 'Is there an ordinary explanation a reasonable person could offer, and what is it?'],
         ]),
       },
       {
@@ -1183,18 +1183,18 @@ export default [
         label: 'How the tale is told',
         core: false,
         weight: 1,
-        hint: 'the telling itself: who tells it, to whom, as what (a firelit tale, a found record, a confession), and why it is told now',
+        hint: 'the telling itself: who tells it, to whom, as what (firelit tale, found record, confession), and why it is told now',
         after: ['voice', 'structure'],
         next: [],
         questions: qs([
           ['open', 'Who is telling this tale, and who are they telling it to?'],
-          ['either', 'Is it told as a spoken tale, or found as a written record someone left behind?'],
+          ['either', 'Is the tale a spoken one, or a written record someone left behind?'],
           ['reflect', 'Why is the tale being told now, and what does the teller want from the listener?'],
           ['whatif', 'What if the teller were the last person who knew the truth: would they tell all of it?'],
           ['concrete', 'Where is the teller as they speak, and what is the room like?'],
-          ['open', 'How did the teller come to know what happened to {who}?'],
+          ['either', 'Did the teller live through the events, or hear about them from someone who did?'],
           ['contrast', 'How calm is the teller compared with how frightening the events were?'],
-          ['constraint', 'What must the teller admit to, even if it makes them look foolish?'],
+          ['constraint', 'Is there something the teller would rather not admit, even if it makes them look foolish?'],
           ['reader', 'Should an audience feel they are being told a true thing, or a good tale?'],
         ]),
       },
@@ -1203,7 +1203,7 @@ export default [
         label: 'The last chill',
         core: false,
         weight: 2,
-        hint: 'how it ends: quiet unease, ambiguity or a final reversal, whether the haunting is laid to rest, and what the audience is left with',
+        hint: 'how it ends: quiet unease, ambiguity or a final reversal, whether the haunting rests, and what the audience is left with',
         after: ['ghost-story-sign'],
         next: [],
         questions: qs([
@@ -1225,7 +1225,7 @@ export default [
   {
     id: 'folk-horror',
     label: 'folk horror',
-    match: ['folk horror', 'rural horror', 'countryside horror', 'folklore horror', 'pagan ritual', 'village cult', 'harvest ritual', 'sacrificial ritual'],
+    match: ['folk-horror', 'rural-horror', 'countryside-horror', 'folklore-horror', 'village-horror', 'pagan-horror', 'village-cult', 'pagan-ritual'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -1245,7 +1245,7 @@ export default [
           ['whatif', 'What if a bad harvest were the thing the community feared most: what would they do to prevent it?'],
           ['contrast', 'How does the village look in the bright season, and how does it look when the year turns dark?'],
           ['scale', 'How cut off is the place: a short road from a town, or days from help?'],
-          ['reader', 'What should {who} feel in the first hour after arriving in {place}?'],
+          ['either', 'How does {place} greet a stranger in the first hour: with warmth, or with a watchful quiet?'],
           ['reader', 'What should an audience sense about the place before anyone speaks of anything strange?'],
         ]),
       },
@@ -1260,8 +1260,8 @@ export default [
         memory: 'motif',
         questions: qs([
           ['open', 'What custom does the community keep, and what is it supposed to protect or bring?'],
-          ['either', 'Is the custom invented for the story, or drawn from a real tradition you have studied?'],
-          ['concrete', 'When in the year is it held, and what does the village do to prepare?'],
+          ['either', 'Is the custom invented for the story, or drawn from a real tradition, and if so which?'],
+          ['concrete', 'When in the year is the custom held, and what does the village do to prepare?'],
           ['whatif', 'What if the custom had once been harmless and had slowly grown darker: what changed it?'],
           ['reflect', 'Who keeps the custom alive, and what do they gain from it?'],
           ['probe', 'How much of the custom does {who} understand when they first see it?'],
@@ -1280,7 +1280,7 @@ export default [
         next: ['folk-horror-dread'],
         memory: 'character',
         questions: qs([
-          ['open', 'Why does {who} come to this place, and what do they expect to find?'],
+          ['open', 'Is {who} an outsider to this place, and if so what brings them here and what do they expect to find?'],
           ['either', 'Does {who} want to leave from the start, or want to stay and belong?'],
           ['probe', 'What does {who} take for harmless or quaint that the villagers treat as serious?'],
           ['whatif', 'What if {who} had a skill or a secret that made them useful to the community?'],
@@ -1295,7 +1295,7 @@ export default [
         label: 'The logic of belief',
         core: false,
         weight: 2,
-        hint: 'why the community believes as it does, whether the old ways actually work, and who is right: the villagers or the outsider',
+        hint: 'why the community believes as it does, whether the old ways really work, and who is right: villagers or outsider',
         after: ['folk-horror-custom'],
         next: [],
         questions: qs([
@@ -1315,7 +1315,7 @@ export default [
         label: 'The closing trap',
         core: false,
         weight: 1,
-        hint: 'how the dread grows slowly: small signs the outsider reads too late, and how the trap closes without a clear moment of escape',
+        hint: 'how the dread grows slowly: small signs the outsider reads too late, and how the trap closes with no clear escape',
         after: ['folk-horror-outsider'],
         next: [],
         questions: qs([
@@ -1336,7 +1336,7 @@ export default [
   {
     id: 'cosmic-horror',
     label: 'cosmic horror',
-    match: ['cosmic horror', 'lovecraftian', 'eldritch horror', 'eldritch', 'weird fiction', 'cosmic dread', 'elder gods', 'unknowable entity'],
+    match: ['cosmic-horror', 'lovecraftian', 'eldritch-horror', 'eldritch', 'weird-fiction', 'cosmic-dread', 'elder-gods', 'unknowable-entity'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -1349,13 +1349,13 @@ export default [
         next: ['cosmic-horror-knowledge', 'cosmic-horror-scale'],
         questions: qs([
           ['open', 'What is the vast thing or truth at the centre of the story, as far as anyone understands it?'],
-          ['either', 'Is it hostile to people, or simply indifferent to them?'],
+          ['either', 'Is the vast thing hostile to people, or simply indifferent to them?'],
           ['whatif', 'What if the vast thing never appeared at all, and its effects were all anyone saw?'],
-          ['constraint', 'How much of it must stay hidden for it to remain frightening?'],
-          ['concrete', 'What is the first strange sign of it that an ordinary person could notice?'],
-          ['reflect', 'Why would the truth about it be unbearable, rather than merely dangerous?'],
-          ['scale', 'How large is it: something that haunts one place, or something that touches everything?'],
-          ['contrast', 'How does the world look to someone who does not know about it, and to someone who does?'],
+          ['constraint', 'How much of the vast thing must stay hidden for it to remain frightening?'],
+          ['concrete', 'What is the first strange sign of the vast thing that an ordinary person could notice?'],
+          ['reflect', 'Why would the truth about the vast thing be unbearable, rather than merely dangerous?'],
+          ['scale', 'How large is the vast thing: something that haunts one place, or something that touches everything?'],
+          ['contrast', 'How does the world look to someone who does not know about the vast thing, and to someone who does?'],
         ]),
       },
       {
@@ -1363,7 +1363,7 @@ export default [
         label: 'What knowing costs',
         core: false,
         weight: 2,
-        hint: 'the discovery that harms the one who makes it: what they learn, how they learn it, and what it does to their mind and life',
+        hint: 'the discovery that harms the one who makes it: what they learn, how, and what it does to their mind and life',
         after: ['protagonist'],
         next: ['cosmic-horror-witness'],
         questions: qs([
@@ -1374,7 +1374,7 @@ export default [
           ['concrete', 'What is the first piece of evidence that makes {who} take the strange seriously?'],
           ['scale', 'How much does the knowledge cost: a few sleepless nights, or everything {who} has?'],
           ['contrast', 'Before and after learning the truth, how does {who} look at the people they love?'],
-          ['constraint', 'What should {who} be unable to prove to anyone, so that they carry it alone?'],
+          ['either', 'Can {who} prove what they know to anyone, or must they carry it alone?'],
         ]),
       },
       {
@@ -1389,10 +1389,10 @@ export default [
           ['open', 'What single detail, such as a distance, a number or a span of years, would make the scale of this story hit home?'],
           ['either', 'Does the story keep the audience close to one person, or step back to show the vast pattern?'],
           ['concrete', 'What small human thing, a habit or a keepsake, stays with {who} while the scale grows beyond them?'],
-          ['whatif', 'What if the vast thing took no notice of the people at all, even as it destroyed them?'],
-          ['reflect', 'What does it feel like for {who} to see the size of it, in plain bodily terms?'],
+          ['whatif', 'What if the first people to grasp the scale were too few, or too far away, to be believed?'],
+          ['reflect', 'What does it feel like for {who} to see the size of the vast thing, in plain bodily terms?'],
           ['reader', 'What should an audience feel when they glimpse the size of the thing: awe or dread?'],
-          ['contrast', 'How does an ordinary kitchen morning read when set beside a glimpse of the vast thing?'],
+          ['contrast', 'How does an ordinary morning look when set beside a glimpse of the vast thing?'],
           ['constraint', 'What human-sized thread must run through the story so the audience never loses someone to care about?'],
         ]),
       },
@@ -1401,7 +1401,7 @@ export default [
         label: 'The one who looks',
         core: false,
         weight: 2,
-        hint: 'the investigator or ordinary person drawn toward the truth: their trade, what they stand to lose, and how reliable their mind is',
+        hint: 'the person drawn toward the truth: their trade, what they stand to lose, and how reliable their mind is',
         after: ['protagonist'],
         next: ['cosmic-horror-outcome'],
         memory: 'character',
@@ -1421,11 +1421,11 @@ export default [
         label: 'How it can end',
         core: false,
         weight: 1,
-        hint: 'what the ending can be when victory is impossible: madness, resignation, a quiet knowing, or a small act of defiance',
+        hint: 'what the ending can be when victory looks impossible: madness, resignation, a quiet knowing, or a small act of defiance',
         after: ['cosmic-horror-knowledge'],
         next: [],
         questions: qs([
-          ['open', 'If nothing can truly defeat it, what is left for {who} at the end?'],
+          ['open', 'If nothing can truly defeat the vast thing, what is left for {who} at the end?'],
           ['either', 'Does the story end in madness and ruin, or in a calm, terrible acceptance?'],
           ['whatif', 'What if the only victory were a small act of defiance that changed nothing large: what would it be?'],
           ['reflect', 'What does {who} choose to protect at the end, knowing it may not matter?'],
@@ -1442,7 +1442,7 @@ export default [
   {
     id: 'slasher-horror',
     label: 'slasher horror',
-    match: ['slasher', 'slasher horror', 'slasher film', 'slasher movie', 'final girl', 'masked killer', 'teen slasher', 'summer camp horror'],
+    match: ['slasher', 'slasher-horror', 'slasher-film', 'slasher-movie', 'final-girl', 'masked-killer', 'teen-slasher', 'summer-camp-horror'],
     baseKinds: ['story', 'script'],
     add: [
       {
@@ -1463,7 +1463,7 @@ export default [
           ['either', 'Does the killer know {who} already, or is it only bad luck that they crossed paths?'],
           ['scale', 'How human is the killer: an ordinary person with a reason, or something close to unstoppable?'],
           ['contrast', 'How does the killer act when unseen, and how when the victim knows they are there?'],
-          ['constraint', 'What must the killer never be able to do, so the audience believes the survivors have a chance?'],
+          ['constraint', 'What must the killer never be able to do, so the audience believes someone has a chance?'],
         ]),
       },
       {
@@ -1471,13 +1471,13 @@ export default [
         label: 'The people in danger',
         core: false,
         weight: 2,
-        hint: 'the group the killer hunts: who they are, how they know each other, what each is like, and who the audience will care about',
+        hint: 'the group the killer hunts: who they are, how they know each other, what each is like, who the audience cares about',
         after: ['protagonist'],
         next: ['slasher-horror-survivor'],
         memory: 'character',
         questions: qs([
           ['open', 'Who is in the group the killer hunts, besides {who}, and what brought them together?'],
-          ['either', 'Does the group already know each other well, or are they strangers thrown together?'],
+          ['either', 'Do the people in the group go back years together, or have they only just met?'],
           ['concrete', 'What does each person in the group want from this night that has nothing to do with the killer?'],
           ['contrast', 'Which two people in the group are most unlike each other, and how does danger change that?'],
           ['whatif', 'What if the secrets of the group were as dangerous as the killer: which secret would matter most?'],
@@ -1492,7 +1492,7 @@ export default [
         label: 'The one who survives',
         core: false,
         weight: 2,
-        hint: 'the person who lasts longest, if anyone does: what makes them able to fight back, what they carry, and what survival costs them',
+        hint: 'the person who lasts longest, if anyone: what lets them fight back, what they carry, and what survival costs them',
         after: ['slasher-horror-group'],
         next: [],
         memory: 'character',
@@ -1513,18 +1513,18 @@ export default [
         label: 'The rules of the place',
         core: false,
         weight: 2,
-        hint: 'the unspoken rules of danger: why the place is cut off, what makes people vulnerable, and which genre rules the story keeps or breaks',
+        hint: 'the unspoken rules of danger: why the place is cut off, who is vulnerable, and which genre habits are kept or broken',
         after: ['setting'],
         next: ['slasher-horror-scares'],
         questions: qs([
-          ['open', 'What cuts {place} off from help, and why can no one just call for rescue?'],
-          ['either', 'Does the story follow the habits fans of {genre} expect, or knowingly play against them?'],
-          ['reflect', 'What makes someone more likely to be caught by the killer in this story, and is that fair?'],
+          ['open', 'Is {place} cut off from help, and if so why can no one just call for rescue?'],
+          ['either', 'Does the story follow the habits fans of slasher films expect, or knowingly play against them?'],
+          ['open', 'Is there a pattern in who the killer catches first, and what is behind it?'],
           ['concrete', 'Where in {place} would the group go to feel safe, and what is wrong with it?'],
           ['whatif', 'What if one of the usual rules, such as splitting up or ignoring warnings, were turned around?'],
           ['constraint', 'Which logic of the place must hold, so the audience cannot ask why nobody simply left?'],
           ['scale', 'How much does the audience know about the rules: nothing, or as much as the characters?'],
-          ['contrast', 'How does {place} feel by day, and how does it feel at night?'],
+          ['scale', 'How much does the weather or the season help the killer in {place}?'],
         ]),
       },
       {
@@ -1532,15 +1532,15 @@ export default [
         label: 'Scares and violence',
         core: false,
         weight: 1,
-        hint: 'how fear and violence are shown: what is seen or only implied, how tension builds and releases, and where the quiet moments fall',
+        hint: 'how fear and violence are shown: seen or implied, how tension builds and releases, and where the quiet moments fall',
         after: ['tone'],
         next: [],
         questions: qs([
           ['either', 'Is the violence shown plainly, or kept mostly out of sight so the imagination does the work?'],
-          ['scale', 'How gory should it be: restrained and tense, or openly excessive?'],
+          ['scale', 'How gory should the violence be: restrained and tense, or openly excessive?'],
           ['open', 'What is the scariest spot in {place} to be standing alone, and why?'],
           ['whatif', 'What if the quietest scene in the story were the most frightening: what would happen in it?'],
-          ['whatif', 'What if the worst moment for {who} came when nothing at all was happening: what would they hear?'],
+          ['either', 'Does the story ever show events through the eyes of the killer, or stay entirely with the people being hunted?'],
           ['reflect', 'What makes waiting more frightening than the attack itself, in this story?'],
           ['constraint', 'What should the audience never be allowed to see, so the worst stays imagined?'],
           ['reader', 'Where in the story should an audience be allowed to breathe, and how long for?'],

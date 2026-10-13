@@ -303,11 +303,14 @@ export function enforceReply(reply, plan, { state, ctx, askedTexts, terms } = {}
   if (!asks) {
     if (plan?.act === 'serve') {
       // a serve reply may keep ONE question, and only a good one
-      text = removeQuestions(text, (spans) => {
+      const dropAllButOne = (spans) => {
         const qs = spans.filter(removable);
         const keep = qs.length ? best(qs) : null;
         return qs.filter((s) => s !== keep || bad(s.text));
-      }, changes, 'dropped a question');
+      };
+      text = removeQuestions(text, dropAllButOne, changes, 'dropped a question');
+      // an answer that is a run of questions ("3. What ...? 4. How ...? 5. ...?") still ends with one at most
+      if (analyse(text).filter((s) => s.q && !s.item).length > 1) text = removeQuestions(text, dropAllButOne, changes, 'dropped a question', 3);
     } else {
       text = removeQuestions(text, (spans) => spans.filter((s) => s.q), changes, 'dropped a question');
     }

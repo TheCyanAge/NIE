@@ -79,7 +79,9 @@ const NOT_AN_ANSWER = /^(?:n\/a|none|null|nothing|unknown|unspecified|not (?:spe
 const ECHOES_PROMPT = /\b(?:slot ids?|json|triple quotes?|the writer'?s message|copied or lightly shortened|note down only|leave (?:it|a slot) out|extra details?)\b/i;
 const IS_INSTRUCTION = /^(?:write|draft|compose|rewrite|ask|describe|please|ensure|make sure|note that|you (?:should|must|need)|do not|don'?t)\b/i;
 
-const cleanValue = (v) => squash(v).replace(/^["“'‘`([]+|["”'’`)\]]+$/g, '').replace(/[.;,\s]+$/, '').trim();
+// (a value is the writer's words without the discourse word that led into them: "Actually, the keeper is a ghost" is filed as "the keeper is a ghost")
+const LEAD_IN = /^(?:(?:actually|also|well|so|and|but|oh|ok|okay|hmm+|um+|honestly|basically|anyway|right|yes|yeah)\b[\s,.:;!-]*)+(?=\p{L})/iu;
+const cleanValue = (v) => squash(v).replace(/^["“'‘`([]+|["”'’`)\]]+$/g, '').replace(LEAD_IN, '').replace(/[.;,\s]+$/, '').trim();
 
 // Stems cannot see a "not" (it is a stopword), and a small model drops negations and invents names when it "tidies". So, besides the stem test, a value must
 // (1) not name or number anything the writer did not (a capitalised word or a figure that is not in the message), and (2) not turn a negated statement

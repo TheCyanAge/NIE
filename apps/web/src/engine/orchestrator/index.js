@@ -7,7 +7,7 @@ import { scan, scanWithModel } from '../analysis/scan.js';
 import { composeMessages, ideaRequestBlock, indexFor, RETRY_TOKEN_LIMIT } from './prompt.js';
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
-import { avoidBlock, refine, shapeFor } from './variety.js';
+import { avoidBlock, refine, shapeFor, splitSentencesLite } from './variety.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
 import { makeOverview, projectNotesCache, readThrough, sectionKey } from '../reading/notes.js';
@@ -44,16 +44,34 @@ export function withoutQuestionLists(text) {
   const out = [];
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
-    if (isItem(l) && /\?\s*$/.test(l)) continue;
+    if (isItem(l) && l.includes('?')) {
+      // the question goes; what the item also says ("...? Letting the reader know first gives you dramatic irony.") stays, as a plain line
+      const rest = splitSentencesLite(l.replace(/^\s*(?:[-*\u2022]|\d+[.)])\s+/, '')).filter((x) => !/\?["')\]]*\s*$/.test(x)).join(' ').trim();
+      if (words(rest).length >= 4) out.push(rest);
+      continue;
+    }
     if (/:\s*$/.test(l) && !isItem(l)) {
       let j = i + 1;
       while (j < lines.length && !lines[j].trim()) j++;
       const next = lines[j];
-      if (next !== undefined && isItem(next) && /\?\s*$/.test(next)) continue; // the intro of a list of questions
+      if (next !== undefined && isItem(next) && next.includes('?')) continue; // the intro of a list of questions
     }
     out.push(l);
   }
   return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+/**
+ * Hold a model's reply to the agent's plan. `enforce` handles the questions it can remove whole; a turn that must NOT ask (the writer told NIE something and it is not time
+ * to ask) can still come back as a question in one short sentence ("...but what secrets does she carry?"), which `enforce` cannot cut without leaving nothing. Then the question
+ * sentences go, and if too little is left NIE's own acknowledgement of what was recorded stands in for the reply. Measured on the real model: without this every turn asked.
+ */
+export function holdToPlan(text, plan, agentTurn) {
+  let out = agentTurn.enforce(text);
+  if (plan?.act === 'reflect' && /\?/.test(out)) {
+    const kept = splitSentencesLite(out).filter((s) => !/\?["')\]]*\s*$/.test(s)).join(' ').trim();
+    out = words(kept).length >= 4 ? kept : agentTurn.ack || kept || out;
+  }
+  return out;
 }
 /** A reply cut off by the length limit loses its unfinished last sentence rather than showing half of it. */
 export function finishedSentences(text) {
@@ -488,7 +506,7 @@ export class Orchestrator {
     let honesty = asked.failure && modelReady ? modelFailedNote(asked.failure) : '';
     if (res.text) {
       const guarded = got.polished.guarded;
-      reply = brief ? agentTurn.enforce(finishedSentences(guarded.text)) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      reply = brief ? holdToPlan(finishedSentences(guarded.text), plan, agentTurn) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
       if (!reply) {

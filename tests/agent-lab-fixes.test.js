@@ -94,3 +94,32 @@ test('a turn that only acknowledges and asks is told to be short and to add noth
     assert.ok(estimateTokens(brief) <= 380);
   }
 });
+
+test('a value is the writer\'s words without the discourse word that led into them, so no question is ever built on "actually"', async () => {
+  const { default: agent } = await import('../apps/web/src/engine/agent/index.js');
+  const { placeholderValues } = await import('../apps/web/src/engine/agent/ask.js');
+  const { projectWith } = await import('./helpers.js');
+  const project = projectWith();
+  await agent.turn({ project, message: 'I am writing a quiet story about a lighthouse keeper.', reading: { task: 'tell' } });
+  const t = await agent.turn({ project, message: 'Actually, the keeper is a ghost the whole time.', reading: { task: 'tell' } });
+  for (const rec of Object.values(t.state.slots)) assert.ok(!/^actually\b/i.test(rec.value), rec.value);
+  assert.ok(!/actually/i.test(JSON.stringify(placeholderValues(t.state, agent.ctx).values)));
+});
+
+test('a bullet that holds a question and something else keeps the something else, as a plain line', async () => {
+  const { withoutQuestionLists } = await import('../apps/web/src/engine/orchestrator/index.js');
+  assert.equal(
+    withoutQuestionLists('Intro.\n\n- Does the reader find out first? Letting the reader know gives you dramatic irony; holding it back makes a shock.\n- Another question?\n\nEnd.'),
+    'Intro.\n\nLetting the reader know gives you dramatic irony; holding it back makes a shock.\n\nEnd.'
+  );
+});
+
+test('the packs cover the forms and genres writers name, and a cozy mystery on a tidal island is found as one', async () => {
+  const { detectProject } = await import('../apps/web/src/engine/agent/detect.js');
+  assert.ok(packs.forms.length >= 30 && packs.genres.length >= 35, `${packs.forms.length} forms, ${packs.genres.length} genres`);
+  const d = detectProject("I'm starting a cozy mystery set in a lighthouse town on a tidal island.", { packs });
+  assert.equal(d.kind, 'story');
+  assert.ok(d.genres.includes('cozy-mystery'), JSON.stringify(d));
+  assert.equal(detectProject('I want to write a song about leaving my hometown.', { packs }).form, 'song-lyrics');
+  assert.equal(detectProject('a haiku about the first frost', { packs }).form, 'haiku');
+});

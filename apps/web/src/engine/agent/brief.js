@@ -40,7 +40,7 @@ function instruction(plan, slot, hintChars) {
   const ask = `ask exactly ONE question about ${about}. Use their own names and terms; make it specific to THIS project.${q}`;
   if (plan.act === 'ask') return `Reply in at most two short sentences that point at one specific detail they gave. ${NO_RETELL} Then ${ask} ${KEEP_THEIRS}`;
   if (plan.act === 'serve') return `Answer what they asked (or give what they asked for). Do not interview them this turn.${plan.alsoAsk ? ` After answering, ${ask}` : ''} ${KEEP_THEIRS}`;
-  return `Reply in ONE short sentence (at most 25 words) that points at one specific detail they gave and what it makes you wonder about. ${NO_RETELL} Do not ask a question this turn. ${KEEP_THEIRS}`;
+  return `Reply in ONE short plain statement (at most 25 words) that points at one specific detail they gave and what it sets up. ${NO_RETELL} It must not be a question and must not hint at one: no "what", "how" or "why" aimed at them. ${KEEP_THEIRS}`;
 }
 
 /**
