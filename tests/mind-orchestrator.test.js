@@ -8,6 +8,7 @@ import { findThirdPerson } from '../apps/web/src/engine/editor/index.js';
 import { mindStats } from '../apps/web/src/engine/mind/index.js';
 import { modelWithReading, projectWith } from './helpers.js';
 import { makeLongText } from './fixtures/long-text.mjs';
+import { loadBible } from './fixtures/story-bible.mjs';
 
 await loadLibrary();
 
@@ -168,6 +169,7 @@ test('with the mind switched off nothing is recalled and nothing is stored (for 
 // ── a long text with no question: the read-back ──────────────────────────────
 
 const { text: BIBLE } = makeLongText({ words: 6000, seed: 11 });
+const { text: BIBLE_FIXTURE } = loadBible();
 
 test('a text pasted with no question is read back from what was counted in it: no model words it, it speaks to you, and it ends with one question', async () => {
   const { o, calls } = withModel(() => 'SHOULD NOT BE ASKED');
@@ -193,6 +195,39 @@ test('a question about a long text carries the measured facts to the model, and 
   assert.match(r.reply, /Ilsa Quade/);
   assert.doesNotMatch(r.reply, /Zephyrine|Blackwood/, 'a name that is not in the text is left out');
   assert.match(r.reply, /left out part of that reply/i, 'and it says so');
+});
+
+test('a question the counts answer exactly is answered by the counts: both numbers, the sections they are in, no model, in the second person, with the one question the finding raises', async () => {
+  const { o, calls } = withModel(() => 'SHOULD NOT BE ASKED FOR THIS', { reading: () => ({ task: 'feedback', topic: '' }) });
+  const project = projectWith();
+  await say(o, project, BIBLE_FIXTURE);
+  calls.length = 0;
+  const r = await say(o, project, 'The bible says how much water the Brimmer holds when it is full. Does it say the same thing everywhere?');
+  assert.equal(calls.length, 0, 'the answer model was not asked');
+  assert.equal(r.route, 'builtin');
+  assert.equal(r.agent?.act, 'measured');
+  assert.match(r.reply, /forty thousand barrels/);
+  assert.match(r.reply, /sixty thousand barrels/);
+  assert.match(r.reply, /section 3/);
+  assert.match(r.reply, /section 21/);
+  assert.match(r.reply, /did you mean/i);
+  assert.deepEqual(findThirdPerson(r.reply), []);
+  assert.match(r.looked, /counted|ordinary code/i);
+  assert.match(r.looked, /No language model/);
+  // the numbers the program found are in the text
+  assert.ok(BIBLE_FIXTURE.includes('forty thousand barrels') && BIBLE_FIXTURE.includes('sixty thousand barrels'));
+});
+
+test('a question that needs judgment, or names something no count is about, still goes to the model, which is shown the counts', async () => {
+  const { o, calls } = withModel(() => 'The memo is stiffer and more formal than the narration around it.', { reading: () => ({ task: 'feedback', topic: '' }) });
+  const project = projectWith();
+  await say(o, project, BIBLE_FIXTURE);
+  calls.length = 0;
+  for (const q of ['How does the memo differ in register from the rest of the bible?', 'Is the pacing good, and should I trim the middle?', 'Does the bible give the same year for the Fourth Line runaway in the character notes and in the dated entries?']) {
+    const r = await say(o, project, q);
+    assert.notEqual(r.agent?.act, 'measured', q);
+  }
+  assert.ok(calls.length >= 3, 'the model answered them');
 });
 
 test('when everything a reply names is invented, the reply is withheld with an honest note and built-in guidance', async () => {

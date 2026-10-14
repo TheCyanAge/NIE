@@ -84,7 +84,9 @@ function actOf(reading, text, st, words) {
     case 'chat': return 'chat';
     case 'about-nie': case 'write': case 'edit': return 'question'; // declined or answered elsewhere; never recorded
     // (a message the rules plainly read as a request to NIE is served whatever the reading says: it is never filed as part of the idea or interviewed over)
-    case 'tell': case 'develop': case 'unclear': return looksLikeRequest(text) ? 'question' : answering();
+    // (a 3B model reads "What happened to my heroine's brother?" as the writer telling it something, because it says "my heroine": measured in the memory session of the agent lab,
+    // where the three questions asked of NIE were filed under "Also" and one was answered with "I have that down". A question is served, never filed as part of the idea.)
+    case 'tell': case 'develop': case 'unclear': return looksLikeRequest(text) || looksLikeQuestion(text) ? 'question' : answering();
     default:
       if (looksLikeQuestion(text)) return 'question';
       if (EXPLICIT_ASK.test(text)) return 'ideas';

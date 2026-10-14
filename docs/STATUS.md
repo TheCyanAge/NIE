@@ -31,6 +31,8 @@ Legend: ✅ built and tested here · 🟡 built, needs verification on Windows /
 | **new** | The language model reads every message first (what is the writer asking?), with the rules as the fallback; every reply records who understood it | ✅ unit + UI tests; ✅ **measured on the real Qwen model** (below) |
 | **new** | Any length of text: a long paste or a long Story Text is cut into sections at the writer's own structure, ranked against the question, and the model is shown an outline sample, the opening, the best matches and the latest part; the reply says exactly what was looked at | ✅ unit + UI tests; ✅ **measured on the real model** (below). 🟡 slow on a slow CPU; see Known limits |
 | **new** | Brainstorm follows an idea like an interviewer: a sheet of what the writer said (their own words), questions asked now and then, one at a time, never twice, about this idea; a recap and an offer to keep it on the Idea Board and in project memory (the writer can add details first, say not yet, or keep it part-way); a new idea sets the old one aside | ✅ unit + UI tests with no model and with a scripted one; 🟡 real-model numbers in the `agent-lab` workflow (below) |
+| **new** | NIE holds everything said or built in a project (the writer's statements, the idea sheet, kept and set-aside ideas, characters, themes, rules...), finds what bears on each message, shows what it drew on, can say and list what it holds, and keeps each project's mind separate; a pasted text gets a read-back built from counts and is not forgotten after twelve messages | ✅ unit + UI tests (isolation across switch, reload, delete; old projects backfilled); ✅ **measured on the real model** (below). 🟡 recall is by words, not meaning |
+| **new** | Editorial instruments: counted facts about a long text (cast, pacing, voice, figures, dated entries, repeats, terms, the writer's rules) given to the model, exact answers to questions that are about the counts, a check that a reply names only what the text names | ✅ unit tests; ✅ measured against the story bible's answer key with no model (`scripts/editor-probe.mjs`) and on the real model (below) |
 | 82 | "Human-level" narrative reasoning | ⬜ aspirational: depends on the model and a much larger library |
 
 ## Measured on the real model
@@ -79,6 +81,26 @@ not with a fake. Runner speed varies a lot from run to run, so only same-run com
   The offer, the yes, "not yet" and a style command need no model and take no time.
 - Honest limit: these are scripted writers who answer what they are asked. A real conversation wanders more, and a 3B model's comments on an idea are thin next to a large hosted model's. What makes NIE behave
   like an attentive interviewer here is the scaffold (the sheet, the planner, questions written by hand for each kind of piece, form and genre, and checks on every reply), not the model's own judgment.
+
+**The project mind and the editorial instruments** (`agent-lab` memory session, `notes-lab --editor`; same runner and model; one run each, so read the direction, not the decimals):
+- Remembering what was said earlier (the `memory` session: eight facts told, then seven questions asked later about them, and three more questions about the story). With the mind: **6 of 7** probes answered from what
+  was told; with the mind off (`nomind`): **4 of 7**. The misses with the mind on were one question the agent filed as part of the idea ("What happened to my heroine's brother?" was read by the model as the writer
+  telling NIE something and answered with "I have that down"): a bug that was there before and that this session showed; a question is now never filed as part of the idea. Replies with two or more questions: **0 with the
+  mind, 3 without**. Cost: about 36 s a turn with the mind (recall is a few milliseconds; the rest is the model).
+- A text pasted with no question (the invented 10,000-word bible; 25 sections read one at a time first, about 11 minutes on this runner, once): the reply came back in **12 s**, built from counts and notes, without
+  the words "the writer", with one question to the writer in the second person, and the two things planted in the bible that the instruments can see: the water volume given as forty thousand barrels in section 3 and sixty
+  thousand in section 21, and the dated entries going back from Year six to Year one. It also listed "Book" as a term found in 23 of 25 sections: an ordinary word a model note had named. Fixed: a note's term has to be
+  there as written, and a lower-case word in nearly every section is not a coined term.
+- Ten of the bible's own questions (whole-text, timeline, style, contradiction, snippet), asked with and without the instruments: answers that mention what the answer key says: **3/10 without, 2/10 with**: no
+  improvement from showing a 3B model the counts. Replies that said "the writer" to the writer: **2/10 without, 0/10 with**. Replies that named something not in the text: 0/10 both ways (one sentence was cut
+  by the check). What the run showed: given the counts, the model still repeated the question back ("Does it say the same thing everywhere?") or made a claim the text does not make ("This is clearly stated in
+  section 8"). So questions that are only about the counts (is it consistent about a number, where do its dates run backwards, what tense, how does the pace run, what does it repeat) are now answered by the counts
+  themselves, with their sections and one question about the finding, and no model; anything that needs reading, judging or a reason still goes to the model, shown the counts. That change is tested but not yet
+  re-measured on the real model.
+- Measured against the bible's answer key with no model (`scripts/editor-probe.mjs`, 0.3 s): all **8 of 8** of its people are listed, **1 of 2** planted inconsistencies is flagged (the year of the Fourth Line runaway, given in
+  a character note and in the dated entries, is missed), the backwards jump in its dated entries is found, **14 of 24** defined terms are in the list of recurring terms, and 4 of 4 replies (2 true, 2 invented) are kept or cut correctly.
+- Honest limit: a 3B model is not GPT, Gemini, Claude or Perplexity. What the instruments and the mind give is exact counts, a memory that cannot drift, and checks on every reply; they do not give the model
+  better judgment of a story.
 
 ## Rules, in detail
 Understood and **checked exactly**: forbidden words/phrases; terminology ("use X not Y"); sentence/paragraph length limits; first/second/third person and

@@ -23,7 +23,7 @@ import { grasp as agentGrasp } from '../agent/sheet.js';
 import { filledIds } from '../agent/state.js';
 import { parseKeepCommand } from '../agent/talk.js';
 import { clearTokenMemo, describeMind, mindOf, recall, rememberStatements } from '../mind/index.js';
-import { analyseText, analysisKey, clearGroundingCache, editorialEvidence, findThirdPerson, groundNames, readbackFrame } from '../editor/index.js';
+import { analyseText, analysisKey, clearGroundingCache, editorialEvidence, findThirdPerson, groundNames, measuredAnswer, readbackFrame } from '../editor/index.js';
 import { profileCorpus } from '../profile/profile.js';
 
 export { STARTER };
@@ -597,6 +597,16 @@ export class Orchestrator {
     // (A single-fact question — "what colour was the door?" — is answered from the closest passages; the counts only help when it asks about something that is counted.)
     const measuredQuery = doc.document?.query || askText;
     const evidence = analysis && !noAsk && (!isLookupQuestion(measuredQuery) || ASKS_FOR_COUNTS.test(measuredQuery)) ? editorialEvidence({ analysis, query: measuredQuery, budgetTokens: 380 }) : null;
+    // A question the counts answer exactly (is it consistent about a number, where do its dates run backwards, what tense is it in, how does its pace run) is answered by the
+    // counts, in the writer's language, with the one question the finding raises. Measured on the real model, shown the same counts a 3B model still answered such a question with its
+    // own words or with the question itself.
+    const measured = analysis && !noAsk && !lib && !libMiss ? measuredAnswer({ analysis, query: measuredQuery }) : null;
+    if (measured) {
+      const full = agentTurn?.note ? `${agentTurn.note}\n\n${measured.text}` : measured.text;
+      onToken?.(full, full);
+      const looked = `I counted this from your text with ordinary code (${measured.sections === measured.of ? `all ${measured.of}` : `the first ${measured.sections} of ${measured.of}`} sections measured). No language model wrote or checked this answer.`;
+      return this.#finish(project, intent, full, 'builtin', false, { agent: { act: 'measured', ...(measured.used.length ? { used: measured.used } : {}) }, looked });
+    }
     // (A turn that only acknowledges and asks is steered by the idea agent's brief, which carries the genre's conventions; the general reference notes add prompt to read for little.)
     const steeredShort = Boolean(agentTurn) && !lib && !libMiss && !aboutText && !noAsk && ['ask', 'reflect'].includes(agentTurn.plan?.act);
     const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, askText).slice(0, steeredShort ? 2 : 6);

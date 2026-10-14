@@ -44,6 +44,10 @@ what the writer's own rules say about it, and the measured style. Only the first
 - `editorialEvidence` picks the lines that bear on the question asked (a question about pacing gets pacing) and the model is shown them as "Measured from the text itself (counted by the program, not judged...)".
 - `readbackFrame` is the answer to a text pasted with no question: what was counted, what stands out, and one question put to the writer in the second person. No model words it, so it cannot invent; it
   says exactly what was read (`didLine`), and a built-in reply claims no reading beyond that.
+- `measuredAnswer` answers a question that is only about the counts (is it consistent about a number or a date, where do its dated entries run backwards, what tense and point of view, how does its pace run, what does
+  it repeat, what terms does it coin) from the counts themselves: the lines that question is about (a question about the timeline is not answered with the figures), each with its sections, and the one question the
+  finding raises, in the second person. No model is asked, and the reply says so (`meta.looked`). A question that asks for a judgment, an idea, a reason or a comparison ("is the pacing good?", "how does the memo differ?"),
+  that names something no counted line is about, or that is about the cast, goes to the model, shown the same counts (`editorialEvidence`). Added because the real model, shown the counts, still answered with its own words.
 - `groundNames` checks a model's answer about a text: a sentence naming a person, place or figure that appears nowhere in the text, the writer's messages, the project's memory or the measured facts is removed, and the reply says
   so. If nothing is left the reply is withheld with an honest note and built-in guidance. This was added because the real model invented names and numbers when asked about a long text.
 - `findThirdPerson` catches "How does the writer maintain the reader's curiosity?" said to the writer. The prompt says "you", and a reply that still talks about "the writer" is asked for once more.

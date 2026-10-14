@@ -994,23 +994,26 @@ function termsOf(src, secs, { signature, notesPer, castNames, termNames }) {
   }
   // (a recurring "INT" or "CUT" is the format of a screenplay, not a term of the story)
   const raw = [...signature.filter((t) => !FORMAT_WORDS.has(String(t))).map((t) => ({ t })), ...termNames.map((c) => ({ t: c.name })), ...[...defined.values()].map((d) => ({ t: d.term, defined: true }))];
-  for (const n of notesPer ?? []) if (n && Array.isArray(n.terms)) for (const t of n.terms.slice(0, 6)) if (typeof t === 'string') raw.push({ t: t.trim() });
+  // (a term a model noted is believed only as far as the text bears it out: measured on the real model, "Book" came back as a term found in 23 of 25 sections, an ordinary word)
+  for (const n of notesPer ?? []) if (n && Array.isArray(n.terms)) for (const t of n.terms.slice(0, 6)) if (typeof t === 'string') raw.push({ t: t.trim(), fromNote: true });
   const seen = new Set();
   const out = [];
-  for (const { t, defined: isDef } of raw) {
+  for (const { t, defined: isDef, fromNote } of raw) {
     const key = t.toLowerCase();
     if (!t || t.length > 40 || seen.has(key) || castNames.has(key)) continue;
     if (/^i['’]/.test(key) || TITLES.has(key) || COMMON_CAPS.has(key) || OPENERS.has(key) || ORDINARY_OPENERS.has(key)) continue; // ("I'd", "Prof", "Figure", "Hello": words, not terms of the story)
     seen.add(key);
     let re;
     try {
-      re = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(t)}(?![\\p{L}\\p{N}])`, 'iu');
+      // (a capitalised term from a note must be capitalised in the text too: "Book" is not "book")
+      re = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(t)}(?![\\p{L}\\p{N}])`, fromNote && /^\p{Lu}/u.test(t) ? 'u' : 'iu');
     } catch {
       continue;
     }
     const sections = [];
     for (const s of secs) if (re.test(src.slice(s.start, s.end))) sections.push(s.i);
     if (!sections.length || (isDef && sections.length < 2)) continue;
+    if (fromNote && !/^\p{Lu}/u.test(t) && secs.length >= 5 && sections.length > secs.length * 0.8) continue; // a lower-case word in nearly every section is ordinary vocabulary, not a coined term
     const d = defined.get(key);
     out.push(d ? { term: t, sections, defined: d.section } : { term: t, sections });
   }

@@ -13,10 +13,10 @@ await loadLibrary();
 // The idea agent inside Brainstorm: the whole path from what the writer says to the reply, with no model and with a scripted one.
 
 const builtinOnly = (extra = {}) => new Orchestrator({ engine: new AIEngine({ local: null, online: null, isOnline: () => false }), ...extra });
-function withModel(replyFn, { extract = null } = {}) {
+function withModel(replyFn, { extract = null, reading = null } = {}) {
   const calls = [];
   const extractCalls = [];
-  const local = { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: modelWithReading(replyFn, { calls, extractCalls, extract }) };
+  const local = { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: modelWithReading(replyFn, { calls, extractCalls, extract, reading }) };
   return { o: new Orchestrator({ engine: new AIEngine({ local, online: null, isOnline: () => false }) }), calls, extractCalls };
 }
 const say = (o, project, message, opts = {}) => o.brainstorm({ project, message, ...opts });
@@ -261,4 +261,17 @@ test('the older built-in lists of questions are gone under the agent: one questi
     assert.ok(qmarks(r.reply) <= 1, `${m}: ${r.reply}`);
     assert.ok(!/^\s*(?:[-*]|\d+\.)\s.*\?\s*$/m.test(r.reply), `${m}: no list of questions`);
   }
+});
+
+test('a question about the idea, even when the model reads it as the writer telling NIE something, is answered and never filed as part of the idea', async () => {
+  const { o, extractCalls } = withModel(() => 'Her brother Tomas vanished with a caravan of salt traders.', { extract: () => ({ updates: [], extra: [] }), reading: () => ({ task: 'tell', topic: '' }) }); // (the 3B model's reading of it, as measured)
+  const project = projectWith();
+  for (const m of ['The story is called The Salt Road and it is set in a drought-struck river delta in 1870.', 'The heroine is Ines Varga, a surveyor who maps wells for the water guild.', 'Her brother Tomas vanished with a caravan of salt traders two summers ago.']) await say(o, project, m);
+  const before = JSON.stringify(project.conversation.agent.extra) + JSON.stringify(project.conversation.agent.slots);
+  const calls = extractCalls.length;
+  const r = await o.brainstorm({ project, message: "What happened to my heroine's brother?" });
+  assert.equal(JSON.stringify(project.conversation.agent.extra) + JSON.stringify(project.conversation.agent.slots), before, 'the question is not in the sheet');
+  assert.equal(extractCalls.length, calls, 'and nothing was read into the sheet from it');
+  assert.doesNotMatch(r.reply, /^(?:Noted|I have that down|Okay, I have that)/);
+  assert.match(r.reply, /Tomas/);
 });

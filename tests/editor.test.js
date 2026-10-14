@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyseText, analysisKey, editorialEvidence, readbackFrame, groundNames, clearGroundingCache, groundingCacheSize, speaksAboutTheWriter, findThirdPerson, standouts, topicsOf } from '../apps/web/src/engine/editor/index.js';
+import { analyseText, analysisKey, editorialEvidence, measuredAnswer, readbackFrame, groundNames, clearGroundingCache, groundingCacheSize, speaksAboutTheWriter, findThirdPerson, standouts, topicsOf } from '../apps/web/src/engine/editor/index.js';
 import { listSections } from '../apps/web/src/engine/editor/findings.js';
 import { splitSections, sectionText, isHeading } from '../apps/web/src/engine/reading/sections.js';
 import { buildIndex } from '../apps/web/src/engine/reading/context.js';
@@ -1247,4 +1247,65 @@ test('public functions take what a caller might pass by mistake: null options, a
   assert.equal(listSections(7), 'no section');
   assert.equal(typeof analysisKey({ text: 'x', notes: [{ names: 5, terms: 'x', by: 'model' }, null, 3] }), 'string');
   assert.deepEqual(analyseText({ text: MEMOIR, notes: [{ names: 5, terms: 'x', by: 'model' }, null, 3, 'x'] }).failed, []);
+});
+
+test('a term a model noted is believed only as far as the text bears it out: "Book" is not a term of a text that only says "the book" in nearly every section', () => {
+  const parts = Array.from({ length: 10 }, (_, i) => `Chapter ${i + 1}\n\nThe keeper opened the book again and read the page about the belly of the tank. The tide was low and the lamp was out. She closed the book and counted the steps down to the cellar before dark, as she always did in the thin season.`);
+  const text = parts.join('\n\n');
+  const per = Array.from({ length: 10 }, () => ({ by: 'model', gist: 'A keeper reads.', names: [], terms: ['Book', 'book', 'belly'], voice: 'plain' }));
+  const terms = analyseText({ text, notes: per }).terms.map((t) => t.term.toLowerCase());
+  assert.ok(!terms.includes('book'), `the ordinary word is not a term: ${terms}`);
+});
+
+test('measuredAnswer: a question about a number, a date or the tense is answered by the counts, only the counts that question is about, and every number in it is in the text', () => {
+  const ask = (q) => measuredAnswer({ analysis: A, query: q });
+  const fig = ask('The bible says how much water the Brimmer holds when it is full. Does it say the same thing everywhere?');
+  assert.ok(fig, 'answered');
+  assert.deepEqual(fig.used, ['figures']);
+  assert.match(fig.text, /forty thousand barrels/);
+  assert.match(fig.text, /sixty thousand barrels/);
+  assert.ok(BIBLE.includes('forty thousand barrels') && BIBLE.includes('sixty thousand barrels'));
+  assert.ok(fig.question && /did you mean/i.test(fig.question));
+  assert.ok(!speaksAboutTheWriter(fig.text));
+
+  const time = ask('Where does the timeline jump backward, and to what moment does it go back?');
+  assert.deepEqual(time.used, ['timeline'], 'a question about the timeline is not answered with the figures');
+  assert.match(time.text, /Year six, July/);
+  assert.match(time.text, /Year one, November/);
+  assert.doesNotMatch(time.text, /thousand barrels/);
+
+  const pov = ask('What point of view and tense is this bible written in?');
+  assert.match(pov.lines[0], /^Third person/, 'what it is comes before where it changes');
+  assert.match(ask('Is the pacing even throughout?').text, /Section lengths run from \d+ words/);
+});
+
+test('measuredAnswer: no answer from the counts when the question asks for a judgment, a reason or a comparison, names what nothing counted is about, or asks about the cast', () => {
+  const none = [
+    'Is the pacing good, and should I trim the middle?',
+    'How does the memo differ in register from the rest of the bible?',
+    'Does the bible give the same year for the Fourth Line runaway in the character notes and in the dated entries?',
+    'Who are the main characters and what do they do?',
+    'Why does the timeline jump backward?',
+    'Tell me what you make of the pacing in this bible.',
+    'What do you think of the pacing?',
+    'What if the Commissioner lied about the numbers?',
+    '',
+    'Hello',
+  ];
+  for (const q of none) assert.equal(measuredAnswer({ analysis: A, query: q }), null, q);
+  for (const bad of [null, undefined, {}, { sections: [] }, 3, 'x']) assert.equal(measuredAnswer({ analysis: bad, query: 'Is the pacing even?' }), null);
+  assert.equal(measuredAnswer(null), null);
+  assert.equal(measuredAnswer(), null);
+});
+
+test('measuredAnswer says when only part of a long text was measured, and never asks a question about a finding it left out', () => {
+  const partial = analyseText({ text: BIBLE, maxSections: 10 });
+  const r = measuredAnswer({ analysis: partial, query: 'Is the text consistent about numbers and dates?' });
+  if (r) {
+    assert.match(r.text, /Only the first 10 of 25 sections were measured/);
+    const ids = r.lines.length;
+    assert.ok(ids >= 1);
+  }
+  const fig = measuredAnswer({ analysis: A, query: 'Is the text consistent about numbers?' });
+  if (fig?.question) assert.ok(fig.lines.some((l) => /thousand barrels/.test(l)), 'the question belongs to a line that is in the answer');
 });

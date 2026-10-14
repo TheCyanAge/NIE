@@ -439,7 +439,8 @@ test('a question that says "this bible" or "the text" is about the text; its mea
   const { text } = loadBible();
   const project = projectWith({ storyText: text });
   const { o, calls } = setup({ reading: { task: 'craft', topic: '' }, reply: 'Third person, past and present.' });
-  await o.brainstorm({ project, message: 'What point of view and tense is this bible written in?' });
+  // ("what tense is it in?" alone is answered by the counts, with no model: editor/evidence.js#measuredAnswer; a question that needs reading the text still reaches the model with the measured style)
+  await o.brainstorm({ project, message: 'How does the memo differ in register from the rest of the bible?' });
   const prompt = promptOf(calls);
   assert.match(prompt, /The writer's text is long/);
   assert.match(prompt, /Style \(measured from the text/);

@@ -66,7 +66,8 @@ function ruleLines(a, found) {
 }
 
 /** The lines a topic asks for. */
-function linesOf(topic, a, found, query) {
+function linesOf(topic, a, found, query, only = null) {
+  const want = (k) => !only || only.includes(k);
   switch (topic) {
     case 'pacing': {
       const lines = ofInstrument(a, found, 'pacing');
@@ -75,10 +76,10 @@ function linesOf(topic, a, found, query) {
     }
     case 'consistency':
       return [
-        ...ofInstrument(a, found, 'figures', { max: 2 }),
-        ...ofInstrument(a, found, 'timeline', { neutral: (a.timeline?.stamps?.length ?? 0) >= 3 }),
-        ...ofInstrument(a, found, 'names', { neutral: /\b(?:typos?|misspell\w*|spell\w*)\b/i.test(query) }),
-        ...ofInstrument(a, found, 'voice', { neutral: false, max: 1 }),
+        ...(want('figures') ? ofInstrument(a, found, 'figures', { max: 2 }) : []),
+        ...(want('timeline') ? ofInstrument(a, found, 'timeline', { neutral: (a.timeline?.stamps?.length ?? 0) >= 3 }) : []),
+        ...(want('names') ? ofInstrument(a, found, 'names', { neutral: /\b(?:typos?|misspell\w*|spell\w*)\b/i.test(query) }) : []),
+        ...(want('voice') ? ofInstrument(a, found, 'voice', { neutral: false, max: 1 }) : []),
       ];
     case 'cast':
       return castLines(a, found);
@@ -148,3 +149,87 @@ export function editorialEvidence(opts) {
   const used = [...new Set(kept.map((l) => l.instrument))];
   return { block, used, stats: { ...stats, lines: kept.length, tokens: estimateTokens(block), instruments: used, ids: kept.map((l) => l.id).filter(Boolean) } };
 }
+
+
+// ── answering a question the program can answer exactly ──────────────────────
+
+/**
+ * Questions that ask for a MEASUREMENT: whether the text is consistent about a number, a date or a spelling, where its dated entries run backwards, its point of view and tense,
+ * how its pace runs, what it repeats, the terms it coins. Measured on the real model, a 3B model shown these counts still answered such a question with its own words ("The
+ * bible says the Brimmer holds forty thousand barrels... Does it say the same thing everywhere?"), or with a claim the text does not make. The counts are exact; the
+ * answer is the counts.
+ */
+const MEASURED_FRAMES = [
+  /\b(?:consisten\w*|inconsisten\w*|contradict\w*|continuity|chronolog\w*|timelines?|dated entries|typos?|misspell\w*|misspelt|same (?:thing|number|figure|year|date|amount|name|spelling))\b/i,
+  /\b(?:point of view|pov|tense|first person|second person|third person|person is)\b/i,
+  /\b(?:pac(?:e|es|ing)|rhythm|section lengths?|chapter lengths?|word count|how long (?:is|are)|dialogue (?:share|percentage)|how much (?:of it )?is dialogue)\b/i,
+  /\b(?:repeat\w*|tics?|overus\w*|again and again)\b/i,
+  /\b(?:glossary|jargon|coined|invented words?|made-up words?)\b/i,
+];
+const MEASURED_TOPICS = new Set(['pacing', 'consistency', 'voice', 'repeats', 'terms']);
+/** Words that ask for a judgment, an idea or a reason, which counts cannot give. */
+const NEEDS_JUDGMENT = /\b(?:what if|ideas?|could|should|would|improve\w*|better|worse|fix\w*|suggest\w*|fits?|works? (?:with|for)|good|bad|strong|weak|cut|trim|change|add|why|feels?|thinks?|thoughts?|make of|feedback|critique|review|assess\w*|opinion|boring|dull|engaging|mean|means|explain|differ\w*|compare\w*|versus|vs)\b/i;
+/** Which kind of consistency a question is about (all of them when it only says "consistent"): a question about the timeline is not answered with the figures. */
+const ASPECT_CUES = {
+  timeline: /\b(?:timelines?|chronolog\w*|dated|dates?|years?|backwards?|back in time)\b/i,
+  figures: /\b(?:numbers?|figures?|amounts?|how (?:many|much)|same (?:thing|number|figure|amount))\b/i,
+  names: /\b(?:typos?|misspell\w*|misspelt|spell\w*|spelling)\b/i,
+  voice: /\b(?:tense|point of view|pov|person)\b/i,
+};
+const aspectsOf = (q) => {
+  const hit = Object.entries(ASPECT_CUES).filter(([, re]) => re.test(q)).map(([k]) => k);
+  return hit.length ? hit : null;
+};
+const cap = (t) => (t ? t.charAt(0).toUpperCase() + t.slice(1) : t);
+const endsSentence = (t) => (/[.!?]["')\]]*$/.test(t) ? t : `${t}.`);
+
+/** Names the question mentions (capitalised words and runs of them that do not open it): the answer must be about them, or there is no measured answer. */
+function namesIn(query) {
+  const out = [];
+  const re = /(?<![.!?]\s)(?<!^)\b(\p{Lu}[\p{L}'’-]+(?:\s+\p{Lu}[\p{L}'’-]+)*)/gu;
+  for (const m of query.matchAll(re)) {
+    const w = m[1];
+    if (/^(?:I|The|A|An|Does|Do|Is|Are|Was|Were|What|Which|Who|Where|When|How|It|This|That)$/.test(w)) continue;
+    out.push(w);
+  }
+  return out;
+}
+
+/**
+ * @param {{ analysis: object, query?: string, budgetTokens?: number }} o
+ * @returns {{ text: string, lines: string[], question: string|null, used: string[], sections: number, of: number }|null}  null when the question is not one the counts answer by themselves
+ *   (it asks for a judgment, an idea or a reason, names something no counted line is about, or nothing was counted): then a model answers it, shown the same counts.
+ */
+export function measuredAnswer(opts) {
+  const { analysis: a, query = '', budgetTokens = 520 } = opts && typeof opts === 'object' ? opts : {};
+  const q = typeof query === 'string' ? query.slice(0, 600) : '';
+  if (!a || typeof a !== 'object' || !Array.isArray(a.sections) || !a.sections.length || !a.covered || !q.trim()) return null;
+  if (!MEASURED_FRAMES.some((re) => re.test(q)) || NEEDS_JUDGMENT.test(q)) return null;
+  const topics = topicsOf(q);
+  if (!topics.length || topics.some((t) => !MEASURED_TOPICS.has(t))) return null;
+
+  const found = standouts(a);
+  const queue = [];
+  for (const t of topics) for (const l of linesOf(t, a, found, q, t === 'consistency' ? aspectsOf(q) : null)) if (l.text && !queue.some((x) => x.text === l.text)) queue.push(l);
+  if (topics[0] === 'voice') queue.sort((x, y) => Number(y.label === 'Style') - Number(x.label === 'Style')); // (what the point of view and tense are comes before where they shift)
+  const names = namesIn(q);
+  const lines = names.length ? queue.filter((l) => names.some((n) => lowerHas(l.text, n))) : queue;
+  if (!lines.length) return null;
+
+  const kept = [];
+  const head = a.covered.complete ? '' : ` Only the first ${a.covered.sections} of ${a.covered.of} sections were measured.`;
+  for (const l of lines.slice(0, 5)) {
+    if (estimateTokens([...kept, l].map((x) => endsSentence(cap(x.text))).join('\n') + head) > budgetTokens) break;
+    kept.push(l);
+  }
+  if (!kept.length) return null;
+  const used = [...new Set(kept.map((l) => l.instrument))];
+  const ids = new Set(kept.map((l) => l.id).filter(Boolean));
+  const asking = found.find((f) => f.question && ids.has(f.id)) ?? null; // (a question about a finding is asked only when that finding is in the answer)
+  const lead = `Here is what I counted in your text. These are counts, not judgments.${head}`;
+  const body = kept.map((l) => endsSentence(cap(l.text)));
+  const question = asking?.question ?? null;
+  return { text: [lead, ...body, question].filter(Boolean).join('\n\n'), lines: body, question, used, sections: a.covered.sections, of: a.covered.of };
+}
+
+const lowerHas = (text, name) => String(text).toLowerCase().includes(String(name).toLowerCase());
