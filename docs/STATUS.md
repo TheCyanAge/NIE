@@ -95,8 +95,15 @@ not with a fake. Runner speed varies a lot from run to run, so only same-run com
   improvement from showing a 3B model the counts. Replies that said "the writer" to the writer: **2/10 without, 0/10 with**. Replies that named something not in the text: 0/10 both ways (one sentence was cut
   by the check). What the run showed: given the counts, the model still repeated the question back ("Does it say the same thing everywhere?") or made a claim the text does not make ("This is clearly stated in
   section 8"). So questions that are only about the counts (is it consistent about a number, where do its dates run backwards, what tense, how does the pace run, what does it repeat) are now answered by the counts
-  themselves, with their sections and one question about the finding, and no model; anything that needs reading, judging or a reason still goes to the model, shown the counts. That change is tested but not yet
-  re-measured on the real model.
+  themselves, with their sections and one question about the finding, and no model; anything that needs reading, judging or a reason still goes to the model, shown the counts. Measured again after the change
+  (same ten questions, a faster runner): answers that mention what the answer key says **2/10 without the instruments, 4/10 with them**; "the writer" said to the writer 1/10 and 0/10; invented names 0/10 and 0/10;
+  the questions the counts answer (the water volume, the backwards dated entries, point of view and tense) came back in **0.6 s each** instead of 15 to 150 s. The questions that need reading the whole story
+  (who does what, how it ends, a comparison, whether a year agrees between a character note and the dated entries) are still mostly missed: that is the model's limit, not something the counts reach.
+- Two further memory runs (agent mode only, after the fixes above): probes **5/7 and 5/7**, so the first run's 6/7 was the top of the range, not the middle. Reading the per-turn labels showed why two probes failed: a question
+  about the writer's own project that the model read as a general question about writing ("What tone did I say I wanted?", "Who owes the guild money, and how much?") was sent to the offline library, which skips the
+  project's memory, and the model answered with advice about "free-form tags". Now a question the writer's own statements answer (a match against the project's memory, or a plain "did I say / I told you") is answered
+  from the memory; a general question (what is a MacGuffin?) finds nothing of theirs and still goes to the library. The idea sheet is also searched on turns that answer a question. These two changes are tested
+  (a test that fails on the old code) but not yet re-measured on the real model.
 - Measured against the bible's answer key with no model (`scripts/editor-probe.mjs`, 0.3 s): all **8 of 8** of its people are listed, **1 of 2** planted inconsistencies is flagged (the year of the Fourth Line runaway, given in
   a character note and in the dated entries, is missed), the backwards jump in its dated entries is found, **14 of 24** defined terms are in the list of recurring terms, and 4 of 4 replies (2 true, 2 invented) are kept or cut correctly.
 - Honest limit: a 3B model is not GPT, Gemini, Claude or Perplexity. What the instruments and the mind give is exact counts, a memory that cannot drift, and checks on every reply; they do not give the model

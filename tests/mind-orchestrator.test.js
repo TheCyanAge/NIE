@@ -156,6 +156,33 @@ test('"what do you know about three-act structure?" is still a question for the 
   assert.doesNotMatch(r.reply, /Everything NIE holds/);
 });
 
+test('a question about the writer\'s own project that a small model reads as a general question about writing is answered from what the writer said, not from the library', async () => {
+  const seen = [];
+  const { o, calls } = withModel((messages) => { seen.push(messages.map((m) => m.content).join('\n')); return 'You said you want a slow, sun-bleached fable.'; }, { reading: (t) => (/\?\s*$/.test(t) ? { task: 'craft', topic: 'tone' } : { task: 'tell', topic: '' }) });
+  const project = projectWith();
+  await say(o, project, 'I want the tone to be a slow, sun-bleached fable, in third person and past tense.');
+  await say(o, project, 'The caravan master, Oleander Bruck, owes the guild a hundred silver marks.');
+  calls.length = 0;
+  seen.length = 0;
+  for (const q of ['What tone did I say I wanted?', 'Who owes the guild money, and how much?']) {
+    const r = await say(o, project, q);
+    assert.notEqual(r.intent.type, 'library-question', `${q}: not answered from the library`);
+    assert.ok(r.recalled.length > 0, `${q}: what the writer said is shown`);
+  }
+  assert.match(seen.join('\n'), /sun-bleached fable/);
+  assert.match(seen.join('\n'), /Oleander Bruck/);
+});
+
+test('a general question about writing, which finds nothing the writer said, still goes to the library', async () => {
+  const { o } = withModel(() => 'A MacGuffin is the thing everyone chases.', { reading: (t) => (/\?\s*$/.test(t) ? { task: 'craft', topic: 'macguffin' } : { task: 'tell', topic: '' }) });
+  const project = projectWith();
+  await say(o, project, 'I want the tone to be a slow, sun-bleached fable, in third person and past tense.');
+  await say(o, project, 'The caravan master, Oleander Bruck, owes the guild a hundred silver marks.');
+  const r = await say(o, project, 'What is a MacGuffin?');
+  assert.equal(r.intent.type, 'library-question');
+  assert.deepEqual(r.recalled, []);
+});
+
 test('with the mind switched off nothing is recalled and nothing is stored (for A/B runs)', async () => {
   const { o, calls } = withModel(() => 'Fine.', { extra: { mind: false } });
   const project = projectWith();

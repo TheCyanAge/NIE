@@ -109,6 +109,12 @@ export function finishedSentences(text, maxTokens = 0) {
 const MIND_QUESTION = /\bwhat\s+(?:do|did|have|can|could)\s+you\s+(?:still\s+)?(?:remember|recall|hold|keep)\b|\bwhat\s+do\s+you\s+(?:know|have)\s+(?:so far\s+)?about\s+(?:my|this|our)\s+(?:story|project|idea|book|novel|script|world|plot|characters?)\b|\bwhat\s+(?:have|did)\s+i\s+(?:told|tell|said|say|given|give|shared)\s+you\b|\b(?:recap|summari[sz]e)\s+(?:everything|all|what)\s+(?:we|i|you)\b/i;
 /** Words that make even a "who/what..." question one about what the program has counted (the cast, the pacing, the voice, consistency, the writer's rules). */
 const ASKS_FOR_COUNTS = /\b(?:pac(?:e|es|ing)|rhythm|characters?|cast|protagonists?|consisten\w*|contradict\w*|continuity|timelines?|tense|pov|point of view|voice|repeat\w*|overus\w*|rules?)\b/i;
+/** How well a recalled passage of the writer's must match a message for it to be about their project (measured: its questions score 0.79 and up, general craft questions find nothing). */
+const OWN_PROJECT_RECALL = 0.6;
+/** A turn that only acknowledges and asks already carries the idea sheet in the agent's brief; a turn that answers a question does not, and the sheet's labelled parts ("Tone and feel: ...") are where such a question is answered. */
+const asksOrReflects = (agentTurn) => ['ask', 'reflect'].includes(agentTurn?.plan?.act);
+/** A question about what the writer themselves said or gave NIE earlier. */
+const REFERS_BACK = /\b(?:did|do|have|had)\s+I\s+(?:say|said|tell|told|mention|mentioned|give|gave|want|wanted|ask|asked)\b|\bI\s+(?:said|told you|mentioned|gave you|asked for)\b|\bwhat\s+I\s+(?:said|told|gave|wanted|mentioned)\b|\bI\s+gave\s+you\b/i;
 const UNGROUNDED_NOTE = "My offline model answered, but everything it said named something I could not find in your text, so I've left it out. Here is built-in guidance instead.";
 const LEFT_OUT_UNGROUNDED = "(I left out part of that reply because it named something I couldn't find in your text.)";
 const BARE_REPLY = /^\W*(?:yes|yeah|yep|yup|sure|ok|okay|no|nope|nah|maybe|perhaps|please|thanks|thank you|right|true|false|hm+|um+)\W*$/i;
@@ -278,7 +284,7 @@ export class Orchestrator {
   #recallFor(project, text, reading, { limit = 5, budgetTokens = 360, agentTurn = null } = {}) {
     if (!this.mind || !text) return null;
     try {
-      const r = recall(project, [text, reading?.topic].filter(Boolean).join(' '), { limit, budgetTokens, includeSheet: !agentTurn, excludeText: text, turn: this.#turnOf(project) });
+      const r = recall(project, [text, reading?.topic].filter(Boolean).join(' '), { limit, budgetTokens, includeSheet: !asksOrReflects(agentTurn), excludeText: text, turn: this.#turnOf(project) });
       return r.items.length ? r : null;
     } catch {
       return null; // the mind is an extra: it never gets in the way of a reply
@@ -529,13 +535,19 @@ export class Orchestrator {
       const lower = text.toLowerCase();
       const known = [...(project.conversation.workingPremise?.characters ?? []), ...(project.memory?.characters ?? []).map((c) => c.name)];
       const knownName = known.some((n) => n && lower.includes(String(n).toLowerCase()));
-      const storyTalk = OWN_PROJECT.test(text) || STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || knownName;
+      // The project's own memory is evidence too: measured on the real model, "What tone did I say I wanted?" and "Who owes the guild money, and how much?" were read as general
+      // questions about writing and answered from the library, while the writer's own statements that answer them were sitting in the mind. A general question about craft finds
+      // nothing of the writer's (what is a MacGuffin? a red herring? good dialogue?); a question about their project does.
+      const mindHit = Boolean(recalled?.items.some((i) => i.score >= OWN_PROJECT_RECALL));
+      const storyTalk = OWN_PROJECT.test(text) || STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || knownName || mindHit;
       ownProject = storyTalk;
+      // "What tone did I say I wanted?": it asks about the conversation itself. Whatever the library has on "tone", this is not asking the library, whatever strength the match has.
+      const refersBack = mindHit && REFERS_BACK.test(text);
       const general = byModel ? !storyTalk : GENERAL_Q.test(text) && !storyTalk;
-      let a = answerFromLibrary(text);
+      let a = refersBack ? { strength: 'none', entries: [], related: [] } : answerFromLibrary(text);
       // The model's short topic ("villanelle") finds the entry when the long way of asking buries it (never for talk about the writer's own project:
       // a bare topic like "villain" would match the library and skip the check that stops it answering about their story).
-      if (general && a.strength !== 'strong' && reading.topic) {
+      if (general && !refersBack && a.strength !== 'strong' && reading.topic) {
         const b = answerFromLibrary(reading.topic);
         if (RANK[b.strength] > RANK[a.strength]) a = b;
       }
