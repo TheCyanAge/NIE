@@ -697,8 +697,18 @@ export class Orchestrator {
   }
 
   /** The long text a follow-up could be about: a recent long paste (its body), else the project's Story Text; null when there is none. */
+  /** The newest long paste still held in full (an older one has been cut to its start, `compactOldPastes`) among the last `within` messages. */
+  #pastedText(history, within) {
+    const from = Number.isFinite(within) ? Math.max(0, history.length - within) : 0;
+    for (let i = history.length - 1; i >= from; i--) {
+      const m = history[i];
+      if (m.role === 'user' && !m.compacted && m.content.length > LONG_MESSAGE_CHARS) return m;
+    }
+    return null;
+  }
+
   #candidateText(project, history) {
-    const recent = history.slice(-12).reverse().find((m) => m.role === 'user' && m.content.length > LONG_MESSAGE_CHARS);
+    const recent = this.#pastedText(history, Infinity);
     if (recent) return splitPaste(recent.content).body;
     const story = project.storyText ?? '';
     return story.trim().length >= STORY_TEXT_MIN_CHARS ? story : null;
@@ -741,9 +751,12 @@ export class Orchestrator {
       return { document: { text: body, query: ask, topic, subject: 'passage' }, userMessage: ask || PASTED_NO_ASK };
     }
     if (!aboutWork) return { document: null, userMessage: text };
-    if (!MENTIONS_OWN_TEXT.test(text)) {
-      const recent = history.slice(-12).reverse().find((m) => m.role === 'user' && m.content.length > LONG_MESSAGE_CHARS);
-      if (recent) return { document: { text: splitPaste(recent.content).body, query: text, topic, subject: 'passage' }, userMessage: text };
+    // ("my story" means the project's Story Text when there is one; with none, the text just pasted is what they mean.)
+    if (!MENTIONS_OWN_TEXT.test(text) || project.storyText.trim().length < STORY_TEXT_MIN_CHARS) {
+      // The newest pasted text stays attached for a dozen messages. Later it is attached when the message is clearly about it (`aboutText`): a session can run for
+      // hundreds of messages and a text pasted at the start is still the writer's, not forgotten after twelve.
+      const paste = this.#pastedText(history, aboutText ? Infinity : 12);
+      if (paste) return { document: { text: splitPaste(paste.content).body, query: text, topic, subject: 'passage' }, userMessage: text };
     }
     // Telling NIE something new about the project does not need the old text in front of it (and costs the model time to read): feedback, ideas and talk do.
     if ((aboutText || task !== 'tell') && project.storyText.trim().length >= STORY_TEXT_MIN_CHARS) return { document: { text: project.storyText, query: text, topic, subject: 'text' }, userMessage: text };

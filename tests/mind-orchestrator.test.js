@@ -173,6 +173,19 @@ test('a reply that talks about "the writer" to the writer is asked again once, a
   assert.ok(calls.length >= 2, 'it asked again');
 });
 
+test('a text pasted at the start of a long session is still the text a question is about, dozens of messages later (and only the newest paste is kept in full)', async () => {
+  const { o, calls } = withModel(() => 'It is in the part you pasted.', { reading: () => ({ task: 'feedback', topic: '' }) });
+  const project = projectWith();
+  const { text: chapters, needles } = makeLongText({ words: 4000, seed: 5 });
+  await say(o, project, `${chapters}\n\nWhat do you make of the opening?`);
+  for (let i = 0; i < 20; i++) await say(o, project, `A thought about the second act, number ${i}: the weather turns and the pace slows down.`);
+  calls.length = 0;
+  const needle = needles.find((n) => /brass key/.test(n.fact));
+  const r = await say(o, project, needle.question);
+  assert.match(calls.map(promptOf).join('\n'), /third floorboard/, 'the passage from the paste is in front of the model');
+  assert.match(r.looked || '', /section|passage|word for word|looked/i, 'and the reply says what it looked at');
+});
+
 test('NIE never writes the writer\'s text: a pasted text with a request to rewrite it is still declined before any model call', async () => {
   const { o, calls } = withModel(() => 'SHOULD NOT BE ASKED');
   const project = projectWith();
