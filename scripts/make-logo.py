@@ -82,18 +82,19 @@ def build_full():
 '''
 
 def build_small():
-    """Bolder and simpler so it survives 16-48px: two tangled strands, one strong wave, a firm divider, no text."""
-    cy, x0, xm, x1 = 250, 70, 250, 430
-    strands = [(46, 150, 0.2), (62, 190, 1.7)]
-    left = tangled_waves(x0, xm, cy, 52, 190, xm, strands, n=120)
-    right = clean_wave(xm, x1, cy, 62, 190, xm, n=120)
-    g = "".join(f'<path d="{path_from(p)}" fill="none" stroke="#c19c80" stroke-width="15" stroke-opacity=".85" stroke-linecap="round"/>' for p in left)
+    """Bolder and simpler so it survives 16-48px (the title bar, taskbar and Alt-Tab show it at 16-32px): the same mark, with the artwork filling the tile,
+    heavier and darker lines, and less rounded corners so no pixels are lost at 16px. Two tangled strands, one strong wave, a firm divider, no text."""
+    cy, x0, xm, x1 = 250, 42, 250, 458
+    strands = [(54, 150, 0.2), (72, 190, 1.7)]
+    left = tangled_waves(x0, xm, cy, 62, 200, xm, strands, n=120)
+    right = clean_wave(xm, x1, cy, 72, 200, xm, n=120)
+    g = "".join(f'<path d="{path_from(p)}" fill="none" stroke="#a97b5c" stroke-width="34" stroke-opacity="1" stroke-linecap="round"/>' for p in left)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" role="img" aria-label="NIE">
   <defs><radialGradient id="tile" cx="50%" cy="44%" r="75%"><stop offset="0" stop-color="{CREAM_C}"/><stop offset="1" stop-color="{CREAM_E}"/></radialGradient></defs>
-  <rect width="500" height="500" rx="112" fill="url(#tile)"/>
+  <rect width="500" height="500" rx="84" fill="url(#tile)"/>
   {g}
-  <path d="{path_from(right)}" fill="none" stroke="{DEEP}" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-  <line x1="250" y1="120" x2="250" y2="380" stroke="{DEEP}" stroke-width="14" stroke-linecap="round"/>
+  <path d="{path_from(right)}" fill="none" stroke="#6b4026" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="250" y1="72" x2="250" y2="428" stroke="#6b4026" stroke-width="32" stroke-linecap="round"/>
 </svg>
 '''
 

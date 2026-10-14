@@ -45,14 +45,15 @@ async function wizardBmp(width, height, html) {
 const bg = 'background:radial-gradient(120% 80% at 50% 30%,#fcf6ee,#efdfcf);';
 fs.writeFileSync(path.join(root, 'assets/wizard-large.bmp'), await wizardBmp(164, 314,
   `<div style="${bg}width:164px;height:314px;position:relative;font-family:Georgia,'Liberation Serif',serif;color:#7a5236">
-     <img src="${dataUri(full)}" style="position:absolute;left:22px;top:46px;width:120px;height:120px">
-     <div style="position:absolute;left:0;right:0;top:186px;text-align:center;font-size:15px;letter-spacing:.18em;line-height:1.5">NARRATIVE<br>INTEGRITY<br>ENGINE</div>
-     <div style="position:absolute;left:0;right:0;bottom:18px;text-align:center;font-size:10px;letter-spacing:.2em;opacity:.7">THE CYAN AGE</div></div>`));
+     <img src="${dataUri(full)}" style="position:absolute;left:22px;top:62px;width:120px;height:120px">
+     <div style="position:absolute;left:0;right:0;top:202px;text-align:center;font-size:15px;letter-spacing:.18em;line-height:1.5">NARRATIVE<br>INTEGRITY<br>ENGINE</div></div>`));
 fs.writeFileSync(path.join(root, 'assets/wizard-small.bmp'), await wizardBmp(55, 58,
   `<div style="${bg}width:55px;height:58px;position:relative"><img src="${dataUri(small)}" style="position:absolute;left:4px;top:5px;width:47px;height:47px"></div>`));
 await browser.close();
 
-fs.writeFileSync(path.join(root, 'assets/icon.ico'), packIco(SIZES.map((s) => ({ size: s, png: png[s] }))));
+const ico = packIco(SIZES.map((s) => ({ size: s, png: png[s] })));
+fs.writeFileSync(path.join(root, 'assets/icon.ico'), ico);
+fs.writeFileSync(path.join(root, 'apps/web/assets/icon.ico'), ico); // shipped with the app: the window's icon on Windows (apps/desktop/main.js)
 fs.writeFileSync(path.join(root, 'assets/icon.png'), png[512]);
 fs.writeFileSync(path.join(root, 'apps/web/assets/icon.png'), png[256]);
 console.log('Wrote assets/icon.ico (' + SIZES.join(', ') + ' px), icon.png, wizard-large.bmp, wizard-small.bmp');

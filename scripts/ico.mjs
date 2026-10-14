@@ -1,5 +1,6 @@
 /** ICO container with PNG-compressed images (Windows Vista+). One entry per size so every DPI/surface gets a crisp icon. */
-export const SIZES = [256, 128, 64, 48, 32, 16];
+// (20, 24 and 40 are what Windows asks for at 125%, 150% and 250% display scaling, e.g. the title bar's 16px icon becomes 20 or 24: with only 16 and 32 in the file it would scale one of them and blur)
+export const SIZES = [256, 128, 64, 48, 40, 32, 24, 20, 16];
 
 export function packIco(images) {
   const header = Buffer.alloc(6);

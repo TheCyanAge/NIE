@@ -25,7 +25,10 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 const layout = resolveLayout({ isPackaged: app.isPackaged, resourcesPath: process.resourcesPath, desktopDir: here, userDataDir: app.getPath('userData') });
-const iconPath = app.isPackaged ? path.join(process.resourcesPath, 'web', 'assets', 'icon.png') : path.join(layout.webRoot, 'assets', 'icon.png');
+// The window's own icon (the title bar, the taskbar button, Alt-Tab). On Windows it is the multi-size .ico, whose 16, 20, 24 and 32px images are drawn bolder for exactly this: given the 256px PNG
+// instead, Windows shrinks the full logo to 16px and its thin lines wash out on a coloured title bar. Elsewhere the PNG is used.
+const iconName = process.platform === 'win32' ? 'icon.ico' : 'icon.png';
+const iconPath = app.isPackaged ? path.join(process.resourcesPath, 'web', 'assets', iconName) : path.join(layout.webRoot, 'assets', iconName);
 const logFile = path.join(app.getPath('userData'), 'nie.log');
 const log = (...a) => {
   const line = `[${new Date().toISOString()}] ${a.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ')}\n`;
