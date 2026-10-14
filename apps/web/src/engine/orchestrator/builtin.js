@@ -241,11 +241,12 @@ export function conversationalSummary(report) {
 const workLine = (w) => `${w.title} (${w.author}${w.year ? `, ${w.year}` : ''})`;
 
 /** One entry rendered as a short, sourced answer. Reference only: it says when a writer may depart from it. */
-function renderEntry(e) {
+function renderEntry(e, { compact = false } = {}) {
   const head = `**${e.name}**  ·  ${KIND_LABELS[e.kind] ?? e.kind}${e.guide ? `  ·  ${e.guide}${e.asOf ? `, ${e.asOf}` : ''}` : ''}`;
   const lines = [head, e.summary];
   if (e.kind === 'work' && e.author) lines.push(`By ${e.author}${e.year ? `, ${e.year}` : ''}${e.language ? ` (${e.language})` : ''}.`);
-  if (e.conventions.length) lines.push(e.conventions.slice(0, e.kind === 'profile' ? 10 : 4).map((c) => `- ${c}`).join('\n')); // (a profile's points ARE the answer: all of them)
+  if (e.conventions.length) lines.push(e.conventions.slice(0, compact ? 3 : e.kind === 'profile' ? 10 : 4).map((c) => `- ${c}`).join('\n')); // (a profile's points ARE the answer: all of them)
+  if (compact) return lines.join('\n\n'); // (side by side: what each is, in a few lines)
   if (e.example) lines.push(`Example: ${e.example}`);
   if (e.watchFor[0]) lines.push(`Watch for: ${e.watchFor[0]}`);
   if (e.confidence === 'varies') lines.push('This varies by publisher, house style or region, so check the guide your project follows.');
@@ -256,18 +257,33 @@ function renderEntry(e) {
   return lines.join('\n\n');
 }
 
+/** The rest of an overview entry: the points a first answer did not show (`from` is how many it did show), then what to watch for and the works to look at. */
+function renderRest(e, from) {
+  const lines = [`**${e.name}**  ·  ${KIND_LABELS[e.kind] ?? e.kind}`];
+  const rest = (e.conventions ?? []).slice(from);
+  if (rest.length) lines.push(rest.map((c) => `- ${c}`).join('\n'));
+  // (what the overview already said is not said again: its first watch-for and first departure, its first four works and its first two readings)
+  if (e.watchFor?.length > 1) lines.push(`Watch for: ${e.watchFor.slice(1).join(' ')}`);
+  if (e.deliberateWhen?.length > 1) lines.push(`Departing from it can be legitimate: ${e.deliberateWhen.slice(1).map((d) => d.replace(/\.$/, '')).join('; ')}.`);
+  if (e.works?.length > 4) lines.push(`More works to look at: ${e.works.slice(4, 10).map(workLine).join('; ')}.`);
+  if (e.refs?.length > 2) lines.push(`Read more: ${e.refs.slice(2, 5).join('; ')}.`);
+  return lines.join('\n\n');
+}
+
 /**
  * Answer a question from the offline library: sourced, honest about edition and variation, and never presented as a rule
  * NIE enforces.
  * @param {{ strength: string, entries: object[], related: object[] }} answer  from answerFromLibrary()
+ * @param {{ lead?: string, after?: string, rest?: { from: number }, compact?: boolean }} [thread]  a follow-up in a conversation about the library: its own lead line, a library note to add after the entries, and (rest) show the entry's unseen points instead of its overview
  */
-export function libraryReply(answer) {
-  const body = answer.entries.slice(0, 2).map(renderEntry).join('\n\n---\n\n');
+export function libraryReply(answer, thread = {}) {
+  const body = thread.rest ? renderRest(answer.entries[0], thread.rest.from) : answer.entries.slice(0, 2).map((e) => renderEntry(e, { compact: thread.compact })).join('\n\n---\n\n');
   const rest = [...answer.entries.slice(2), ...answer.related].slice(0, 4).map((e) => e.name);
   const tail = [];
   if (rest.length) tail.push(`Related in the library: ${rest.join(', ')}.`);
-  tail.push(answer.strength === 'weak' ? "This is the closest I have, so tell me if it isn't what you meant." : 'This comes from my built-in library, so it works with no internet. Style guides are revised, so check the current edition for formal submissions.');
-  return [`From NIE's built-in library:`, body, tail.join(' ')].join('\n\n');
+  const guided = answer.entries.some((e) => e.guide || e.kind === 'rule' || e.kind === 'usage');
+  tail.push(answer.strength === 'weak' ? "This is the closest I have, so tell me if it isn't what you meant." : `This comes from my built-in library, so it works with no internet.${guided ? ' Style guides are revised, so check the current edition for formal submissions.' : ' It is reference knowledge, not a verdict on your project.'}`);
+  return [thread.lead || `From NIE's built-in library:`, body, thread.after, tail.join(' ')].filter(Boolean).join('\n\n');
 }
 
 /** Honest "not in my library", used when nothing relevant was found. */

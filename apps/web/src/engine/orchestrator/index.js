@@ -1,6 +1,8 @@
 import { detectIntent, extractPremiseCues, updateWorkingPremise } from '../intent/intent.js';
 import { interpretProfile } from '../profile/interpret.js';
 import { answerFromLibrary, forProfile, search } from '../knowledge/index.js';
+import { afterRest, chipsFor, noteAnswer, resolveFollowUp } from '../knowledge/thread.js';
+import { emptyThread } from '../knowledge/thread-state.js';
 import { appendMessage } from '../project/memory.js';
 import { addToBoard, boardToChat, emptyBrainstorm, ideaId } from '../project/board.js';
 import { scan, scanWithModel } from '../analysis/scan.js';
@@ -498,10 +500,20 @@ export class Orchestrator {
     if (intent.type === 'about-nie') return this.#about({ project, intent, text: askText, onToken });
     const byModel = reading.by === 'model';
 
+    // Is this a question about the writer's own long text (a recent paste, or the project's Story Text) even though it never says "my story"?
+    // "What is sedgewire made of?" is asked of the text, not of the craft library, and a small model labels it a general question.
+    const aboutText = this.#aboutLongText({ project, text: askText, history: history.slice(0, -1) });
+
+    // A short message that points back at the subject of NIE's last library answer ("what about its tropes?", "tell me more", "how is it different from romance?") is read
+    // against that subject, so a conversation about a genre can go back and forth. The writer's message is not rewritten: only the library record it asks for is chosen.
+    const turnNow = this.#turnOf(project);
+    const thread = project.conversation.library;
+    const follow = !paste && !aboutText && !lensOpt && intent.type !== 'develop-idea' ? resolveFollowUp(askText, thread, { turn: turnNow, model: byModel }) : null;
+
     // The idea agent: what is being made, what the writer has said about it (in their own words), whether this turn asks something, and whether it is time to offer
     // to keep the idea. A question, a request or a pasted text is served, never recorded as part of the idea.
     // (A button or a typed "develop this idea" is a request for help, not something told to the agent.)
-    const requesting = lensOpt || intent.type === 'develop-idea' ? { ...reading, task: 'ideas' } : reading;
+    const requesting = lensOpt || intent.type === 'develop-idea' ? { ...reading, task: 'ideas' } : follow ? { ...reading, task: 'craft' } : reading; // (a follow-up question about a genre is served, never recorded as part of the idea)
     agentTurn ??= await this.#agentTurn({ project, text: askText, reading: requesting, kindHint: kindOpt, signal, past });
     if (agentTurn?.handled && agentTurn.handled.kind !== 'asked-kind') return this.#handled(project, intent, agentTurn, onToken);
     if (agentTurn?.note) {
@@ -511,23 +523,27 @@ export class Orchestrator {
       onToken = emit ? (d, full) => emit(d, lead + full) : emit;
     }
 
+    // The subject has nothing more (or no record of that facet): said plainly, from what the library really holds, with no model asked.
+    if (follow?.reply) {
+      const full = agentTurn?.note ? `${agentTurn.note}\n\n${follow.reply}` : follow.reply;
+      onToken?.(full, full);
+      project.conversation.library = { ...thread, turn: turnNow };
+      return this.#finish(project, intent, full, 'builtin', false, { suggestions: chipsFor(project.conversation.library), library: { subject: thread.subject.name, follow: follow.kind } });
+    }
+
     // What the writer said EARLIER in this project (at any time, not just the last few turns) that bears on this message; then this message is remembered too.
     // (Recall comes first so that a message can never recall itself.) A turn that only acknowledges and asks gets a few items, a turn that answers or gives ideas gets more.
     const shortTurn = ['ask', 'reflect'].includes(agentTurn?.plan?.act);
     const recalled = paste ? null : this.#recallFor(project, askText, reading, { limit: shortTurn ? 3 : 6, budgetTokens: shortTurn ? 230 : 400, agentTurn });
-    const toldNie = !paste && !/\?\s*$/.test(askText) && (agentTurn?.act === 'info' || agentTurn?.act === 'answer' || ['tell', 'develop'].includes(reading.task));
+    const toldNie = !paste && !follow && !/\?\s*$/.test(askText) && (agentTurn?.act === 'info' || agentTurn?.act === 'answer' || ['tell', 'develop'].includes(reading.task));
     if (toldNie) this.#remember(project, askText, agentTurn?.act === 'answer' ? 'answered' : 'told');
-
-    // Is this a question about the writer's own long text (a recent paste, or the project's Story Text) even though it never says "my story"?
-    // "What is sedgewire made of?" is asked of the text, not of the craft library, and a small model labels it a general question.
-    const aboutText = this.#aboutLongText({ project, text: askText, history: history.slice(0, -1) });
 
     // A general question about craft, style, usage, a form, genre or work: answer from the offline library, with its sources.
     // (Not a premise: it must not become the story's working premise.)
     let lib = null;
     let libMiss = false;
     let ownProject = false;
-    const libraryCandidate = text.length > LONG_MESSAGE_CHARS || aboutText || BARE_REPLY.test(text) ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
+    const libraryCandidate = text.length > LONG_MESSAGE_CHARS || aboutText || follow || BARE_REPLY.test(text) ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
     if (libraryCandidate) {
       // Naming a character or role ('the detective', 'Samantha', 'he') or "my story" means the writer is talking about their story, not asking the
       // library. Even when the model read it as a general question, that stays a veto for anything but a strong match: a 3B model misreads
@@ -554,6 +570,7 @@ export class Orchestrator {
       if (a.strength === 'strong' || (a.strength === 'weak' && general)) lib = a;
       else if (general && words(text).length >= 3) libMiss = true;
     }
+    if (follow?.entries) lib = { strength: follow.kind === 'context' ? 'weak' : 'strong', entries: follow.entries, related: [] }; // (a pronoun question the library cannot pick out: the subject's records, as the closest it has)
     if (lib || libMiss) intent.type = 'library-question';
 
     if (intent.type !== 'library-question') project.conversation.workingPremise = updateWorkingPremise(project.conversation.workingPremise, text, intent);
@@ -685,7 +702,7 @@ export class Orchestrator {
         honesty = ungrounded === 'all' ? UNGROUNDED_NOTE : WITHHELD_NOTE;
       }
     } else {
-      reply = lib ? libraryReply(lib) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: askText, report, modelReady: modelReady && Boolean(asked.failure), status });
+      reply = lib ? libraryReply(lib, follow ? { lead: follow.lead, after: follow.after, rest: follow.rest, compact: follow.compact } : {}) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: askText, report, modelReady: modelReady && Boolean(asked.failure), status });
       if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : withoutQuestionLists(reply)); // told something, no model: a short acknowledgement of what was recorded, and the planned question
       route = 'builtin';
       // Starting from nothing is where a few sparks help most: offer some to react to, never a draft.
@@ -720,7 +737,14 @@ export class Orchestrator {
       reply = `${agentTurn.note}\n\n${reply}`;
       if (extra.lead) extra = { ...extra, lead: `${agentTurn.note}\n\n${extra.lead}` };
     }
-    const chips = agentTurn ? this.#agentChips(agentTurn, project) : null;
+    // After a library answer the thread points at its subject: what was shown is marked, and the next questions on it are offered as chips.
+    let libraryChips = null;
+    if (lib) {
+      project.conversation.library = follow?.kind === 'context' ? { ...thread, turn: turnNow } : follow?.rest ? afterRest(thread, turnNow) : noteAnswer(thread, lib.entries, turnNow);
+      libraryChips = chipsFor(project.conversation.library);
+      if (libraryChips.length) extra = { ...extra, library: { subject: project.conversation.library.subject?.name ?? null, ...(follow ? { follow: follow.kind } : {}) } };
+    }
+    const chips = libraryChips?.length ? libraryChips : agentTurn ? this.#agentChips(agentTurn, project) : null;
     return this.#finish(project, intent, reply, route, false, { ...extra, ...(chips ? { suggestions: chips } : {}), ...(plan ? { agent: { act: plan.act, ...(plan.slot ? { slot: plan.slot } : {}), reason: plan.reason } } : {}) });
   }
 
@@ -1027,6 +1051,8 @@ export class Orchestrator {
     if (extra.fallback) meta.fallback = extra.fallback; // why the offline model's answer was not used (kept so it can be shown or reported)
     if (extra.recalled?.length) meta.recalled = extra.recalled; // what was recalled from earlier in the project for this reply
     if (extra.agent) meta.agent = extra.agent; // what the idea agent did this turn (asked, offered, kept...), for the panel and for tests
+    if (extra.library) meta.library = extra.library; // which subject a conversation about the library is on, and which follow-up this reply was
+    if (ideas.length) project.conversation.library = emptyThread(); // idea cards take over "more" and "tell me more": the library thread ends
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });
     appendMessage(project, 'assistant', reply, meta);
     project.conversation.suggestionShown = true;
@@ -1044,6 +1070,7 @@ export class Orchestrator {
       lens: extra.lens ?? null,
       agent: extra.agent ?? null,
       recalled: extra.recalled ?? [],
+      library: extra.library ?? null,
       suggestions: extra.suggestions ?? (ideas.length && extra.lens !== 'develop' ? ideaSuggestions({ lens: extra.lens ?? null, ideas }) : nextSuggestions({ intent, project })),
     };
   }

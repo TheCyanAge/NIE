@@ -80,6 +80,10 @@ const RULES = [
   ['greeting', [/^\s*(?:hi|hello|hey|yo|good (?:morning|afternoon|evening)|thanks|thank you|ok(?:ay)?|cool)\b[\s!.,?]*$/i]],
 ];
 
+// A question that asks what something is, who made it, or to explain it ("what is a sonnet", "who invented the villanelle", "explain the villanelle"), as opposed to
+// one asking for ideas ("what are some twists", "what's a good twist").
+const DEFINITION_ASK = /^\s*(?:what(?:'s|\s+(?:is|are|was|were|does|do))\s+(?!some\b|any\b|a good\b|good\b|great\b|better\b|best\b|interesting\b|fun\b|new\b|other\b|more\b|different\b)|who(?:'s|\s+(?:is|are|was|were|wrote|invented|coined))\b|explain\b|define\b|describe\b|tell me about\b|when (?:did|was|were|is)\b|why (?:is|are|do|does)\b)/i;
+
 const PREMISE_SHAPES = [
   /\b(?:a|an|the)\s+(?:[\w'-]+\s+){0,3}?(?:who|that)\s+(?:befriends|meets|finds|discovers|wants|must|tries|learns|falls|becomes|returns|loses|keeps|hides|steals|inherits|wakes|escapes)\b/i,
   /\b(?:a|an|the)\s+(?:[\w'-]+\s+){1,4}(?:befriends|meets|finds|discovers|adopts|hunts|saves|betrays|murders|investigates|inherits|raises|follows|haunts|rescues|stalks)\s+(?:a|an|the|his|her|their)\b/i,
@@ -124,8 +128,9 @@ export function detectIntent(message, { project = null, mode = 'brainstorm', has
 
   // "Give me some twists for my story" is a request, not a premise, even on a first message with no history.
   // (A lens word alone, like "secrets?", only counts when the message is short enough to be a request.)
+  // (Not a question that only asks what a thing is: "What is a sonnet?" or "Explain the villanelle" are questions for the library, though "sonnet" is also a word that names something to write.)
   if (!types.includes('request-ideas') && !types.includes('request-write') && !types.includes('request-edit') && detectLens(text)) {
-    if (EXPLICIT_ASK.test(text) || (wordsOf(text) <= 4 && !PREMISE_SHAPES.some((re) => re.test(text)))) types.push('request-ideas');
+    if (EXPLICIT_ASK.test(text) || (wordsOf(text) <= 4 && !PREMISE_SHAPES.some((re) => re.test(text)) && !DEFINITION_ASK.test(text))) types.push('request-ideas');
   }
 
   const wc = wordsOf(text);
