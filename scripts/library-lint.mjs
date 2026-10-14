@@ -6,7 +6,9 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { LIB_DIR, listDataFiles } from './build-library-index.mjs';
 import { coreEntries } from '../apps/web/src/engine/knowledge/index.js';
 
-const KINDS = new Set(['genre', 'structure', 'style', 'form', 'technique', 'rule', 'guide', 'usage', 'format', 'movement', 'tradition', 'work', 'market', 'process']);
+const KINDS = new Set(['genre', 'structure', 'style', 'form', 'technique', 'rule', 'guide', 'usage', 'format', 'movement', 'tradition', 'work', 'market', 'process', 'profile']);
+// A 'profile' is one facet of a genre, form, tradition or movement that already has its own entry (its `parent`): what a writer asks when they ask about the whole subject.
+export const PROFILE_FACETS = ['history', 'subgenres', 'tropes', 'readers', 'craft', 'compare', 'canon', 'pitfalls', 'terms'];
 const CONFIDENCE = new Set(['established', 'varies', 'contested']);
 const ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 const URL_RE = /https?:|www\.|\.(?:com|org|net|edu|gov)\b|@\w+\.\w/i;
@@ -61,6 +63,17 @@ function recordProblems(r, file, prefix) {
     if (typeof r.language !== 'string' || r.language.length < 2) bad('a work needs `language` (original language)');
   }
   if (r.kind === 'genre' && !(Array.isArray(r.works) && r.works.length >= 2)) bad('a genre needs at least 2 representative `works`');
+  if (r.kind === 'profile') {
+    if (!PROFILE_FACETS.includes(r.topic)) bad(`a profile's \`topic\` is its facet: one of ${PROFILE_FACETS.join(', ')}`);
+    if (typeof r.parent !== 'string' || !ID_RE.test(r.parent)) bad('a profile needs `parent`: the id of the genre, form, tradition or movement entry it is about');
+    if (!Array.isArray(r.conv) || r.conv.length < 5) bad('a profile needs at least 5 `conv` points (the substance of the facet)');
+    if (!CONFIDENCE.has(r.confidence)) bad('a profile needs `confidence`');
+    if (!Array.isArray(r.kw) || r.kw.length < 6) bad('a profile needs at least 6 `kw` (how a writer would ask: "history of X", "types of X", "X vs Y"...)');
+    if (r.topic === 'readers' && (typeof r.asOf !== 'string' || r.asOf.length < 3)) bad('the readers/market facet needs `asOf` (market practice changes)');
+    if (r.topic === 'canon' && !(Array.isArray(r.works) && r.works.length >= 4)) bad('a canon profile needs at least 4 `works`');
+    if (r.topic !== 'canon' && r.works !== undefined && r.works.length > 4) bad('only a canon profile lists more than 4 works');
+    if (typeof r.name === 'string' && !/^[^:]{2,70}: [a-z]/.test(r.name)) bad('a profile is named "Subject: facet" (e.g. "Gothic fiction: history and origins")');
+  }
   // Text hygiene across every string field
   const texts = [r.name, r.summary, r.example, ...(r.conv ?? []), ...(r.watch ?? []), ...(r.intent ?? []), ...(r.q ?? []), ...(r.refs ?? []), ...(r.aka ?? [])].filter((x) => typeof x === 'string');
   for (const t of texts) {
@@ -125,6 +138,41 @@ export async function lintLibrary(only = null) {
       ids.set(r.id, ids.get(r.id) ?? file);
       names.set(nameKey(r), names.get(nameKey(r)) ?? file);
     }
+  }
+  // A work a profile lists must agree with what the rest of the library says about it: the same title by the same author has the same first-publication year.
+  const surname = (a) => String(a ?? '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[^a-z ]+/g, ' ').trim().split(/\s+/).pop() ?? '';
+  const titleKey = (t) => String(t ?? '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().split(/[:;]/)[0].replace(/^(?:the|a|an) /, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const years = new Map(); // title|surname -> Set of years stated outside profiles
+  const note = (w, file) => {
+    if (!w?.title || !w?.author || w.year === undefined) return;
+    const key = `${titleKey(w.title)}|${surname(w.author)}`;
+    (years.get(key) ?? years.set(key, new Map()).get(key)).set(String(w.year), file);
+  };
+  for (const k of core) for (const w of k.works ?? []) note(w, 'core');
+  for (const { file, mod, enrich } of all) {
+    if (enrich || !Array.isArray(mod.default)) continue;
+    for (const r of mod.default) {
+      if (r?.kind === 'profile') continue;
+      if (r?.kind === 'work') note({ title: r.name, author: r.author, year: r.year }, file);
+      for (const w of r?.works ?? []) note(w, file);
+    }
+  }
+  for (const { file, mod, enrich } of all) {
+    if (enrich || !Array.isArray(mod.default) || (only && !only.includes(file))) continue;
+    for (const r of mod.default) {
+      if (r?.kind !== 'profile') continue;
+      for (const w of r.works ?? []) {
+        const seen = years.get(`${titleKey(w.title)}|${surname(w.author)}`);
+        if (seen && w.year !== undefined && !seen.has(String(w.year))) problems.push(`${file} ${r.id}: "${w.title}" by ${w.author} is ${w.year} here but ${[...seen.keys()].join(' / ')} elsewhere in the library (${[...seen.values()][0]}); check the first-publication year`);
+      }
+    }
+  }
+  // A profile's parent must be an entry that exists (core, or any library file).
+  const known = new Set([...coreIds]);
+  for (const { mod, enrich } of all) if (!enrich && Array.isArray(mod.default)) for (const r of mod.default) if (r && typeof r.id === 'string') known.add(r.id);
+  for (const { file, mod, enrich } of all) {
+    if (enrich || !Array.isArray(mod.default) || (only && !only.includes(file))) continue;
+    for (const r of mod.default) if (r?.kind === 'profile' && typeof r.parent === 'string' && !known.has(r.parent)) problems.push(`${file} ${r.id}: parent "${r.parent}" is not an entry in the library`);
   }
   return problems;
 }

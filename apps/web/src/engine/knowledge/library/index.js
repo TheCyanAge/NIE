@@ -22,6 +22,7 @@ export const LIBRARY_FILES = [
   () => import('./movements/western-and-modern-movements.js'),
   () => import('./movements/world-literary-movements.js'),
   () => import('./process/editing-revision-and-writing-process.js'),
+  () => import('./profiles/gothic-fiction.js'),
   () => import('./rules/academic-and-nonfiction-writing.js'),
   () => import('./rules/ap-numbers-titles-and-usage.js'),
   () => import('./rules/ap-punctuation-and-mechanics.js'),

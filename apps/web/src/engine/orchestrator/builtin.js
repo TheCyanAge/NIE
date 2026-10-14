@@ -245,7 +245,7 @@ function renderEntry(e) {
   const head = `**${e.name}**  ·  ${KIND_LABELS[e.kind] ?? e.kind}${e.guide ? `  ·  ${e.guide}${e.asOf ? `, ${e.asOf}` : ''}` : ''}`;
   const lines = [head, e.summary];
   if (e.kind === 'work' && e.author) lines.push(`By ${e.author}${e.year ? `, ${e.year}` : ''}${e.language ? ` (${e.language})` : ''}.`);
-  if (e.conventions.length) lines.push(e.conventions.slice(0, 4).map((c) => `- ${c}`).join('\n'));
+  if (e.conventions.length) lines.push(e.conventions.slice(0, e.kind === 'profile' ? 10 : 4).map((c) => `- ${c}`).join('\n')); // (a profile's points ARE the answer: all of them)
   if (e.example) lines.push(`Example: ${e.example}`);
   if (e.watchFor[0]) lines.push(`Watch for: ${e.watchFor[0]}`);
   if (e.confidence === 'varies') lines.push('This varies by publisher, house style or region, so check the guide your project follows.');

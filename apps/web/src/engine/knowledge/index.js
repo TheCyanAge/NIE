@@ -189,6 +189,29 @@ function build() {
 }
 
 const WEIGHTS = { name: 4, kw: 3, body: 1 };
+
+/**
+ * The facets of a genre, form, tradition or movement that the library holds as 'profile' entries, and the words that ask for each. A profile answers "what are the subgenres
+ * of fantasy?" or "what do romance readers expect?"; for a plain "what is fantasy?" the genre's own entry answers, so profiles only compete when a facet is asked for.
+ */
+export const PROFILE_FACETS = Object.freeze({
+  history: { label: 'history and origins', ask: (n) => `What is the history of ${n}?`, re: /\b(?:history|histories|origins?|began|begin|begun|beginnings?|started|invented|evolved|evolution|timeline|emerged|roots|developed|when did|who (?:invented|created|started|coined|founded)|how did .{1,40} (?:begin|start|develop|originate))\b/i },
+  subgenres: { label: 'subgenres and types', ask: (n) => `What are the subgenres of ${n}?`, re: /\b(?:sub-?genres?|types? of|kinds? of|varieties|categories|branches|flavou?rs|variants|different (?:kinds|types|forms|styles))\b/i },
+  tropes: { label: 'tropes, motifs and character types', ask: (n) => `What are the common tropes in ${n}?`, re: /\b(?:tropes?|motifs?|clich[eé]s?|stock characters?|archetypes?|common elements|staples|recurring (?:elements|figures|characters|images))\b/i },
+  readers: { label: 'what readers expect', ask: (n) => `What do readers of ${n} expect?`, re: /\b(?:readers?|audiences?|expect(?:s|ed|ations?)?|market|shelf|shelving|word counts?|how long|publish(?:ers|ing)?|series|bestsellers?|appeal|who reads|promise)\b/i },
+  craft: { label: 'how it is built', ask: (n) => `How is ${n} built: structure, pacing and voice?`, re: /\b(?:structure[ds]?|pacing|paced|plotted?|plotting|point of view|pov|narration|narrators?|voice|setting|worldbuilding|how (?:is|are) .{1,40} (?:built|made|constructed|written|put together)|how (?:do|should|can|would) (?:i|you|one) write|craft)\b/i },
+  compare: { label: 'how it differs from neighbouring genres', ask: (n) => `How does ${n} differ from its neighbouring genres?`, re: /\b(?:differ(?:s|ence|ences|ent)?|vs\.?|versus|compared? (?:to|with)|distinguish(?:es|ed)?|same as|similar to|difference between|what separates|apart from)\b/i },
+  canon: { label: 'landmark authors and works', ask: (n) => `Who are the landmark authors and works in ${n}?`, re: /\b(?:authors?|writers?|books|novels|works|classics?|landmarks?|essential|must[- ]reads?|reading list|famous|canon|best|notable|representative)\b/i },
+  pitfalls: { label: 'common pitfalls and fresh angles', ask: (n) => `What are the common pitfalls in ${n}, and how do writers make it fresh?`, re: /\b(?:pitfalls?|mistakes?|avoid|problems?|weaknesses|overdone|fresh|subvert(?:s|ed|ing)?|twist on|too (?:predictable|familiar)|clich[eé]s? to)\b/i },
+  terms: { label: 'vocabulary', ask: (n) => `What is the vocabulary of ${n}?`, re: /\b(?:glossary|terminology|vocabulary|jargon|slang|terms? (?:used|for)|lingo|what does .{1,30} mean in)\b/i },
+});
+/** Which facets a question asks for ("subgenres of fantasy" -> subgenres), as a Set of facet ids. */
+export function facetsAsked(query) {
+  const out = new Set();
+  const q = String(query ?? '');
+  for (const [id, f] of Object.entries(PROFILE_FACETS)) if (f.re.test(q)) out.add(id);
+  return out;
+}
 // Craft questions should surface craft knowledge first; a bibliographic work only outranks it when the question is about the work.
 const KIND_WEIGHT = { work: 0.6, usage: 0.9, rule: 0.95 };
 const QUERY_FILLER = new Set(['okay', 'ok', 'allowed', 'acceptable', 'proper', 'properly', 'correct', 'correctly', 'wrong', 'right', 'tell', 'explain', 'describe', 'define', 'meaning', 'mean', 'means', 'difference', 'want', 'need', 'idea', 'make', 'help', 'something', 'like', 'could', 'would', 'think', 'know', 'dont', 'don\'t', 'how', 'what', 'also', 'really']);
@@ -233,6 +256,7 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
   const idfTotal = idfs.reduce((a, x) => a + x, 0);
   const subject = subjectOf(query);
   const subjectKey = subject.split(' ').length >= 2 ? ` ${subject} ` : null;
+  const facets = facetsAsked(query);
   const exactHits = new Map();
   for (const key of new Set([noArticle(nameKey(query)), subjectOf(query)])) for (const [k, tier] of exact.get(key) ?? []) if (exactHits.get(k) !== 'name') exactHits.set(k, tier);
   const scored = [];
@@ -255,6 +279,8 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
     const nameHas = !isExact && subjectKey && d.nameKeys.some((n) => n.includes(subjectKey));
     if (isExact) score += exactHits.get(d.k) === 'name' ? 30 : 20;
     else if (nameHas) score += 25;
+    // A profile (one facet of a genre or form) competes only when its facet is what the question asks for; otherwise the subject's own entry answers.
+    if (d.k.kind === 'profile') score *= facets.size ? (facets.has(d.k.topic) ? 1.6 : 0.4) : 0.4;
     if (score >= minScore) scored.push({ entry: d.k, score, headCoverage: isExact || nameHas ? 1 : head / idfTotal, coverage: isExact || nameHas ? 1 : any / idfTotal, exact: isExact || !!nameHas });
   }
   scored.sort((a, b2) => b2.score - a.score);
@@ -369,6 +395,9 @@ export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
   return { strength, entries, related };
 }
 
+// The kinds a project's declared genre, form or style can mean (never a single work, a style-guide rule or a word-usage note).
+const PROFILE_KINDS = ['genre', 'structure', 'style', 'form', 'technique', 'movement', 'tradition'];
+
 /** Resolve free-text profile values (genre, style, form…) to library entries by name, alias or keyword. */
 export function resolveTerms(terms) {
   const out = [];
@@ -413,9 +442,13 @@ export function describeForPrompt(entries, budgetChars = 1400) {
       if (k.example) bits.push(`Example: ${k.example}`);
     }
     if (k.kind === 'genre' && k.works?.length) bits.push(`Works: ${k.works.slice(0, 3).map((w) => `${w.title} (${w.author})`).join('; ')}.`);
+    if (k.kind === 'profile') {
+      bits.push(k.conventions.slice(0, 6).join(' '));
+      if (k.topic === 'canon' && k.works?.length) bits.push(`Works: ${k.works.slice(0, 6).map((w) => `${w.title} (${w.author}, ${w.year})`).join('; ')}.`);
+    }
     if (k.deliberateWhen[0]) bits.push(`Often deliberate: ${k.deliberateWhen[0]}.`);
     if (k.questions[0]) bits.push(`Useful question: ${k.questions[0]}`);
-    const line = '- ' + clip(bits.join(' '), ['rule', 'usage', 'format'].includes(k.kind) ? 440 : 330);
+    const line = '- ' + clip(bits.join(' '), k.kind === 'profile' ? 760 : ['rule', 'usage', 'format'].includes(k.kind) ? 440 : 330);
     if (used + line.length > budgetChars) break;
     lines.push(line);
     used += line.length + 1;
@@ -438,6 +471,7 @@ export const KIND_LABELS = {
   work: 'Notable works',
   market: 'Publishing and markets',
   process: 'Editing and revision',
+  profile: 'Genre and form profiles',
 };
 
 /** What the library holds right now, so the app can show its coverage honestly (and so tests can pin it). */

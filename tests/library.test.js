@@ -53,3 +53,12 @@ test('library: when it is large, searching it is fast and nonsense still finds n
   assert.deepEqual(search('xqzvk wjplm'), []);
   assert.equal(getEntry('definitely-not-an-entry'), null);
 });
+
+test('library: a project\'s declared genre, form or style that is not an exact entry name still resolves (it used to throw)', async () => {
+  await loadLibrary();
+  const { resolveTerms, forProfile } = await import('../apps/web/src/engine/knowledge/index.js');
+  assert.doesNotThrow(() => resolveTerms(['space opera vibes', 'cozy mystery', 'zzzz qqqq', '', null]));
+  const hit = resolveTerms(['space opera']);
+  assert.ok(hit.length >= 1 && hit.every((e) => e.kind !== 'work' && e.kind !== 'rule'), 'only genre-like kinds');
+  assert.doesNotThrow(() => forProfile({ genre: { primary: 'cozy mystery with a hint of folk horror', secondary: ['whodunit-ish'] }, identity: { format: 'a serialized novella' }, style: { prose: 'wry', pov: 'close third' }, narrative: { structure: 'three acts' } }));
+});
