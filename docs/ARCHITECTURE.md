@@ -17,7 +17,9 @@ The writer's complaint was that NIE forgets: what they said twenty messages ago,
 project in its head, so the project is held in code and the model is shown what bears on each message (`apps/web/src/engine/mind/`).
 
 1. **What is kept** (`state.js`, `record.js`; `project.mind`). The writer's own statements, split into sentences, bounded (600 statements, 260 characters each), with their order.
-   A question, a request, filler and a pasted text (400+ words) are not statements; pasted text is held by the reading notes and the story text instead.
+   A question, a request, filler, a pasted text (400+ words) and a scene with quoted dialogue are not statements; at most 30 are taken from one message. Pasted text is held by the reading notes and the
+   story text instead. Messages are numbered by the writer's messages (`Orchestrator#turnOf`), so "3 messages ago" is right even when two of the three were questions. A project saved before the mind existed has
+   no `mind`: opening it remembers what the writer said in its conversation (`backfillMind` in `project/store.js`), once.
 2. **Where it looks** (`sources.js`). Not just the statements: the idea sheet and its "also" details, ideas set aside, ideas kept, the Idea Board, characters, themes, motifs, the timeline,
    what was marked deliberate, the working premise, the writer's rules and the project profile. Every passage keeps where it came from.
 3. **Finding what bears on a message** (`recall.js`). BM25 over those passages with the writer's own words only (no embeddings, no model call, so it is instant and works with no model),
@@ -27,8 +29,10 @@ project in its head, so the project is held in code and the model is shown what 
    so it cannot claim to remember what was not recorded. The same list is on the Idea Board as "Everything NIE holds", where the writer can look through it and remove statements or kept ideas,
    or forget everything they said in chat.
 
-Honest limits: recall is by words, so "the thing she carries round her neck" will not find "she wears a compass"; the 600-statement cap drops the oldest; and what the model then does
-with a recalled item is still up to a 3B model.
+Honest limits: recall is by words (with small word families, such as mum/mother and a question word's kind of answer), so "the thing she carries round her neck" will not find "she wears a compass"; the
+600-statement cap drops the oldest; a short scene without dialogue, pasted with no question, cannot be told from a telling and is stored as statements; and what the model then does with a recalled item is still
+up to a 3B model. A long pasted text is kept in full only for the newest paste (`compactOldPastes`): it stays the text that questions are about for the whole session (`#pastedText`), but an older paste is cut to its start,
+and what is left of it is the reading notes, which are not searched by recall.
 
 ## Editorial instruments (counting what a small model cannot judge)
 
@@ -44,7 +48,10 @@ what the writer's own rules say about it, and the measured style. Only the first
   so. If nothing is left the reply is withheld with an honest note and built-in guidance. This was added because the real model invented names and numbers when asked about a long text.
 - `findThirdPerson` catches "How does the writer maintain the reader's curiosity?" said to the writer. The prompt says "you", and a reply that still talks about "the writer" is asked for once more.
 
-None of this judges quality or writes anything: it is counts, places in the text, and questions.
+None of this judges quality or writes anything: it is counts, places in the text, and questions. Measured on the invented bible with its answer key and no model (`scripts/editor-probe.mjs`): all 8 of its people are
+listed, one of its two planted inconsistencies is flagged (the water volume; the year of a runaway, given in a character note and in the dated entries, is missed), the backwards jump in its dated entries is found,
+and 14 of its 24 defined terms are in the list of recurring terms. What it cannot do: `groundNames` checks names and numbers, so an invented set-up told in ordinary words ("plunged into danger without context") is kept;
+the heuristics are English only; and a heading like "IV. Tide Table" is not recognised as one.
 
 ## Where things live
 

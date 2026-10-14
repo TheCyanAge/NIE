@@ -22,7 +22,7 @@ import { detectProject } from '../agent/detect.js';
 import { grasp as agentGrasp } from '../agent/sheet.js';
 import { filledIds } from '../agent/state.js';
 import { parseKeepCommand } from '../agent/talk.js';
-import { describeMind, recall, rememberStatements } from '../mind/index.js';
+import { clearTokenMemo, describeMind, mindOf, recall, rememberStatements } from '../mind/index.js';
 import { analyseText, analysisKey, clearGroundingCache, editorialEvidence, findThirdPerson, groundNames, readbackFrame } from '../editor/index.js';
 import { profileCorpus } from '../profile/profile.js';
 
@@ -249,6 +249,7 @@ export class Orchestrator {
     this.#styles.clear();
     this.#analyses.clear();
     clearGroundingCache();
+    clearTokenMemo();
   }
 
   /** The measured facts about a long text (cast, pacing, voice, figures, the writer's rules...), computed once per text and kept for a few turns. Null if anything goes wrong: they are an extra. */
@@ -268,11 +269,16 @@ export class Orchestrator {
     }
   }
 
+  /** Which message of the project this is, counted by the writer's messages (so "3 messages ago" counts messages, not only the ones that told NIE something). */
+  #turnOf(project) {
+    return Math.max(mindOf(project).turn, project.conversation.messages.filter((m) => m.role === 'user').length);
+  }
+
   /** What NIE can recall of this project for this message, or null. Called BEFORE the message itself is remembered (so it can never recall itself). */
   #recallFor(project, text, reading, { limit = 5, budgetTokens = 360, agentTurn = null } = {}) {
     if (!this.mind || !text) return null;
     try {
-      const r = recall(project, [text, reading?.topic].filter(Boolean).join(' '), { limit, budgetTokens, includeSheet: !agentTurn, excludeText: text });
+      const r = recall(project, [text, reading?.topic].filter(Boolean).join(' '), { limit, budgetTokens, includeSheet: !agentTurn, excludeText: text, turn: this.#turnOf(project) });
       return r.items.length ? r : null;
     } catch {
       return null; // the mind is an extra: it never gets in the way of a reply
@@ -283,7 +289,7 @@ export class Orchestrator {
   #remember(project, text, kind = 'told') {
     if (!this.mind) return;
     try {
-      rememberStatements(project, text, { kind });
+      rememberStatements(project, text, { kind, turn: this.#turnOf(project) });
     } catch {
       /* an extra */
     }

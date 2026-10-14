@@ -5,6 +5,7 @@ import { emptyBrainstorm, normalizeBrainstorm } from './board.js';
 import { emptyReadingNotes, sanitizeReadingNotes } from '../reading/notes.js';
 import { emptyAgentState, sanitizeAgentState } from '../agent/state.js';
 import { emptyMind, sanitizeMind } from '../mind/state.js';
+import { rememberStatements } from '../mind/record.js';
 
 /**
  * Project storage with hard isolation.
@@ -98,11 +99,29 @@ function sanitizeRule(r) {
   };
 }
 
+/**
+ * A project saved before the project mind existed has no `mind`: what the writer said in its conversation is remembered from the messages themselves (the
+ * writer's own sentences, as the live path keeps them), so opening an old project does not start NIE from nothing. Only ever runs once per such project.
+ */
+function backfillMind(project) {
+  try {
+    let turn = 0;
+    for (const m of project.conversation.messages) {
+      if (m?.role !== 'user' || typeof m.content !== 'string') continue;
+      turn++;
+      if (m.compacted || m.content.length > 2000) continue; // a pasted text is held by the reading notes, not as statements
+      rememberStatements(project, m.content, { turn, kind: 'told' });
+    }
+  } catch {
+    /* the mind is an extra: a project always opens */
+  }
+}
+
 function migrate(raw) {
   if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string') return null;
   const base = createProjectData({ title: raw.title || 'Untitled project' });
   // Take only known fields so stale or foreign data cannot leak in.
-  return {
+  const project = {
     ...base,
     id: raw.id,
     createdAt: Number(raw.createdAt) || base.createdAt,
@@ -124,6 +143,8 @@ function migrate(raw) {
     mind: sanitizeMind(raw.mind),
     source: raw.source && typeof raw.source === 'object' ? raw.source : null,
   };
+  if (!raw.mind || typeof raw.mind !== 'object') backfillMind(project);
+  return project;
 }
 
 export class ProjectStore {

@@ -87,6 +87,47 @@ test('the mind is saved with the project, comes back after a reload, and is remo
   assert.ok([...storage.keys()].some((k) => k.includes(other.id)), 'the other project is untouched');
 });
 
+test('a project saved before the mind existed opens with what the writer said in it already remembered (once), and nothing from any other project', async () => {
+  const storage = memoryStorage();
+  const store = new ProjectStore(storage);
+  const p = store.create({ title: 'Old' });
+  const q = store.create({ title: 'Other old' });
+  for (const [proj, said] of [[p, ['The salt road crosses a frozen lake that is only safe in January.', 'Can you give me some ideas?', 'The courier Hesper never speaks above a whisper.']], [q, ['A lighthouse keeper writes to her missing brother every night.']]]) {
+    for (const m of said) proj.conversation.messages.push({ role: 'user', content: m, at: Date.now() });
+    proj.conversation.messages.push({ role: 'user', content: `${'The tide came in and the tide went out. '.repeat(120)}`, at: Date.now(), compacted: true });
+  }
+  for (const proj of [p, q]) {
+    const raw = JSON.parse(JSON.stringify(proj));
+    delete raw.mind; // what a project saved by an older version looks like
+    storage.set(`nie.v1.project.${proj.id}`, JSON.stringify(raw));
+  }
+  const loaded = new ProjectStore(storage).load(p.id);
+  const other = new ProjectStore(storage).load(q.id);
+  assert.match(JSON.stringify(loaded.mind), /frozen lake/);
+  assert.match(JSON.stringify(loaded.mind), /Hesper/);
+  assert.doesNotMatch(JSON.stringify(loaded.mind), /Can you give me|tide came in|lighthouse/, 'a request and a compacted paste are not statements, and the other project stays out');
+  assert.doesNotMatch(JSON.stringify(other.mind), /frozen lake|Hesper/);
+  assert.match(JSON.stringify(other.mind), /lighthouse keeper/);
+  const again = new ProjectStore(storage);
+  again.save(loaded);
+  assert.equal(mindStats(again.load(p.id)).said, mindStats(loaded).said, 'saved and loaded again it is not remembered twice');
+});
+
+test('"N messages ago" counts the writer\'s messages, not only the ones that told NIE something', async () => {
+  const { o } = withModel(() => 'Noted.', { reading: (t) => ({ task: /\?\s*$/.test(t) ? 'craft' : 'tell', topic: '' }) });
+  const project = projectWith();
+  await say(o, project, 'The harbourmaster Corin is hiding gambling debts from everyone.');
+  await say(o, project, 'What is a red herring?');
+  await say(o, project, 'How long should a chapter be?');
+  const r = await say(o, project, 'Tell me what Corin hides.');
+  const said = JSON.stringify(project.mind.said);
+  assert.match(said, /"turn":1/);
+  assert.ok(Array.isArray(r.recalled));
+  const item = r.recalled.find((x) => /gambling debts/.test(x.text));
+  assert.ok(item, 'the early statement was recalled');
+  assert.match(item.where, /3 messages ago/, 'the first message was three messages before the fourth, though two of the three between were questions');
+});
+
 test('"what do you remember?" is answered from what is really held (no model), in the writer\'s own words, and does not remember itself', async () => {
   const { o, calls } = withModel(() => 'Noted.');
   const project = projectWith();

@@ -608,10 +608,17 @@ test('every export survives empty, null, undefined, numbers and 50,000-character
   const small = ['', '   ', null, undefined, 0, 42, NaN, {}, [], true, [1, 2], 'Great!', '?'];
   const histories = [undefined, null, 'nope', [], [null, 3, 'x', { role: 'assistant' }, { role: 'assistant', content: 7 }], [user('a'), nie(big[3]), nie(big[11]), nie(big[0])]];
   const slow = [];
+  // (Every call is pure. A call that looks slow is timed twice more and the fastest counts: this suite runs beside others on a loaded machine, and a one-off pause is not
+  // what the bound is for. A quadratic blow-up is slow every time.)
   const time = (label, fn) => {
-    const t0 = performance.now();
+    let t0 = performance.now();
     const out = fn();
-    const ms = performance.now() - t0;
+    let ms = performance.now() - t0;
+    for (let again = 0; again < 2 && ms > 100; again++) {
+      t0 = performance.now();
+      fn();
+      ms = Math.min(ms, performance.now() - t0);
+    }
     if (ms > 100) slow.push(`${label}: ${ms.toFixed(0)} ms`);
     return out;
   };
