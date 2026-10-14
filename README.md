@@ -4,6 +4,9 @@ An offline-capable narrative intelligence environment for writers. NIE **never w
 rules of your story in plain words, and it shows you *exactly where* the text breaks them, with a one-line reason. It also
 helps you brainstorm, and reads documents aloud, with a local language model (Qwen2.5 3B) running on your own machine.
 
+**The one rule:** NIE writes no passage for you, ever. It guides, asks, counts, explains and gives editorial advice, shaped by the rules and
+style limits you set for your own piece. A request to write or rewrite your text is declined before any model is asked.
+
 - **Full Scan**: write your rules ("Samantha never lies", "No adverbs", "Stay in third person"); NIE highlights each place that
   breaks one, in your own text, and says why. Exact checks are exact; meaning-based rules are judged by the language model
   (by sentence number, so it can only ever point at your words) or, offline, approximated by keywords and labelled as such.
@@ -12,6 +15,17 @@ helps you brainstorm, and reads documents aloud, with a local language model (Qw
   NIE throws concept-level ideas at you and asks the question that sharpens them. Star the ones that pull; they live on your
   project's **Idea Board** ("remember this", "show my idea board", "let's develop this idea…" all work in the chat). It works
   with no model at all, from a built-in idea library, and says so. It will never draft, continue or rewrite your text.
+  NIE also **follows your idea like an interviewer**: it keeps a sheet of what you said about it (your own words), asks one question
+  now and then, about *this* idea and never the same one twice (questions are written for each kind of piece, form and genre), and,
+  once it has the idea, offers to keep it on the Idea Board and in project memory. You can add details first, say "not yet", or take a keep back.
+- **A memory for each project**: what you say in a project, what you keep, your characters, rules and decisions are held for *that
+  project only* (a new project starts blank; deleting one deletes it). NIE finds what bears on each message, shows what it drew on under
+  its reply ("What I remembered from earlier"), answers "what do you remember?" from what it really holds, and lists it all under
+  **Everything NIE holds** on the Idea Board, where you can look through it and remove anything.
+- **Long texts**: paste or import a long text. Up to roughly 25,000 words NIE reads it one section at a time and keeps notes (longer texts are
+  searched for the passages that match your question), and it measures the text with ordinary code (who appears where, pacing, tense and point of view, numbers given twice, dated entries running backwards, repeats,
+  your own rules), and says exactly what it looked at. A text pasted with no question gets a read-back built from those counts, and
+  questions that are only about the counts are answered by the counts, with their sections.
 - **Read**: import TXT, Markdown, HTML, RTF, DOCX, ODT, EPUB or PDF; it becomes your Story Text; have NIE read it aloud.
 - **Projects**: every project is its own world. New means fresh; delete means gone.
 
@@ -20,6 +34,11 @@ for ideas, feedback on your own work, a question about NIE itself, or a request 
 accordingly. With no model, simpler built-in rules read it, and NIE says which one it was.
 
 One NIE: online model, offline model and built-in guidance are routing, not separate assistants.
+
+**What to expect, honestly.** The offline model is small (3 billion parameters). It cannot match large hosted assistants at judging a story, and NIE
+does not pretend it can. What makes it useful is around the model: a memory that cannot drift, counted facts, questions written by hand for each kind
+of piece, and checks on its replies (in answers about your long text, a sentence naming a person or number your text does not contain is removed). Measured numbers, including
+what did not work, are in [docs/STATUS.md](docs/STATUS.md). You can switch to an online model in Settings; the same checks and memory apply.
 
 ## Get the Windows app (no Node.js, no command line)
 
