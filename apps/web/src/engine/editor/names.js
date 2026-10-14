@@ -9,11 +9,22 @@ export const MONTHS_DAYS = new Set('january february march april may june july a
 export const HEADING_WORDS = new Set('chapter part book section act scene prologue epilogue interlude appendix volume page step'.split(' '));
 export const TITLES = new Set('mr mrs ms dr miss sir lady lord madam mx prof'.split(' '));
 
+/**
+ * A rank, relation or office in front of a name ("Captain Roe", "Aunt Dilys", "Commissioner Hale"): not part of the name proper. Cast keeps the whole phrase as the
+ * name but never offers the rank alone as another way the text names the person ("also Captain"), and grounding judges the name after it.
+ */
+export const ROLE_WORDS = new Set(
+  ('commissioner captain doctor professor master chief inspector dispatcher keeper king queen prince princess president mayor judge officer sergeant general colonel major admiral ' +
+    'lord lady sir father mother brother sister aunt uncle grandmother grandfather detective constable warden bishop priest abbot count duke duchess baron ' +
+    'saint sister brother cousin nurse teacher reverend vicar lieutenant corporal private marshal minister senator governor').split(' ')
+);
+
 /** Words that open a sentence or a heading without being a name ("Suddenly Delton ran", "Nobody", "Perhaps"). */
 export const OPENERS = new Set(
   ('then now later yesterday today tomorrow tonight meanwhile finally perhaps maybe however still once after before during soon here there nobody everyone everybody someone somebody ' +
     'everything nothing something anything many most each every even only just also next last first second third another other both either neither though although since because until ' +
     'while whenever wherever suddenly instead otherwise together already never always often sometimes somehow almost really very quite rather yes no oh ah well so and but or if when ' +
+    'hello hi hey okay ok thanks thank please sorry goodbye bye welcome dear sure fine right alright anyway actually honestly basically ' +
     'what who whom whose why how which this that these those some any all one two three four five six seven eight nine ten').split(' ')
 );
 
@@ -37,6 +48,20 @@ export const ORDINARY_OPENERS = new Set(
     'questions question ideas idea options option angles angle details detail names name facts fact numbers number words word lines line paragraphs paragraph ' +
     'notes note things thing parts part pieces piece bits bit places place people person time times way ways kind kinds sort sorts type types').split(' ')
 );
+
+/**
+ * Capitalised words of ordinary English that are not people: feasts, languages and nationalities, and the labels of a figure or an exercise. A text that
+ * says "at Christmas" or "in English" or "see Figure 3" three times has not found a character. Unlike MONTHS_DAYS these do not break a run ("French Quarter" stays
+ * one phrase, a term of the text), they only stop a single word from counting as a name on its own.
+ */
+export const COMMON_CAPS = new Set(
+  ('christmas easter halloween thanksgiving hanukkah passover ramadan diwali eid lent advent sabbath ' +
+    'english french german spanish italian portuguese dutch russian chinese japanese korean arabic hebrew latin greek irish scottish welsh british american european african asian ' +
+    'canadian australian indian norse celtic nordic slavic figure fig table example lesson exhibit plate item stanza canto verse question answer note internet').split(' ')
+);
+
+// "I'd", "I'm", "I'll", "I've": the pronoun, not a name, however often a first-person text says it
+const I_CONTRACTION = /^I['’](?:d|m|ll|ve|s)$/i;
 
 const ACRONYM = /^[\p{Lu}][\p{Lu}\p{N}]+$/u;
 
@@ -97,7 +122,7 @@ export function capitalisedRuns(text, { limit = 400000 } = {}) {
       const at = m[0].indexOf(r, offset);
       offset = at + r.length;
       const bare = bareWord(r);
-      if (bare.length < 2 || ACRONYM.test(bare)) {
+      if (bare.length < 2 || ACRONYM.test(bare) || I_CONTRACTION.test(bare)) {
         flush();
         continue;
       }

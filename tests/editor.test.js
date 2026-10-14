@@ -2,15 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { analyseText, analysisKey, editorialEvidence, readbackFrame, groundNames, clearGroundingCache, groundingCacheSize, speaksAboutTheWriter, findThirdPerson, standouts, topicsOf } from '../apps/web/src/engine/editor/index.js';
 import { listSections } from '../apps/web/src/engine/editor/findings.js';
-import { splitSections, sectionText } from '../apps/web/src/engine/reading/sections.js';
+import { splitSections, sectionText, isHeading } from '../apps/web/src/engine/reading/sections.js';
 import { buildIndex } from '../apps/web/src/engine/reading/context.js';
 import { scan } from '../apps/web/src/engine/analysis/scan.js';
 import { isPraiseOpener } from '../apps/web/src/engine/orchestrator/variety.js';
-import { estimateTokens, words } from '../apps/web/src/engine/util/text.js';
+import { estimateTokens, splitParagraphs, words } from '../apps/web/src/engine/util/text.js';
 import { styleProfile } from '../apps/web/src/engine/reading/style.js';
 import { loadBible } from './fixtures/story-bible.mjs';
 import { makeLongText } from './fixtures/long-text.mjs';
 import { chaptered, paragraph } from './fixtures/editor-texts.mjs';
+import { DIALOGUE, ESSAY, FIRST_PERSON, MEMOIR, NOSENT, POEMS, SCREENPLAY } from './fixtures/editor-genres.mjs';
 import { projectWith, withRules } from './helpers.js';
 
 // The editorial instruments: deterministic measurements of a long text, the evidence lines made from them, the read-back of a pasted text, and the check that
@@ -181,7 +182,7 @@ test('pacing: the section planted at four times the length is the outlier, with 
   assert.equal(a.pacing.outliers.length, 1);
   const o = a.pacing.outliers[0];
   assert.deepEqual({ i: o.i, kind: o.kind, words: o.words }, { i: 3, kind: 'long', words: wc[3] });
-  assert.equal(o.ratio, Math.round((wc[3] / med) * 100) / 100);
+  assert.equal(o.ratio, Math.round((wc[3] / med) * 1000) / 1000);
   assert.ok(o.ratio > 4 && o.ratio < 5);
   assert.deepEqual(a.pacing.units.map((u) => [u.from, u.to, u.title]), [0, 1, 2, 3, 4, 5].map((i) => [i, i, `Chapter ${i + 1}`]));
   assert.equal(a.pacing.unitOutliers.length, 1);
@@ -240,7 +241,7 @@ test('voice: a tense planted at a known section is found there, and a steady tex
 
   const steady = analyseText({ text: chaptered(Array(6).fill({ words: 110 }), { seed: 5 }).text });
   assert.deepEqual(steady.voice.shifts, []);
-  assert.match(lines(editorialEvidence({ analysis: steady, query: 'what about the tense?' }).block)[0], /^- Voice: no change of tense or person was counted between sections that read clearly \(6 of 6 sections have a clear tense, 6 a clear person\)\.$/);
+  assert.match(lines(editorialEvidence({ analysis: steady, query: 'what about the tense?' }).block)[0], /^- Voice: no change of tense or person was counted between sections that read clearly \(a clear tense in 6 of 6 sections, a clear person in 6\)\.$/);
 });
 
 test('voice: a change of person is found, and a section with too few cues is "unclear", never guessed', () => {
@@ -263,8 +264,8 @@ test('names: a spelling one letter off a name used far more often is reported as
   assert.deepEqual({ a: n.a, b: n.b, sections: n.sections, bCount: n.bCount }, { a: 'Linnet', b: 'Linet', sections: [3], bCount: 1 });
   assert.equal(n.aCount, (text.match(/\bLinnet\b/g) ?? []).length);
   const ev = editorialEvidence({ analysis: a, query: 'any typos in the names?' });
-  assert.ok(lines(ev.block).some((l) => l === `- Names: "Linet" appears once, in section 4, where "Linnet" appears ${n.aCount} times (a possible typo in a name).`), ev.block);
-  assert.match(readbackFrame({ analysis: a }).question, /^"Linet" appears only in section 4 while "Linnet" appears \d+ times: did you intend two different names\?$/);
+  assert.ok(lines(ev.block).some((l) => l === `- Names: "Linet" appears once, in section 4, and "Linnet" appears ${n.aCount} times in all (a possible typo in a name).`), ev.block);
+  assert.match(readbackFrame({ analysis: a }).question, /^"Linet" appears only in section 4 while "Linnet" appears \d+ times in all: did you intend two different names\?$/);
 });
 
 test('names: two frequent names one letter apart, a plural and a possessive are not slips', () => {
@@ -299,8 +300,10 @@ test('figures: a measure given two numbers in two sections is flagged "conflict"
   }
   const ev = editorialEvidence({ analysis: a, query: 'are the numbers consistent?' });
   assert.equal(ev.used[0], 'figures');
-  assert.equal(lines(ev.block)[0], '- Figures: "tower" is given "ninety barrels" in section 1 and "sixty barrels" in section 5 (a possible conflict: the same measure may be given two numbers).');
-  assert.match(readbackFrame({ analysis: a }).question, /^Your text gives "ninety barrels" in section 1 and "sixty barrels" in section 5 for "tower": did you mean those to be the same measure\?$/);
+  // a plain noun ("the tower") may be a different one each time: the line says so, and asks whether both mean the same one
+  assert.equal(tower.proper, false);
+  assert.equal(lines(ev.block)[0], '- Figures: "tower" is given "ninety barrels" in section 1 and "sixty barrels" in section 5 (possibly a conflict, possibly two different things both called "tower").');
+  assert.match(readbackFrame({ analysis: a }).question, /^Your text gives "ninety barrels" in section 1 and "sixty barrels" in section 5 for "tower": do both mean the same tower\?$/);
 });
 
 test('figures: the planted contradiction of the story bible is found in the sections the truth file names, and nothing else conflicts', () => {
@@ -334,7 +337,7 @@ test('timeline: the bible\'s dated entries are counted and its one jump backward
   assert.equal(j.to, 'Year one, November');
   for (const s of A.timeline.stamps) assert.ok(sectionText(BIBLE, splitSections(BIBLE)[s.section]).includes(s.label), s.label);
   const [line] = lines(editorialEvidence({ analysis: A, query: 'does the timeline hold up?' }).block).filter((l) => l.startsWith('- Timeline'));
-  assert.equal(line, '- Timeline: the dated entries go back in time: "Year six, July" (section 20) is followed by "Year one, November" (section 21).');
+  assert.equal(line, '- Timeline: the dated entries go back in time: "Year one, November" (section 21) comes after "Year six, July" (section 20) but is dated earlier.');
 });
 
 test('timeline: full dates are compared too, and dates in order give no jump', () => {
@@ -346,7 +349,7 @@ test('timeline: full dates are compared too, and dates in order give no jump', (
   const fine = analyseText({ text: diary(['March 3, 1987', 'March 9, 1987', 'April 2, 1987', 'April 4, 1988']) });
   assert.deepEqual(fine.timeline.jumps, []);
   assert.match(lines(editorialEvidence({ analysis: fine, query: 'is the timeline right?' }).block).join('\n'), /4 dated entries run from "March 3, 1987" \(section 1\) to "April 4, 1988" \(section 4\), and none goes back in time/);
-  assert.match(lines(editorialEvidence({ analysis: back, query: 'is the timeline right?' }).block).join('\n'), /the dated entries go back in time: "March 9, 1987" \(section 2\) is followed by "January 2, 1987" \(section 3\)/);
+  assert.match(lines(editorialEvidence({ analysis: back, query: 'is the timeline right?' }).block).join('\n'), /the dated entries go back in time: "January 2, 1987" \(section 3\) comes after "March 9, 1987" \(section 2\) but is dated earlier/);
 });
 
 // ── repeats ──────────────────────────────────────────────────────────────────
@@ -410,9 +413,12 @@ test('rules: findings are the scan\'s, mapped to sections; a rule that needs the
 
   const ev = editorialEvidence({ analysis: a, query: 'did I break any of my rules?' });
   assert.deepEqual(ev.used, ['rules']);
-  const top = Object.entries(recount).sort((x, y) => y[1] - x[1] || x[0] - y[0])[0];
+  const rows = Object.entries(recount).sort((x, y) => y[1] - x[1] || x[0] - y[0]);
+  const top = rows[0];
   const [line] = lines(ev.block);
-  assert.ok(line.startsWith(`- Rules: ${counted.length} places are flagged against your rules, most of them in section ${Number(top[0]) + 1} (${top[1]});`), line);
+  // said only as far as the counts go: all in one section, most (a majority) in one, more in one than in any other, or no section named for a tie
+  const says = rows.length === 1 ? `all of them in section ${Number(top[0]) + 1}` : top[1] * 2 > counted.length ? `most of them in section ${Number(top[0]) + 1} (${top[1]})` : rows[1][1] < top[1] ? `more of them in section ${Number(top[0]) + 1} (${top[1]}) than in any other` : `in ${rows.length} sections, no more than ${top[1]} in any one`;
+  assert.ok(line.startsWith(`- Rules: ${counted.length} places are flagged against your rules, ${says}; the rule flagged most is`), line);
   assert.ok(line.includes(`the rule flagged most is "Never use the word 'lantern'" (`), line);
   assert.match(line, /One rule needs the language model and was not checked by the program\.$/);
   const rb = readbackFrame({ analysis: a });
@@ -498,8 +504,8 @@ test('evidence: the names line is the recomputed count, first and last section',
   assert.equal(Number(M), splitSections(BIBLE).length);
   assert.equal(Number(first), secs[0] + 1);
   assert.equal(Number(last), secs.at(-1) + 1);
-  const gap = lines(editorialEvidence({ analysis: A, query: 'who drops out of the story?' }).block).find((l) => /but not in sections/.test(l));
-  assert.equal(gap, '- Names: Jessamy Tolk appears in 6 of 25 sections but not in sections 16 to 22.');
+  const gap = lines(editorialEvidence({ analysis: A, query: 'who drops out of the story?' }).block).find((l) => /but is not named in sections/.test(l));
+  assert.equal(gap, '- Names: Jessamy Tolk appears in 6 of 25 sections but is not named in sections 16 to 22.');
   const present = sectionsMatching(BIBLE, /\bJessamy\b|\bTolk\b/);
   assert.equal(present.length, 6);
   assert.ok([15, 16, 17, 18, 19, 20, 21].every((i) => !present.includes(i)) && present.includes(14) && present.includes(22));
@@ -624,7 +630,7 @@ test('read-back: the strongest finding decides the question, and each kind of fi
   assert.ok(orla && orla.gaps.length >= 1, JSON.stringify(a.cast));
   assert.ok(dropped.text.length > 0);
   const rb = readbackFrame({ analysis: a });
-  if (rb.question && /Orla/.test(rb.question)) assert.match(rb.question, /^Orla Penn is missing from sections? [\d to,and ]+: is that an absence you intended\?$/);
+  if (rb.question && /Orla/.test(rb.question)) assert.match(rb.question, /^Orla Penn is not named in sections? [\d to,and ]+: is that an absence you intended\?$/);
 });
 
 // ── grounding ────────────────────────────────────────────────────────────────
@@ -659,8 +665,9 @@ test('groundNames: a run of capitals must occur as a run; single names must occu
   assert.ok(ok('Think about what Linnet wants.'));
   assert.ok(!ok('Think about what Torvald wants.'));
   assert.ok(ok('Torvald is a name from your last message.', { sources: [BIBLE, 'My hero is called Torvald.'] }));
-  assert.ok(!ok('The style guide says to follow the Chicago Manual here.'));
-  assert.ok(ok('The style guide says to follow the Chicago Manual here.', { known: ['Chicago Manual of Style'] }));
+  assert.ok(!ok('The style guide says to follow the Hollis Manual here.'));
+  assert.ok(ok('The style guide says to follow the Hollis Manual here.', { known: ['Hollis Manual of Style'] }));
+  assert.ok(ok('The style guide says to follow the Chicago Manual here.'), 'the craft\'s own best-known names are built in');
   assert.ok(ok('Use the Idea Board, then run a Full Scan in NIE.'), "NIE's own words");
   assert.ok(ok('On Monday in March the Ladder opened.'), 'days and months are never names');
   assert.ok(ok('I think Section Twelve and Chapter 3 are the ones to read.'), 'heading words and numbers are not names');
@@ -774,6 +781,14 @@ test('over many different texts every number the instruments hand out is in rang
     chaptered(Array(8).fill({ words: 110 }), { seed: 31 }).text,
     chaptered([{ words: 110, extra: 'The tower holds ninety barrels.' }, { words: 500 }, { words: 110, extra: 'The tower holds sixty barrels.' }, { words: 110 }, { words: 110, tense: 'present', person: 'first' }, { words: 110 }], { seed: 32 }).text,
     chaptered(Array(7).fill({ words: 120 }), { seed: 33, filler: 'unique' }).text,
+    MEMOIR,
+    SCREENPLAY,
+    POEMS,
+    ESSAY,
+    DIALOGUE,
+    FIRST_PERSON,
+    NOSENT,
+    MEMOIR.replace(/\n/g, '\r\n'),
   ];
   for (const text of texts) {
     const a = analyseText({ text, project });
@@ -808,7 +823,10 @@ test('over many different texts every number the instruments hand out is in rang
       assert.deepEqual(t.sections, sectionsMatching(text, new RegExp(`(?<![\\p{L}\\p{N}])${esc(t.term)}(?![\\p{L}\\p{N}])`, 'iu')).filter((i) => i < M), t.term);
     }
     // pacing and voice
-    for (const o of a.pacing.outliers) assert.equal(o.ratio, Math.round((o.words / a.pacing.median) * 100) / 100);
+    for (const o of a.pacing.outliers) assert.equal(o.ratio, Math.round((o.words / a.pacing.median) * 1000) / 1000);
+    for (const u of a.pacing.units) assert.ok(inRange(u.from) && inRange(u.to) && u.from <= u.to && u.words >= 0 && typeof u.title === 'string' && text.includes(u.title), u.title);
+    for (const o of a.pacing.unitOutliers) assert.equal(o.ratio, Math.round((o.words / a.pacing.unitMedian) * 1000) / 1000);
+    assert.equal(a.headings.count, (a.sections.reduce((n, x) => n + x.headings, 0)));
     for (const kind of ['person', 'tense']) {
       const runs = a.voice[kind];
       assert.equal(runs[0].from, 0);
@@ -884,7 +902,7 @@ test('inputs are never mutated: a deep-frozen project, notes, index and analysis
   assert.ok(rb.lines.length);
   const sources = deepFreeze([BIBLE.slice(0, 5000)]);
   const known = deepFreeze(['NIE']);
-  assert.ok(groundNames('Isaura left.', { sources, known }).text);
+  assert.ok(groundNames('Drevast stands.', { sources, known }).text);
   assert.ok(standouts(a).length);
 });
 
@@ -960,4 +978,273 @@ test('the long invented text keeps working: its ten characters are all found, ch
   assert.equal(a.pacing.units[0].title, 'Chapter 1');
   assert.ok(a.figures.every((f) => !f.conflict));
   assert.deepEqual(a.timeline.jumps, []);
+});
+
+
+// ── adversarial reading: texts of other kinds, read line by line against what is in them ────────────────────────────────
+
+const countOf = (text, re) => (text.match(re) ?? []).length;
+const castOf = (a) => Object.fromEntries(a.cast.map((c) => [c.name, c]));
+
+test('a first-person memoir: the cast is the people and places it names, with recounted mentions; no month, day, feast or "the Moon" is a name; every line is true of it', () => {
+  const a = analyseText({ text: MEMOIR });
+  assert.deepEqual(a.failed, []);
+  const cast = castOf(a);
+  assert.deepEqual(Object.keys(cast).sort(), ['Aunt Dilys', 'Cardiff', 'Dad', 'Mum', 'Pryce']);
+  assert.equal(cast.Dad.mentions, countOf(MEMOIR, /\bDad\b/g));
+  assert.equal(cast.Mum.mentions, countOf(MEMOIR, /\bMum\b/g));
+  assert.equal(cast['Aunt Dilys'].mentions, countOf(MEMOIR, /\bAunt Dilys\b/g));
+  assert.equal(cast.Pryce.mentions, countOf(MEMOIR, /\bPryce\b/g));
+  assert.deepEqual(cast.Pryce.sections, sectionsMatching(MEMOIR, /\bPryce\b/));
+  assert.deepEqual(cast.Cardiff.sections, sectionsMatching(MEMOIR, /\bCardiff\b/));
+  assert.equal(cast.Cardiff.kind, 'place');
+  for (const wrong of ['March', 'Sunday', 'Monday', 'Tuesday', 'June', 'October', 'September', 'Moon', 'Then', 'Later', 'Chapter']) assert.ok(!(wrong in cast) && !a.terms.some((t) => t.term === wrong), wrong);
+  // the headings are counted in the text: four chapter headings, whatever the splitter did
+  assert.equal(a.headings.count, countOf(MEMOIR, /^Chapter \d/gm));
+  assert.equal(a.headings.first, 'Chapter 1: The Farm at Pantglas');
+  assert.equal(a.headings.last, 'Chapter 4: Leaving');
+  // no quoted speech, first person, past: the style line says what the text has
+  const ev = editorialEvidence({ analysis: a, query: 'what about the voice?' }).block;
+  assert.match(ev, /Style: first person, mostly past tense; sentences average \d+ words; no quoted dialogue was found/);
+  // nothing stands out in it, so there is nothing to ask
+  assert.equal(readbackFrame({ analysis: a }).question, null);
+  // the two sheep counts ("forty sheep", "all sixty of them") are not a measure of anything the program can compare: it says so rather than guess
+  assert.deepEqual(a.figures, []);
+});
+
+test('a screenplay: a speaker named in capitals on a line of their own is counted with the same name in mixed case; sluglines and transitions are never names', () => {
+  const a = analyseText({ text: SCREENPLAY });
+  assert.deepEqual(a.failed, []);
+  const cast = castOf(a);
+  // "Desmond crosses to the sink" and "DESMOND (O.S.)" and "DESMOND'S KITCHEN" are one person: 11 places, not the 3 written in mixed case
+  assert.equal(cast.Desmond.mentions, countOf(SCREENPLAY, /\bdesmond\b/gi));
+  assert.equal(cast.Desmond.mentions, 11);
+  assert.equal(cast.Desmond.kind, 'person');
+  assert.equal(cast.NORA.mentions, countOf(SCREENPLAY, /\bnora\b/gi));
+  assert.deepEqual(cast.Desmond.sections, [0]);
+  for (const wrong of ['INT', 'EXT', 'FADE', 'CUT', 'DISSOLVE', 'THE END', 'DAWN', 'NIGHT', 'MORNING', 'DAY', 'IN', 'OUT']) assert.ok(!(wrong in cast), wrong);
+  const names = editorialEvidence({ analysis: a, query: 'who are the characters?' }).block;
+  assert.match(names, /Names: (?:Desmond comes up 11 times; NORA 11|NORA comes up 11 times; Desmond 11)/);
+  assert.ok(!/\b(?:INT|EXT|FADE)\b/.test(names));
+});
+
+test('a sequence of poems: lines are not sentences, the headings counted are the ones in the text, and a refrain is reported as a refrain, with a question', () => {
+  const a = analyseText({ text: POEMS });
+  assert.deepEqual(a.failed, []);
+  // the headings the splitter recognises, recounted from the paragraphs of the text (the splitter put several of them inside two sections)
+  const headings = splitParagraphs(POEMS).filter((p) => isHeading(p.text) && p.text.replace(/[#\s*_=~–—-]/g, ''));
+  assert.equal(a.headings.count, headings.length);
+  assert.ok(a.sectionCount < a.headings.count, 'fixture: more headings than sections');
+  const rb = readbackFrame({ analysis: a });
+  const built = rb.lines.find((l) => l.startsWith('How it is built'));
+  assert.ok(built.includes(`${a.headings.count} headings`) && !/parts under headings/.test(built), built);
+  // a stretch under a heading is measured on the text, not on the sections it happens to touch
+  assert.equal(a.pacing.units.length, headings.length);
+  a.pacing.units.forEach((u, k) => {
+    const to = k + 1 < headings.length ? headings[k + 1].start : POEMS.length;
+    assert.equal(u.words, words(POEMS.slice(headings[k].start, to)).length, u.title);
+    assert.equal(u.title, headings[k].text);
+  });
+  // lines are not sentences: the sentence length of verse is not offered
+  assert.ok(!/sentences average/.test(rb.lines.join('\n')));
+  // the line "My mother kept a lamp..." / "My father kept a count..." begins four sentences of the text in a row; said as a possible tic, asked about
+  const opener = a.repeats.find((r) => r.kind === 'opener');
+  assert.deepEqual({ phrase: opener.phrase, count: opener.count }, { phrase: 'My', count: 4 });
+  assert.match(rb.question, /^"My" begins 4 sentences in a row in section 1: did you intend that run\?$/);
+});
+
+test('an essay: the numbered list, the cited study and "The Moon" at the start of a sentence give no name, no figure and no conflict', () => {
+  const a = analyseText({ text: ESSAY });
+  assert.deepEqual(a.failed, []);
+  assert.deepEqual(a.cast, []);
+  assert.deepEqual(a.figures, [], 'list numbers, a year and a study of 32 people are not measures to compare');
+  assert.deepEqual(a.timeline.jumps, []);
+  assert.ok(!a.terms.some((t) => /moon/i.test(t.term)));
+  const ev = editorialEvidence({ analysis: a, query: 'is it consistent? any typos?' }).block;
+  assert.match(ev, /no measure stated in more than one section/);
+});
+
+test('a dialogue-heavy chapter: a person named only at the start of sentences is found, and two people answering each other are not one tic', () => {
+  const a = analyseText({ text: DIALOGUE });
+  assert.deepEqual(a.failed, []);
+  const cast = castOf(a);
+  assert.ok(cast.Tobias, 'Tobias is only ever written at the start of a sentence ("Tobias looked at the floor.")');
+  assert.equal(cast.Tobias.kind, 'person');
+  assert.equal(cast.Tobias.mentions, countOf(DIALOGUE, /\bTobias\b/g));
+  assert.deepEqual(cast.Tobias.sections, sectionsMatching(DIALOGUE, /\bTobias\b/));
+  assert.equal(cast.Imogen.mentions, countOf(DIALOGUE, /\bImogen\b/g));
+  assert.equal(cast.Marsh.mentions, countOf(DIALOGUE, /\bMarsh\b/g));
+  // "To Leeds?" (one speaker) and "To Leeds. To anywhere. To the station" (the other) are four "To" in a row only if the turns are run together
+  assert.deepEqual(a.repeats.filter((r) => r.kind === 'opener'), []);
+  assert.equal(readbackFrame({ analysis: a }).question, null);
+});
+
+test('a text with no sentences: honest, minimal, nothing invented, no question', () => {
+  const a = analyseText({ text: NOSENT });
+  assert.deepEqual(a.failed, []);
+  assert.deepEqual(a.cast, []);
+  assert.deepEqual(a.figures, []);
+  assert.deepEqual(a.repeats, []);
+  const rb = readbackFrame({ analysis: a });
+  assert.equal(rb.question, null);
+  assert.ok(rb.lines.length >= 1 && rb.lines.length <= 12);
+  assert.ok(rb.lines.every((l) => !speaksAboutTheWriter(l) && !isPraiseOpener(l)));
+  assert.match(editorialEvidence({ analysis: a, query: 'what is the tense?' }).block, /Voice: no section has enough verb or pronoun cues|few of its words are common English words/);
+});
+
+test('"I\'d", "I\'m" and "I\'ll" are the narrator, not a name; a feast, a language and the label of a number ("Figure 3", "Day Two") are not people', () => {
+  const a = analyseText({ text: FIRST_PERSON });
+  assert.deepEqual(a.failed, []);
+  const bad = new Set(["I'd", "I'm", "I'll", "I've", 'Christmas', 'Easter', 'English', 'French', 'Figure', 'Table', 'Day', 'Hello', 'Okay', 'Yes', 'No', 'Prof', 'Dr']);
+  for (const c of a.cast) assert.ok(!bad.has(c.name) && !c.aliases.some((x) => bad.has(x)), c.name);
+  for (const t of a.terms) assert.ok(!bad.has(t.term), t.term);
+  assert.ok(a.cast.some((c) => c.name === 'Tom') && a.cast.some((c) => c.name === 'Ana'));
+  const rb = readbackFrame({ analysis: a });
+  assert.ok(!/I'd|I'm|I'll/.test(rb.lines.join('\n')));
+});
+
+test('an age is not a measure: "nine years old" in one chapter and "ten years old" in another is a person growing up', () => {
+  const pad = 'Rain fell on the roof all afternoon and nobody came to the door, so I sat with the ledger and counted the little I had left. '.repeat(4);
+  const mk = (bodies) => bodies.map((b, i) => `Chapter ${i + 1}\n\n${b} ${pad}`).join('\n\n');
+  assert.deepEqual(analyseText({ text: mk(['Marta was nine years old when the war began.', 'Marta was ten years old at the wedding.']) }).figures, []);
+  assert.deepEqual(analyseText({ text: mk(['The boy was nine years old when it began.', 'The boy was twelve years old when it ended.']) }).figures, []);
+  // a duration is still compared
+  const war = analyseText({ text: mk(['The war lasted 4 years.', 'The war lasted 6 years.']) });
+  assert.equal(war.figures.length, 1);
+  assert.equal(war.figures[0].conflict, true);
+});
+
+test('names: a rare word that is a name plus an ordinary ending ("Marshy" for "Marsh") is not offered as a slip; a plain slip still is', () => {
+  const withMarshy = DIALOGUE.replace('Outside a car went by', 'Marshy ground lay outside. Outside a car went by');
+  assert.deepEqual(analyseText({ text: withMarshy }).names, []);
+  const slip = DIALOGUE.replace('Tobias did not move.', 'Marhs nodded. Tobias did not move.').replace('Marsh said nothing.', 'Marsh said nothing. Marsh smiled. Marsh frowned.');
+  const names = analyseText({ text: slip }).names;
+  assert.deepEqual(names.map((n) => [n.a, n.b]), [['Marsh', 'Marhs']]);
+});
+
+test('read-back: a model\'s overview loses the sentences that praise the writing or tell the writer what to do, whole, and keeps the rest word for word', () => {
+  const a = analyseText({ text: MEMOIR });
+  const notes = a.sections.map(() => ({ by: 'model', gist: 'x', names: [], terms: [] }));
+  const lineOf = (overview) => readbackFrame({ analysis: a, notes, overview }).lines.find((l) => l.startsWith('What it is'));
+  assert.equal(lineOf('The prose is beautiful and the pacing is masterful. The memoir follows a family from a Welsh farm to Cardiff.'), 'What it is, from my notes: The memoir follows a family from a Welsh farm to Cardiff.');
+  assert.equal(lineOf('It is a moving, compelling story with a strong voice. Dad sold sixty sheep.'), 'What it is, from my notes: Dad sold sixty sheep.');
+  assert.equal(lineOf('A haunting memoir about Dad and a farm.'), undefined, 'a sentence that only praises leaves nothing');
+  assert.equal(lineOf('You should cut chapter 3. Dad sold sixty sheep.'), 'What it is, from my notes: Dad sold sixty sheep.');
+  assert.equal(lineOf('It tells of a poor family in Cardiff and the strike.'), 'What it is, from my notes: It tells of a poor family in Cardiff and the strike.', 'description of the story is kept');
+  // a caller's own description of the style goes through the same filter
+  assert.ok(!readbackFrame({ analysis: a, style: 'Counted from the text itself, it has a vivid and masterful voice.' }).lines.some((l) => /masterful/.test(l)));
+});
+
+test('rules: two rules flagged equally often are both named, and a tie between sections names no section', () => {
+  const body = (k, extra) => `Chapter ${k}\n\n${paragraph(110, { seed: 20 + k, filler: 'unique' })} ${extra}`;
+  // "lantern" once in each of four chapters and "ledger" once in each of the same four: two rules, four places each, one place in every section
+  const text = [1, 2, 3, 4].map((k) => body(k, 'A lantern hung there beside the ledger.')).join('\n\n');
+  const project = withRules(projectWith(), ['Never use the word "lantern"', 'Never use the word "ledger"']);
+  const a = analyseText({ text, project });
+  assert.equal(a.rules.count, 8);
+  const line = lines(editorialEvidence({ analysis: a, query: 'did I break my rules?' }).block)[0];
+  assert.equal(line, `- Rules: 8 places are flagged against your rules, in 4 sections, no more than 2 in any one; the rules flagged most are "Never use the word 'lantern'" and "Never use the word 'ledger'" (4 places each).`);
+  // one rule, one place in each of four sections: no section is named as "the one with most"
+  const one = analyseText({ text: [1, 2, 3, 4].map((k) => body(k, 'A lantern hung there.')).join('\n\n'), project: withRules(projectWith(), ['Never use the word "lantern"']) });
+  const l1 = lines(editorialEvidence({ analysis: one, query: 'rules' }).block)[0];
+  assert.equal(l1, `- Rules: 4 places are flagged against your rules, in 4 sections, no more than 1 in any one; the rule flagged most is "Never use the word 'lantern'" (4 places, across 4 sections).`);
+  assert.match(readbackFrame({ analysis: one }).question, /^Your rule "Never use the word 'lantern'" is flagged 4 times, across 4 sections: are those places exceptions you intended\?$/);
+  // all in one section, then a clear lead
+  const concentrated = analyseText({ text: [1, 2, 3].map((k) => body(k, k === 2 ? 'A lantern, a lantern, a lantern.' : '')).join('\n\n'), project: withRules(projectWith(), ['Never use the word "lantern"']) });
+  assert.match(lines(editorialEvidence({ analysis: concentrated, query: 'rules' }).block)[0], /^- Rules: 3 places are flagged against your rules, all of them in section 2; the rule flagged most is "Never use the word 'lantern'" \(3 places, all in section 2\)\.$/);
+});
+
+test('pacing: a section exactly twice the median is "twice", not "more than twice"', () => {
+  const { text } = chaptered([{ words: 110 }, { words: 110 }, { words: 110 }, { words: 500 }, { words: 110 }, { words: 110 }], { seed: 3 });
+  const a = JSON.parse(JSON.stringify(analyseText({ text })));
+  a.pacing.unitOutliers[0].ratio = 2;
+  assert.match(readbackFrame({ analysis: a }).question, /is twice the length of a typical stretch/);
+  a.pacing.unitOutliers[0].ratio = 2.5;
+  assert.match(readbackFrame({ analysis: a }).question, /is more than twice the length/);
+  a.pacing.unitOutliers[0].ratio = 3;
+  assert.match(readbackFrame({ analysis: a }).question, /is three times the length/);
+});
+
+test('the dated entries that go back are "dated earlier" and "comes after", true even when other entries sit between them', () => {
+  const pad = 'Rain fell on the roof all afternoon and nobody came to the door, so I sat with the ledger and counted the little I had left. '.repeat(4);
+  const text = ['Day 1', 'Week 2', 'Day 2', 'Week 1'].map((h) => `${h}\n\n${pad}`).join('\n\n');
+  const a = analyseText({ text });
+  const line = lines(editorialEvidence({ analysis: a, query: 'is the timeline right?' }).block).find((l) => l.startsWith('- Timeline'));
+  assert.match(line, /^- Timeline: the dated entries go back in time: "Week 1" \(section \d\) comes after "Week 2" \(section \d\) but is dated earlier\.$/);
+});
+
+test('stretches under headings are measured on the text: a chapter that shares a section with the end of the one before it keeps its true length', () => {
+  const { text } = makeLongText({ words: 10000, seed: 7 });
+  const a = analyseText({ text });
+  const marks = [...text.matchAll(/^Chapter \d+$/gm)];
+  assert.equal(a.headings.count, marks.length);
+  assert.equal(a.pacing.units.length, marks.length);
+  marks.forEach((m, k) => {
+    const to = k + 1 < marks.length ? marks[k + 1].index : text.length;
+    assert.equal(a.pacing.units[k].words, words(text.slice(m.index, to)).length, m[0]);
+    const secs = splitSections(text);
+    const first = secs.find((s) => s.start <= m.index && m.index < s.end).i;
+    assert.equal(a.pacing.units[k].from, first, m[0]);
+  });
+});
+
+// ── grounding, the other direction: legitimate replies must survive ──────────────────────────────────────────────────────
+
+test('groundNames keeps the craft\'s own words: terms, themes, style guides, a title-cased label, a plural of a word the sources have', () => {
+  const sources = [MEMOIR];
+  const keeps = [
+    'Dramatic Irony works when the reader knows what Dad hides.',
+    'The Call to Adventure comes in chapter 2, and the Dark Night of the Soul comes late.',
+    'Your Opening Image is the cold back bedroom, and the Midpoint falls near chapter 3.',
+    'The Fish Out of Water pattern applies to Cardiff.',
+    "You might test the Show, Don't Tell rule on chapter 2.",
+    'The Rule of Three suits the three trunks in chapter 1.',
+    'Backstory is handled with Flashbacks.',
+    'Themes: Loss, Memory, and Family.',
+    'The themes of Loss and Memory recur.',
+    'Foreshadowing Aunt Dilys\'s death would help.',
+    'The Elements of Style by Strunk and White would call this prose plain.',
+    'Orwell argued for plain words in "Politics and the English Language".',
+    'Many Memoirs follow the Bildungsroman pattern.',
+    'Adverbs cluster in the middle chapters.',
+    'Plain words suit the Cardiff chapters.',
+    'Humour lightens the Pryce scenes.',
+    'Consider Whether Dad is hiding something.',
+    'Key Observations: chapter 2 is the longest.',
+  ];
+  for (const reply of keeps) assert.deepEqual(groundNames(reply, { sources, known: ['NIE', 'Memoir'] }).removed, [], reply);
+});
+
+test('groundNames cuts a single invented name that opens a sentence and is followed by a verb, and leaves a label, a list head and an imperative alone', () => {
+  const sources = [MEMOIR];
+  const cuts = ['Torvald waits at the gate.', 'Elowen waves from the lane.', 'Gwen leaves.', 'Perhaps Zorvath is the name you want.', 'Meanwhile Zorvath waits at the Lid.'];
+  for (const reply of cuts) assert.equal(groundNames(reply, { sources }).removed.length, 1, reply);
+  const stays = ['Torvald: the rival of Dad.', '- **Torvald**: the rival.', 'Reconsider the ending.', 'Dad waits at the gate.', 'Pacing slows in chapter 3.', 'Readers expect more of Mrs Pryce.', 'Cardiff changes everything.', 'Plain words suit the farm.'];
+  for (const reply of stays) assert.equal(groundNames(reply, { sources }).removed.length, 0, reply);
+  // a name refused in one sentence goes from the others of the reply
+  const r = groundNames('Torvald waits at the gate. Dad meets Torvald in chapter 2. Dad sold the sheep.', { sources });
+  assert.equal(r.text, 'Dad sold the sheep.');
+});
+
+test('groundNames: an estimate that says it is one is checked within five percent, an exact claim is not', () => {
+  const src = ['Your draft is 10,374 words in 25 sections.'];
+  const cut = (s) => groundNames(s, { sources: src }).removed.length === 1;
+  assert.equal(cut('Your draft runs to about 10,000 words.'), false);
+  assert.equal(cut('The text is nearly 10,400 words.'), false);
+  assert.equal(cut('Your draft runs to 10,000 words.'), true);
+  assert.equal(cut('Your draft has around 12,000 words.'), true);
+});
+
+test('speaksAboutTheWriter: "the user-friendly page" and "the author-date style" are not the person NIE is talking to', () => {
+  assert.equal(speaksAboutTheWriter('the user-friendly page'), false);
+  assert.equal(speaksAboutTheWriter('Chicago has an author-date system as well as notes.'), false);
+  assert.equal(speaksAboutTheWriter('the author-date style, and the user is here'), true);
+});
+
+test('public functions take what a caller might pass by mistake: null options, a number for a list, notes that are not lists', () => {
+  assert.equal(groundNames('Hello there.', null).text, 'Hello there.');
+  assert.equal(listSections({}), 'no section');
+  assert.equal(listSections(7), 'no section');
+  assert.equal(typeof analysisKey({ text: 'x', notes: [{ names: 5, terms: 'x', by: 'model' }, null, 3] }), 'string');
+  assert.deepEqual(analyseText({ text: MEMOIR, notes: [{ names: 5, terms: 'x', by: 'model' }, null, 3, 'x'] }).failed, []);
 });

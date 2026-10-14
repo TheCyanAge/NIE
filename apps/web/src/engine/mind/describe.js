@@ -35,10 +35,14 @@ function tally(passages, project) {
   };
 }
 
-/** Sections the long text is read in (`reading/sections.js`); a text too long to cut just for a count is estimated from its length. */
+/** A text longer than this is not cut into sections just to count them (that costs tens of milliseconds each time the list is shown); its count is estimated from its length and said to be "about". */
+const COUNT_EXACTLY_UP_TO = 300000;
+
+/** { n, approx }: the sections the long text is read in (`reading/sections.js`). */
 function sectionsIn(storyText) {
-  if (typeof storyText !== 'string' || !storyText.trim()) return 0;
-  return storyText.length > 1500000 ? Math.ceil(storyText.length / SECTION_TARGET_CHARS) : splitSections(storyText).length;
+  if (typeof storyText !== 'string' || !storyText.trim()) return { n: 0, approx: false };
+  if (storyText.length > COUNT_EXACTLY_UP_TO) return { n: Math.ceil(storyText.length / SECTION_TARGET_CHARS), approx: true };
+  return { n: splitSections(storyText).length, approx: false };
 }
 
 function summaryOf(c) {
@@ -57,7 +61,7 @@ function summaryOf(c) {
     c.profile && `${plural(c.profile, 'project setting')}`,
     c.premise && 'your working premise',
   ].filter(Boolean);
-  const text = c.textSections ? ` I read your long text (${plural(c.textSections, 'section')}) separately${c.notes ? ` and keep ${plural(c.notes, 'reading note')} on it` : ''}.` : '';
+  const text = c.textSections ? ` I read your long text (${c.textSectionsApprox ? 'about ' : ''}${plural(c.textSections, 'section')}) separately${c.notes ? ` and keep ${plural(c.notes, 'reading note')} on it` : ''}.` : '';
   if (!parts.length) return `NIE holds nothing for this project yet.${text}`;
   const list = parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}`;
   return `NIE holds ${list} for this project.${text}`;
@@ -69,7 +73,8 @@ function summaryOf(c) {
  */
 export function describeMind(project) {
   const passages = passagesOf(project);
-  const counts = { ...tally(passages, project), textSections: sectionsIn(project?.storyText) };
+  const sections = sectionsIn(project?.storyText);
+  const counts = { ...tally(passages, project), textSections: sections.n, ...(sections.approx ? { textSectionsApprox: true } : {}) };
   const items = passages.map((p) => {
     const how = removeWith(p);
     return { id: p.id, source: p.source, where: p.where, text: p.text, removable: how !== null, removeWith: how, ...(p.by ? { by: p.by } : {}) };

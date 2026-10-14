@@ -11,7 +11,8 @@ import mindApi, {
   MIND_LIMITS, cleanStatement, clearTokenMemo, describeMind, emptyMind, forgetItem, forgetSaid, mindStats, passagesOf, recall, recallNames, rememberSaid, rememberStatements,
   sanitizeMind, statementsIn,
 } from '../apps/web/src/engine/mind/index.js';
-import { tokensOf } from '../apps/web/src/engine/mind/tokens.js';
+import { memoByText, tokensOf } from '../apps/web/src/engine/mind/tokens.js';
+import { roleLinks } from '../apps/web/src/engine/mind/recall.js';
 
 // ── fixtures ─────────────────────────────────────────────────────────────────
 
@@ -773,9 +774,11 @@ test('statementsIn: a message becomes its statements; questions, requests and pa
   assert.deepEqual(statementsIn(12), []);
   assert.deepEqual(statementsIn('Mara went home. '.repeat(200)), [], 'a pasted text of 400+ words is not a statement');
 
+  const many = Array.from({ length: 30 }, (_, i) => `Villager number ${i + 1} keeps a secret lantern.`).join(' ');
+  assert.equal(statementsIn(many).length, MIND_LIMITS.perMessage, `at most ${MIND_LIMITS.perMessage} from one message`);
+  assert.equal(statementsIn(many)[MIND_LIMITS.perMessage - 1], `Villager number ${MIND_LIMITS.perMessage} keeps a secret lantern.`);
   const twelve = Array.from({ length: 12 }, (_, i) => `Villager number ${i + 1} keeps a secret lantern.`).join(' ');
-  assert.equal(statementsIn(twelve).length, MIND_LIMITS.perMessage, 'at most 8 from one message');
-  assert.equal(statementsIn(twelve)[7], 'Villager number 8 keeps a secret lantern.');
+  assert.equal(statementsIn(twelve).length, 12, 'a list of a dozen facts is kept whole');
 
   // a sentence longer than a statement is cut at its clause breaks; no words are lost
   const long = `${'Mara walks the whole length of the harbour wall every morning before anyone is awake, '.repeat(3)}and she counts the boats, and she writes down every single name, because the ledger matters more than she admits to anyone in the village.`;
@@ -891,4 +894,560 @@ test('the public object and the named exports are the same functions', () => {
   }
   assert.equal(mindApi.recall, recall);
   assert.equal(mindApi.describeMind, describeMind);
+});
+
+// ── review round: three more scripted projects, written in other registers than the first, with 100+ paraphrased questions ──────────
+
+const MEMOIR = [
+  "Working on a memoir about growing up above my parents' fish and chip shop in Whitby",
+  "I was born in 1979 and the shop closed in 1996 when Dad had his stroke",
+  "Dad, Ray Pollard, never said I love you but he left the fryer oil warm for me every night",
+  "my mum Dolores was the loud one, she ran the till and knew everyone's business",
+  "Gran Nora lived with us in the back room and told me the town's ghost stories",
+  "The big event of the book is the winter of 1987 when the sea wall collapsed and the shop flooded",
+  "I want that chapter to be the emotional centre",
+  "my sister Carol left for Leeds at seventeen and we barely spoke for ten years",
+  "Carol and I only made up at Dad's funeral",
+  "I want it to read like a long letter to Carol",
+  "the voice is wry and affectionate, never self-pitying",
+  "no swearing in narration, though characters can swear in dialogue",
+  "Structure: twelve chapters, each named after something you could order at the counter",
+  "Chapter one is called Cod and Chips, medium",
+  "The readers I'm picturing are people who grew up in seaside towns and left",
+  "I'm worried about being unfair to Mum",
+  "She hit me once, with a wet tea towel, and I've never forgiven myself for laughing",
+  "Mr Abbott, the man who delivered the potatoes, taught me to drive in his van",
+  "I was the first in the family to go to university, to study English at Sheffield",
+  "Dad never visited me there",
+  "The shop smelled of vinegar and wet coats and the radio was always on Radio 2",
+  "Every chapter ends on a smell or a taste",
+  "I changed some names for privacy, Carol is real but Abbott is a pseudonym",
+  "Nora died in 1991, in the back room, with the radio on",
+  "Do not include the thing about my uncle's gambling, I promised Mum",
+  "The book should be around 70,000 words",
+  "I am writing it in the past tense but the last chapter switches to present",
+  "The title might be Salt and Vinegar",
+  "my agent thinks it should open with the flood but I want to open with the fryer",
+  "I'm submitting to publishers in spring",
+  "The pier was where Carol and I used to smoke and make plans to leave",
+  "Dolores had a brother, Uncle Terry, who sold insurance and never paid for a meal",
+  "The shop's name was Pollard's Plaice, which Dad hated because Mum chose the pun",
+  "In 1994 a rival chippy opened across the road called The Codfather",
+  "Dolores refused to sell the shop even when the council offered a lot of money",
+  "I should mention the bomb scare in 1992",
+  "what I remember most about Dad is his hands, scarred from the fryer",
+  "The last scene is me re-opening the shop for one night in 2019",
+  "I'm 46 now and I live in Manchester with my wife Jess",
+  "Jess has read the first four chapters and says they're too kind",
+];
+
+const MEMOIR_QUESTIONS = [
+  ["What was my dad called?", /Ray Pollard/],
+  ["When was I born?", /born in 1979/],
+  ["why did the shop shut?", /closed in 1996 when Dad had his stroke/],
+  ["who is Dolores?", /my mum Dolores/],
+  ["tell me about my gran", /Gran Nora/],
+  ["what is the central chapter?", /emotional centre|winter of 1987/],
+  ["how do Carol and I make up?", /made up at Dad's funeral|Carol and I only made up/],
+  ["what is the voice like?", /wry and affectionate/],
+  ["can I swear in the narration?", /no swearing in narration|No swearing in the narration/],
+  ["how are the chapters named?", /named after something you could order/],
+  ["what's the first chapter called?", /Chapter one is called Cod and Chips/],
+  ["who is the audience?", /readers I'm picturing/],
+  ["what happened with Mum and the tea towel?", /wet tea towel/],
+  ["who taught me to drive?", /Mr Abbott/],
+  ["where did I study?", /Sheffield/],
+  ["what did the shop smell like?", /vinegar and wet coats/],
+  ["how does each chapter end?", /ends on a smell or a taste/],
+  ["is Abbott a real name?", /pseudonym/],
+  ["when did Gran die?", /Nora died in 1991/],
+  ["are there things I promised not to include?", /uncle's gambling/],
+  ["how many words should it be?", /70,000 words/],
+  ["which tense?", /past tense but the last chapter switches/],
+  ["what might it be called?", /Salt and Vinegar/],
+  ["what does my agent want?", /agent thinks it should open with the flood/],
+  ["when am I submitting?", /spring/],
+  ["where did Carol and I hang out as teenagers?", /pier/],
+  ["what was Uncle Terry's job?", /sold insurance/],
+  ["what was the shop called?", /Pollard's Plaice/],
+  ["was there a competitor?", /The Codfather/],
+  ["did Mum ever consider selling?", /refused to sell/],
+  ["how does the book end?", /last scene is me re-opening the shop/],
+  ["where do I live now?", /Manchester/],
+  ["what's Jess's opinion?", /too kind/],
+  ["how old am I?", /46 now/],
+  ["what do I remember about Dad's hands?", /hands, scarred/],
+  ["what's the problem with portraying Mum?", /worried about being unfair to Mum/],
+];
+
+const FANTASY = [
+  "this is a YA fantasy, first in a trilogy, for readers around 13 to 17",
+  "world is called Verrin, an archipelago of floating islands held up by singing stones",
+  "the hero is Kestrel Wynne, sixteen, a stonesinger's apprentice who can't hold a note",
+  "her master, Old Bram, is going deaf and hiding it from the guild",
+  "the stones are going quiet, island by island, and the guild blames the sky pirates",
+  "the pirates are led by Captain Ismay Thorne who actually wants to save the stones",
+  "Kestrel's best friend is Dov, a cabin boy on a trading skiff who talks too much",
+  "there's a love triangle I really don't want, keep the romance to a slow burn between Kestrel and Ismay's navigator, Lio",
+  "Lio is nonbinary and uses they/them",
+  "magic works by harmony, so two singers together are stronger than one",
+  "the cost of magic is memory: every song costs the singer a memory",
+  "Kestrel can't sing but she can hear the stones' true note, which nobody else can",
+  "the villain is Magistrate Corvane who is silencing the stones on purpose to take over the islands",
+  "Corvane believes the singing stones are slowly pulling all the islands into the sea",
+  "he's partly right, which makes him a good villain",
+  "twist at the end of book one: Old Bram knew Kestrel's gift and kept it from her",
+  "first chapter opens on the Harvest Chorus, which goes wrong when the stone under the stage cracks",
+  "the story is third person limited, past tense, with Kestrel as the only viewpoint",
+  "I want the language slightly archaic but never purple",
+  "no chosen one prophecy, she's good because she's stubborn not because she's special",
+  "there are no elves or dwarves, just humans and the drake-whales that carry the ships",
+  "drake-whales are intelligent but cannot speak, they communicate through low songs",
+  "Dov's skiff is called the Lucky Penny",
+  "the book is about 85,000 words",
+  "Kestrel's mother vanished when she was six, and everyone says she was a pirate",
+  "her mum was actually a guild spy who was caught",
+  "important: this is revealed in book two, not book one",
+  "the three major islands are Highmere, Saltreach and the Hollow",
+  "Highmere is the guild's seat, all white towers and bells",
+  "Saltreach is the trading port and the pirates' favourite market",
+  "the Hollow is the oldest island, mostly deserted, where the first stone was sung",
+  "Magistrate Corvane has a scar down his left cheek from a stone shard",
+  "humour matters, Dov should get the jokes and Kestrel the dry one-liners",
+  "no gore, but death is allowed and should have weight",
+  "the title is The Quiet Stones",
+  "series title is Songs of Verrin",
+  "chapter length around 3,000 words, forty chapters",
+  "the guild's motto is 'Hold the note'",
+  "Kestrel's flaw is that she never asks for help",
+  "the ending of book one: Kestrel hums the true note and the Hollow stone wakes, but she loses her earliest memory of her mother",
+];
+
+const FANTASY_QUESTIONS = [
+  ["how old is the main character?", /sixteen/],
+  ["who are the readers?", /readers around 13 to 17/],
+  ["what's the name of the world?", /world is called Verrin/],
+  ["what holds the islands up?", /singing stones/],
+  ["what is Kestrel apprenticed to be?", /stonesinger/],
+  ["what's wrong with Bram?", /going deaf/],
+  ["who's to blame for the quiet stones according to the guild?", /guild blames the sky pirates/],
+  ["who leads the pirates?", /Captain Ismay Thorne/],
+  ["what does Ismay really want?", /save the stones/],
+  ["who is Kestrel's best friend?", /best friend is Dov/],
+  ["is there a love triangle?", /love triangle/],
+  ["what are Lio's pronouns?", /they\/them/],
+  ["how does magic work?", /harmony/],
+  ["what does it cost to use magic?", /cost of magic is memory/],
+  ["who is the bad guy?", /villain is Magistrate Corvane/],
+  ["why does Corvane silence the stones?", /silencing the stones on purpose|pulling all the islands/],
+  ["what is the twist in the first book?", /twist at the end of book one/],
+  ["how does chapter one begin?", /first chapter opens on the Harvest Chorus/],
+  ["what perspective is it told from?", /third person limited/],
+  ["how should the prose sound?", /slightly archaic/],
+  ["is she the chosen one?", /no chosen one prophecy|chosen/],
+  ["are there elves?", /no elves or dwarves/],
+  ["what carries the ships?", /drake-whales/],
+  ["what is the skiff called?", /Lucky Penny/],
+  ["how long is the book?", /85,000 words/],
+  ["what happened to her mum?", /mother vanished|guild spy/],
+  ["when is the mother revealed?", /revealed in book two/],
+  ["what are the main islands?", /three major islands/],
+  ["where is the guild based?", /Highmere is the guild's seat/],
+  ["where do pirates shop?", /Saltreach is the trading port/],
+  ["where was the first stone sung?", /Hollow is the oldest island/],
+  ["how did Corvane get his scar?", /scar down his left cheek/],
+  ["who gets the funny lines?", /Dov should get the jokes/],
+  ["can people die in the book?", /death is allowed/],
+  ["what is the series called?", /Songs of Verrin/],
+  ["how many chapters?", /forty chapters/],
+  ["what does the guild say?", /Hold the note/],
+  ["what's Kestrel's weakness?", /never asks for help/],
+  ["how does book one finish?", /ending of book one/],
+];
+
+const HEIST = [
+  "It's a feature screenplay, a heist thriller, about 100 minutes",
+  "A crew of five robs the Halvorsen Diamond Exchange on New Year's Eve",
+  "The leader is Odette Marsh, a former insurance investigator who knows how vaults fail",
+  "Her second in command is a safecracker called Big Wick, real name Winston Eze",
+  "Wick is gentle and hates violence, he keeps bees on a rooftop",
+  "The driver is a nineteen year old named Pip who has never actually driven a getaway",
+  "The inside man is the exchange's night manager, Mr Sorensen, who is being blackmailed",
+  "Sorensen is blackmailed by the police commissioner, Lucille Grange, over an old embezzlement",
+  "So the twist is that the commissioner wants the robbery to happen",
+  "She needs the diamonds gone before an audit exposes her",
+  "Odette discovers this in the second act and has to decide whether to continue",
+  "The vault has a time lock that opens for exactly eleven minutes at midnight",
+  "Fireworks over the harbour cover the noise of the drilling",
+  "Nobody dies in this film, it should feel like a caper, fun, stylish, a bit Ocean's Eleven",
+  "The crew's safe house is a closed-down bowling alley",
+  "Pip keeps losing her phone, it's a running gag",
+  "I want a long single-take sequence for the vault break-in",
+  "The score should be jazz, upright bass and brushed drums",
+  "Third act: the crew steals the diamonds from the commissioner's own car as she tries to flee",
+  "The final image is Odette handing the audit papers to a journalist",
+  "Odette's backstory: she was fired for reporting her boss for fraud, and nobody believed her",
+  "Winston and Odette were partners at the insurance firm before it all went wrong",
+  "Dialogue should be fast, overlapping, like His Girl Friday",
+  "The film is set in an unnamed European port city, in a slightly stylised 1960s",
+  "Act one ends when the crew learns that the vault changed its lock the week before",
+  "We need a fifth member: Tamsin, a forger who is Odette's estranged daughter",
+  "Tamsin and Odette haven't spoken for six years",
+  "Their reconciliation is the emotional core, in the bowling alley at 4am",
+  "Rule: no one ever explains the plan to the audience in a voiceover",
+  "Instead we show the plan going wrong and the crew improvising",
+  "The audience should be adults who like smart comedies and old heist films",
+  "Title ideas: Eleven Minutes, The Halvorsen Job, Midnight Lock",
+  "I like Eleven Minutes best",
+  "The budget is modest so the vault interior is one set",
+  "Runtime should not go over 105 minutes",
+  "There's a recurring motif of clocks and bells",
+  "The commissioner has a dog, a pug called Napoleon, who is the only one that likes her",
+  "I'd like the last line to be Pip's: finally somebody lets me drive",
+  "The opening scene is the crew in a diner, arguing over how to split five ways",
+  "Sorensen sweats a lot, he's comic relief and also genuinely scared",
+];
+
+const HEIST_QUESTIONS = [
+  ["what kind of film is this?", /heist thriller/],
+  ["how long is the movie?", /100 minutes|105 minutes/],
+  ["what do the crew steal?", /Diamond Exchange|diamonds/],
+  ["who runs the crew?", /leader is Odette|leader of the crew/],
+  ["who is the safecracker?", /Big Wick|Winston Eze/],
+  ["what does Wick do in his spare time?", /bees/],
+  ["how old is Pip?", /nineteen year old/],
+  ["who is the inside man?", /inside man is the exchange's night manager/],
+  ["who is blackmailing Sorensen?", /blackmailed by the police commissioner/],
+  ["what is the big twist?", /twist is that the commissioner wants/],
+  ["why does Grange want the heist?", /audit exposes her|needs the diamonds gone|commissioner wants the robbery/],
+  ["how long is the window to open the vault?", /exactly eleven minutes/],
+  ["what covers the noise?", /Fireworks/],
+  ["is anyone killed?", /Nobody dies/],
+  ["where do they hide out?", /safe house is a closed-down bowling alley/],
+  ["what is the running gag?", /losing her phone/],
+  ["what kind of music?", /score should be jazz/],
+  ["how does the third act go?", /Third act/],
+  ["what is the last shot?", /final image/],
+  ["what's Odette's history?", /backstory|fired for reporting/],
+  ["what style of dialogue?", /fast, overlapping/],
+  ["where and when is it set?", /unnamed European port city/],
+  ["how does act one end?", /Act one ends/],
+  ["who's Tamsin?", /fifth member: Tamsin|Tamsin and Odette/],
+  ["how long since Tamsin and Odette spoke?", /six years/],
+  ["where does the reconciliation happen?", /bowling alley at 4am/],
+  ["can I use voiceover to explain the plan?", /no one ever explains the plan|Nobody explains the plan/],
+  ["who is the audience?", /audience should be adults/],
+  ["what are the title options?", /Title ideas/],
+  ["which title did I pick?", /like Eleven Minutes best|Title: Eleven Minutes/],
+  ["what's Pip's last line?", /last line to be Pip's/],
+  ["how does the film begin?", /opening scene is the crew in a diner/],
+  ["what is the budget like?", /budget is modest/],
+  ["what is Sorensen like?", /sweats a lot/],
+  ["what recurring images are there?", /clocks and bells/],
+];
+
+function scripted(lines, extras = () => {}) {
+  const p = createProjectData({ title: 'Untitled project' });
+  lines.forEach((line, i) => rememberStatements(p, line, { turn: i + 1 }));
+  extras(p);
+  return p;
+}
+const memoirProject = () =>
+  scripted(MEMOIR, (p) => {
+    addRule(p, { text: 'No swearing in the narration', category: 'voice' });
+    rememberCharacter(p, { name: 'Carol', aliases: ['my sister'], notes: 'older sister who left for Leeds' });
+  });
+const fantasyProject = () =>
+  scripted(FANTASY, (p) => {
+    p.title = 'The Quiet Stones';
+    addRule(p, { text: 'Never use the word chosen about Kestrel', category: 'voice' });
+    rememberCharacter(p, { name: 'Kestrel Wynne', aliases: ['Kes'], notes: 'stonesinger apprentice' });
+  });
+const heistProject = () =>
+  scripted(HEIST, (p) => {
+    p.title = 'Eleven Minutes';
+    addRule(p, { text: 'Nobody explains the plan in voiceover', category: 'style' });
+    rememberCharacter(p, { name: 'Odette Marsh', aliases: ['Odette'], notes: 'leader of the crew' });
+    addToBoard(p, { text: 'Main character: Odette · Ending: she hands the audit papers to a journalist', source: 'writer' });
+    addToBoard(p, { text: 'What if the dog betrays the commissioner', source: 'nie' });
+  });
+
+test('recall (review): a memoir, a YA fantasy and a heist screenplay, 100+ paraphrased questions: the right statement is in the top 3 for every one', () => {
+  let asked = 0;
+  let first = 0;
+  for (const [make, questions] of [[memoirProject, MEMOIR_QUESTIONS], [fantasyProject, FANTASY_QUESTIONS], [heistProject, HEIST_QUESTIONS]]) {
+    const p = make();
+    for (const [q, expected] of questions) {
+      const r = recall(p, q);
+      const rank = r.items.slice(0, 3).findIndex((x) => expected.test(x.text));
+      assert.ok(rank >= 0, `"${q}" should find ${expected} in its top 3, got: ${JSON.stringify(texts(r).map((t) => t.slice(0, 70)))}`);
+      asked++;
+      if (rank === 0) first++;
+    }
+  }
+  assert.ok(asked >= 100, `${asked} questions`);
+  assert.ok(first / asked >= 0.7, `the right statement is first for most of them (${first} of ${asked})`);
+});
+
+test('recall (review): a question that is about something else finds nothing, and so does one made of words this project never used', () => {
+  for (const p of [memoirProject(), fantasyProject(), heistProject()]) {
+    for (const q of ['who won the football final', 'how long does it take to boil an egg', 'when was the telephone invented', 'what is the capital of France', 'how do I cook rice', 'translate hello into Spanish', 'what is the speed of light', 'weather tomorrow']) {
+      assert.deepEqual(recall(p, q).items, [], `nothing for "${q}"`);
+    }
+  }
+});
+
+test('recall (review): "Mum" finds what was said about Dolores, a name finds what was said with the role word, and a question about a role finds the name it was given', () => {
+  const p = memoirProject();
+  assert.match(texts(recall(p, 'did Mum ever consider selling?')).join(' | '), /Dolores refused to sell/, 'a statement that names her finds the question that only says Mum');
+  const dolores = texts(recall(p, 'tell me about Dolores', { limit: 8 }));
+  assert.ok(dolores.some((t) => /my mum Dolores/.test(t)), 'the statement that names her');
+  assert.match(texts(recall(p, 'What was my dad called?')).join(' | '), /Ray Pollard/);
+  const q = heistProject();
+  assert.match(texts(recall(q, 'why does Grange want the heist?')).join(' | '), /commissioner wants the robbery/, 'Grange is the commissioner');
+});
+
+test('roleLinks (review): who is who comes only from the passages it is given', () => {
+  const A = createProjectData();
+  rememberStatements(A, 'My mum Dolores ran the till and knew everyone.');
+  rememberStatements(A, 'The baker Ines watches the harbour from her window.');
+  const B = createProjectData();
+  rememberStatements(B, 'My mum Carmen ran the ferry and knew everyone.');
+  const a = roleLinks(passagesOf(A));
+  const b = roleLinks(passagesOf(B));
+  assert.deepEqual([...a.roles.get('mum')].sort(), ['dolor'], 'the stem of Dolores, as every word is compared');
+  assert.deepEqual([...b.roles.get('mum')].sort(), ['carmen']);
+  assert.ok(a.roles.get('baker')?.has('ine'), 'a trade works as a role too');
+  assert.ok(!b.roles.has('baker'));
+  assert.deepEqual([...roleLinks(passagesOf(A)).roles.get('mum')], ['dolor'], 'building the other one in between changed nothing');
+  assert.ok(!/carmen/i.test(JSON.stringify([...roleLinks(passagesOf(A)).roles])));
+  // asking B about "Mum" never turns up A's Dolores
+  assert.ok(!/dolores/i.test(JSON.stringify(recall(B, 'what did Mum do?'))));
+  assert.match(texts(recall(B, 'what did Mum do?'))[0], /Carmen/);
+  assert.deepEqual([...roleLinks([]).roles], []);
+});
+
+test('rememberSaid (review): the same words in another order, or with another name or number, are another fact', () => {
+  const p = createProjectData();
+  const n = (t) => rememberSaid(p, t)?.n;
+  const a = n('Mara loves Corin');
+  assert.notEqual(n('Corin loves Mara'), a, 'who loves whom matters');
+  const age = n('Mara is 47 years old, she lives in Saltmarsh with her dog Biscuit and works as ferry captain');
+  assert.notEqual(n('Mara is 52 years old, she lives in Saltmarsh with her dog Biscuit and works as ferry captain'), age, 'a changed number is a new fact, not a repeat');
+  const who = n('Corin hides the bell in the church tower above the old cannery pier near the harbour');
+  assert.notEqual(n('Mara hides the bell in the church tower above the old cannery pier near the harbour'), who, 'a changed name too');
+  const days = n('The next course burn happens in eleven days and the whole crew knows about it from the logs');
+  assert.notEqual(n('The next course burn happens in twelve days and the whole crew knows about it from the logs'), days);
+  // ...while a real repeat or a statement that grows is still one fact
+  const bell = n('The harbour bell is cast bronze and older than the village charter');
+  assert.equal(n('The harbour bell is cast bronze and older than the village charter.'), bell);
+  assert.equal(n('MARA LOVES CORIN'), a, 'case is not a difference');
+  const before = p.mind.said.length;
+  const grown = n('She wants the bell before the regatta');
+  const longer = n('She wants the bell before the regatta starts on Saturday');
+  assert.notEqual(grown, longer);
+  assert.equal(p.mind.said.length, before + 1, 'the shorter one was replaced by the longer');
+});
+
+test('statementsIn (review): requests, questions and shrugs in the forms writers really use are refused; facts in the same plain forms are kept', () => {
+  const kept = (m) => {
+    const p = createProjectData();
+    return rememberStatements(p, m).map((e) => e.text);
+  };
+  const refused = [
+    'did Mara ever meet him', 'what if Mara was the thief', 'what about the bell', 'how about making Corin the thief', 'Any ideas for the ending', 'Ideas for the ending please',
+    'Need ideas for a villain', 'Looking for a name for the baker', 'Remind me who the villain is', 'I wonder if Mara should die', "I'm wondering whether the ending works",
+    "I'd like some feedback on the ending", 'sounds good to me', 'Which of these is better', 'let us write the opening', 'Could use some help with the ending', 'hmm let me think',
+    'let me think about it', 'Please write a scene about the storm.', 'Am I too wordy?', 'Can the narrator be unreliable', 'Should I use first person', 'Have you decided on a title',
+    'Is there a way to make the ending better', 'Are there any plot holes', 'Have I used too many adverbs', 'Does the ending work', 'Was that too long', 'Fix this', 'Improve it',
+    'that is all for today', "I'm done for now", 'see you tomorrow', 'ok that is it', 'goodnight', 'No. Absolutely not. Never.', 'Hi NIE. Hello there. Good morning.', 'Okay. Thanks. Next question.',
+    'I have no idea what happens next', 'not sure about the ending', 'whatever you think', 'the second one', 'either is fine', 'surprise me', 'wait a minute', 'give me a minute',
+  ];
+  for (const m of refused) assert.deepEqual(kept(m), [], `refused: ${m}`);
+  const facts = {
+    'Do not let Mara leave the island.': ['Do not let Mara leave the island.'],
+    'Never let the reader see the body.': ['Never let the reader see the body.'],
+    'Where Mara goes, trouble follows.': ['Where Mara goes, trouble follows.'],
+    'What she wants is the bell.': ['What she wants is the bell.'],
+    'When the bell rings, everyone gathers at the pier.': ['When the bell rings, everyone gathers at the pier.'],
+    'Who she really is remains a secret until the end.': ['Who she really is remains a secret until the end.'],
+    'Will Turner is the baker and he distrusts everyone.': ['Will Turner is the baker and he distrusts everyone.'],
+    "I don't know why she left, nobody does.": ["I don't know why she left, nobody does."],
+    'Please do not use semicolons in the narration.': ['do not use semicolons in the narration.'],
+    'Write down that Mara is 47.': ['Mara is 47.'],
+    "I'd like the last line to be Pip's: finally somebody lets me drive": ["I'd like the last line to be Pip's: finally somebody lets me drive"],
+    'AM radio plays all night in the shop.': ['AM radio plays all night in the shop.'],
+    'Wonder Woman is the hero and she hates ties.': ['Wonder Woman is the hero and she hates ties.'],
+    'Give her a limp.': ['Give her a limp.'],
+    'Make the ending bittersweet.': ['Make the ending bittersweet.'],
+  };
+  for (const [m, want] of Object.entries(facts)) assert.deepEqual(kept(m), want, m);
+});
+
+test('statementsIn (review): abbreviations, measures and numbers do not end a sentence; very short sentences are kept together; a long sentence is cut, never clipped', () => {
+  const said = (m) => statementsIn(m);
+  assert.deepEqual(said('He is 6 ft. 2 in. tall and weighs 200 lbs. Mara is shorter than him.'), ['He is 6 ft. 2 in. tall and weighs 200 lbs.', 'Mara is shorter than him.']);
+  assert.deepEqual(said('The film Vol. 2 of the series is darker. The tone shifts in Ch. 4.'), ['The film Vol. 2 of the series is darker.', 'The tone shifts in Ch. 4.']);
+  assert.deepEqual(said('Mara lives at No. 5 Quay Street. Corin lives next door.'), ['Mara lives at No. 5 Quay Street.', 'Corin lives next door.']);
+  assert.deepEqual(said('The bell weighs 2.5 tons. It was cast in 1801 by the Hale foundry.'), ['The bell weighs 2.5 tons.', 'It was cast in 1801 by the Hale foundry.']);
+  assert.deepEqual(said('Mara visits Dr. Hale. He gives her a tonic.'), ['Mara visits Dr. Hale.', 'He gives her a tonic.']);
+  // sentences too short to stand alone are one statement, so "Mara left. Corin stayed. Ines watched." is not lost
+  assert.deepEqual(said('Mara left. Corin stayed. Ines watched.'), ['Mara left. Corin stayed. Ines watched.']);
+  assert.deepEqual(said('Mara (47). Captain. Retired. Notices everything.'), ['Mara (47). Captain. Retired. Notices everything.']);
+  assert.deepEqual(said('Chapter 3. Mara finds the rope. It is knotted.'), ['Mara finds the rope.'], 'a heading is not a statement');
+  // list and heading marks are not the writer's words
+  assert.deepEqual(said('# The Salt Bell\n\nMara is the main character.'), ['The Salt Bell', 'Mara is the main character.']);
+  assert.deepEqual(said('- Mara is the captain\n- Corin is the harbourmaster'), ['Mara is the captain', 'Corin is the harbourmaster']);
+  // a sentence longer than a statement is cut at its clauses, then at commas, then between words; every word comes back
+  const long = Array.from({ length: 40 }, (_, i) => `Mara visits place${i}`).join(', ') + ' and then goes home to sleep at last.';
+  assert.ok(long.length > 800);
+  const pieces = said(long);
+  assert.ok(pieces.length >= 4 && pieces.every((s) => s.length <= MIND_LIMITS.text), 'each piece fits a statement');
+  assert.equal(pieces.join(' ').replace(/\s+/g, ' '), long, 'nothing was dropped');
+  const stored = rememberStatements(createProjectData(), long);
+  assert.equal(stored.map((e) => e.text).join(' '), long);
+  // the two private-use characters the splitter works with are never the writer's, and cannot be used to make a sentence disappear or turn into a full stop
+  assert.deepEqual(said('The bell  is bronze and old. Maras boat is red and small.'), ['The bell  is bronze and old.', 'Maras boat is red and small.']);
+  // more facts than sixteen in one message are all kept (a cast list is long)
+  const cast = Array.from({ length: 25 }, (_, i) => `Villager number ${i} keeps a secret.`).join(' ');
+  assert.equal(said(cast).length, 25);
+  assert.equal(said(Array.from({ length: 80 }, (_, i) => `Villager number ${i} keeps a secret.`).join(' ')).length, 0, 'but 400 words are a pasted text');
+  assert.equal(said(Array.from({ length: 60 }, (_, i) => `Villager number ${i} keeps a secret.`).join(' ')).length, MIND_LIMITS.perMessage);
+});
+
+test('state (review): a mind that was changed by hand is repaired when the next statement is remembered, keeping what is valid', () => {
+  const p = createProjectData();
+  rememberStatements(p, 'Mara wants the bell before the regatta. Corin hides debts from everyone.');
+  const [a, b] = p.mind.said;
+  p.mind.said = [null, 7, 'x', b, a, { n: 99, text: 'no seq', turn: 1 }, { ...a }];
+  rememberStatements(p, 'Ines watches the harbour from her window all day.');
+  assert.ok(p.mind.said.every((e) => e && typeof e.n === 'number' && typeof e.text === 'string'));
+  const ns = p.mind.said.map((e) => e.n);
+  assert.deepEqual(ns, [...ns].sort((x, y) => x - y));
+  assert.equal(new Set(ns).size, ns.length, 'numbers are unique');
+  assert.ok(p.mind.seq >= Math.max(...ns));
+  assert.ok(p.mind.said.some((e) => /Ines/.test(e.text)) && p.mind.said.some((e) => /Corin/.test(e.text)));
+  assert.equal(forgetItem({ brainstorm: { board: [null, { id: 'x', text: 'y' }] } }, 'board:zzz'), false, 'a board with something unreadable in it does not throw');
+});
+
+test('hostile projects (review): a getter that throws, circular references and junk everywhere never break a read, and recall never throws', () => {
+  const g = createProjectData();
+  Object.defineProperty(g, 'memory', { get() { throw new Error('boom'); } });
+  assert.doesNotThrow(() => {
+    recall(g, 'what does Mara want to find');
+    recallNames(g, ['Mara']);
+    passagesOf(g);
+    describeMind(g);
+    mindStats(g);
+    rememberStatements(g, 'Mara wants to find the bell before winter.');
+  });
+  const c = createProjectData();
+  c.self = c;
+  c.mind.self = c.mind;
+  c.memory.characters.push({ name: 'Mara', aliases: c, notes: c });
+  assert.doesNotThrow(() => {
+    recall(c, 'who is Mara');
+    describeMind(c);
+    rememberStatements(c, 'Mara wants to find the bell before winter.');
+    JSON.stringify(sanitizeMind(c.mind));
+  });
+  assert.equal(c.mind.said.length, 1);
+});
+
+test('limits (review): a project at every cap with 1,400 full-size passages is still answered quickly, and so is a 30-statement message at the cap', () => {
+  const rnd = seededRandom('hostile');
+  const syl = 'ka lo mi ra te vu ne so gi pa du fe zo ba ti lu ma ro si'.split(' ');
+  const word = () => Array.from({ length: 2 + Math.floor(rnd() * 4) }, () => syl[Math.floor(rnd() * syl.length)]).join('');
+  const text = (len) => {
+    let s = '';
+    while (s.length < len) s += `${word()} `;
+    return s.trim().slice(0, len);
+  };
+  const p = createProjectData();
+  for (let i = 0; i < MIND_LIMITS.said; i++) p.mind.said.push({ n: i + 1, turn: i + 1, at: 1, kind: 'told', text: text(260) });
+  p.mind.seq = p.mind.turn = MIND_LIMITS.said;
+  for (let i = 0; i < 200; i++) addToBoard(p, { text: text(700), source: 'writer', note: text(300) });
+  for (let i = 0; i < 200; i++) p.memory.timeline.push(text(300));
+  for (let i = 0; i < 200; i++) p.memory.characters.push({ name: text(20), aliases: [text(10)], notes: text(300) });
+  assert.ok(passagesOf(p).length >= 1400);
+  const long = Array.from({ length: 60 }, word).join(' ');
+  const t0 = performance.now();
+  for (let i = 0; i < 5; i++) recall(p, i % 2 ? long : `what is the name of the ${word()} of ${word()}`);
+  assert.ok((performance.now() - t0) / 5 < 400, `recall ${((performance.now() - t0) / 5).toFixed(0)} ms`);
+  const message = Array.from({ length: 30 }, () => `${word()} ${word()} ${word()} ${word()} ${word()} ${word()} ${word()}.`).join(' ');
+  const t1 = performance.now();
+  assert.equal(rememberStatements(p, message).length, 30);
+  assert.ok(performance.now() - t1 < 400, `a 30-statement message at the cap took ${(performance.now() - t1).toFixed(0)} ms`);
+  assert.equal(p.mind.said.length, MIND_LIMITS.said);
+  assert.ok(JSON.stringify(p.mind).length < 200000);
+});
+
+test('describeMind (review): the sections of a very long text are an honest estimate ("about"), and a short one is counted exactly', () => {
+  const p = createProjectData();
+  p.storyText = ('The tide came in slowly over the grey harbour wall and the gulls complained about it. '.repeat(12) + '\n\n').repeat(400);
+  assert.ok(p.storyText.length > 300000);
+  const t0 = performance.now();
+  const d = describeMind(p);
+  assert.ok(performance.now() - t0 < 100);
+  assert.equal(d.counts.textSectionsApprox, true);
+  assert.match(d.summary, /I read your long text \(about \d+ sections\) separately\.$/);
+  p.storyText = 'The tide came in.\n\nThe gulls complained.';
+  const small = describeMind(p);
+  assert.ok(!('textSectionsApprox' in small.counts));
+  assert.match(small.summary, /\(\d+ sections?\) separately\.$/);
+});
+
+test('recall (review): every source the questions read stays untouched when the project is frozen', () => {
+  for (const make of [memoirProject, fantasyProject, heistProject]) {
+    const live = make();
+    const before = JSON.stringify(live);
+    const frozen = deepFreeze(JSON.parse(before));
+    for (const [q] of (live.title === 'Eleven Minutes' ? HEIST_QUESTIONS : live.title === 'The Quiet Stones' ? FANTASY_QUESTIONS : MEMOIR_QUESTIONS).slice(0, 12)) {
+      assert.equal(JSON.stringify(recall(frozen, q)), JSON.stringify(recall(live, q)));
+    }
+    assert.equal(JSON.stringify(live), before);
+    assert.equal(JSON.stringify(frozen), before);
+  }
+});
+
+test('options (review): null or nonsense options never throw and never make an answer unbounded', () => {
+  const p = memoirProject();
+  for (const o of [null, undefined, 7, 'x', [], { limit: NaN }, { limit: Infinity }, { limit: -3 }, { budgetTokens: 'x' }, { budgetTokens: Infinity }, { minScore: NaN }, { exclude: 'x' }, { exclude: null }]) {
+    const r = recall(p, 'tell me about Dolores and the shop', o);
+    assert.ok(Array.isArray(r.items) && r.items.length <= 50 && typeof r.block === 'string');
+    assert.ok(recallNames(p, ['Dolores'], o).items.length <= 50);
+    assert.ok(Array.isArray(passagesOf(p, o)));
+  }
+  assert.equal(recall(p, 'tell me about Dolores and the shop', { limit: 0 }).items.length, 0);
+  const q = createProjectData();
+  assert.ok(rememberSaid(q, 'Mara keeps the brass compass on a chain', null));
+  assert.equal(rememberStatements(q, 'Corin hides his gambling debts from everyone.', null).length, 1);
+  assert.equal(q.mind.said.length, 2);
+});
+
+test('memoByText (review): an exact-text memo is bounded, hands out frozen answers, is emptied with the token memo, and one text never gets another text\'s answer', () => {
+  let calls = 0;
+  const f = memoByText((text) => {
+    calls++;
+    return [text.toUpperCase()];
+  }, { max: 50, chars: 5000 });
+  const a = f('alpha');
+  assert.deepEqual(a, ['ALPHA']);
+  assert.ok(Object.isFrozen(a));
+  assert.equal(f('alpha'), a, 'the same text, the same answer, worked out once');
+  assert.equal(calls, 1);
+  assert.deepEqual(f('alphA'), ['ALPHA'], 'a text that differs only in case is looked up as its own text');
+  assert.equal(calls, 2);
+  for (let i = 0; i < 500; i++) f(`text number ${i} ${'x'.repeat(40)}`);
+  f('y'.repeat(900)); // too long to keep
+  f('y'.repeat(900));
+  assert.ok(calls >= 502 + 1, 'a long text is never kept');
+  f('beta');
+  const before = calls;
+  f('beta');
+  assert.equal(calls, before, 'kept');
+  clearTokenMemo();
+  f('beta');
+  assert.equal(calls, before + 1, 'emptying the token memo empties this one too');
+  assert.deepEqual(f(42), ['']);
 });

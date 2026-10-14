@@ -1,9 +1,9 @@
-import { splitSections } from '../reading/sections.js';
+import { isHeading, splitSections } from '../reading/sections.js';
 import { styleProfile } from '../reading/style.js';
 import { scan } from '../analysis/scan.js';
 import { CLASSES } from '../analysis/finding.js';
-import { STOPWORDS, WORD_RE, fnv1a, splitSentences, words as wordsOf } from '../util/text.js';
-import { capitalisedRuns, neverName, OPENERS, ORDINARY_OPENERS, TITLES } from './names.js';
+import { STOPWORDS, WORD_RE, fnv1a, splitParagraphs, splitSentences, words as wordsOf } from '../util/text.js';
+import { capitalisedRuns, COMMON_CAPS, neverName, OPENERS, ORDINARY_OPENERS, ROLE_WORDS, TITLES } from './names.js';
 import { NUMBER_TOKEN, numbersIn, parseDigits, parseNumberWords, isNumberWord } from './numbers.js';
 
 /**
@@ -18,7 +18,7 @@ import { NUMBER_TOKEN, numbersIn, parseDigits, parseNumberWords, isNumberWord } 
  * never mutated. Bounded: at most `maxSections` sections get the per-section measures, whatever the length of the text (`covered` says how many of how many).
  */
 
-export const ANALYSIS_VERSION = 1;
+export const ANALYSIS_VERSION = 2;
 
 const HARD_CAP_CHARS = 4_000_000; // about 700,000 words: past this the rest of the text is not looked at
 const MIN_VOICE_WORDS = 60; // fewer words than this: a section's person and tense are "unclear" (a handful of verbs says nothing)
@@ -95,6 +95,45 @@ function sectionAt(secs, pos) {
   return pos <= secs[lo].end || lo === secs.length - 1 ? lo : -1;
 }
 
+// ── headings ─────────────────────────────────────────────────────────────────
+
+const headingTitle = (t) => t.replace(/^[#\s*_=~–—-]+/, '').trim();
+
+/**
+ * The headings inside one section's text: how many (a scene break with no words in it does not count), whether the section OPENS with one, and their titles.
+ * The splitter starts a section at a heading only when the section before it is long enough, so a short chapter can sit inside a section: counting sections
+ * as "parts under headings" would then say fewer parts than the writer has.
+ */
+function headingsIn(text, base = 0) {
+  const out = { count: 0, first: false, titles: [], marks: [] };
+  const paras = splitParagraphs(text);
+  for (let k = 0; k < paras.length && out.count < 400; k++) {
+    if (!isHeading(paras[k].text)) continue;
+    const title = headingTitle(paras[k].text);
+    if (!title) continue;
+    out.count++;
+    if (k === 0) out.first = true;
+    out.titles.push(title);
+    out.marks.push({ at: base + paras[k].start, title });
+  }
+  return out;
+}
+
+/**
+ * The stretches under headings, measured on the text itself: from one titled heading to the next (the last to the end of the covered text), so a chapter that the
+ * splitter cut into two sections, or one that shares a section with the end of the one before it, is still one stretch with its true length. Fewer than two
+ * headings: no stretches (there is nothing to compare). `from`/`to` are the 0-based sections the stretch touches.
+ */
+function unitsOf(src, secs, marks, end) {
+  if (marks.length < 2) return [];
+  return marks.slice(0, 400).map((m, k) => {
+    const stop = k + 1 < marks.length ? marks[k + 1].at : end;
+    let last = stop; // (the blank lines before the next heading belong to the next section, not to this stretch)
+    while (last > m.at + 1 && /\s/.test(src[last - 1])) last--;
+    return { from: Math.max(0, sectionAt(secs, m.at)), to: Math.max(0, sectionAt(secs, last - 1)), title: m.title, words: wordsOf(src.slice(m.at, stop)).length };
+  });
+}
+
 // ── voice ────────────────────────────────────────────────────────────────────
 
 const PURE_PERSON = new Set(['first person', 'second person', 'third person']);
@@ -124,42 +163,31 @@ function shiftsOf(what, values, pure) {
 
 // ── pacing ───────────────────────────────────────────────────────────────────
 
-function outliersOf(items, med, { lastIsTail }) {
+function outliersOf(items, med) {
   if (!(med > 0) || items.length < 4) return [];
   const out = [];
   items.forEach((it, k) => {
     const ratio = it.words / med;
-    if (ratio >= 2 && it.words >= 100) out.push({ ...it.keep, words: it.words, kind: 'long', ratio: r2(ratio) });
-    else if (ratio <= 0.4 && it.words > 0 && !(lastIsTail && k === items.length - 1)) out.push({ ...it.keep, words: it.words, kind: 'short', ratio: r2(ratio) });
+    // (three decimals: the one decimal a line shows is rounded from the real ratio, not from a rounded one)
+    if (ratio >= 2 && it.words >= 100) out.push({ ...it.keep, words: it.words, kind: 'long', ratio: r3(ratio) });
+    else if (ratio <= 0.4 && it.words > 0 && k < items.length - 1) out.push({ ...it.keep, words: it.words, kind: 'short', ratio: r3(ratio) });
   });
   return out.sort((a, b) => (a.kind === b.kind ? (a.kind === 'long' ? b.ratio - a.ratio : a.ratio - b.ratio) : a.kind === 'long' ? -1 : 1)).slice(0, 6);
 }
 
-function pacingOf(per, total) {
+function pacingOf(per, total, { dashes = false, units = [] } = {}) {
   const wordCounts = per.map((s) => s.words).filter((w) => w > 0);
   const med = median(wordCounts);
-  const lastIsTail = per.length === total;
   const outliers = outliersOf(
     per.map((s) => ({ words: s.words, keep: { i: s.i } })),
-    med,
-    { lastIsTail }
+    med
   );
 
   // the stretches under one heading (a chapter is the unit a writer paces, not the section the splitter cut it into)
-  const groups = [];
-  for (const s of per) {
-    const g = groups.at(-1);
-    if (g && g.title === s.under) {
-      g.to = s.i;
-      g.words += s.words;
-    } else groups.push({ from: s.i, to: s.i, title: s.under, words: s.words });
-  }
-  const units = groups.filter((g) => g.title).length >= 2 ? groups.slice(0, 400) : [];
   const unitMedian = median(units.map((u) => u.words).filter((w) => w > 0));
   const unitOutliers = outliersOf(
     units.map((u) => ({ words: u.words, keep: { from: u.from, to: u.to, title: u.title } })),
-    unitMedian,
-    { lastIsTail }
+    unitMedian
   );
 
   const dialogueByThirds = [];
@@ -174,7 +202,8 @@ function pacingOf(per, total) {
   }
 
   // rhythm inside the sections: long-sentence stretches, dialogue-heavy and dialogue-free stretches
-  const withSentences = per.filter((s) => s.sentences >= 5);
+  // (a section whose counted sentences hold under 60% of its words is verse, a list or a script: its "average sentence" is the length of its lines, not a measure to compare)
+  const withSentences = per.filter((s) => s.sentences >= 5 && s.sentences * s.avgSentence >= 0.6 * s.words);
   const sentenceMedian = r1(median(withSentences.map((s) => s.avgSentence)));
   const shareMedian = median(per.filter((s) => s.words >= 100).map((s) => s.dialogueShare));
   const longSentences = withSentences
@@ -183,7 +212,7 @@ function pacingOf(per, total) {
     .sort((a, b) => b.ratio - a.ratio)
     .slice(0, 6);
   const dialogue = [];
-  if (per.length >= 4) {
+  if (per.length >= 4 && !dashes) {
     for (const s of per) {
       if (s.words < 100) continue;
       if (s.dialogueShare >= 0.5 && s.dialogueShare >= shareMedian + 0.3) dialogue.push({ i: s.i, share: s.dialogueShare, kind: 'heavy' });
@@ -357,7 +386,22 @@ const FIRST_WORD = /^[^\p{L}\p{N}]*([\p{L}\p{N}][\p{L}\p{N}'’-]*)/u;
 function openerTics(src, secs) {
   const found = new Map(); // lower-case opener -> { phrase, longest, at, sections:Set }
   for (const s of secs) {
-    const sentences = splitSentences(src.slice(s.start, s.end));
+    // Sentences are cut at . ! ? only, paragraph by paragraph: a line break inside a paragraph (hard-wrapped prose, the lines of a poem) does not end one, and a
+    // heading or a title line with no sentence in it is not one (it breaks a run, it does not count in it). Otherwise a poem's title and its first three lines
+    // would be "four sentences in a row".
+    const sentences = [];
+    for (const para of splitParagraphs(src.slice(s.start, s.end))) {
+      const flat = para.text.replace(/\s*\n\s*/g, ' ');
+      if (!/[.!?…]["'”’)\]]*$/.test(flat) && wordsOf(flat).length <= 12) {
+        sentences.push(null);
+        continue;
+      }
+      // (a paragraph that opens with a quotation mark or a dash is somebody's turn to speak: "To Leeds?" answered by "To Leeds. To anywhere." is two voices, not one tic)
+      const speech = /^(?:["“‘«]|[—–]\s)/.test(flat);
+      if (speech) sentences.push(null);
+      for (const sn of splitSentences(flat)) sentences.push(sn);
+      if (speech) sentences.push(null);
+    }
     let word = null;
     let run = 0;
     const close = () => {
@@ -372,7 +416,7 @@ function openerTics(src, secs) {
       }
     };
     for (const sn of sentences) {
-      const m = FIRST_WORD.exec(sn.text);
+      const m = sn ? FIRST_WORD.exec(sn.text) : null;
       // a sentence that opens in lower case or with a digit is a piece cut at "README.md" or "3.5", not a sentence
       if (!m || !/^\p{Lu}/u.test(m[1])) {
         close();
@@ -400,7 +444,10 @@ function openerTics(src, secs) {
 
 // a word right after a name that tells what the name does ("Linnet said", "Linnet heard"): a name that acts is a person (or a talking thing)
 const SPEECH_OR_ACTION = /^(?:said|says|asked|asks|replied|answered|whispered|shouted|muttered|called|cried|laughed|smiled|nodded|looked|turned|walked|ran|came|went|saw|took|made|knew|gave|found|told|held|kept|stood|sat|began|brought|wrote|spoke|heard|fell|became|met|paid|sent|left|felt|thought|got|did|had|was|were|would|could|will|can|is|has|\w+ed)$/;
+// "said Banning", "asked Oriel": the verb comes first in dialogue tags, and a name that speaks is a person
+const SPEECH_BEFORE = /\b(?:said|says|asked|asks|replied|answered|whispered|shouted|muttered|called|cried|added|sighed|growled|laughed|murmured|snapped|declared|demanded|continued|interrupted)\s+$/i;
 const LOCATIVE = new Set('in at to from near above below through across toward towards into beyond outside inside around over under by past behind beside'.split(' '));
+const DERIVED_SUFFIXES = ['y', 'ly', 'ed', 'er', 'ers', 'ing', 'ish', 'est', 'en', 'al', 'ic', 'ful', 'ness', 'less', 'able', 'ies', 'ian', 'ese'];
 const DETERMINER_BEFORE = new Set('the a an this that these those'.split(' '));
 const ORDINAL = new Set('first second third fourth fifth sixth seventh eighth ninth tenth eleventh twelfth'.split(' '));
 
@@ -429,8 +476,10 @@ function noteNamesOf(notesPer) {
 }
 
 const CUE_LINE = /^[ \t]*([A-Z][A-Z0-9'’.-]*(?: [A-Z][A-Z0-9'’.-]*){0,2})(?:[ \t]*\([^)\n]{0,30}\))?[ \t]*\r?\n(?=[ \t]*\S)/gm;
-const SLUG_WORDS = /^(?:INT|EXT|FADE|CUT|DISSOLVE|SMASH|TITLE|SUPER|CONTINUED|THE END|CHAPTER|PART|ACT|SCENE|PROLOGUE|EPILOGUE)\b/;
-const NO_CAST = () => ({ cast: [], termNames: [], names: [], proper: [] });
+// Words a screenplay (or a manuscript) sets in capitals that are formatting, not people: a line of one of these is not a speaker, and as a recurring word it is not a term.
+const SLUG_WORDS = /^(?:INT|EXT|FADE|CUT|DISSOLVE|SMASH|TITLE|SUPER|CONTINUED|CONT'D|THE END|END|CHAPTER|PART|ACT|SCENE|PROLOGUE|EPILOGUE|MONTAGE|FLASHBACK|INTERCUT|SERIES|ANGLE|CLOSE|WIDE|LATER|MEANWHILE|CONTINUOUS|MORE|INSERT|RESUME|OMITTED|BACK|DAY|NIGHT|DAWN|DUSK|MORNING|EVENING|NOTE|WARNING|STOP)\b/;
+const FORMAT_WORDS = new Set('INT EXT CUT FADE DISSOLVE SMASH SUPER CONTINUED CONTINUOUS MONTAGE FLASHBACK INTERCUT LATER MEANWHILE DAY NIGHT DAWN DUSK MORNING EVENING POV VO OS OC SFX FX TITLE'.split(' '));
+const NO_CAST = () => ({ cast: [], termNames: [], names: [], proper: [], parts: [] });
 
 /**
  * Names the text uses: capitalised words and runs, counted per section.
@@ -451,6 +500,7 @@ function castOf(src, secs, lowerCount, notesPer) {
   const tok = new Map(); // word -> { total, mid }
   const initSections = new Map();
   const initWords = new Map(); // a rare word that only ever opens a sentence ("Linet looked up"): not a name by itself, but a candidate for a slip of one
+  const weak = new Map(); // the same words with the sections they open and how often an action or speech verb follows ("Tobias looked", "Tobias did"): see below
   const runStat = new Map(); // "Dessa Varnholt" -> { count, bySec, verb, place, det }
   const proper = new Map(); // lower-case capitalised word -> count (everything capitalised, for grounding replies)
   let s = 0;
@@ -469,26 +519,42 @@ function castOf(src, secs, lowerCount, notesPer) {
       const keep = mid.has(first) || (end - lead > 1 && !OPENERS.has(first) && !ORDINARY_OPENERS.has(first) && !(first.length > 4 && first.endsWith('ly'))) || (r.possessive && end - lead === 1);
       if (!keep) {
         const w = parts[0];
-        if (end - lead === 1 && w.length >= 4 && !STOPWORDS.has(first) && !OPENERS.has(first) && !ORDINARY_OPENERS.has(first)) {
+        const plain = end - lead === 1 && !STOPWORDS.has(first) && !OPENERS.has(first) && !ORDINARY_OPENERS.has(first) && !COMMON_CAPS.has(first);
+        if (plain && w.length >= 4) {
           initWords.set(w, (initWords.get(w) ?? 0) + 1);
           initSections.set(w, [...(initSections.get(w) ?? []), s]);
+        }
+        if (plain && w.length >= 3) {
+          const wk = weak.get(w) ?? { total: 0, acts: 0, bySec: new Map() };
+          const after = /^['’]?s?\s+([\p{L}']+)/u.exec(src.slice(r.end, r.end + 28));
+          wk.total++;
+          if (after && SPEECH_OR_ACTION.test(after[1].toLowerCase())) wk.acts++;
+          wk.bySec.set(s, (wk.bySec.get(s) ?? 0) + 1);
+          weak.set(w, wk);
         }
         lead = 1;
       }
     }
     let piece = [];
     let pieceAt = lead;
-    const flush = () => {
+    const flush = (label = false) => {
       if (!piece.length) return;
+      if (label) {
+        piece = []; // ("Figure 3", "Day Two": a word that labels a number is not the name of anyone)
+        return;
+      }
       const key = piece.join(' ');
       const st = runStat.get(key) ?? { count: 0, bySec: new Map(), verb: 0, place: 0, det: 0 };
       st.count++;
       st.bySec.set(s, (st.bySec.get(s) ?? 0) + 1);
       const tail = pieceAt + piece.length >= parts.length;
+      let acts = false;
       if (tail) {
         const after = /^['’]?s?\s+([\p{L}']+)/u.exec(src.slice(r.end, r.end + 28));
-        if (after && SPEECH_OR_ACTION.test(after[1].toLowerCase())) st.verb++;
+        acts = Boolean(after && SPEECH_OR_ACTION.test(after[1].toLowerCase()));
       }
+      if (!acts && parts.slice(0, pieceAt).every((p) => TITLES.has(p.toLowerCase()) || STOPWORDS.has(p.toLowerCase())) && SPEECH_BEFORE.test(src.slice(Math.max(0, r.start - 16), r.start))) acts = true;
+      if (acts) st.verb++;
       if (pieceAt > 0) {
         if (DETERMINER_BEFORE.has(parts[pieceAt - 1].toLowerCase())) st.det++;
       } else {
@@ -510,14 +576,14 @@ function castOf(src, secs, lowerCount, notesPer) {
       const p = parts[k];
       const lo = p.toLowerCase();
       if (neverName(p) || isNumberWord(lo) || ORDINAL.has(lo) || TITLES.has(lo)) {
-        flush();
+        flush(!neverName(p) && !TITLES.has(lo) && (isNumberWord(lo) || ORDINAL.has(lo)) && pieceAt + piece.length === k);
         pieceAt = k + 1;
       } else {
         if (!piece.length) pieceAt = k;
         piece.push(p);
       }
     }
-    flush();
+    flush(end === parts.length && /^[ \t]+\d/.test(src.slice(r.end, r.end + 4)));
   }
 
   const lowerRatio = (part) => {
@@ -526,7 +592,7 @@ function castOf(src, secs, lowerCount, notesPer) {
   };
   const nameWord = (part) => {
     const lo = part.toLowerCase();
-    return part.length >= 3 && !STOPWORDS.has(lo) && !OPENERS.has(lo) && !ORDINARY_OPENERS.has(lo) && lowerRatio(part) <= 0.35;
+    return part.length >= 3 && !STOPWORDS.has(lo) && !OPENERS.has(lo) && !ORDINARY_OPENERS.has(lo) && !COMMON_CAPS.has(lo) && lowerRatio(part) <= 0.35;
   };
 
   const singles = new Set();
@@ -553,9 +619,12 @@ function castOf(src, secs, lowerCount, notesPer) {
   const entities = [];
   const claimed = new Set();
   for (const [key] of fulls) {
-    const aliases = key.split(' ').filter((p) => singles.has(p) && partOwners.get(p) === 1 && !claimed.has(p));
-    aliases.forEach((a) => claimed.add(a));
-    entities.push({ name: key, aliases, forms: new Set([key, ...aliases]), full: true });
+    // the parts of a full name that belong to it alone are folded into it (they do not become names of their own); only a part the text really uses ON ITS OWN
+    // ("Roe said") and that is not a rank or relation ("Captain", "Aunt") is offered as another way the text names the person, and only those are counted with it
+    const parts = key.split(' ').filter((p) => singles.has(p) && partOwners.get(p) === 1 && !claimed.has(p));
+    parts.forEach((a) => claimed.add(a));
+    const aliases = parts.filter((x) => !ROLE_WORDS.has(x.toLowerCase()) && (runStat.get(x)?.count ?? 0) > 0);
+    entities.push({ name: key, aliases, parts, forms: new Set([key, ...aliases]), full: true });
   }
   const personLikeKeys = new Set(personLike.map(([k]) => k));
   for (const part of singles) {
@@ -595,7 +664,20 @@ function castOf(src, secs, lowerCount, notesPer) {
   }
   const cueNames = [...cues].filter(([, n]) => n >= 3).sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1)).slice(0, 20).map(([name]) => name);
   for (const name of cueNames) {
-    if (known.has(name.toLowerCase())) continue;
+    if (known.has(name.toLowerCase())) {
+      // "Desmond crosses to the sink" and a "DESMOND" cue are one person: the cue lines (and the capitals in a scene heading) are counted with the mixed-case mentions
+      const e = entities.find((x) => !x.speaker && [x.name, ...x.aliases].some((n) => n.toLowerCase() === name.toLowerCase()));
+      if (e) {
+        const bySec = new Array(M).fill(0);
+        for (const m of src.matchAll(new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(name)}(?![\\p{L}\\p{N}])`, 'gu'))) {
+          const si = sectionAt(secs, m.index);
+          if (si >= 0) bySec[si]++;
+        }
+        e.direct = e.direct ? e.direct.map((c, i) => c + bySec[i]) : bySec;
+        e.speaker = true;
+      }
+      continue;
+    }
     const re = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(name)}(?![\\p{L}\\p{N}])`, 'giu');
     const bySec = new Array(M).fill(0);
     for (const m of src.matchAll(re)) {
@@ -606,8 +688,20 @@ function castOf(src, secs, lowerCount, notesPer) {
     entities.push({ name, aliases: [], forms: new Set(), full: false, fromNotes: false, direct: bySec, speaker: true });
   }
 
+  // A character who is only ever named at the start of a sentence ("Tobias picked up the bag. Tobias looked at the floor.") has no capital in the middle of one to prove
+  // it. Four sentences opened by the same word, three of them followed by a verb of doing or saying, a word never written in lower case: counted as a name.
+  const taken = new Set(entities.flatMap((e) => [e.name, ...e.aliases, ...(e.parts ?? [])]).map((x) => x.toLowerCase()));
+  for (const [w, wk] of weak) {
+    const lo = w.toLowerCase();
+    if (wk.total < 4 || wk.acts < 3 || taken.has(lo) || known.has(lo) || tok.has(w) || neverName(w) || (lowerCount.get(lo) ?? 0) > 0) continue;
+    const bySec = new Array(M).fill(0);
+    for (const [si, c] of wk.bySec) bySec[si] = c;
+    entities.push({ name: w, aliases: [], forms: new Set(), full: false, direct: bySec, actor: true });
+  }
+
   const cast = [];
   const termNames = [];
+  const partsOf = new Map();
   for (const e of entities) {
     const bySec = e.direct ? [...e.direct] : new Array(M).fill(0);
     let verb = 0;
@@ -631,8 +725,11 @@ function castOf(src, secs, lowerCount, notesPer) {
     for (let q = 1; q < sections.length; q++) if (sections[q] - sections[q - 1] - 1 >= 3) gaps.push([sections[q - 1] + 1, sections[q] - 1]);
     gaps.sort((a, b) => b[1] - b[0] - (a[1] - a[0]) || a[0] - b[0]);
     const share = (n) => (total ? n / total : 0);
-    const kind = e.speaker ? 'person' : share(det) >= 0.4 ? 'term' : share(place) >= 0.4 ? 'place' : e.full || (share(det) < 0.15 && share(verb) >= 0.25) ? 'person' : 'name';
-    const entry = { name: e.name, aliases: e.aliases.slice(0, 4), mentions, sections, first: sections[0] ?? 0, last: sections.at(-1) ?? 0, gaps: gaps.slice(0, 5).sort((a, b) => a[0] - b[0]), kind };
+    const kind = e.speaker || e.actor ? 'person' : share(det) >= 0.4 ? 'term' : share(place) >= 0.4 ? 'place' : e.full || (share(det) < 0.15 && share(verb) >= 0.25) ? 'person' : 'name';
+    // (the parts that were folded into the full name stay in `partsOf`, for the spelling check and for keeping them out of the terms)
+    const aliases = e.aliases.slice(0, 4);
+    partsOf.set(e.name, e.parts ?? e.aliases);
+    const entry = { name: e.name, aliases, mentions, sections, first: sections[0] ?? 0, last: sections.at(-1) ?? 0, gaps: gaps.slice(0, 5).sort((a, b) => a[0] - b[0]), kind };
     (kind === 'term' ? termNames : cast).push(entry);
   }
   const order = (a, b) => b.mentions - a.mentions || a.first - b.first || (a.name < b.name ? -1 : 1);
@@ -649,7 +746,9 @@ function castOf(src, secs, lowerCount, notesPer) {
 
   // spellings that look like slips: a word used one to three times, never in lower case, one letter off a name used far more often
   const names = [];
-  const bases = [...cast, ...termNames].flatMap((c) => [c.name, ...c.aliases]).filter((x) => !x.includes(' '));
+  const bases = [...new Set([...cast, ...termNames].flatMap((c) => [c.name, ...c.aliases, ...(partsOf.get(c.name) ?? [])]).filter((x) => !x.includes(' ')))]
+    .map((base) => ({ base, bl: base.toLowerCase(), bt: tok.get(base) }))
+    .filter((x) => x.bt);
   const seen = new Set();
   const candidates = new Map(tok);
   for (const [w, n] of initWords) if (!candidates.has(w)) candidates.set(w, { total: n, mid: 0 });
@@ -657,13 +756,12 @@ function castOf(src, secs, lowerCount, notesPer) {
     if (t.total > 3 || part.length < 4) continue;
     const lo = part.toLowerCase();
     if ((lowerCount.get(lo) ?? 0) > 0 || STOPWORDS.has(lo) || OPENERS.has(lo)) continue;
-    for (const base of bases) {
-      if (base === part || Math.abs(base.length - part.length) > 1) continue;
-      const bl = base.toLowerCase();
+    for (const { base, bl, bt } of bases) {
+      // (cheapest tests first: this runs for every rare word against every name)
+      if (base === part || Math.abs(bl.length - lo.length) > 1 || bt.total < Math.max(5, t.total * 4)) continue;
+      if (part.length >= 9 ? osa(bl, lo) > 2 : !withinOne(bl, lo)) continue;
       if (bl + 's' === lo || lo + 's' === bl || bl + 'es' === lo || lo + 'es' === bl) continue; // a plural ("the Ombrechts") is not a slip
-      const bt = tok.get(base);
-      if (!bt || bt.total < Math.max(5, t.total * 4)) continue;
-      if (osa(bl, lo) > (part.length >= 9 ? 2 : 1)) continue;
+      if (DERIVED_SUFFIXES.some((sf) => bl + sf === lo || lo + sf === bl)) continue; // ("Marshy", "Marsher": the name with an ending, an ordinary word)
       const pair = `${base}|${part}`;
       if (seen.has(pair)) continue;
       seen.add(pair);
@@ -676,7 +774,22 @@ function castOf(src, secs, lowerCount, notesPer) {
   names.sort((x, y) => y.aCount / y.bCount - x.aCount / x.bCount || (x.b < y.b ? -1 : 1));
 
   const properList = [...proper.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 6000).map(([w]) => w);
-  return { cast: cast.slice(0, 40), termNames: termNames.slice(0, 40), names: names.slice(0, 10), proper: properList };
+  return { cast: cast.slice(0, 40), termNames: termNames.slice(0, 40), names: names.slice(0, 10), proper: properList, parts: [...partsOf.values()].flat() };
+}
+
+/** Is `b` one edit from `a` (a letter inserted, dropped or replaced, or two neighbours swapped)? Linear, and no table: this is asked for every rare word against every name. */
+function withinOne(a, b) {
+  const la = a.length;
+  const lb = b.length;
+  if (Math.abs(la - lb) > 1) return false;
+  let i = 0;
+  while (i < la && i < lb && a[i] === b[i]) i++;
+  if (i === la && i === lb) return true;
+  if (la === lb) {
+    if (a.slice(i + 1) === b.slice(i + 1)) return true; // one letter replaced
+    return i + 1 < la && a[i] === b[i + 1] && a[i + 1] === b[i] && a.slice(i + 2) === b.slice(i + 2); // two neighbours swapped
+  }
+  return la > lb ? a.slice(i + 1) === b.slice(i) : a.slice(i) === b.slice(i + 1);
 }
 
 /** Optimal string alignment distance (insert, delete, replace, swap two neighbours) for short words. */
@@ -713,7 +826,7 @@ const ADVERBISH = (w) => (w.length > 4 && w.endsWith('ly')) || ['also', 'still',
 
 function sentenceTokens(text) {
   const toks = [];
-  for (const m of text.matchAll(NUMBER_TOKEN)) toks.push({ raw: m[0], lo: m[0].toLowerCase().replace(/’/g, "'"), start: m.index, end: m.index + m[0].length, digit: /^\d/.test(m[0]) });
+  for (const m of text.matchAll(NUMBER_TOKEN)) toks.push({ raw: m[0], lo: m[0].toLowerCase().replace(/’/g, "'"), start: m.index, end: m.index + m[0].length, digit: /^\d/.test(m[0]), i: toks.length });
   return toks;
 }
 
@@ -790,6 +903,7 @@ function figuresOf(src, secs, people = new Set()) {
           }
         }
         if (!unit) continue;
+        if (!hyphenUnit && /^[ \t-]+old\b/i.test(sn.text.slice(unitTok.end, unitTok.end + 8))) continue; // "nine years old": a person grows older, the text is not contradicting itself
         if (!hyphenUnit && t.digit && value >= 1000 && value <= 2100 && !t.raw.includes(',') && !pluralLooking(unit)) continue; // a year
 
         // whose measure it is; `fromTok` is where the quoted fragment starts (the subject as written: "It", "Brimmer", or the noun before "of")
@@ -839,7 +953,9 @@ function figuresOf(src, secs, people = new Set()) {
         if (wordsOf(src.slice(from, to)).length > MAX_PHRASE_WORDS) quote = fragment(src, base + Math.min(verbTok?.start ?? t.start, t.start), to);
         if (wordsOf(src.slice(base + Math.min(verbTok?.start ?? t.start, t.start), to)).length > MAX_PHRASE_WORDS) quote = fragment(src, base + t.start, to);
         const key = `${owner}|${unitNorm}`;
-        const g = groups.get(key) ?? { noun: ownerTok.raw.replace(/['’]s$/i, ''), unit: unitNorm, items: [] };
+        const g = groups.get(key) ?? { noun: ownerTok.raw.replace(/['’]s$/i, ''), unit: unitNorm, items: [], proper: false };
+        // a capital in the middle of a sentence says it is somebody's or something's NAME ("the Brimmer"); a plain noun ("the room") may be a different one each time
+        if (/^\p{Lu}/u.test(ownerTok.raw) && ownerTok.i > 0) g.proper = true;
         if (g.items.length < 12 && !g.items.some((x) => x.section === s.i && x.value === value)) {
           g.items.push({ value, unit: unitTok === t ? unit : unitTok.raw, section: s.i, quote, written: src.slice(base + t.start, to), inferred });
         }
@@ -854,9 +970,9 @@ function figuresOf(src, secs, people = new Set()) {
     const secsOf = new Set(g.items.map((x) => x.section));
     if (secsOf.size < 2) continue;
     const conflict = g.items.some((a) => g.items.some((b) => a.section !== b.section && a.value !== b.value));
-    out.push({ noun: g.noun, unit: g.unit, items: g.items, conflict });
+    out.push({ noun: g.noun, unit: g.unit, items: g.items, conflict, proper: g.proper });
   }
-  out.sort((a, b) => Number(b.conflict) - Number(a.conflict) || b.items.length - a.items.length || (a.noun < b.noun ? -1 : 1));
+  out.sort((a, b) => Number(b.conflict) - Number(a.conflict) || Number(b.proper) - Number(a.proper) || b.items.length - a.items.length || (a.noun < b.noun ? -1 : 1));
   return out.slice(0, 30);
 }
 
@@ -876,13 +992,15 @@ function termsOf(src, secs, { signature, notesPer, castNames, termNames }) {
     if (STOPWORDS.has(lo) || OPENERS.has(lo) || defined.has(lo)) continue;
     defined.set(lo, { term, section: Math.max(0, sectionAt(secs, m.index)) });
   }
-  const raw = [...signature.map((t) => ({ t })), ...termNames.map((c) => ({ t: c.name })), ...[...defined.values()].map((d) => ({ t: d.term, defined: true }))];
+  // (a recurring "INT" or "CUT" is the format of a screenplay, not a term of the story)
+  const raw = [...signature.filter((t) => !FORMAT_WORDS.has(String(t))).map((t) => ({ t })), ...termNames.map((c) => ({ t: c.name })), ...[...defined.values()].map((d) => ({ t: d.term, defined: true }))];
   for (const n of notesPer ?? []) if (n && Array.isArray(n.terms)) for (const t of n.terms.slice(0, 6)) if (typeof t === 'string') raw.push({ t: t.trim() });
   const seen = new Set();
   const out = [];
   for (const { t, defined: isDef } of raw) {
     const key = t.toLowerCase();
     if (!t || t.length > 40 || seen.has(key) || castNames.has(key)) continue;
+    if (/^i['’]/.test(key) || TITLES.has(key) || COMMON_CAPS.has(key) || OPENERS.has(key) || ORDINARY_OPENERS.has(key)) continue; // ("I'd", "Prof", "Figure", "Hello": words, not terms of the story)
     seen.add(key);
     let re;
     try {
@@ -983,6 +1101,13 @@ function rulesOf(src, secs, project) {
 
 // ── the analysis ─────────────────────────────────────────────────────────────
 
+/** How many headed parts the covered text has, and the first and last heading as written. */
+function headingSummary(per) {
+  const titles = per.flatMap((s) => s.headTitles ?? []);
+  const count = per.reduce((n, s) => n + (s.headings ?? 0), 0);
+  return { count, first: titles[0] ?? '', last: titles.at(-1) ?? '' };
+}
+
 function emptyAnalysis(maxSections) {
   return {
     v: ANALYSIS_VERSION,
@@ -990,6 +1115,7 @@ function emptyAnalysis(maxSections) {
     sectionCount: 0,
     covered: { sections: 0, of: 0, words: 0, complete: true, maxSections },
     sections: [],
+    headings: { count: 0, first: '', last: '' },
     cast: [],
     pacing: { median: 0, outliers: [], dialogueByThirds: [], units: [], unitMedian: 0, unitOutliers: [], rhythm: { sentenceMedian: 0, longSentences: [], dialogue: [], dialogueMedian: 0 } },
     voice: { person: [], tense: [], shifts: [], clear: { person: 0, tense: 0 } },
@@ -1015,7 +1141,7 @@ export function analysisKey(opts) {
   const text = typeof o.text === 'string' ? o.text : '';
   const rules = (Array.isArray(o.project?.rules) ? o.project.rules : []).filter((r) => r && typeof r.text === 'string' && r.enabled !== false).map((r) => `${r.id ?? ''}:${r.text}`);
   const per = notesList(o.notes) ?? [];
-  const notes = per.map((n) => (n && typeof n === 'object' ? `${n.by ?? ''}|${(n.names ?? []).join(',')}|${(n.terms ?? []).join(',')}` : '')).join('\n');
+  const notes = per.map((n) => (n && typeof n === 'object' ? `${n.by ?? ''}|${(Array.isArray(n.names) ? n.names : []).join(',')}|${(Array.isArray(n.terms) ? n.terms : []).join(',')}` : '')).join('\n');
   const limit = Number.isFinite(o.maxSections) && o.maxSections >= 1 ? Math.min(2000, Math.floor(o.maxSections)) : 120;
   return `${ANALYSIS_VERSION}:${text.length}:${fnv1a(text)}:${fnv1a(rules.join('\n'))}:${fnv1a(notes)}:${limit}`;
 }
@@ -1054,6 +1180,7 @@ export function analyseText(opts) {
   // measures per section (the style module's counts, reused rather than re-derived)
   const per = secs.map((s) => {
     const p = safe('style', () => styleProfile(src.slice(s.start, s.end)), emptyStyle());
+    const head = safe('headings', () => headingsIn(src.slice(s.start, s.end), s.start), { count: 0, first: false, titles: [], marks: [] });
     const clear = s.words >= MIN_VOICE_WORDS;
     return {
       i: s.i,
@@ -1067,6 +1194,10 @@ export function analyseText(opts) {
       tense: clear ? p.tense.label : 'unclear',
       title: s.title,
       under: s.under,
+      headings: head.count,
+      headFirst: head.first,
+      headTitles: head.titles,
+      marks: head.marks,
     };
   });
 
@@ -1074,7 +1205,8 @@ export function analyseText(opts) {
   const english = style.language?.readable !== false;
   const { toks, lowerCount } = safe('tokens', () => tokenise(covered, secs, NGRAM_TOKEN_CAP), { toks: [], lowerCount: new Map() });
 
-  const pacing = safe('pacing', () => pacingOf(per, N), emptyAnalysis(maxSections).pacing);
+  const units = safe('units', () => unitsOf(covered, secs, per.flatMap((s) => s.marks), covered.length), []);
+  const pacing = safe('pacing', () => pacingOf(per, N, { dashes: (style.dialogue?.dashLines ?? 0) >= 5, units }), emptyAnalysis(maxSections).pacing);
   const voice = safe(
     'voice',
     () => ({
@@ -1090,7 +1222,7 @@ export function analyseText(opts) {
   const repeats = safe('repeats', () => [...repeatedPhrases(covered, toks), ...openerTics(covered, secs)], []);
   const people = new Set(castPart.cast.filter((c) => c.kind === 'person').flatMap((c) => [c.name, ...c.aliases]).flatMap((x) => x.split(' ')).map((w) => w.toLowerCase()));
   const figures = english ? safe('figures', () => figuresOf(covered, secs, people), []) : [];
-  const castNames = new Set(castPart.cast.flatMap((c) => [c.name, ...c.aliases]).map((x) => x.toLowerCase()));
+  const castNames = new Set([...castPart.cast.flatMap((c) => [c.name, ...c.aliases]), ...castPart.parts].map((x) => x.toLowerCase()));
   const terms = english ? safe('terms', () => termsOf(covered, secs, { signature: Array.isArray(style.signature) ? style.signature : [], notesPer, castNames, termNames: castPart.termNames }), []) : [];
   const timeline = safe('timeline', () => timelineOf(covered, secs), { stamps: [], jumps: [] });
   const rules = safe('rules', () => rulesOf(covered, secs, o.project), null);
@@ -1101,7 +1233,8 @@ export function analyseText(opts) {
     words: totalWords,
     sectionCount: N,
     covered: { sections: M, of: N, words: secs.reduce((n, s) => n + s.words, 0), complete: M === N, maxSections },
-    sections: per.map(({ i, words, sentences, avgSentence, dialogueShare, person, tense, title, start, end, under }) => ({ i, words, sentences, avgSentence, dialogueShare, person, tense, title, start, end, under })),
+    sections: per.map(({ i, words, sentences, avgSentence, dialogueShare, person, tense, title, start, end, under, headings }) => ({ i, words, sentences, avgSentence, dialogueShare, person, tense, title, start, end, under, headings })),
+    headings: headingSummary(per),
     cast: castPart.cast,
     pacing,
     voice,

@@ -22,6 +22,13 @@ const plural = (n, one, many = `${one}s`) => `${num(n)} ${n === 1 ? one : many}`
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 const quoted = (s) => `"${String(s).replace(/["“”]/g, '').replace(/\s+/g, ' ').trim()}"`;
 
+// What the overview and a caller's description of the style must not carry: a verdict on the writing (praise or blame) or a word to the writer. The overview is a description of
+// what the text IS, made from notes; a sentence that judges it, or tells the writer what to do, is dropped whole (never reworded). Words that are as likely to describe the story
+// itself ("a haunting melody", "the powerful family", "moving house") are left out of the list on purpose: it only has to stop praise, not every adjective.
+const JUDGING = /\b(?:beautiful(?:ly)?|masterful(?:ly)?|masterpiece|brilliant(?:ly)?|compelling(?:ly)?|gripping|captivating|riveting|engrossing|vivid(?:ly)?|evocative(?:ly)?|poignant(?:ly)?|stunning(?:ly)?|impressive(?:ly)?|superb(?:ly)?|excellent(?:ly)?|wonderful(?:ly)?|fantastic|amazing(?:ly)?|lovely|skil(?:l)?ful(?:ly)?|well[- ](?:written|crafted|paced|structured|drawn|observed|told)|(?:poorly|badly) (?:written|paced|structured)|(?:haunting|moving|powerful|striking|touching|heartfelt|heartbreaking|charming|delightful|engaging|intense|thoughtful|sensitive|honest|raw|tender|rich|lyrical|elegant|effective|sharp|clever|fine|good|great|bad|poor)(?:,? (?:and )?\w+)? (?:memoir|story|account|tale|novel|narrative|piece|text|poem|essay|book|script|screenplay|portrait|read|chapter|prose|writing|voice|draft)|(?:strong|great|weak|clumsy|flat|uneven) (?:voice|prose|writing|pacing|dialogue|ending|opening|characteri[sz]ation)|(?:prose|writing|pacing|dialogue|voice|ending|opening) (?:is|are|feels?|reads?) (?:strong|weak|flat|uneven|clumsy|great|good|bad|poor))\b/i;
+const ORDERS = /\b(?:you(?:r|rs|rself)?|I (?:suggest|recommend|advise)|let'?s)\b|^\W*(?:cut|add|remove|change|fix|rewrite|revise|delete|trim|replace|drop|reorder|tighten|expand|try|consider|avoid|make sure|keep|use|write)\b/i;
+const judges = (t) => JUDGING.test(t) || ORDERS.test(t);
+
 const perOf = (notes) => (Array.isArray(notes) ? notes : Array.isArray(notes?.per) ? notes.per : Array.isArray(notes?.notes) ? notes.notes : []);
 
 /** (1) What NIE did, in counts. It says "read" only for sections a model actually made notes on (or that were short enough to be their own note). */
@@ -54,7 +61,7 @@ function overviewLine(a, overview, modelRead) {
   if (!raw || modelRead <= 0) return result;
   const grounded = groundNames(raw.slice(0, 1500), { sources: sourcesOf(a), sections: a.sectionCount });
   const sentences = sentenceSpans(grounded.text).map((s) => s.text.trim()).filter(Boolean);
-  const safe = sentences.filter((s) => !speaksAboutTheWriter(s) && !isPraiseOpener(s) && !/\?\s*$/.test(s));
+  const safe = sentences.filter((s) => !speaksAboutTheWriter(s) && !isPraiseOpener(s) && !/\?\s*$/.test(s) && !judges(s));
   result.removed = grounded.removed.length + (sentences.length - safe.length);
   const kept = safe.slice(0, 3);
   let text = kept.join(' ');
@@ -74,14 +81,16 @@ function builtLine(a) {
   const median = Math.round(a.pacing?.median ?? 0);
   if (N === 1) parts.push(`a single section of ${plural(a.words, 'word')}`);
   else if (N && median) parts.push(a.covered.complete ? `${plural(N, 'section')} with a median length of ${num(median)} words` : `${plural(N, 'section')}, the first ${num(M)} with a median length of ${num(median)} words`);
-  const units = a.pacing?.units ?? [];
+  const h = a.headings ?? { count: 0, first: '', last: '' };
   const stamps = a.timeline?.stamps ?? [];
-  const structure = (a.style?.structure ?? []).filter((x) => typeof x === 'string' && !(stamps.length >= 3 && /^time stamps/.test(x)) && !/^one unbroken block/.test(x));
-  const headed = units.length >= 2;
+  const scripted = (a.style?.structure ?? []).some((x) => /^screenplay scene headings/.test(x));
+  // ("titled sections" counts short lines before a long paragraph; in a screenplay those are its scene headings, already named)
+  const structure = (a.style?.structure ?? []).filter((x) => typeof x === 'string' && !(stamps.length >= 3 && /^time stamps/.test(x)) && !/^one unbroken block/.test(x) && !(scripted && x === 'titled sections'));
+  // (headings are counted in the text itself, not from the sections: a short chapter can sit inside a section with the one before it)
+  const headed = h.count >= 2;
   if (headed) {
-    const first = units.find((u) => u.title);
-    const last = [...units].reverse().find((u) => u.title);
-    parts.push(`${plural(units.length, 'part')} under headings${first && last && first !== last ? ` (${quoted(clip(first.title, 40))} to ${quoted(clip(last.title, 40))})` : ''}`);
+    const where = a.covered.complete ? '' : ` in the first ${plural(M, 'section')}`;
+    parts.push(`${plural(h.count, 'heading')}${where}${h.first && h.last && h.first !== h.last ? ` (${quoted(clip(h.first, 40))} to ${quoted(clip(h.last, 40))})` : ''}`);
   }
   if (structure.length === 1 && structure[0] === 'no headings') parts.push('no headings were found');
   else for (const x of structure) if (x !== 'no headings' && !(headed && /^(?:chapter headings|titled sections|headings marked with #|numbered parts)$/.test(x))) parts.push(x);
@@ -91,8 +100,12 @@ function builtLine(a) {
 
 /** (4) How it is written. The caller's own description of the style is used when it is safe to say to the writer; otherwise the measured line. */
 function writtenLine(a, style) {
-  const given = typeof style === 'string' ? style.replace(/\s+/g, ' ').trim() : '';
-  if (given && !speaksAboutTheWriter(given) && !/\b(?:great|wonderful|beautiful|compelling|impressive|masterful|brilliant|gripping|vivid)\b/i.test(given)) {
+  // (the terms the style description lists are given again below with the sections they occur in, and without a screenplay's INT and CUT)
+  const given = typeof style === 'string' ? style.replace(/\s+/g, ' ').replace(/(?:A term|Terms) that recurs? across the text:[^;]*;\s*(\w)/i, (m, c) => c.toUpperCase()).trim() : '';
+  // (a description that says "306 words in 8 sentences, sentences averaging 7 words" is describing the lines of a poem or a script: the measured line leaves that figure out)
+  const st = a.style;
+  const linesNotSentences = st && st.words >= 100 && st.sentences >= 1 && st.sentences * (st.sentence?.mean ?? 0) < 0.6 * st.words;
+  if (given && !linesNotSentences && !speaksAboutTheWriter(given) && !judges(given)) {
     const sentences = sentenceSpans(given).map((s) => s.text.trim());
     let out = '';
     for (const s of sentences) {
@@ -110,7 +123,12 @@ function namesLine(a) {
   const M = a.covered.sections;
   const top = rankedCast(a).slice(0, 3);
   if (!top.length) return '';
-  return `Names that keep coming back: ${top.map((c) => `${nameWithAliases(c)} (${c.sections.length} of ${M} ${M === 1 ? 'section' : 'sections'}, from section ${c.first + 1} to ${c.last + 1})`).join(', ')}.`;
+  const one = (c) => {
+    if (M === 1) return `${nameWithAliases(c)} (${num(c.mentions)} ${c.mentions === 1 ? 'time' : 'times'})`;
+    const where = c.sections.length === 1 ? `in section ${c.first + 1} only` : `from section ${c.first + 1} to ${c.last + 1}`;
+    return `${nameWithAliases(c)} (${c.sections.length} of ${M} sections, ${where})`;
+  };
+  return `Names that keep coming back: ${top.map(one).join(', ')}.`;
 }
 
 function termsSentence(a) {
@@ -132,7 +150,9 @@ export function readbackFrame(opts) {
 
   const did = didLine(a, notes);
   const ov = overviewLine(a, overview, did.modelRead);
-  const found = standouts(a);
+  // (what is said, and the question asked, are checked as one: a statement that would be dropped does not lend its question)
+  const speakable = (t) => !speaksAboutTheWriter(t) && !isPraiseOpener(t);
+  const found = standouts(a).filter((f) => speakable(`${cap(f.text)}.`) && speakable(f.question));
   const picked = [];
   for (const f of found) {
     if (picked.length >= 3) break;

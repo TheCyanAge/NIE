@@ -20,15 +20,16 @@ export const MIND_LIMITS = Object.freeze({
   said: 600, // statements kept per project (about 190,000 characters of JSON when full)
   text: 260, // characters per statement
   pasted: 400, // a message of this many words or more is a pasted text, not a statement
-  perMessage: 8, // statements taken from one message
+  perMessage: 30, // statements taken from one message (a telling of a whole cast is often longer than sixteen facts; a paste is refused by size)
 });
 export const SAID_KINDS = Object.freeze(['told', 'answered', 'added']);
 
+const NUM_MAX = 1e9; // the largest entry number, message number or count kept (a stored number beyond it is a hand edit)
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 /** An own property only: `{ __proto__: { text: 'x' } }` has no `text`. */
 const own = (o, k) => (Object.hasOwn(o, k) ? o[k] : undefined);
 
-function int(v, { min = 0, max = 1e9, fallback = 0 } = {}) {
+function int(v, { min = 0, max = NUM_MAX, fallback = 0 } = {}) {
   const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN;
   return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.floor(n))) : fallback;
 }
@@ -73,13 +74,36 @@ export function sanitizeMind(raw) {
   }
 }
 
-/** The project's mind, created (or repaired) when missing. Never throws on a project without one. */
+const inRange = (v) => Number.isInteger(v) && v >= 0 && v <= NUM_MAX;
+
+/** Entries as `sanitizeMind` leaves them: numbered in strictly growing order up to `seq`, each with a text and a turn (a hand edit or a bug elsewhere must not reach the code that trusts this). */
+function wellFormed(m) {
+  let last = 0;
+  for (const e of m.said) {
+    if (!isObject(e) || !Number.isInteger(e.n) || e.n <= last || e.n > m.seq || typeof e.text !== 'string' || !e.text || e.text.length > MIND_LIMITS.text || !inRange(e.turn)) return false;
+    last = e.n;
+  }
+  return true;
+}
+
+/** The project's mind, created (or repaired) when missing or out of shape (numbers out of range, far too many entries, entries that are not entries). Never throws on a project without one. */
 export function ensureMind(project) {
   const m = project.mind;
-  if (isObject(m) && Array.isArray(m.said) && Number.isFinite(m.seq) && Number.isFinite(m.turn)) return m;
+  if (isObject(m) && Array.isArray(m.said) && m.said.length <= MIND_LIMITS.said && inRange(m.seq) && inRange(m.turn) && wellFormed(m)) return m;
   project.mind = sanitizeMind(m);
   return project.mind;
 }
+
+/** Entry numbers start again from 1 (in order), for the day `seq` reaches the largest number a stored entry may have: a number must never be clamped into another entry's. */
+export function renumber(mind) {
+  mind.said.forEach((e, i) => {
+    e.n = i + 1;
+  });
+  mind.seq = mind.said.length;
+  return mind;
+}
+
+export const NEXT_MAX = NUM_MAX - 1;
 
 /** The mind of a project WITHOUT creating or changing anything (readers must never write to the project they were given). */
 export function mindOf(project) {

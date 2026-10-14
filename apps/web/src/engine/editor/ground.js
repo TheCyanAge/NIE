@@ -1,5 +1,5 @@
 import { STOPWORDS, fnv1a } from '../util/text.js';
-import { bareWord, capitalisedRuns, neverName, OPENERS, ORDINARY_OPENERS, TITLES } from './names.js';
+import { bareWord, capitalisedRuns, neverName, OPENERS, ORDINARY_OPENERS, ROLE_WORDS, TITLES } from './names.js';
 import { numbersIn } from './numbers.js';
 import { removeSpans, sentenceSpans } from './sentences.js';
 
@@ -20,23 +20,59 @@ import { removeSpans, sentenceSpans } from './sentences.js';
 
 // ── what the reply may rely on ───────────────────────────────────────────────
 
-// Vocabularies are cached by a hash of the source text (a 10,000-word text is read once, not on every reply). Bounded (the last four sources), keyed by content,
-// holding only the words of a source: no project state. `clearGroundingCache` empties it (the caller does so when the writer switches or deletes a project).
+// Vocabularies are cached by a hash of the source text (a 10,000-word text is read once, not on every reply). Bounded (the last six sources of 4,000 characters or
+// more: a short one is cheaper to read again than to look up), keyed by content, holding only the words of a source: no project state. `clearGroundingCache` empties
+// it (the caller does so when the writer switches or deletes a project).
 const CACHE = new Map();
-const CACHE_MAX = 4;
+const CACHE_MAX = 6;
+const CACHE_MIN_CHARS = 4000;
 
 export const clearGroundingCache = () => CACHE.clear();
 export const groundingCacheSize = () => CACHE.size;
 const SOURCE_CAP_CHARS = 3_000_000;
 
-// A role or title in front of a name ("Commissioner Haldric", "Captain Vane") is not part of the name: the name after it is what must be in a source.
-const ROLE_WORDS = new Set(
-  ('commissioner captain doctor professor master chief inspector dispatcher keeper king queen prince princess president mayor judge officer sergeant general colonel major admiral ' +
-    'lord lady sir father mother brother sister aunt uncle grandmother grandfather detective constable warden bishop priest abbot count duke duchess baron').split(' ')
-);
+// (A role or title in front of a name, "Commissioner Haldric", "Captain Vane", is not part of the name: the name after it is what must be in a source. See ROLE_WORDS.)
 
-// NIE's own vocabulary and the capitalised words of ordinary English that a reply uses without a source for them
-const BUILTIN = 'NIE. Idea Board. Full Scan. Story Text. Project Memory. Brainstorm. Settings. English. American. British. French. German. Spanish. Latin. Greek. Christmas.';
+// NIE's own vocabulary and the capitalised words of ordinary English that a reply uses without a source for them: languages and peoples, periods and movements,
+// the names of well-known craft ideas and style guides, feasts and seasons. Reference vocabulary of the craft, written in code like the knowledge library; nothing of any project.
+const BUILTIN = [
+  'NIE. Idea Board. Full Scan. Story Text. Story Bible. Project Memory. Brainstorm. Settings. Bible. Markdown. Scrivener. Word. Docs.',
+  'English. American. British. French. German. Spanish. Latin. Greek. Italian. Irish. Scottish. Welsh. Dutch. Russian. Chinese. Japanese. Indian. European. African. Asian. Australian. Canadian. Roman. Norse. Celtic. Arabic. Hebrew. Nordic. Slavic.',
+  'Gothic. Victorian. Edwardian. Georgian. Elizabethan. Jacobean. Regency. Romantic. Romanticism. Modernist. Modernism. Postmodern. Postmodernist. Realist. Realism. Naturalist. Naturalism. Symbolist. Surrealist. Imagist. Beat. Augustan. Byronic. Dickensian. Orwellian. Kafkaesque. Shakespearean. Homeric. Biblical. Arthurian. Aristotelian. Socratic. Freudian. Jungian. Oedipal. Machiavellian. Kantian. Marxist. Noir. Renaissance. Medieval. Baroque. Classical. Hellenistic. Southern Gothic. Magical Realism. Golden Age. Dark Ages. Middle Ages.',
+  'Fantasy. Romance. Mystery. Thriller. Horror. Crime. Western. Memoir. Poetry. Fiction. Nonfiction. Screenplay. Novel. Novella. Essay. Science Fiction. Young Adult. Literary Fiction. Historical Fiction. Short Story. Flash Fiction.',
+  'Chicago. Oxford. Harvard. Associated Press. Elements of Style. Manual of Style. Stylebook. Merriam-Webster. Webster. Fowler. Modern English Usage. Plain English. Strunk. Turabian. Vancouver.',
+  "Hero's Journey. Three-Act. Save the Cat. Chekhov's Gun. Freytag's Pyramid. Snowflake Method. Mary Sue. Deus Ex Machina. In Medias Res. Bildungsroman. MacGuffin. Red Herring. Bechdel. Aristotle. Poetics.",
+  'Christmas. Easter. Halloween. Thanksgiving. Lent. Advent. Ramadan. Diwali. Hanukkah. Passover. God. Heaven. Hell. Earth. Sun. Moon.',
+  // the craft's own terms, as a reply capitalises them
+  'Dramatic Irony. Verbal Irony. Situational Irony. Call to Adventure. Dark Night of the Soul. Opening Image. Closing Image. Final Image. Midpoint. Plot Point. Plot Twist. Fish Out of Water. Show, Don\'t Tell. Rule of Three.',
+  'Inciting Incident. Rising Action. Falling Action. Turning Point. Point of View. Close Third. Deep POV. Third Person Limited. Third Person Omniscient. First Person. Second Person. Free Indirect Discourse. Stream of Consciousness.',
+  'Unreliable Narrator. Frame Narrative. Epistolary. Cold Open. Cliffhanger. Foreshadowing. Flashback. Flashbacks. Backstory. Exposition. Info Dump. Epiphany. Catharsis. Pathetic Fallacy. Foil. Anti-Hero. Antihero. Protagonist. Antagonist. Mentor. Trickster.',
+  'Femme Fatale. Final Girl. Chosen One. Found Family. Love Triangle. Enemies to Lovers. Slow Burn. Locked Room. Whodunit. Cozy Mystery. Space Opera. Cyberpunk. Steampunk. Solarpunk. Grimdark. Dystopian. Post-Apocalyptic. Epic Fantasy.',
+  'High Fantasy. Low Fantasy. Urban Fantasy. Portal Fantasy. Sword and Sorcery. Slice of Life. Coming of Age. Coming-of-Age. Magical Realism. Gothic Horror. Cosmic Horror. Body Horror. Psychological Thriller. Legal Thriller. Romantic Comedy.',
+  'Satire. Parody. Pastiche. Fable. Parable. Allegory. Myth. Legend. Folktale. Fairy Tale. Anaphora. Alliteration. Assonance. Consonance. Enjambment. Caesura. Iambic Pentameter. Free Verse. Blank Verse. Sonnet. Haiku. Limerick. Villanelle. Sestina.',
+  'Elegy. Ode. Ballad. Couplet. Quatrain. Stanza. Refrain. Metaphor. Metaphors. Simile. Similes. Personification. Hyperbole. Understatement. Irony. Symbolism. Symbol. Symbols. Motif. Motifs. Theme. Themes. Trope. Tropes. Archetype. Archetypes.',
+  'Voice. Tone. Diction. Syntax. Imagery. Pacing. Characterization. Characterisation. Dialogue. Subtext. Conflict. Stakes. Tension. Atmosphere. Mood. Setting. Worldbuilding. Plot. Structure. Beat Sheet. Story Circle. Seven-Point Structure. Five-Act Structure.',
+  'Three-Act Structure. Act One. Act Two. Act Three. Setup. Payoff. Climax. Denouement. Resolution. Epilogue. Prologue. Adverbs. Adjectives. Verbs. Nouns. Sentences. Fragments. Clauses. Punctuation. Tense. Repetition. Rhythm. Contrast. Echoes.',
+  // the themes a reply lists
+  'Loss. Memory. Family. Grief. Love. Death. Identity. Belonging. Power. Freedom. Justice. Revenge. Redemption. Betrayal. Loyalty. Sacrifice. Hope. Fear. Duty. Honour. Honor. Guilt. Shame. Pride. Ambition. Isolation. Loneliness. Friendship. Faith. Fate.',
+  'Time. Nature. Change. Home. War. Peace. Class. Gender. Silence. Humour. Humor. Wit. Suspense. Mystery. Romance. Horror. Tragedy. Comedy. Drama. Melodrama. Pathos. Desire. Hunger. Innocence. Memory. Work. Money. Faith. Truth. Lies. Secrets.',
+  // the best-known writers on the craft, and the works about it
+  'Strunk and White. Zinsser. On Writing Well. Politics and the English Language. Orwell. Hemingway. Vonnegut. Forster. Aspects of the Novel. Campbell. Vogler. Truby. McKee. Snyder. Lamott. Bird by Bird. Dillard. Gardner. Stephen King. On Writing.',
+].join(' ');
+
+// Craft words a reply capitalises as a label ("Character Development:", "Narrative Voice", "Key Observations"): ordinary English, never a name. A run is read as a
+// label when every word in it is one of these, is found in lower case in a source, or looks like an abstract noun (ends in -tion, -ment, -ness, -ity...).
+const CRAFT = new Set(
+  ('narrative narrator narrators arc arcs conflict conflicts tension stakes motif motifs perspective atmosphere mood language relationships relationship consistency continuity suggestions ' +
+    'suggestion strengths strength weaknesses weakness areas area improvement improvements overview summary analysis feedback takeaways takeaway conclusion introduction background context ' +
+    'premise protagonist protagonists antagonist antagonists world worldbuilding backstory exposition foreshadowing resolution climax rising falling action transitions transition sentence ' +
+    'sentences grammar punctuation spelling clarity concision redundancy repetition imagery symbolism sensory emotional emotion emotions key main major minor central core overall general ' +
+    'specific detail details observations observation development devices device technique techniques craft free indirect discourse stream consciousness unreliable inciting incident twist twists ' +
+    'reveal reveals payoff setup pacing rhythm cadence texture register diction syntax style genre tone theme themes subtext dialogue monologue interior exterior scene sequel beat beats act ' +
+    'acts opening hook closing ending middle beginning draft revision revisions edit edits character characters plot structure voice point view tense person show tell active passive ' +
+    'fiction nonfiction poem poems poetry prose verse chapter chapters section sections paragraph paragraphs word words line lines story stories reader readers writer writers').split(' ')
+);
+const ABSTRACT_SUFFIX = /(?:tion|sion|ment|ness|ity|ance|ence|ship|ical|ional|ative|itive|ism|ology|able|ible|ful|less|ings?|ery|ics|ous|hood)s?$/;
 
 function wordsOfSource(source) {
   const toks = [];
@@ -72,11 +108,12 @@ function wordsOfSource(source) {
     if (!cap) lower.add(lo);
     if (lo.includes('-')) for (const part of lo.split('-')) if (part) words.add(part);
   }
-  return { toks, caps, words, lower, pos, nums: null, source };
+  return { toks, caps, words, lower, pos, nums: null, source, trusted: false };
 }
 
 function vocabularyOf(source) {
   const s = source.length > SOURCE_CAP_CHARS ? source.slice(0, SOURCE_CAP_CHARS) : source;
+  if (s.length < CACHE_MIN_CHARS) return wordsOfSource(s);
   const key = `${s.length}:${fnv1a(s)}`;
   const hit = CACHE.get(key);
   if (hit) {
@@ -98,18 +135,26 @@ function vocabularies(sources, known) {
   const list = [];
   for (const s of typeof sources === 'string' ? [sources] : Array.isArray(sources) ? sources : []) if (typeof s === 'string' && s.trim()) list.push(vocabularyOf(s));
   const extra = (Array.isArray(known) ? known : []).filter((k) => typeof k === 'string' && k.trim()).map((k) => k.trim().slice(0, 200));
-  list.push((builtinVocab ??= wordsOfSource(BUILTIN))); // (code, not project data)
-  if (extra.length) list.push(wordsOfSource(extra.join('\n'))); // (short, so not worth caching)
+  list.push((builtinVocab ??= { ...wordsOfSource(BUILTIN), trusted: true })); // (code, not project data)
+  if (extra.length) list.push({ ...wordsOfSource(extra.join('\n')), trusted: true }); // (short, so not worth caching)
   return list;
 }
 
-const wordKnown = (vs, w) => vs.some((v) => v.words.has(w));
+// ("Memoirs" is known where "memoir" is: a plural or a verb ending does not make a new word)
+const stems = (w) => (w.length > 4 && w.endsWith('ies') ? [w, `${w.slice(0, -3)}y`] : w.length > 3 && w.endsWith('es') ? [w, w.slice(0, -2), w.slice(0, -1)] : w.length > 3 && w.endsWith('s') && !w.endsWith('ss') ? [w, w.slice(0, -1)] : [w]);
+const wordKnown = (vs, w) => stems(w).some((x) => vs.some((v) => v.words.has(x)));
+const trustedWord = (vs, w) => stems(w).some((x) => vs.some((v) => v.trusted && v.words.has(x)));
 const ordinary = (vs, w) => STOPWORDS.has(w) || OPENERS.has(w) || ORDINARY_OPENERS.has(w) || vs.some((v) => v.lower.has(w));
 
-/** Does the run occur in a source, word after word (a capitalised middle word may sit between: "Commissioner Haldric" for "Commissioner Emeric Haldric")? */
-function phraseKnown(vs, parts) {
+/**
+ * Does the run occur in a source, word after word (a capitalised middle word may sit between: "Commissioner Haldric" for "Commissioner Emeric Haldric")?
+ * `budget.left` bounds the work for one reply (a common first word in a long text has thousands of places to try): when it runs out the run counts as NOT found,
+ * which only ever removes a sentence, never keeps an invented name.
+ */
+function phraseKnown(vs, parts, budget) {
   for (const v of vs) {
     for (const i of v.pos.get(parts[0]) ?? []) {
+      if (--budget.left < 0) return false;
       let at = i;
       let ok = true;
       for (let k = 1; ok && k < parts.length; k++) {
@@ -130,8 +175,56 @@ const isLeadingFiller = (parts, k) => {
   return STOPWORDS.has(lo) || TITLES.has(lo) || (ROLE_WORDS.has(lo) && k + 1 < parts.length);
 };
 
+const labelWord = (vs, w) => ordinary(vs, w) || CRAFT.has(w) || trustedWord(vs, w) || (w.length >= 5 && ABSTRACT_SUFFIX.test(w));
+
+/**
+ * A run of capitalised words that is not found as a run: every stretch of words in it that is not a label ("Whether", "Opening", "Dark Night") must still be known,
+ * a single word anywhere in a source, several words as a run. "Whether Dad" passes (Dad is the text's), "Foreshadowing Aunt Dilys" passes, "Haldric Ombrecht" does not.
+ */
+function runKnown(vs, lows, budget) {
+  for (let i = 0; i < lows.length; ) {
+    if (labelWord(vs, lows[i])) {
+      i++;
+      continue;
+    }
+    let j = i;
+    while (j < lows.length && !labelWord(vs, lows[j])) j++;
+    const seg = lows.slice(i, j);
+    if (seg.length === 1 ? !wordKnown(vs, seg[0]) : !phraseKnown(vs, seg, budget)) return false;
+    i = j;
+  }
+  return true;
+}
+
+// A capitalised word that opens a sentence proves nothing ("Pacing", "Then"), unless it is no word of English that any source or list has and a verb of doing or
+// saying follows it at once ("Torvald waits at the gate"): then it is a name, and it has to be one of the sources'.
+const PRESENT = new Set(
+  ('is was has does says asks replies answers walks runs comes goes sees takes makes knows gives finds tells holds keeps stands sits begins writes speaks hears falls becomes meets leaves feels thinks wants needs waits watches appears arrives enters ' +
+    'refuses agrees decides returns follows discovers remembers tries hides lies dies lives loves hates fears carries brings sends calls shouts whispers laughs smiles nods frowns sighs weeps cries looks turns opens closes reads kills saves wins loses ' +
+    'plans plays pays picks pushes pulls reaches rises shows sleeps steps stops stays strikes struggles touches travels trusts uses visits wakes warns wears works wonders waves glances stares hesitates reveals climbs leads grows changes moves lingers pauses starts mentions ' +
+    'introduces explains suggests offers demands insists hopes realises realizes notices recalls narrates describes confronts confesses admits denies accuses betrays helps joins departs vanishes disappears survives fights chases hunts escapes doubts sells buys owns ' +
+    'rules serves guards sings dances paints builds breaks burns cooks cuts drinks drives eats flies hits hurts jumps kicks kisses knocks lifts listens locks marries').split(' ')
+);
+const PAST = new Set(
+  ('said asked replied answered walked ran came went saw took made knew gave found told held kept stood sat began wrote spoke heard fell became met left felt thought wanted needed waited watched appeared arrived entered refused agreed decided returned ' +
+    'followed discovered remembered tried hid lied died lived loved hated feared carried brought sent called shouted whispered laughed smiled nodded frowned sighed wept cried looked turned opened closed read killed saved won lost planned played paid picked ' +
+    'pushed pulled reached rose set showed slept stepped stopped stayed struck struggled touched travelled traveled trusted used visited woke warned wore worked wondered waved glanced stared hesitated revealed climbed led grew changed moved lingered paused started ' +
+    'mentioned introduced explained suggested offered demanded insisted hoped realised realized noticed recalled narrated described confronted confessed admitted denied accused betrayed helped joined departed vanished disappeared survived fought chased hunted ' +
+    'escaped doubted sold bought owned served guarded sang danced painted built broke burned burnt cooked drank drove ate flew hit hurt jumped kicked kissed knocked lifted listened locked married will would can could must may might shall should').split(' ')
+);
+function namelikeOpener(sentence, run, vs) {
+  const lo = run.parts[0].toLowerCase().replace(/’/g, "'");
+  if (lo.length < 3 || wordKnown(vs, lo) || labelWord(vs, lo)) return false;
+  const after = /^[ \t]+([\p{L}']+)/u.exec(sentence.slice(run.end));
+  if (!after) return false;
+  const verb = after[1].toLowerCase();
+  // (a plural noun takes the plain or the past form too: "Adverbs cluster", "Adverbs appeared"; only a singular verb is a sign of a name that ends in s)
+  const plural = lo.endsWith('s') && !lo.endsWith('ss');
+  return plural ? PRESENT.has(verb) : PRESENT.has(verb) || PAST.has(verb);
+}
+
 /** The capitalised names in one sentence that no source has. */
-function unknownNames(sentence, vs) {
+function unknownNames(sentence, vs, ctx) {
   const out = [];
   for (const run of capitalisedRuns(sentence)) {
     const parts = run.parts;
@@ -141,16 +234,21 @@ function unknownNames(sentence, vs) {
     while (end > lead && STOPWORDS.has(parts[end - 1].toLowerCase())) end--;
     if (lead >= end) continue;
     if (run.initial && lead === 0) {
-      const first = parts[0].toLowerCase();
+      const first = parts[0].toLowerCase().replace(/’/g, "'");
       if (end === 1) {
-        if (!run.possessive) continue; // the capital of a sentence's first word proves nothing
-      } else if (ordinary(vs, first) || (first.length > 4 && first.endsWith('ly'))) lead = 1;
+        if (!run.possessive && !namelikeOpener(sentence, run, vs)) continue; // the capital of a sentence's first word proves nothing
+      } else if (labelWord(vs, first) || (first.length > 4 && first.endsWith('ly'))) lead = 1;
     }
     let piece = [];
     const flush = () => {
       if (!piece.length) return;
       const lows = piece.map((p) => p.toLowerCase().replace(/’/g, "'"));
-      const known = lows.length === 1 ? wordKnown(vs, lows[0]) || ordinary(vs, lows[0]) : phraseKnown(vs, lows) || lows.every((w) => ordinary(vs, w));
+      const memo = lows.join(' ');
+      let known = ctx.memo.get(memo);
+      if (known === undefined) {
+        known = lows.length === 1 ? wordKnown(vs, lows[0]) || labelWord(vs, lows[0]) : phraseKnown(vs, lows, ctx.budget) || runKnown(vs, lows, ctx.budget);
+        ctx.memo.set(memo, known);
+      }
       if (!known) out.push(piece.join(' '));
       piece = [];
     };
@@ -170,6 +268,7 @@ const isHeadingNumber = (lo) => NUMBER_WORD_RE.test(lo);
 // ── numbers ──────────────────────────────────────────────────────────────────
 
 const ABOUT_THE_TEXT = /\b(?:your|the|this|that|his|her|their)\s+(?:text|draft|story|novel|bible|chapters?|sections?|scenes?|paragraphs?|manuscript|piece|script|poem|essay|book|passage|notes|opening|ending|document|timeline)\b/i;
+const APPROX = /\b(?:about|around|roughly|nearly|almost|approximately|approx\.?|some|over|under|just over|just under|more than|less than|close to|up to)\s*$/i;
 const LOCATOR = /\b(?:sections?|chapters?|scenes?|paragraphs?|parts?|pages?|lines?|acts?|passages?|numbers?|no\.?|#)\s*$/i;
 // "sections 3, 7 and 12" (no nested quantifier: a long run of digits cannot make this backtrack)
 const LOCATOR_LIST = /\b(?:sections?|chapters?|scenes?|paragraphs?|parts?|pages?|lines?|acts?)\s+\d+(?:\s*(?:,\s*(?:and|or)|,|and|or|to|&|–|-)\s*\d+)*$/i;
@@ -178,14 +277,20 @@ const LOCATOR_LIST = /\b(?:sections?|chapters?|scenes?|paragraphs?|parts?|pages?
 function unknownNumbers(sentence, vs, sections) {
   const speaksOfText = ABOUT_THE_TEXT.test(sentence);
   const out = [];
+  const marker = /^\s*\d{1,3}[.)]/.exec(sentence); // "10. Consider...": the number of a list item is not a fact about the text
+  const markerEnd = marker ? marker[0].length : 0;
   for (const n of numbersIn(sentence, { limit: 50 })) {
+    if (n.end <= markerEnd) continue;
     const before = sentence.slice(Math.max(0, n.start - 40), n.start);
     if (LOCATOR.test(before) || LOCATOR_LIST.test(sentence.slice(Math.max(0, n.start - 60), n.end))) {
       if (Number.isFinite(sections) && sections > 0 && n.digits && n.value > sections) out.push(n.written); // there is no such section
       continue;
     }
     const heavy = n.digits ? n.value >= 10 || /[,.]/.test(n.written) : n.value >= 10;
-    if (speaksOfText && heavy && !vs.some((v) => numbersOf(v).has(n.value))) out.push(n.written);
+    if (!(speaksOfText && heavy) || vs.some((v) => numbersOf(v).has(n.value))) continue;
+    // "about 10,000 words" for 10,374 is an estimate and says so: within 5% of a number the sources have
+    if (APPROX.test(before) && vs.some((v) => [...numbersOf(v)].some((x) => x > 0 && Math.abs(x - n.value) <= 0.05 * x))) continue;
+    out.push(n.written);
   }
   return [...new Set(out)];
 }
@@ -201,18 +306,39 @@ function unknownNumbers(sentence, vs, sections) {
  * @returns {{ text: string, removed: { sentence: string, names: string[], numbers: string[] }[], emptied: boolean }}
  *   `emptied` is true when nothing is left: the caller says so instead of showing an empty reply.
  */
-export function groundNames(reply, { sources = [], known = [], sections = null } = {}) {
+export function groundNames(reply, opts) {
+  const { sources = [], known = [], sections = null } = opts && typeof opts === 'object' ? opts : {};
   const src = typeof reply === 'string' ? reply : '';
   const result = { text: src, removed: [], emptied: false };
   if (!src.trim()) return { ...result, text: '' };
   const vs = vocabularies(sources, known);
+  const ctx = { memo: new Map(), budget: { left: 4_000_000 } };
+  const spans = sentenceSpans(src);
+  const verdicts = spans.map((sp) => ({ sp, names: unknownNames(sp.text, vs, ctx), numbers: unknownNumbers(sp.text, vs, sections) }));
+  // A name the check has just refused comes back in other sentences of the same reply, often at the start of one ("Haldric watches the harbour"), where a capital
+  // proves nothing and the first look let it pass: a word that no source has, and that is not ordinary English, goes with the sentences that named it.
+  const refused = new Set();
+  for (const v of verdicts) {
+    for (const nm of v.names) {
+      for (const part of nm.split(' ')) {
+        const lo = part.toLowerCase().replace(/’/g, "'");
+        if (lo.length >= 3 && !wordKnown(vs, lo) && !labelWord(vs, lo)) refused.add(lo);
+      }
+    }
+  }
+  if (refused.size) {
+    for (const v of verdicts) {
+      if (v.names.length) continue;
+      for (const run of capitalisedRuns(v.sp.text)) {
+        for (const part of run.parts) if (refused.has(part.toLowerCase().replace(/’/g, "'"))) v.names.push(part);
+      }
+    }
+  }
   const cut = [];
-  for (const sp of sentenceSpans(src)) {
-    const names = unknownNames(sp.text, vs);
-    const numbers = unknownNumbers(sp.text, vs, sections);
-    if (names.length || numbers.length) {
-      cut.push(sp);
-      result.removed.push({ sentence: sp.text, names, numbers });
+  for (const v of verdicts) {
+    if (v.names.length || v.numbers.length) {
+      cut.push(v.sp);
+      result.removed.push({ sentence: v.sp.text, names: [...new Set(v.names)], numbers: v.numbers });
     }
   }
   if (!cut.length) return result;

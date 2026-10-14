@@ -18,10 +18,13 @@ const q = (s) => {
   return `"${w.length > 10 ? `${w.slice(0, 10).join(' ')}…` : flat}"`;
 };
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
+const nSections = (n) => `${n} ${n === 1 ? 'section' : 'sections'}`;
+/** What to call the speech the program counted: quotation marks only, or speech set off by speaker names as well (a screenplay has no quotation marks). */
+const speechWord = (a) => ((a.style?.dialogue?.cueShare ?? 0) > 0.02 ? 'speech in quotation marks or set off by speaker names' : 'quoted dialogue');
 
 /** "section 4", "sections 3, 7 and 12", "sections 5 to 14": 1-based numbers of 0-based indexes; runs of three or more are ranges; long lists end "and N more". */
 export function listSections(indices, { max = 6 } = {}) {
-  const u = [...new Set((indices ?? []).filter(Number.isInteger))].sort((a, b) => a - b);
+  const u = [...new Set((Array.isArray(indices) ? indices : []).filter(Number.isInteger))].sort((a, b) => a - b);
   if (!u.length) return 'no section';
   const parts = [];
   for (let k = 0; k < u.length; ) {
@@ -57,7 +60,10 @@ export function castLine(a, limit = 3) {
   const top = rankedCast(a).slice(0, limit);
   if (!top.length || !M) return null;
   const [first, ...rest] = top;
-  const head = `${nameWithAliases(first)} appears in ${first.sections.length} of ${M} ${M === 1 ? 'section' : 'sections'} (first in ${first.first + 1}, last in ${first.last + 1})`;
+  // one section: where a name comes up is no news, how often is
+  if (M === 1) return [`${nameWithAliases(first)} comes up ${first.mentions} ${first.mentions === 1 ? 'time' : 'times'}`, ...rest.map((c) => `${c.name} ${c.mentions}`)].join('; ');
+  const where = first.sections.length === 1 ? `only in section ${first.first + 1}` : `first in ${first.first + 1}, last in ${first.last + 1}`;
+  const head = `${nameWithAliases(first)} appears in ${first.sections.length} of ${nSections(M)} (${where})`;
   return [head, ...rest.map((c) => `${c.name} in ${c.sections.length}`)].join('; ');
 }
 
@@ -66,7 +72,7 @@ export function termsLine(a, limit = 5) {
   const M = sectionsOf(a);
   const top = (a.terms ?? []).slice(0, limit);
   if (!top.length || !M) return null;
-  return top.map((t) => `${t.term} (${t.sections.length} of ${M} ${M === 1 ? 'section' : 'sections'})`).join(', ');
+  return top.map((t) => `${t.term} (${t.sections.length} of ${nSections(M)})`).join(', ');
 }
 
 function castFindings(a) {
@@ -84,8 +90,8 @@ function castFindings(a) {
       instrument: 'cast',
       strength: (c.kind === 'person' ? 60 : 40) + Math.min(10, gap[1] - gap[0] + 1 - need),
       sections: range(gap[0], gap[1]).slice(0, 12),
-      text: `${c.name} appears in ${c.sections.length} of ${M} sections but not in ${span}`,
-      question: `${c.name} is missing from ${span}: is that an absence you intended?`,
+      text: `${c.name} appears in ${c.sections.length} of ${M} sections but is not named in ${span}`,
+      question: `${c.name} is not named in ${span}: is that an absence you intended?`,
     });
   }
   return out.sort((x, y) => y.strength - x.strength).slice(0, 2);
@@ -97,14 +103,15 @@ function typoFindings(a) {
     instrument: 'names',
     strength: n.bCount <= 2 ? 65 : 55,
     sections: n.sections,
-    text: `${q(n.b)} appears ${n.bCount === 1 ? 'once' : `${n.bCount} times`}, in ${listSections(n.sections)}, where ${q(n.a)} appears ${n.aCount} times (a possible typo in a name)`,
-    question: `${q(n.b)} appears only in ${listSections(n.sections)} while ${q(n.a)} appears ${n.aCount} times: did you intend two different names?`,
+    text: `${q(n.b)} appears ${n.bCount === 1 ? 'once' : `${n.bCount} times`}, in ${listSections(n.sections)}, and ${q(n.a)} appears ${n.aCount} times in all (a possible typo in a name)`,
+    question: `${q(n.b)} appears only in ${listSections(n.sections)} while ${q(n.a)} appears ${n.aCount} times in all: did you intend two different names?`,
   }));
 }
 
 // ── pacing ───────────────────────────────────────────────────────────────────
 
-const bucket = (r) => (r >= 3 ? 'more than three times' : r >= 2 ? 'more than twice' : `${times(r)} times`);
+// (exactly twice is "twice", not "more than twice": the ratio is three decimals, so an exact 2 or 3 is a real tie)
+const bucket = (r) => (r > 3 ? 'more than three times' : r === 3 ? 'three times' : r > 2 ? 'more than twice' : r === 2 ? 'twice' : `${times(r)} times`);
 
 function pacingFindings(a) {
   const p = a.pacing;
@@ -151,12 +158,12 @@ function pacingFindings(a) {
         sections: [d.i],
         text:
           d.kind === 'heavy'
-            ? `quoted dialogue is ${pct(d.share)} of the words in section ${d.i + 1} against a median of ${pct(r.dialogueMedian)}`
-            : `section ${d.i + 1} has no quoted dialogue; the median section has ${pct(r.dialogueMedian)}`,
+            ? `${speechWord(a)} is ${pct(d.share)} of the words in section ${d.i + 1} against a median of ${pct(r.dialogueMedian)}`
+            : `section ${d.i + 1} has no ${speechWord(a)}; the median section has ${pct(r.dialogueMedian)}`,
         question:
           d.kind === 'heavy'
-            ? `Quoted dialogue is ${pct(d.share)} of section ${d.i + 1} where a typical section has ${pct(r.dialogueMedian)}: did you mean that scene to be mostly talk?`
-            : `Section ${d.i + 1} has no quoted dialogue where a typical section has ${pct(r.dialogueMedian)}: did you mean that?`,
+            ? `${cap(speechWord(a))} is ${pct(d.share)} of section ${d.i + 1} where a typical section has ${pct(r.dialogueMedian)}: did you mean that scene to be mostly talk?`
+            : `Section ${d.i + 1} has no ${speechWord(a)} where a typical section has ${pct(r.dialogueMedian)}: did you mean that?`,
       });
     }
   }
@@ -182,8 +189,8 @@ function pacingNeutral(a) {
 /** Quoted dialogue by thirds of the text (needs three sections). */
 export function dialogueLine(a) {
   const t = a.pacing?.dialogueByThirds;
-  if (!t || t.length !== 3) return null;
-  return `quoted dialogue is ${pct(t[0])}, ${pct(t[1])} and ${pct(t[2])} of the words in the first, middle and last thirds of the ${sectionsOf(a)} sections`;
+  if (!t || t.length !== 3 || (a.style?.dialogue?.dashLines ?? 0) >= 5) return null; // (speech set off by dashes is not in these shares: better no figure than a wrong one)
+  return `${speechWord(a)} is ${pct(t[0])}, ${pct(t[1])} and ${pct(t[2])} of the words in the first, middle and last thirds of the ${sectionsOf(a)} sections`;
 }
 
 // ── voice ────────────────────────────────────────────────────────────────────
@@ -227,7 +234,7 @@ function voiceNeutral(a) {
   if (!v || !M) return null;
   if (!v.clear.tense && !v.clear.person) return 'no section has enough verb or pronoun cues to say which tense or person it is in';
   if (v.shifts.length) return null;
-  return `no change of tense or person was counted between sections that read clearly (${v.clear.tense} of ${M} sections have a clear tense, ${v.clear.person} a clear person)`;
+  return `no change of tense or person was counted between sections that read clearly (a clear tense in ${v.clear.tense} of ${nSections(M)}, a clear person in ${v.clear.person})`;
 }
 
 /** The measured style facts in one line (labels only where the counts support them). Null when there is too little text. */
@@ -242,16 +249,19 @@ export function styleLine(a) {
   else if (s.tense?.label === 'mixed') parts.push('tense moves between past and present');
   const bits = [];
   if (parts.length) bits.push(parts.join(', '));
-  if (s.sentences >= 3) bits.push(`sentences average ${Math.round(s.sentence.mean)} words`);
+  // (counted sentences that hold under 60% of the words mean verse, a list or a script: the length of its lines is not "the sentences")
+  if (s.sentences >= 3 && s.sentences * s.sentence.mean >= 0.6 * s.words) bits.push(`sentences average ${Math.round(s.sentence.mean)} words`);
   if (s.words >= 100) {
     const d = s.dialogue ?? {};
+    const talk = d.share + (d.cueShare ?? 0);
     // speech set off by a dash or by a speaker's name, which the quotation count does not see, is said as such
     if ((d.dashLines ?? 0) >= 5 && d.share < 0.15) bits.push(`${d.dashLines} lines open with a dash`);
-    else bits.push(`quoted dialogue is ${pct(d.share + (d.cueShare ?? 0))} of the words`);
+    else if (!(talk > 0)) bits.push('no quoted dialogue was found');
+    else bits.push(`${speechWord(a)} is ${pct(talk)} of the words`);
   }
   if (!bits.length) return null;
   const M = sectionsOf(a);
-  const where = M && a.covered && !a.covered.complete ? `the first ${M} sections` : M === 1 ? 'the section' : `all ${M} sections`;
+  const where = M && a.covered && !a.covered.complete ? `the first ${nSections(M)}` : M === 1 ? 'the section' : M === 2 ? 'both sections' : `all ${M} sections`;
   return `${bits.join('; ')} (counted across ${where})`;
 }
 
@@ -272,13 +282,19 @@ function figureFindings(a) {
     const [x, y] = pair;
     const inferred = [x, y].filter((i) => i.inferred);
     const how = inferred.length ? `; the sentence in ${listSections(inferred.map((i) => i.section))} says "it", read as ${q(g.noun)} from the sentence before` : '';
+    // A plain noun ("the room") may be a different one each time it comes up; a name ("the Brimmer") is one thing. The first is a weaker sign, and says so.
+    const named = g.proper !== false;
     out.push({
       id: `figures.${g.noun}.${g.unit}`,
       instrument: 'figures',
-      strength: 90,
+      strength: named ? 90 : 62,
       sections: [x.section, y.section],
-      text: `${q(g.noun)} is given ${q(x.written)} in section ${x.section + 1} and ${q(y.written)} in section ${y.section + 1} (a possible conflict: the same measure may be given two numbers${how})`,
-      question: `Your text gives ${q(x.written)} in section ${x.section + 1} and ${q(y.written)} in section ${y.section + 1} for ${q(g.noun)}: did you mean those to be the same measure?`,
+      text: named
+        ? `${q(g.noun)} is given ${q(x.written)} in section ${x.section + 1} and ${q(y.written)} in section ${y.section + 1} (a possible conflict: the same measure may be given two numbers${how})`
+        : `${q(g.noun)} is given ${q(x.written)} in section ${x.section + 1} and ${q(y.written)} in section ${y.section + 1} (possibly a conflict, possibly two different things both called ${q(g.noun)}${how})`,
+      question: named
+        ? `Your text gives ${q(x.written)} in section ${x.section + 1} and ${q(y.written)} in section ${y.section + 1} for ${q(g.noun)}: did you mean those to be the same measure?`
+        : `Your text gives ${q(x.written)} in section ${x.section + 1} and ${q(y.written)} in section ${y.section + 1} for ${q(g.noun)}: do both mean the same ${g.noun}?`,
     });
   }
   return out;
@@ -286,8 +302,8 @@ function figureFindings(a) {
 
 function figureNeutral(a) {
   const n = (a.figures ?? []).length;
-  if (n) return `${n === 1 ? 'one measure is' : `${n} measures are`} stated in more than one section as a plain number and unit, and ${n === 1 ? 'it does' : 'none of them does'} not differ`;
-  return 'no measure was stated twice as a plain number and unit, so none could be compared';
+  if (n) return `the program found ${n === 1 ? 'one measure' : `${n} measures`} stated in more than one section as a plain number and unit, with the same number each time`;
+  return 'the program found no measure stated in more than one section as a plain number and unit, so none could be compared';
 }
 
 function timelineFindings(a) {
@@ -311,7 +327,7 @@ function timelineFindings(a) {
     instrument: 'timeline',
     strength: 80 - k * 2,
     sections: [j.fromSection, j.toSection],
-    text: `the dated entries go back in time: ${q(j.from)} (section ${j.fromSection + 1}) is followed by ${q(j.to)} (section ${j.toSection + 1})`,
+    text: `the dated entries go back in time: ${q(j.to)} (section ${j.toSection + 1}) comes after ${q(j.from)} (section ${j.fromSection + 1}) but is dated earlier`,
     question: `Your dated entries go back from ${q(j.from)} in section ${j.fromSection + 1} to ${q(j.to)} in section ${j.toSection + 1}: did you mean that jump back in time?`,
   }));
 }
@@ -349,7 +365,10 @@ function repeatFindings(a) {
 }
 
 function repeatNeutral(a) {
-  return `no phrase of five words with two or more content words comes back in three of the ${sectionsOf(a)} sections, and no sentence opener starts four sentences in a row in any of them`;
+  const M = sectionsOf(a);
+  const opener = 'no sentence opener starting four sentences in a row';
+  if (M < 3) return `the program found ${opener} in ${M === 1 ? 'the section' : 'either section'}`;
+  return `the program found no five-word phrase (with two or more content words) coming back in three of the ${M} sections, and ${opener}`;
 }
 
 /** Rules, rule by rule: how many places each is flagged in (at most 25 are listed per rule), where most. */
@@ -367,12 +386,24 @@ export function ruleStats(rules) {
     .map((e) => {
       const top = [...e.bySection.entries()].sort((x, y) => y[1] - x[1] || x[0] - y[0])[0];
       const it = items.get(e.ruleId);
-      return { ruleId: e.ruleId, rule: e.rule, count: e.count, more: Boolean(it?.truncated) || rules.findings.length < rules.count, topSection: top[0], topCount: top[1] };
+      return { ruleId: e.ruleId, rule: e.rule, count: e.count, more: Boolean(it?.truncated) || rules.findings.length < rules.count, topSection: top[0], topCount: top[1], where: gather(e.bySection, e.count) };
     })
     .sort((x, y) => y.count - x.count || (x.rule < y.rule ? -1 : 1));
 }
 
 const rulesCaveat = (rules) => (rules.needsModel ? ` ${rules.needsModel === 1 ? 'One rule needs' : `${rules.needsModel} rules need`} the language model and ${rules.needsModel === 1 ? 'was' : 'were'} not checked by the program.` : '');
+
+/**
+ * Where flagged places gather, said only as far as the counts say it: all in one section, most (a majority) in one, more in one than in any other, or a tie
+ * (then no section is named: "in 3 sections, no more than 1 in any one").
+ * @param {Map<number, number>} by  section -> places
+ */
+function gather(by, total) {
+  const rows = [...by.entries()].sort((x, y) => y[1] - x[1] || x[0] - y[0]);
+  const [sec, n] = rows[0];
+  const kind = rows.length === 1 ? 'all' : n * 2 > total ? 'most' : rows[1][1] < n ? 'more' : 'tie';
+  return { kind, section: sec, n, sections: rows.length };
+}
 
 function ruleFindings(a) {
   const r = a.rules;
@@ -380,16 +411,25 @@ function ruleFindings(a) {
   const stats = ruleStats(r);
   if (!stats.length) return [];
   const top = stats[0];
+  const tied = stats.filter((x) => x.count === top.count); // (two rules flagged equally often: neither is "the rule flagged most")
   const bySec = Object.entries(r.bySection).sort((x, y) => y[1] - x[1] || Number(x[0]) - Number(y[0]));
-  const [bestSection, bestCount] = bySec[0];
+  const all = gather(new Map(bySec.map(([k, v]) => [Number(k), v])), r.count);
+  const allSays = { all: `all of them in section ${all.section + 1}`, most: `most of them in section ${all.section + 1} (${all.n})`, more: `more of them in section ${all.section + 1} (${all.n}) than in any other`, tie: `in ${all.sections} sections, no more than ${all.n} in any one` }[all.kind];
+  const one = top.count === 1;
+  const topSays = { all: `all in section ${top.where.section + 1}`, most: `most in section ${top.where.section + 1}`, more: `more in section ${top.where.section + 1} than in any other`, tie: `across ${top.where.sections} sections` }[top.where.kind];
+  const topAsks = { all: `, all of them in section ${top.where.section + 1}`, most: `, most often in section ${top.where.section + 1}`, more: `, most often in section ${top.where.section + 1}`, tie: `, across ${top.where.sections} sections` }[top.where.kind];
   return [
     {
       id: 'rules.top',
       instrument: 'rules',
       strength: 85,
       sections: bySec.slice(0, 6).map(([s]) => Number(s)),
-      text: `${num(r.count)} ${r.count === 1 ? 'place is' : 'places are'} flagged against your rules, most of them in section ${Number(bestSection) + 1} (${bestCount}); the rule flagged most is ${q(top.rule)} (${top.count}${top.more ? ' or more' : ''} ${top.count === 1 ? 'place' : 'places'}, most in section ${top.topSection + 1})`,
-      question: `Your rule ${q(top.rule)} is flagged ${top.count}${top.more ? ' or more' : ''} ${top.count === 1 ? 'time' : 'times'}, most often in section ${top.topSection + 1}: are those places exceptions you intended?`,
+      text: `${num(r.count)} ${r.count === 1 ? 'place is' : 'places are'} flagged against your rules, ${allSays}; ${
+        tied.length > 1
+          ? `the rules flagged most are ${q(tied[0].rule)} and ${q(tied[1].rule)}${tied.length > 2 ? ` and ${tied.length - 2} more` : ''} (${top.count}${top.more ? ' or more' : ''} places each)`
+          : `the rule flagged most is ${q(top.rule)} (${top.count}${top.more ? ' or more' : ''} ${one ? 'place' : 'places'}${one ? `, in section ${top.where.section + 1}` : `, ${topSays}`})`
+      }`,
+      question: `Your rule ${q(top.rule)} is flagged ${top.count}${top.more ? ' or more' : ''} ${one ? 'time' : 'times'}${one ? `, in section ${top.where.section + 1}` : topAsks}: ${one ? 'is that place an exception' : 'are those places exceptions'} you intended?`,
     },
   ];
 }
@@ -436,7 +476,7 @@ export function neutralLine(a, instrument) {
     case 'rules':
       return ruleNeutral(a);
     case 'names':
-      return `no possible typo in a name was counted in the ${sectionsOf(a)} sections`;
+      return `the program found no possible typo in a name in ${nSections(sectionsOf(a))}`;
     case 'cast':
       return castLine(a);
     default:

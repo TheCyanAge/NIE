@@ -8,4 +8,4 @@ import { standouts, listSections, castLine, styleLine } from './findings.js';
 
 export { analyseText, analysisKey, ANALYSIS_VERSION, fragment, editorialEvidence, topicsOf, readbackFrame, groundNames, clearGroundingCache, groundingCacheSize, speaksAboutTheWriter, findThirdPerson, standouts, listSections, castLine, styleLine };
 
-export default { analyseText, analysisKey, editorialEvidence, readbackFrame, groundNames, clearGroundingCache, clearGroundingCache, groundingCacheSize, speaksAboutTheWriter, findThirdPerson };
+export default { analyseText, analysisKey, editorialEvidence, readbackFrame, groundNames, clearGroundingCache, groundingCacheSize, speaksAboutTheWriter, findThirdPerson };

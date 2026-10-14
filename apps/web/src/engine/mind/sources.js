@@ -37,6 +37,8 @@ export const WEIGHTS = Object.freeze({
 export const SOURCES = Object.freeze(['rule', 'deliberate', 'kept', 'profile', 'character', 'theme', 'motif', 'timeline', 'sheet', 'board', 'extra', 'premise', 'said', 'set-aside']);
 
 const MAX_TEXT = 700;
+/** The notes NIE itself puts on Idea Board items ("Still open: Setting, Ending" when it keeps an idea; "Set aside earlier"): its bookkeeping, never the writer's words. */
+const NIE_NOTE = /^(?:Still open: .*|Set aside earlier)$/s;
 const MAX_LIST = 400; // no list in a project is read past its newest 400 entries
 
 const list = (v) => (Array.isArray(v) ? v.slice(-MAX_LIST) : []);
@@ -47,7 +49,7 @@ const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 function agoPhrase(entry, mind, nowTurn) {
   const current = Number.isFinite(nowTurn) ? nowTurn : mind.turn;
   const d = current - entry.turn;
-  if (!(entry.turn > 0) || !(current > 0) || d < 0) return 'you said, earlier in this project';
+  if (!(entry.turn > 0) || !(current > 0) || d < 0 || d > 100000) return 'you said, earlier in this project';
   if (d === 0) return 'you said, in your last message';
   return d === 1 ? 'you said, one message ago' : `you said, ${d} messages ago`;
 }
@@ -78,9 +80,19 @@ function sheetValues(state) {
  *   for a caller that already shows it; `turn`: the number of the writer's newest message, for "N messages ago" (default: the newest the mind has recorded)
  * @returns {{ id: string, source: string, where: string, text: string, turn?: number, weight: number, by?: 'nie' }[]}
  */
-export function passagesOf(project, { includeSheet = true, turn = null } = {}) {
+export function passagesOf(project, options) {
+  const { includeSheet = true, turn = null } = options !== null && typeof options === 'object' ? options : {};
   const out = [];
   if (!isObject(project)) return out;
+  try {
+    gather(project, out, { includeSheet, turn });
+  } catch {
+    /* a project with something unreadable in it (a getter that throws): what was read before it still stands, and a reply is never broken by the mind */
+  }
+  return out;
+}
+
+function gather(project, out, { includeSheet, turn }) {
   const seen = new Set();
   const add = (id, source, where, body, extra = {}) => {
     const t = typeof body === 'string' ? body.trim() : '';
@@ -150,7 +162,8 @@ export function passagesOf(project, { includeSheet = true, turn = null } = {}) {
       const t = isObject(r) ? text(r.text, 240) : '';
       if (t) add(`premise:${hash(t)}`, 'premise', 'a change of direction you made', `Changed direction: ${t}`);
     }
-    const bits = [['figures', wp.characters], ['settings', wp.settings], ['themes', wp.themes]]
+    // (the premise's `themes` are labels NIE picked from a fixed list of its own, not words the writer used: they are not passages)
+    const bits = [['figures', wp.characters], ['settings', wp.settings]]
       .map(([label, v]) => [label, list(v).map((x) => text(x, 60)).filter(Boolean).slice(0, 8)])
       .filter(([, v]) => v.length)
       .map(([label, v]) => `${label}: ${v.join(', ')}`);
@@ -182,10 +195,10 @@ export function passagesOf(project, { includeSheet = true, turn = null } = {}) {
     if (!isObject(item)) continue;
     const t = text(item.text, MAX_TEXT);
     const id = typeof item.id === 'string' && item.id ? item.id : hash(t);
-    const note = text(item.note, 400);
+    const note = NIE_NOTE.test(text(item.note, 400)) ? '' : text(item.note, 400);
     const byNie = item.source !== 'writer';
     if (t) {
-      if (keptIds.has(id)) add(`kept:${id}`, 'kept', 'kept on your Idea Board', t);
+      if (keptIds.has(id)) add(`kept:${id}`, 'kept', byNie ? 'kept on your Idea Board, an idea from NIE' : 'kept on your Idea Board', t, byNie ? { by: 'nie' } : {});
       else if (byNie) add(`board:${id}`, 'board', 'Idea Board, an idea from NIE', t, { by: 'nie' });
       else add(`board:${id}`, 'board', 'Idea Board', t);
     }
@@ -198,5 +211,4 @@ export function passagesOf(project, { includeSheet = true, turn = null } = {}) {
     if (!isObject(e) || typeof e.text !== 'string' || !e.text) continue;
     add(`said:${e.n}`, 'said', agoPhrase(e, mind, turn), e.text, { turn: e.turn });
   }
-  return out;
 }
