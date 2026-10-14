@@ -99,12 +99,23 @@ export async function loadFile(f) {
   }
 }
 
+async function loadAbsolute(abs) {
+  try {
+    return { mod: await import(pathToFileURL(abs).href + `?t=${Date.now()}`), enrich: false };
+  } catch (err) {
+    return { mod: { default: null }, enrich: false, error: String(err?.message ?? err).split('\n')[0] };
+  }
+}
+
 /**
  * @param {string[]} [only] limit per-file checks to these files (cross-file duplicate checks still see every file)
  * @returns {Promise<string[]>} problems
  */
-export async function lintLibrary(only = null) {
-  const all = await Promise.all(listDataFiles().map(loadFile));
+export async function lintLibrary(only = null, extra = []) {
+  // `extra`: data files outside the library folder (a staging area), given by absolute path; they are checked as if they were in it, against everything that is.
+  const staged = await Promise.all(extra.map(async (abs) => ({ ...(await loadAbsolute(abs)), file: `staging/${path.basename(abs)}` })));
+  if (staged.length) only = [...(only ?? []), ...staged.map((x) => x.file)];
+  const all = [...(await Promise.all(listDataFiles().map(loadFile))), ...staged];
   const problems = [];
   const ids = new Map();
   const names = new Map();
@@ -178,8 +189,10 @@ export async function lintLibrary(only = null) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const only = process.argv.slice(2);
-  const problems = await lintLibrary(only.length ? only : null);
+  const argv = process.argv.slice(2);
+  const staging = argv.includes('--staging');
+  const only = argv.filter((a) => a !== '--staging');
+  const problems = staging ? await lintLibrary(null, only.map((f) => path.resolve(f))) : await lintLibrary(only.length ? only : null);
   if (problems.length) {
     console.error(problems.slice(0, 60).join('\n'));
     console.error(`\n${problems.length} problem(s)${problems.length > 60 ? ' (first 60 shown)' : ''}`);

@@ -67,6 +67,22 @@ export function loadLibrary() {
 
 
 /**
+ * Add plain records to the loaded library (tooling and tests only: the scripts that check a data file before the index lists it). The records become entries exactly as the
+ * library files' records do. Returns the number of entries now available.
+ */
+export function addRecords(records) {
+  const have = new Set(KNOWLEDGE.map((k) => k.id));
+  const added = [];
+  for (const rec of records) if (rec && typeof rec.id === 'string' && !have.has(rec.id)) { have.add(rec.id); added.push(fromRecord(rec)); }
+  const base = [...KNOWLEDGE.filter((k) => !k.derived), ...added];
+  const seenIds = new Set(base.map((k) => k.id));
+  KNOWLEDGE = Object.freeze([...base, ...derivedWorks(base).filter((k) => !seenIds.has(k.id))]);
+  byId = new Map(KNOWLEDGE.map((k) => [k.id, k]));
+  index = null;
+  return KNOWLEDGE.length;
+}
+
+/**
  * Many works appear only inside another entry's `works` list ("Things Fall Apart" under the African Writers Series). So that a
  * question about such a work can be answered, each listed title that has no record of its own gets a small lookup record built
  * from what the library already says (title, author, year, where it is listed). Nothing is added that the library does not hold.
