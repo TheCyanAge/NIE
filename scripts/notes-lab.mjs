@@ -8,6 +8,8 @@
 //                 server's own timings), how many notes the model gave in the right form, whether the names/terms it noted are the bible's real ones, and the overview
 //   --contexts    the bible's own questions (lookup, whole-text, timeline, style, contradiction, snippet) asked two ways: the old way (the closest passages and an
 //                 outline of first words) and the new way (notes on every section + overview + style + the closest passages); how many answers mention what they should
+//   --editor      the editorial instruments (counted facts, the read-back, the check that a reply names only what is in the text) with and without, on the bible's
+//                 whole-text, timeline, style, contradiction and snippet questions; and the read-back a writer gets when they paste the bible with no question
 //   --variety     one scripted 10-message conversation about the bible under three settings (the earlier prompt / the new prompt / the new prompt + a different shape
 //                 each turn + what not to repeat + cleaning): praise openers, stock questions, questions asked twice, how alike the replies are
 // options:
@@ -27,6 +29,7 @@ import { buildIndex } from '../apps/web/src/engine/reading/context.js';
 import { NOTE_SCHEMA, buildNoteMessages, makeOverview, projectNotesCache, readThrough } from '../apps/web/src/engine/reading/notes.js';
 import { describeStyle, styleProfile } from '../apps/web/src/engine/reading/style.js';
 import { isPraiseOpener, isStockQuestion, questionsIn, similarity, splitSentencesLite } from '../apps/web/src/engine/orchestrator/variety.js';
+import { findThirdPerson, groundNames } from '../apps/web/src/engine/editor/index.js';
 import { loadBible } from '../tests/fixtures/story-bible.mjs';
 import { estimateTokens } from '../apps/web/src/engine/util/text.js';
 
@@ -34,8 +37,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const opt = (name, def = null) => (args.includes(name) ? args[args.indexOf(name) + 1] : def);
 const flag = (name) => args.includes(name);
-const none = !['--notes', '--contexts', '--variety'].some(flag);
-const want = { notes: flag('--notes') || none, contexts: flag('--contexts'), variety: flag('--variety') || none };
+const none = !['--notes', '--contexts', '--variety', '--editor'].some(flag);
+const want = { notes: flag('--notes') || none, contexts: flag('--contexts'), editor: flag('--editor'), variety: flag('--variety') || none };
 
 const pct = (a, b) => (b ? `${((100 * a) / b).toFixed(0)}%` : 'n/a');
 const sec = (ms) => `${(ms / 1000).toFixed(1)} s`;
@@ -186,6 +189,47 @@ async function runContexts() {
   report.contexts = rows;
 }
 
+// ── 2b. the editorial instruments, with and without ─────────────────────────
+async function runEditor() {
+  await ensureNotes();
+  console.log('\n=== the editorial instruments: the same questions, the same notes, with and without the counted facts and the check on what a reply names ===');
+  const from = calls.length;
+  const perKind = Number(opt('--per-kind', 2));
+  const kinds = ['whole', 'timeline', 'style', 'contradiction', 'snippet'];
+  const picks = kinds.flatMap((k) => truth.questions.filter((q) => q.kind === k).slice(0, perKind));
+  const left = (r) => /left out part of that reply|could not find in your text/i.test(r);
+  const rows = [];
+  for (const q of picks) {
+    const row = { id: q.id, kind: q.kind, ask: q.ask };
+    for (const mode of ['without', 'with']) {
+      const o = new Orchestrator({ engine, readNotes: true, variety: 'full', editor: mode === 'with' });
+      const proj = structuredClone(project0);
+      const t = Date.now();
+      const r = await o.brainstorm({ project: proj, message: q.ask });
+      const invented = groundNames(r.reply, { sources: [bible, q.ask], known: ['NIE', 'Lab'], sections: index.sections.length }).removed.length; // would the check have cut this reply?
+      row[mode] = { ms: Date.now() - t, ok: mentions(r.reply, q.mustMention), route: r.route, thirdPerson: findThirdPerson(r.reply).length, leftOut: left(r.reply), inventedSentences: invented, reply: oneLine(r.reply, 600) };
+    }
+    rows.push(row);
+    console.log(`  [${q.kind}] ${q.ask.slice(0, 70)}\n     without ${row.without.ok ? 'ok ' : 'MISS'} ${sec(row.without.ms)}${row.without.inventedSentences ? ` (${row.without.inventedSentences} sentence(s) name things not in the text)` : ''} | with ${row.with.ok ? 'ok ' : 'MISS'} ${sec(row.with.ms)}${row.with.leftOut ? ' (a sentence was left out)' : ''}\n     with: ${oneLine(row.with.reply, 330)}`);
+  }
+  const n = rows.length;
+  const sum = (mode, f) => rows.filter((r) => f(r[mode])).length;
+  console.log(`\nanswers that mention what they should: without ${sum('without', (x) => x.ok)}/${n}, with ${sum('with', (x) => x.ok)}/${n}`);
+  console.log(`replies that name something not in the text: without ${sum('without', (x) => x.inventedSentences > 0)}/${n}, with ${sum('with', (x) => x.inventedSentences > 0)}/${n} (after the check; ${sum('with', (x) => x.leftOut)} were cut)`);
+  console.log(`replies that say "the writer" to the writer: without ${sum('without', (x) => x.thirdPerson > 0)}/${n}, with ${sum('with', (x) => x.thirdPerson > 0)}/${n}`);
+  timingSummary('all answers in this experiment', from);
+
+  // the writer's screenshot: the text pasted with no question
+  const proj = structuredClone(project0);
+  proj.storyText = '';
+  const o = new Orchestrator({ engine, readNotes: true, variety: 'full' });
+  const t = Date.now();
+  const r = await o.brainstorm({ project: proj, message: bible });
+  const g = groundNames(r.reply, { sources: [bible], known: ['NIE'], sections: index.sections.length });
+  console.log(`\nthe bible pasted with no question (${sec(Date.now() - t)}, route ${r.route}, ${r.agent?.act ?? '-'}): ${findThirdPerson(r.reply).length} "the writer"; ${g.removed.length} sentence(s) naming things not in the text; ${(r.reply.match(/\?/g) ?? []).length} question mark(s)\n${r.reply}`);
+  report.editor = { rows, readback: { ms: Date.now() - t, route: r.route, thirdPerson: findThirdPerson(r.reply).length, invented: g.removed.length, reply: r.reply } };
+}
+
 // ── 3. does NIE still sound the same? ───────────────────────────────────────
 const firstSentence = (t) => splitSentencesLite(String(t))[0] ?? '';
 async function runVariety() {
@@ -247,6 +291,7 @@ async function runVariety() {
 try {
   if (want.notes) await runNotes();
   if (want.contexts) await runContexts();
+  if (want.editor) await runEditor();
   if (want.variety) await runVariety();
 } finally {
   report.calls = calls;

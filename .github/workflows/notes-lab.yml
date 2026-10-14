@@ -14,6 +14,10 @@ on:
         description: "The bible's questions asked the old way and the new way (about 12 minutes on top)"
         type: boolean
         default: false
+      editor:
+        description: 'The editorial instruments (counted facts, the read-back, the check on what a reply names) with and without, on the bible (about 10 minutes on top)'
+        type: boolean
+        default: false
       variety:
         description: 'One 10-message conversation under three settings: does NIE still sound the same? (about 20 minutes on top)'
         type: boolean
@@ -66,6 +70,7 @@ jobs:
           FLAGS=""
           if [ "${{ inputs.notes }}" = "true" ]; then FLAGS="$FLAGS --notes"; fi
           if [ "${{ inputs.contexts }}" = "true" ]; then FLAGS="$FLAGS --contexts"; fi
+          if [ "${{ inputs.editor }}" = "true" ]; then FLAGS="$FLAGS --editor"; fi
           if [ "${{ inputs.variety }}" = "true" ]; then FLAGS="$FLAGS --variety"; fi
           T=""
           if [ -n "${{ inputs.threads }}" ]; then T="--threads ${{ inputs.threads }}"; fi

@@ -90,6 +90,11 @@ export function mountBrainstorm(root, app) {
     }
     // What NIE looked at is part of the message's record, shown under it (open it to read): written into the reply it made every reply end the same way.
     if (role === 'assistant' && meta.looked) body.append(h('details', { class: 'looked' }, h('summary', {}, 'What I looked at'), h('p', { class: 'muted small' }, meta.looked)));
+    // What NIE drew on from earlier in the project for this reply: the writer's own words and where each came from, so nothing it "remembers" is hidden.
+    if (role === 'assistant' && meta.recalled?.length) {
+      body.append(h('details', { class: 'looked recalled' }, h('summary', {}, `What I remembered from earlier (${meta.recalled.length})`),
+        h('ul', { class: 'recalled-list' }, ...meta.recalled.map((r) => h('li', {}, h('span', {}, r.text), h('span', { class: 'muted small' }, ` · ${r.where}`))))));
+    }
     return h('div', { class: `msg msg-${role}`, dataset: { role } }, h('div', { class: 'msg-who' }, role === 'user' ? 'You' : 'NIE'), body);
   }
 

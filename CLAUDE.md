@@ -40,6 +40,13 @@
   `orchestrator/index.js` calls `agent.turn` on every message (a pending offer is answered before the model is asked anything), puts the agent's `brief` in the prompt, holds the reply to the plan
   (`enforce`) and records the question really asked (`record`). It must never put words in the writer's mouth: sheet values and recaps are the writer's own words, NIE's lines are about the sheet.
   Fake models in tests must answer `opts.purpose === 'extract'` (`modelWithReading` does).
+- Project mind: `engine/mind/` (see docs/ARCHITECTURE.md "Holding everything in a project"). `project.mind` keeps the writer's own statements (bounded, no pastes); `recall` finds what bears on a message by BM25 over EVERY source of
+  the project (statements, idea sheet, set-aside and kept ideas, board, characters, themes, motifs, timeline, deliberate marks, premise, rules, profile) with where each came from; `describeMind` is what the writer sees
+  under "Everything NIE holds" (and where they remove things). Every function is a function of the project it is given: no module state, so one project can never see another's. `orchestrator/index.js` recalls BEFORE it remembers the
+  message (a message cannot recall itself), puts the block in the prompt and `meta.recalled` on the reply, and answers "what do you remember?" from `describeMind`, never from the model. Do not give the mind any state outside the project object.
+- Editorial instruments: `engine/editor/` counts a long text with ordinary code (cast and aliases, pacing, tense/person shifts, repeats, conflicting figures, timeline, the writer's rules, style) and gives the model `editorialEvidence`
+  instead of asking a 3B model to find them. A text pasted with no question gets `readbackFrame` (deterministic, second person, one question), not a model's guess. `groundNames` removes sentences that name something found nowhere in the text
+  or the writer's words; `findThirdPerson` catches "the writer" said to the writer. They count and locate; they never judge quality and never write. Fake models in tests need no extra call types for these (they are code).
 - Long texts: `engine/reading/` (`sections.js` cuts any text into sections at the writer's own structure with every character in exactly one section;
   `context.js` ranks sections for a question with BM25 over the writer's own words and builds what the model is shown). Two ways of showing a long text:
   **with notes** (`reading/notes.js`): the offline model reads the text ONE SECTION AT A TIME (schema-constrained notes: gist, names, terms, voice; every name,

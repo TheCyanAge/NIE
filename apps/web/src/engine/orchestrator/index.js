@@ -503,7 +503,7 @@ export class Orchestrator {
     // (Recall comes first so that a message can never recall itself.) A turn that only acknowledges and asks gets a few items, a turn that answers or gives ideas gets more.
     const shortTurn = ['ask', 'reflect'].includes(agentTurn?.plan?.act);
     const recalled = paste ? null : this.#recallFor(project, askText, reading, { limit: shortTurn ? 3 : 6, budgetTokens: shortTurn ? 230 : 400, agentTurn });
-    const toldNie = !paste && (agentTurn ? agentTurn.act === 'info' || agentTurn.act === 'answer' : ['tell', 'develop'].includes(reading.task) && !/\?\s*$/.test(askText));
+    const toldNie = !paste && !/\?\s*$/.test(askText) && (agentTurn?.act === 'info' || agentTurn?.act === 'answer' || ['tell', 'develop'].includes(reading.task));
     if (toldNie) this.#remember(project, askText, agentTurn?.act === 'answer' ? 'answered' : 'told');
 
     // Is this a question about the writer's own long text (a recent paste, or the project's Story Text) even though it never says "my story"?

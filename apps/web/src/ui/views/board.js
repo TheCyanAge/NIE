@@ -6,16 +6,19 @@ import { resolveKind } from '../../engine/brainstorm/ideas.js';
 import { clip, estimateTokens, words } from '../../engine/util/text.js';
 import { splitSections } from '../../engine/reading/sections.js';
 import { sectionKey } from '../../engine/reading/notes.js';
+import { describeMind, forgetItem } from '../../engine/mind/index.js';
 
 /**
  * The Idea Board: what the writer kept, plus "what NIE understands" about the project so far.
  * Everything here belongs to the active project (it is read from `app.project` on every render), and nothing on it is
  * ever written or rewritten by NIE: the writer adds, edits and removes.
+ * "Everything NIE holds" lists what the project's mind holds (the writer's own words, with where each came from) and lets the writer remove what they like.
  */
 export function mountBoard(app, { onDevelop, onChange = null, onAsk = null }) {
   const count = h('span', { class: 'tag', id: 'board-count' }, '0');
   const understands = h('div', { class: 'understands', id: 'understands', 'data-testid': 'understands' });
   const idea = h('div', { class: 'idea-sheet', id: 'idea-sheet', 'data-testid': 'idea-sheet' });
+  const holds = h('div', { class: 'holds', id: 'holds', 'data-testid': 'holds' });
   const list = h('ul', { class: 'board-list', id: 'board-list' });
   const add = h('input', { class: 'input', id: 'board-add', type: 'text', maxlength: '600', placeholder: 'Add your own idea or note…', 'aria-label': 'Add your own idea to the Idea Board' });
   const addForm = h('form', { class: 'board-add', onsubmit: (e) => { e.preventDefault(); addOwn(); } }, add, h('button', { class: 'btn', type: 'submit' }, 'Add'));
@@ -28,7 +31,9 @@ export function mountBoard(app, { onDevelop, onChange = null, onAsk = null }) {
     h('div', { class: 'board-sep' }),
     h('span', { class: 'eyebrow' }, 'The idea we\'re on'), idea,
     h('div', { class: 'board-sep' }),
-    h('span', { class: 'eyebrow' }, 'What NIE understands'), understands);
+    h('span', { class: 'eyebrow' }, 'What NIE understands'), understands,
+    h('div', { class: 'board-sep' }),
+    h('span', { class: 'eyebrow' }, 'Everything NIE holds'), holds);
 
   const slug = (s) => String(s || 'project').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'project';
 
@@ -176,6 +181,38 @@ export function mountBoard(app, { onDevelop, onChange = null, onAsk = null }) {
         : h('p', { class: 'muted small' }, 'Nothing yet. Tell me what you are working on and I will keep track of it here, for this project only.'));
   }
 
+  const HOLDS_SHOWN = 120;
+  let confirmingForget = false;
+  let holdsOpen = false; // the list stays open (or closed) as the writer left it while the chat goes on
+
+  /** What the project's mind holds, counted from what is really there, and the writer's way to look through it and remove from it. Only this project's. */
+  function renderHolds() {
+    const d = describeMind(app.project);
+    const said = d.items.filter((i) => i.source === 'said');
+    const shown = d.items.slice(0, HOLDS_SHOWN);
+    const row = (i) => h('li', { class: 'holds-item', dataset: { id: i.id } },
+      h('span', { class: 'holds-text' }, clip(i.text, 220)),
+      h('span', { class: 'holds-where muted small' }, `${i.where}${i.by === 'nie' ? ' · NIE\'s idea, kept by you' : ''}`),
+      i.removable ? h('button', { class: 'link holds-remove', type: 'button', 'aria-label': `Forget: ${clip(i.text, 60)}`, onclick: () => { forgetItem(app.project, i.id); persist(); } }, 'Remove') : null);
+    const forget = said.length
+      ? (confirmingForget
+          ? h('div', { class: 'row holds-confirm' }, h('span', { class: 'small' }, `Forget the ${said.length} thing${said.length === 1 ? '' : 's'} you've said?`),
+              h('button', { class: 'link link-danger', id: 'holds-forget-yes', type: 'button', onclick: () => { for (const i of said) forgetItem(app.project, i.id); confirmingForget = false; persist(); } }, 'Yes, forget them'),
+              h('button', { class: 'link', type: 'button', onclick: () => { confirmingForget = false; renderHolds(); } }, 'No'))
+          : h('button', { class: 'link', id: 'holds-forget', type: 'button', onclick: () => { confirmingForget = true; renderHolds(); } }, 'Forget what I\'ve said in chat'))
+      : null;
+    const details = d.items.length
+      ? h('details', { class: 'holds-details', id: 'holds-details', open: holdsOpen, ontoggle: (e) => { holdsOpen = e.currentTarget.open; } }, h('summary', {}, `Look through it (${d.items.length})`),
+          h('ul', { class: 'holds-list' }, ...shown.map(row)),
+          d.items.length > shown.length ? h('p', { class: 'muted small' }, `Showing ${shown.length} of ${d.items.length}.`) : null)
+      : null;
+    clear(holds).append(
+      h('p', { class: 'holds-summary small', id: 'holds-summary' }, d.summary),
+      details,
+      forget,
+      h('p', { class: 'muted small' }, 'These are your own words and settings, kept for this project only. Another project cannot see them, and deleting this project deletes them.'));
+  }
+
   function refresh() {
     const items = app.project.brainstorm.board;
     count.textContent = String(items.length);
@@ -185,6 +222,7 @@ export function mountBoard(app, { onDevelop, onChange = null, onAsk = null }) {
     copy.disabled = save.disabled = !items.length;
     renderIdea();
     renderUnderstands();
+    renderHolds();
   }
 
   refresh();

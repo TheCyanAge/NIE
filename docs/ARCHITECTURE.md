@@ -11,6 +11,41 @@ NIE UI (apps/web)  ──►  Orchestrator  ──►  AIEngine  ──►  onli
 Qwen is the language model. The narrative library is the knowledge. The project profile is the context. Project memory is the
 continuity. Intent / style / pattern interpretation is the reading. NIE is the unified result.
 
+## Holding everything in a project (the project mind)
+
+The writer's complaint was that NIE forgets: what they said twenty messages ago, what they kept, what they decided was deliberate. A 3B model with a 4,096-token window cannot hold a
+project in its head, so the project is held in code and the model is shown what bears on each message (`apps/web/src/engine/mind/`).
+
+1. **What is kept** (`state.js`, `record.js`; `project.mind`). The writer's own statements, split into sentences, bounded (600 statements, 260 characters each), with their order.
+   A question, a request, filler and a pasted text (400+ words) are not statements; pasted text is held by the reading notes and the story text instead.
+2. **Where it looks** (`sources.js`). Not just the statements: the idea sheet and its "also" details, ideas set aside, ideas kept, the Idea Board, characters, themes, motifs, the timeline,
+   what was marked deliberate, the working premise, the writer's rules and the project profile. Every passage keeps where it came from.
+3. **Finding what bears on a message** (`recall.js`). BM25 over those passages with the writer's own words only (no embeddings, no model call, so it is instant and works with no model),
+   with light word families ("who" looks for people, "where" for places) and a per-source cap so one source cannot crowd out the rest. The result is a short block in the prompt
+   and the same items on the reply (`meta.recalled`), shown under it as "What I remembered from earlier". The current message is excluded, and recall runs before the message is stored.
+4. **Asking NIE what it holds** ("what do you remember about my story?", "what have I told you?"). Answered by code from the real contents (`describeMind`), never by the model,
+   so it cannot claim to remember what was not recorded. The same list is on the Idea Board as "Everything NIE holds", where the writer can look through it and remove statements or kept ideas,
+   or forget everything they said in chat.
+
+Honest limits: recall is by words, so "the thing she carries round her neck" will not find "she wears a compass"; the 600-statement cap drops the oldest; and what the model then does
+with a recalled item is still up to a 3B model.
+
+## Editorial instruments (counting what a small model cannot judge)
+
+`apps/web/src/engine/editor/` measures a long text with ordinary code and hands the model facts, instead of asking it to find them in a window it cannot hold.
+`analyseText` cuts the text into sections (the reading module's) and measures, per section: who appears and where (with aliases, and spellings that look like typos), pacing (section and chapter
+lengths, dialogue share), tense and person and where they shift, repeated phrases, numbers given for the same thing in two places, a timeline of dated mentions, terms coined by the writer,
+what the writer's own rules say about it, and the measured style. Only the first 120 sections are measured (the rest is said to be unmeasured), and the heuristics are English only.
+
+- `editorialEvidence` picks the lines that bear on the question asked (a question about pacing gets pacing) and the model is shown them as "Measured from the text itself (counted by the program, not judged...)".
+- `readbackFrame` is the answer to a text pasted with no question: what was counted, what stands out, and one question put to the writer in the second person. No model words it, so it cannot invent; it
+  says exactly what was read (`didLine`), and a built-in reply claims no reading beyond that.
+- `groundNames` checks a model's answer about a text: a sentence naming a person, place or figure that appears nowhere in the text, the writer's messages, the project's memory or the measured facts is removed, and the reply says
+  so. If nothing is left the reply is withheld with an honest note and built-in guidance. This was added because the real model invented names and numbers when asked about a long text.
+- `findThirdPerson` catches "How does the writer maintain the reader's curiosity?" said to the writer. The prompt says "you", and a reply that still talks about "the writer" is asked for once more.
+
+None of this judges quality or writes anything: it is counts, places in the text, and questions.
+
 ## Where things live
 
 | Concern | Code |
@@ -24,6 +59,8 @@ continuity. Intent / style / pattern interpretation is the reading. NIE is the u
 | Orchestrator: the language model's reading of what the writer asks (`understand.js`), brainstorm, built-in guidance, prompt budgeting, no-write guard | `engine/orchestrator/` |
 | Brainstorm idea partner: kinds (story, character, world, article, essay, poem, script), lenses, offline idea banks, genre blends, develop-an-idea, model-reply parsing | `engine/brainstorm/` |
 | Reading a text of any length: sections, retrieval over the writer's own words, what the model is shown and what NIE says it looked at | `engine/reading/` |
+| Project mind: what the writer said anywhere in the project, recalled by relevance with where each came from, listed and removable | `engine/mind/`, `ui/views/board.js` ("Everything NIE holds") |
+| Editorial instruments: counted facts about a long text (cast, pacing, voice, figures, timeline, the writer's rules), the read-back, grounding of replies | `engine/editor/` |
 | Idea Board (kept ideas, notes, export), per project | `engine/project/board.js`, `ui/views/board.js` |
 | AI routing, OpenAI-compatible client with streaming, bridges | `engine/ai/` |
 | File ingestion (zero-dependency ZIP/DOCX/ODT/EPUB/RTF/HTML/MD/PDF) in a Web Worker | `engine/ingest/` |
@@ -48,6 +85,9 @@ continuity. Intent / style / pattern interpretation is the reading. NIE is the u
 
 `ProjectStore.create()` always builds from a factory; `delete()` removes every key under the project's prefix; the app replaces `project`
 **and** the transient `session` on every switch and every view rebuilds from scratch. NIE's library is code, not stored data, so it is untouched.
+Everything NIE learns about a project lives inside that project's object (`project.mind`, `project.conversation.agent`, `project.readingNotes`, the Idea Board), so it is saved with it, comes back when it
+is opened, and goes when it is deleted. The mind and editor modules hold no state of their own: each call is a function of the project it is given. What the orchestrator caches
+from a text (reading indexes, measured analyses, grounding vocabularies) is keyed by the exact text and cleared on every switch (`Orchestrator.reset`, `clearIndexes`).
 
 ## Offline model
 

@@ -1254,6 +1254,52 @@ test('"What NIE understands" says how NIE reads your text: whole when it is shor
   });
 });
 
+test('"Everything NIE holds" lists the writer\'s own words for this project, lets them remove one or forget them all, and a new project holds none of it', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    assert.match(await page.textContent('#holds-summary'), /holds nothing for this project yet/i);
+    await say(page, 'The harbourmaster Corin is hiding gambling debts from everyone.');
+    await say(page, 'Mara wants to find out who sank the harbour bell before the regatta.');
+    assert.match(await page.textContent('#holds-summary'), /things? you've said/);
+    await page.click('#holds-details summary');
+    const listed = await page.textContent('#holds-details');
+    assert.match(listed, /gambling debts/);
+    assert.match(listed, /Mara wants to find out/);
+
+    // "what do you remember?" is answered from the same list, not made up
+    await say(page, 'What do you remember about my story?');
+    const answer = await page.textContent('.msg-assistant >> nth=-1');
+    assert.match(answer, /gambling debts|Mara wants/);
+    assert.match(answer, /Everything NIE holds/);
+
+    // remove one item
+    const before = await page.locator('.holds-item').count();
+    await page.locator('.holds-item[data-id^="said:"]', { hasText: 'gambling debts' }).locator('.holds-remove').click();
+    // (the same words can still be held elsewhere, in the premise or the idea's sheet: removing a statement removes that statement only)
+    assert.equal(await page.locator('.holds-item[data-id^="said:"]', { hasText: 'gambling debts' }).count(), 0);
+    assert.equal(await page.locator('.holds-item').count(), before - 1);
+    assert.equal(await page.getAttribute('#holds-details', 'open'), '', 'the list stays open while the chat goes on');
+
+    // a new project starts with nothing; the first one still holds its own
+    const idA = await page.evaluate(() => window.NIE_APP.project.id);
+    await page.click('.nav-btn[data-view=projects]');
+    await page.click('#new-project');
+    await page.waitForSelector('#setup-dialog');
+    await page.click('#setup-cancel');
+    await openBrainstorm(page);
+    assert.match(await page.textContent('#holds-summary'), /holds nothing for this project yet/i);
+    assert.ok(!(await page.evaluate(() => localStorage.getItem(`nie.v1.project.${window.NIE_APP.project.id}`).includes('Mara'))));
+    await page.evaluate((id) => window.NIE_APP.openProject(id), idA);
+    assert.match(await page.textContent('#holds-summary'), /things? you've said/);
+
+    // forget everything said in chat (asks first)
+    await page.click('#holds-forget');
+    await page.click('#holds-forget-yes');
+    assert.match(await page.textContent('#holds-summary'), /holds nothing for this project yet|part of the idea/i);
+    assert.ok(!(await page.evaluate(() => JSON.stringify(window.NIE_APP.project.mind.said).includes('Mara'))));
+  });
+});
+
 test('Brainstorm stays usable on a narrow window: one column, board below the chat, nothing overflowing', async () => {
   await run({ viewport: { width: 820, height: 900 } }, async ({ page }) => {
     await openBrainstorm(page);

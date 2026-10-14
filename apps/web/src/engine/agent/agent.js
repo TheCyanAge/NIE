@@ -329,7 +329,7 @@ export function createAgent({ packs, config = {} } = {}) {
     if (plan.act === 'offer') return finish({ state: s, plan, handled: { reply: recapText(s, ctx, { partial: plan.partial }), suggestions: offerChips(plan.partial), kind: 'offer' } });
     if (plan.act === 'ask' && plan.reason === 'kind' && typeof chat !== 'function') {
       s = recordAsk(s, plan, plan.question.text);
-      return finish({ state: s, plan, handled: { reply: plan.question.text, suggestions: KIND_CHIPS, kind: 'asked-kind' } });
+      return finish({ state: s, plan, act, handled: { reply: plan.question.text, suggestions: KIND_CHIPS, kind: 'asked-kind' } }); // (`act` says whether the writer told NIE something, so the project mind keeps it)
     }
     const ack = telling && plan.act !== 'serve' ? acknowledge({ plan, shown: learned.shown, seed: `${sd}|${s.idea}`, turn: s.turn }) : '';
     return finish({ state: s, plan, act, ack, brief: briefFor({ plan, state: s, ctx, libraryNotes }) });

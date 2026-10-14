@@ -115,6 +115,7 @@ export function createApp() {
     app.session.abort?.abort();
     app.session.chatAbort?.abort();
     clearIndexes(); // the reading index of the project being left (a copy of its text, kept for speed) goes with it
+    orchestrator.reset(); // ...and so does everything NIE computed from its words (measured facts, styles): the next project starts with a clean mind
     app.project = project;
     app.session = newSession();
     emit('project', project);
