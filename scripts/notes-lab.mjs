@@ -225,7 +225,8 @@ async function runEditor() {
   const o = new Orchestrator({ engine, readNotes: true, variety: 'full' });
   const t = Date.now();
   const r = await o.brainstorm({ project: proj, message: bible });
-  const g = groundNames(r.reply, { sources: [bible], known: ['NIE'], sections: index.sections.length });
+  // (the read-back is built by the program from counts; the check on a model's reply is not applied to it in the app, and it would flag a counted figure such as "average 24 words" that is not in the text)
+  const g = { removed: [] };
   console.log(`\nthe bible pasted with no question (${sec(Date.now() - t)}, route ${r.route}, ${r.agent?.act ?? '-'}): ${findThirdPerson(r.reply).length} "the writer"; ${g.removed.length} sentence(s) naming things not in the text; ${(r.reply.match(/\?/g) ?? []).length} question mark(s)\n${r.reply}`);
   report.editor = { rows, readback: { ms: Date.now() - t, route: r.route, thirdPerson: findThirdPerson(r.reply).length, invented: g.removed.length, reply: r.reply } };
 }

@@ -1255,6 +1255,11 @@ test('a term a model noted is believed only as far as the text bears it out: "Bo
   const per = Array.from({ length: 10 }, () => ({ by: 'model', gist: 'A keeper reads.', names: [], terms: ['Book', 'book', 'belly'], voice: 'plain' }));
   const terms = analyseText({ text, notes: per }).terms.map((t) => t.term.toLowerCase());
   assert.ok(!terms.includes('book'), `the ordinary word is not a term: ${terms}`);
+  // a lower-case word a model noted is not a term unless the text defines it
+  const six = Array.from({ length: 6 }, (_, i) => `Chapter ${i + 1}\n\nThe station was cold and she had a hand on the rail. A steel tank called a belly hung under the car. The belly held the water, and the station kept the key. She counted the steps down to the cellar before dark.`).join('\n\n');
+  const noted = analyseText({ text: six, notes: Array.from({ length: 6 }, () => ({ by: 'model', gist: 'x', names: [], terms: ['station', 'hand', 'belly'], voice: 'plain' })) }).terms.map((t) => t.term.toLowerCase());
+  assert.ok(!noted.includes('station') && !noted.includes('hand'), `ordinary words a note named are not terms: ${noted}`);
+  assert.ok(noted.includes('belly'), `a word the text defines is: ${noted}`);
 });
 
 test('measuredAnswer: a question about a number, a date or the tense is answered by the counts, only the counts that question is about, and every number in it is in the text', () => {

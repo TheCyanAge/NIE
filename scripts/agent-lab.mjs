@@ -84,7 +84,7 @@ async function runSession(session, mode) {
     const terms = new Set(stemList(said.concat(step.say).join(' ')));
     const related = qs.map((q) => stemList(q).some((s) => terms.has(s)));
     said.push(step.say);
-    turns.push({ say: step.say, kind: step.kind, reply: r.reply, ms, handled: r.agent?.handled ?? null, act: r.agent?.act ?? null, questions: qs, related, extractMs: made.filter((c) => c.purpose === 'extract').reduce((a, c) => a + c.ms, 0), readMs: made.filter((c) => c.purpose === 'understand').reduce((a, c) => a + c.ms, 0), answerMs: made.filter((c) => (c.purpose ?? 'answer') === 'answer').reduce((a, c) => a + c.ms, 0), calls: made.length });
+    turns.push({ say: step.say, kind: step.kind, reply: r.reply, ms, handled: r.agent?.handled ?? null, act: r.agent?.act ?? null, read: r.understood ? `${r.understood.by}:${r.understood.task ?? '-'}${r.understood.overruled ? `(was ${r.understood.overruled})` : ''}` : null, questions: qs, related, extractMs: made.filter((c) => c.purpose === 'extract').reduce((a, c) => a + c.ms, 0), readMs: made.filter((c) => c.purpose === 'understand').reduce((a, c) => a + c.ms, 0), answerMs: made.filter((c) => (c.purpose ?? 'answer') === 'answer').reduce((a, c) => a + c.ms, 0), calls: made.length });
   }
   // What does NIE still hold? The probes are asked after everything else (many turns later), each answer is checked for what the writer said earlier.
   const probeResults = [];
@@ -138,7 +138,7 @@ async function runSession(session, mode) {
   console.log(`\n--- ${session.id} [${mode}]: ${JSON.stringify(m)}`);
   console.log(`    sheet: ${oneLine(sheet, 600)}`);
   probeResults.forEach((p, i) => console.log(`   probe ${i + 1}. [${sec(p.ms)}${p.ok ? '' : ' MISS'}${p.recalled ? ` recalled ${p.recalled}` : ''}] ${oneLine(p.ask, 90)}\n        NIE: ${oneLine(p.reply, 300)}`));
-  turns.forEach((t, i) => console.log(`  ${String(i + 1).padStart(2)}. [${sec(t.ms)} ${t.handled ?? t.act ?? ''}${t.extractMs ? ` extract ${sec(t.extractMs)}` : ''}] YOU(${t.kind}): ${oneLine(t.say, 110)}\n       NIE: ${oneLine(t.reply, 420)}`));
+  turns.forEach((t, i) => console.log(`  ${String(i + 1).padStart(2)}. [${sec(t.ms)} ${t.handled ?? t.act ?? ''}${t.read ? ` read ${t.read}` : ''}${t.extractMs ? ` extract ${sec(t.extractMs)}` : ''}] YOU(${t.kind}): ${oneLine(t.say, 110)}\n       NIE: ${oneLine(t.reply, 420)}`));
   return { metrics: m, turns, sheet, probes: probeResults };
 }
 

@@ -978,7 +978,8 @@ function figuresOf(src, secs, people = new Set()) {
 
 // ── terms ────────────────────────────────────────────────────────────────────
 
-const DEFINING = /\b(?:called|known as|termed)\s+(?:a|an|the)\s+([\p{L}][\p{L}'’-]{2,}(?:\s+\p{Lu}[\p{L}'’-]+)?)/giu;
+// (no `i` flag: with it \p{Lu} matches any letter and "called a belly hung" would give the term "belly hung")
+const DEFINING = /\b(?:[Cc]alled|[Kk]nown as|[Tt]ermed)\s+(?:[Aa]n?|[Tt]he)\s+([\p{L}][\p{L}'’-]{2,}(?:\s+\p{Lu}[\p{L}'’-]+)?)/gu;
 
 /**
  * Terms the text keeps using: the style module's recurring terms, capitalised terms ("the Pass"), words the text itself defines ("a steel tank called a belly")
@@ -1013,7 +1014,9 @@ function termsOf(src, secs, { signature, notesPer, castNames, termNames }) {
     const sections = [];
     for (const s of secs) if (re.test(src.slice(s.start, s.end))) sections.push(s.i);
     if (!sections.length || (isDef && sections.length < 2)) continue;
-    if (fromNote && !/^\p{Lu}/u.test(t) && secs.length >= 5 && sections.length > secs.length * 0.8) continue; // a lower-case word in nearly every section is ordinary vocabulary, not a coined term
+    // A single lower-case word a model noted ("station", "hand": measured on the real model) is ordinary vocabulary unless the text defines it ("a steel tank called a belly", which
+    // is found above, before the notes) or it recurs as a style signature; it is not offered as a term of the story.
+    if (fromNote && !/^\p{Lu}/u.test(t) && !/[\s-]/.test(t)) continue;
     const d = defined.get(key);
     out.push(d ? { term: t, sections, defined: d.section } : { term: t, sections });
   }
