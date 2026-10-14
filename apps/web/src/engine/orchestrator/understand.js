@@ -148,7 +148,13 @@ export function applyReading(intent, reading, text) {
   const wc = words(text).length;
   let task = reading.task;
   let overruled = null;
-  if ((task === 'write' || task === 'edit') && !looksLikeARequest(text)) {
+  if (intent.type === 'about-nie' && task !== 'about-nie') {
+    // The rules' about-NIE patterns are whole-question patterns ("so what does your offline language model know?"), and what NIE says about itself comes from fixed, checked facts.
+    // Measured with a real writer's screenshot: a small model that read that question as small talk answered about itself from its own head ("I don't have a built-in library"), which was
+    // wrong and contradicted NIE. When the rules recognise a question about NIE, the model's other reading is not believed.
+    overruled = task;
+    task = 'about-nie';
+  } else if ((task === 'write' || task === 'edit') && !looksLikeARequest(text)) {
     overruled = task; // the model said "write"/"edit" but nothing in the message asks for it: not a request, so nothing is declined
     task = /\?\s*$/.test(text) || wc < 3 ? 'unclear' : 'tell';
   } else if (task === 'unclear' && wc >= 6 && !/\?/.test(text) && !/^\s*(?:which|what|how|why|who|where|when|do|does|did|is|are|can|could|would|should|will)\b/i.test(text) && !looksLikeARequest(text) && !ASKS_FOR_IDEAS.test(text)) {

@@ -36,6 +36,11 @@ const RULES = [
     /^\s*(?:so\s+)?who\s+(?:made|built|created|developed)\s+(?:you|nie)\s*[?!.]*\s*$/i,
     /^\s*(?:help|help\s+me|how\s+do\s+i\s+use\s+(?:this|nie))\s*[?.!]*\s*$/i,
     /^\s*what\s+can\s+i\s+(?:ask|use)\s+(?:you|nie|this)\s*[?!.]*\s*$/i,
+    // What NIE (or its model, or its library) knows. Whole-question patterns too: "what do you know about villanelles?" is a question about villanelles, not about NIE.
+    /^\s*(?:(?:hey|hi|hello|so|and|but|ok(?:ay)?)[,!]?\s+)*(?:nie[,:]?\s+)?(?:what|how\s+much)\s+(?:does|do|did|can|could)\s+(?:your|the|this|nie'?s?)\s+(?:(?:offline|online|local|built-?in|language|ai|small)\s+)*(?:model|llm|ai|brain|database|library|knowledge(?:\s?base)?|memory)\s+(?:actually\s+|really\s+|even\s+)?(?:know|contain|have|hold|cover|include|store|remember)(?:\s+(?:about|of|in\s+it))?\s*[?!.]*\s*$/i,
+    /^\s*(?:(?:hey|hi|hello|so|and|but|ok(?:ay)?)[,!]?\s+)*(?:nie[,:]?\s+)?(?:what|how\s+much)\s+(?:do|does|did|can)\s+(?:you|nie)\s+(?:actually\s+|really\s+|even\s+|all\s+)?(?:know|remember)(?:\s+about(?:\s+(?:writing|literature|books|genres?|stories|fiction|poetry|everything|anything|all\s+genres|the\s+genres))?)?\s*[?!.]*\s*$/i,
+    /^\s*(?:(?:hey|hi|hello|so|and|but|ok(?:ay)?)[,!]?\s+)*(?:nie[,:]?\s+)?(?:do|does|can)\s+(?:you|nie)\s+(?:really\s+|actually\s+)?know\s+(?:about\s+)?(?:all|every|any|each|everything|anything)(?:\s+(?:about\s+)?(?:the\s+)?(?:genres?|forms?|literature|books|writing|stories|subjects?))?\s*[?!.]*\s*$/i,
+    /^\s*(?:(?:hey|hi|hello|so|and|but|ok(?:ay)?)[,!]?\s+)*(?:nie[,:]?\s+)?(?:what\s+(?:genres|forms|books|works|topics|subjects|kinds\s+of\s+(?:writing|books))\s+(?:do|does|can)\s+(?:you|nie)\s+(?:know|cover|have|include)(?:\s+about)?|how\s+(?:big|large)\s+is\s+(?:your|nie'?s?)\s+(?:library|database|knowledge(?:\s?base)?)|what(?:'s|\s+is)\s+in\s+(?:your|nie'?s?)\s+(?:library|database|knowledge(?:\s?base)?)|what\s+(?:are|were)\s+you\s+trained\s+on|how\s+much\s+(?:do|does)\s+(?:your|the)\s+(?:library|database|model)\s+(?:know|have|cover|hold))\s*[?!.]*\s*$/i,
   ]],
   ['direction-change', [
     /^\s*(?:actually|wait|hold on|hmm+|on second thought|scratch that|never ?mind|no,? wait|what if instead|let'?s (?:change|switch|try)|instead)\b/i,

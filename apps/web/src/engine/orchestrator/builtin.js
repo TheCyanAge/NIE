@@ -1,4 +1,4 @@
-import { search, getEntry, KIND_LABELS, libraryStatus } from '../knowledge/index.js';
+import { search, getEntry, KIND_LABELS, libraryStatus, libraryStats } from '../knowledge/index.js';
 import { pick, clip } from '../util/text.js';
 
 /**
@@ -29,6 +29,8 @@ export function describeStatus(status) {
  * Questions about NIE itself are answered from fixed, checked facts, never by a language model: a small model describing its own app
  * invents abilities and rambles, and what NIE says about its own state must be exact. The question picks which facts to lead with.
  */
+/** "What does your model / library / database know?", "what do you know?", "how big is your library?": answered from the real counts (see knowledgeReply). */
+const KNOWLEDGE_QUESTION = /\bknow(?:s|ledge)?\b|\blibrary\b|\bdatabase\b|\btrained\b|\bremember\b|\bcontain|\bcover\b/i;
 const ABOUT_TOPICS = [
   { id: 'writing', re: /\b(?:write|rewrite|edit|fix|proofread|ghost-?write)\b/i, status: false,
     text: "No. I never write, rewrite or edit your text; your words stay yours. What I can do is brainstorm with you, ask the questions that sharpen an idea, answer craft questions, and, in Full Scan, mark the exact places where your text breaks the rules you set and say why." },
@@ -44,7 +46,38 @@ const ABOUT_TOPICS = [
     text: "Full Scan: you set the rules for your project in plain words, and I mark the exact places in your text where a rule is broken and say briefly why. Rules that need meaning are judged by the language model when one is running; with no model they are approximated by keywords and labelled as such. Nothing is rewritten." },
 ];
 
+/**
+ * What NIE knows, said from the real counts: the offline language model and the built-in library are two different things, and the writer should hear which is which. (A small model asked
+ * this on its own said it had no library; the library is the part that holds the facts.)
+ */
+const roundDown = (n) => (n >= 1000 ? `${(Math.floor(n / 100) * 100).toLocaleString('en-US')}` : n >= 100 ? `${Math.floor(n / 10) * 10}` : String(n));
+export function knowledgeReply(status) {
+  const st = libraryStats();
+  const b = st.byKind;
+  const own = st.total - st.derived;
+  const lib = libraryStatus().loaded
+    ? `For facts I use my built-in library, which is separate from the model and works with no internet. It holds about ${roundDown(own)} written entries: ${[
+        b.genre && `${roundDown(b.genre)} genres and subgenres`,
+        b.form && `${roundDown(b.form)} forms`,
+        b.technique && `${roundDown(b.technique)} techniques and devices`,
+        b.movement && `${roundDown(b.movement)} movements`,
+        b.tradition && `${roundDown(b.tradition)} literary traditions`,
+        b.work && `${roundDown(b.work)} notable works`,
+        b.rule && `${roundDown(b.rule)} style-guide rules`,
+        b.usage && `${roundDown(b.usage)} word-usage notes`,
+      ].filter(Boolean).join(', ')}, plus publishing and formatting practice. When you ask about a genre, form, work or rule, I answer from the library and say what I'm drawing on.`
+    : "For facts I use my built-in library, which is separate from the model and works with no internet. It is still loading, so for the next moment I can only answer from my core craft notes.";
+  return [
+    "There are two different things here, and I try to keep them apart.",
+    "My offline language model (Qwen2.5 3B Instruct by default) is small. It learned general language and a lot about how people write from its training, and it is a good partner for ideas and conversation. It has no internet and no database, and it can be wrong about specific facts, dates, titles and who wrote what, so I don't treat it as a source for those.",
+    lib,
+    "The library cannot be complete, and it was written with AI help and checked by sampling rather than entry by entry, so for anything that matters (a citation, a date, a submission format), check a primary source. When something isn't in the library I say so instead of guessing.",
+    describeStatus(status),
+  ].join('\n\n');
+}
+
 export function aboutNieReply(status, text = '') {
+  if (KNOWLEDGE_QUESTION.test(text)) return knowledgeReply(status);
   const topic = ABOUT_TOPICS.find((t) => t.re.test(text));
   if (topic) return [topic.text, ...(topic.status ? [describeStatus(status)] : [])].join('\n\n');
   return [
