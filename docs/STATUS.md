@@ -103,7 +103,11 @@ not with a fake. Runner speed varies a lot from run to run, so only same-run com
   about the writer's own project that the model read as a general question about writing ("What tone did I say I wanted?", "Who owes the guild money, and how much?") was sent to the offline library, which skips the
   project's memory, and the model answered with advice about "free-form tags". Now a question the writer's own statements answer (a match against the project's memory, or a plain "did I say / I told you") is answered
   from the memory; a general question (what is a MacGuffin?) finds nothing of theirs and still goes to the library. The idea sheet is also searched on turns that answer a question. These two changes are tested
-  (a test that fails on the old code) but not yet re-measured on the real model.
+  (a test that fails on the old code). Measured on the real model after the change (one run): **7 of 7** probes answered from what the writer said, including "Who owes the guild money, and how much?" (Oleander Bruck, a hundred
+  silver marks) and "What tone did I say I wanted?" (a slow, sun-bleached fable); facts on the sheet 7/7; ask rate 0.57; no question asked twice; about 48 s a turn on the slow runner. One run is one sample: the three
+  runs of this session scored 6/7, 5/7, 5/7 before the fix and 7/7 after it, against 4/7 with the mind switched off. Still seen: the model often adds a question of its own to an answer (one reply in the run had two
+  questions), and some answers drift into the story instead of simply stating what was said ("Your story is set in... Given this backdrop, how does the compass..."); both are the model's habits, and the checks on a reply cut
+  only repeats and stock questions.
 - Measured against the bible's answer key with no model (`scripts/editor-probe.mjs`, 0.3 s): all **8 of 8** of its people are listed, **1 of 2** planted inconsistencies is flagged (the year of the Fourth Line runaway, given in
   a character note and in the dated entries, is missed), the backwards jump in its dated entries is found, **14 of 24** defined terms are in the list of recurring terms, and 4 of 4 replies (2 true, 2 invented) are kept or cut correctly.
 - Honest limit: a 3B model is not GPT, Gemini, Claude or Perplexity. What the instruments and the mind give is exact counts, a memory that cannot drift, and checks on every reply; they do not give the model
