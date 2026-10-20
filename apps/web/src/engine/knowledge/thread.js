@@ -91,13 +91,15 @@ const isPronoun = (p) => /^(?:it|its|that|this|them|they|those|these|there)$/i.t
 
 const keyOf = (s) => String(s ?? '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 /** The library entry a phrase names ("romance", "the villanelle"), or null; only a name or alias counts, never a loose match. */
-function lookupName(phrase, exceptId) {
+function lookupName(phrase, exceptId, preferKind = null) {
   const p = String(phrase ?? '').trim();
   if (!p || isPronoun(p) || words(p) > 6) return null;
-  const hits = searchScored(p, { kinds: [...SUBJECT_KINDS], limit: 5, minScore: 1.2 });
+  const hits = searchScored(p, { kinds: [...SUBJECT_KINDS], limit: 8, minScore: 1.2 });
   const key = keyOf(p);
-  // An entry that is called exactly that beats one that merely has the word in its name ("romance" is Romance, not LGBTQ romance).
-  const called = hits.find((h) => [h.entry.name, ...(h.entry.aka ?? [])].some((n) => keyOf(n) === key));
+  // An entry that is called exactly that beats one that merely has the word in its name ("romance" is Romance, not LGBTQ romance). Among entries with the same name, the one whose
+  // name is that (not an alias of it) and of the kind of the subject in focus comes first (a genre is compared with a genre, not with a Spanish ballad form called "romance").
+  const rank = (h) => [keyOf(h.entry.name) === key ? 2 : 0, preferKind && h.entry.kind === preferKind ? 1 : 0].reduce((a, b) => a + b, 0);
+  const called = hits.filter((h) => [h.entry.name, ...(h.entry.aka ?? [])].some((n) => keyOf(n) === key)).sort((a, b) => rank(b) - rank(a) || b.score - a.score)[0];
   // (Only a name counts. A loose match on the words of a keyword list would take "people use" for a technique called the bandwagon.)
   const top = called ?? hits.find((h) => h.exact);
   if (!top || top.entry.id === exceptId) return null;
@@ -175,7 +177,7 @@ export function resolveFollowUp(text, thread, { turn = 0, model = false } = {}) 
   // "how is it different from romance?"
   if (COMPARE_CUE.test(t) && refersToSubject) {
     const after = t.split(COMPARE_CUE).pop().replace(/^\s*(?:from|with|to|than|and|between|the)\s+/i, '');
-    const other = lookupName(after.match(/^\s*(?:(?:the|a|an)\s+)?(.+?)\s*[?.!]*$/i)?.[1], subject.id);
+    const other = lookupName(after.match(/^\s*(?:(?:the|a|an)\s+)?(.+?)\s*[?.!]*$/i)?.[1], subject.id, subject.kind);
     if (other) {
       // The profile's compare facet has one point per neighbour, written "Subject versus Neighbour: ..."; the point for this neighbour is shown as it is.
       const names = [other.name, ...(other.aka ?? [])].map(keyOf);
