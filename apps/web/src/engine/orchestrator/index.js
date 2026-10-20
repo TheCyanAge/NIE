@@ -22,7 +22,7 @@ import { clip, estimateTokens, fnv1a, words } from '../util/text.js';
 import defaultAgent from '../agent/index.js';
 import { detectProject } from '../agent/detect.js';
 import { grasp as agentGrasp } from '../agent/sheet.js';
-import { filledIds } from '../agent/state.js';
+import { filledIds, stemSet } from '../agent/state.js';
 import { parseKeepCommand } from '../agent/talk.js';
 import { clearTokenMemo, describeMind, mindOf, recall, rememberStatements } from '../mind/index.js';
 import { analyseText, analysisKey, clearGroundingCache, editorialEvidence, findThirdPerson, groundNames, measuredAnswer, readbackFrame } from '../editor/index.js';
@@ -33,7 +33,7 @@ export { STARTER };
 // A general question about craft, style, usage, a form/genre or a work (as opposed to talk about the writer's own story).
 const GENERAL_Q = /^\s*(?:what(?:'s|\s+is|\s+are|\s+does|\s+do)\b|how\s+(?:do|should|can|would|does)\s+(?:i|you|one|we|a|an|the)\b|how\s+(?:to|is|are)\b|who\s+(?:wrote|is|was|are|were|invented|coined)\b|which\s+(?:is|one|style|form|genre|guide)\b|when\s+(?:do|should|is|does)\b|(?:explain|define|describe|tell\s+me\s+about)\b|(?:is|are)\s+it\b|difference\s+between|should\s+i\s+(?:use|capitali[sz]e|italici[sz]e|hyphenate|spell|write|format|cite)\b)/i;
 const STORY_TALK = /\b(?:my|our|his|her|their|the)\s+(?:story|novel|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|draft|ending|opening|twist|narrator|manuscript)\b|\b(?:he|she|him|they|them)\b/i;
-const LIBRARY_NOTE = "These notes come from NIE's built-in library. When they cover the question, answer from them and say which style guide or source they come from, and mention when practice varies. If they do not cover it, say so plainly. Never invent citations, section numbers, titles, dates or quotations.";
+const LIBRARY_NOTE = "These notes come from NIE's built-in library, NIE's own reference; they are not something the writer wrote or sent. Speak as NIE in the first person (\"my library\", \"I\"), and never say \"the notes you provided\" or talk about NIE in the third person. When the notes cover the question, answer from them in your own plain words, as one person talking to another, and say which style guide or source they come from; mention when practice varies. Use only the names, titles, dates and numbers that are in the notes: give no example, work or author of your own. Never invent citations, section numbers, titles, dates or quotations. If you have already said something earlier in this conversation, go on to what is new instead of repeating it. If the notes do not cover the question, say so plainly."
 const LIBRARY_MISS_NOTE = "NIE's built-in library has nothing on this question. Answer only if you are confident, say clearly when you are not sure, and never invent citations, section numbers, titles, dates or quotations.";
 const RANK = { none: 0, weak: 1, strong: 2 };
 /** "yes", "no", "ok", "maybe": a reply, not a question, so it is never looked up in the library ("yes" found "yes-but"). */
@@ -117,6 +117,18 @@ const OWN_PROJECT_RECALL = 0.6;
 const asksOrReflects = (agentTurn) => ['ask', 'reflect'].includes(agentTurn?.plan?.act);
 /** A question about what the writer themselves said or gave NIE earlier. */
 const REFERS_BACK = /\b(?:did|do|have|had)\s+I\s+(?:say|said|tell|told|mention|mentioned|give|gave|want|wanted|ask|asked)\b|\bI\s+(?:said|told you|mentioned|gave you|asked for)\b|\bwhat\s+I\s+(?:said|told|gave|wanted|mentioned)\b|\bI\s+gave\s+you\b/i;
+const UNGROUNDED_LIBRARY_NOTE = "My offline model answered, but everything it said named something I could not find in my library, so I've left it out. Here is what the library itself says.";
+const LEFT_OUT_LIBRARY = "(I left out part of that reply because it named something I couldn't find in my library.)";
+/** The words of the library records a reply may draw names, titles, dates and numbers from. */
+const recordText = (e) => [e.name, ...(e.aka ?? []), e.summary, ...(e.conventions ?? []), ...(e.watchFor ?? []), ...(e.deliberateWhen ?? []), e.example ?? '', e.author ?? '', ...(e.works ?? []).map((w) => `${w.title} ${w.author} ${w.year ?? ''}`), ...(e.refs ?? [])].join('\n');
+/** True when the message uses a content word the writer used in one of their last few messages that were not library questions: "What does the aunt hide?" after "her aunt's house" is about their story. */
+function echoesRecentStory(text, past) {
+  const earlier = past.filter((m) => m.role === 'user' && m.intent !== 'library-question' && !m.compacted).slice(-3);
+  if (!earlier.length) return false;
+  const plain = (t) => String(t).replace(/['\u2019]s\b/gi, ''); // ("aunt's" is the aunt)
+  const mine = stemSet(plain(text));
+  return earlier.some((m) => [...stemSet(plain(m.content.slice(0, 800)))].some((st) => mine.has(st)));
+}
 const UNGROUNDED_NOTE = "My offline model answered, but everything it said named something I could not find in your text, so I've left it out. Here is built-in guidance instead.";
 const LEFT_OUT_UNGROUNDED = "(I left out part of that reply because it named something I couldn't find in your text.)";
 const BARE_REPLY = /^\W*(?:yes|yeah|yep|yup|sure|ok|okay|no|nope|nah|maybe|perhaps|please|thanks|thank you|right|true|false|hm+|um+)\W*$/i;
@@ -555,7 +567,7 @@ export class Orchestrator {
       // questions about writing and answered from the library, while the writer's own statements that answer them were sitting in the mind. A general question about craft finds
       // nothing of the writer's (what is a MacGuffin? a red herring? good dialogue?); a question about their project does.
       const mindHit = Boolean(recalled?.items.some((i) => i.score >= OWN_PROJECT_RECALL));
-      const storyTalk = OWN_PROJECT.test(text) || STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || knownName || mindHit;
+      const storyTalk = OWN_PROJECT.test(text) || STORY_TALK.test(text) || extractPremiseCues(text).characters.some((c) => !/^[A-Z]/.test(c)) || knownName || mindHit || echoesRecentStory(text, past);
       ownProject = storyTalk;
       // "What tone did I say I wanted?": it asks about the conversation itself. Whatever the library has on "tone", this is not asking the library, whatever strength the match has.
       const refersBack = mindHit && REFERS_BACK.test(text);
@@ -693,9 +705,26 @@ export class Orchestrator {
           ungrounded = g.emptied ? 'all' : 'some';
         }
       }
+      // An answer from the library may only name what the library's records (or the conversation so far) name: measured on the real model, a reply built from the records still added
+      // authors, titles and examples of its own ("Anne Rice", "Rosemary's Baby").
+      if (lib && reply && !analysis) {
+        const g = groundNames(reply, {
+          sources: [...retrieved.map(recordText), ...project.conversation.messages.filter((m) => m.role === 'user' || m.library).map((m) => m.content)],
+          known: ['NIE', project.title, project.conversation.library?.subject?.name].filter(Boolean),
+          sections: null,
+        });
+        if (g.removed.length) {
+          reply = g.text;
+          ungrounded = g.emptied ? 'library-all' : 'library-some';
+        }
+      }
       // If nothing but a composed passage was left, say it with built-in guidance instead.
       if (guarded.removed && words(guarded.remaining).length < 8) reply = '';
-      if (!reply) {
+      if (!reply && lib) {
+        reply = libraryReply(lib, follow ? { lead: follow.lead, after: follow.after, rest: follow.rest, compact: follow.compact } : {});
+        route = 'builtin';
+        honesty = ungrounded === 'library-all' ? UNGROUNDED_LIBRARY_NOTE : WITHHELD_NOTE;
+      } else if (!reply) {
         reply = builtinReply({ intent, project, message: askText, report, modelReady: true, status });
         if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : withoutQuestionLists(reply));
         route = 'builtin';
@@ -727,6 +756,7 @@ export class Orchestrator {
       const tail = shortenedNote(asked.trimmed);
       if (tail) reply = `${reply}\n\n${tail}`;
       if (ungrounded === 'some') reply = `${reply}\n\n${LEFT_OUT_UNGROUNDED}`;
+      if (ungrounded === 'library-some') reply = `${reply}\n\n${LEFT_OUT_LIBRARY}`;
       if (recalled && !lib && !libMiss) extra = { ...extra, recalled: recalledRecord(recalled) };
       if (asked.read) extra = { ...extra, read: summarizeRead(asked.read), looked: lookedAt(asked.read, route) };
       extra = { ...extra, ...varietyRecord(shape, got) };

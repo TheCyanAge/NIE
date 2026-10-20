@@ -7,7 +7,6 @@
 //             followRules  the same, with no model (defaults to `follow`; a pronoun question the library cannot pick out is only understood when a model is running)
 //             mustMention  groups of alternatives: the reply must mention one of each (words that only the library's record of the subject would give)
 //             notLibrary   true: the reply must not be a library answer (it is about the writer's own story)
-//             modelOnly    with that: only a running model can tell (the rules take 'What does the aunt hide?' for a general question when nothing the writer said marks 'aunt' as theirs)
 
 export const LIBRARY_SESSIONS = [
   {
@@ -48,7 +47,7 @@ export const LIBRARY_SESSIONS = [
     steps: [
       { say: 'What is gothic fiction?', follow: null },
       { say: 'My heroine is trapped in her aunt\'s house and starts hearing someone in the walls. What should she want most?', follow: null, notLibrary: true },
-      { say: 'What does the aunt hide?', follow: null, notLibrary: true, modelOnly: true },
+      { say: 'What does the aunt hide?', follow: null, notLibrary: true },
     ],
   },
 ];

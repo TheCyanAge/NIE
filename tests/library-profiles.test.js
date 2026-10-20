@@ -73,3 +73,25 @@ test('profiles: counted honestly in the library stats', () => {
   const st = libraryStats();
   assert.equal(st.byKind.profile, profiles.length);
 });
+
+test('profiles: a profile answers only for the subject the question names (the subgenres of fantasy were once answered with those of Gothic fiction)', () => {
+  const subjects = ['Fantasy', 'Romance', 'Science fiction', 'the sonnet', 'Quantum basketweaving', 'Epic poetry', 'Comics'];
+  const wrong = [];
+  for (const subject of subjects) {
+    for (const f of Object.values(PROFILE_FACETS)) {
+      const q = f.ask(subject);
+      const a = answerFromLibrary(q, { limit: 3 });
+      // only a profile whose subject the question names may be among the answers
+      for (const e of [...a.entries, ...a.related.slice(0, 1)].filter((x) => x.kind === 'profile')) {
+        const parent = getEntry(e.parent);
+        const names = [parent?.name, ...(parent?.aka ?? [])].filter(Boolean).map((n) => n.replace(/\s*\(.*?\)\s*/g, ' ').split(/[:;]/)[0].trim().toLowerCase());
+        if (!names.some((n) => q.toLowerCase().includes(n))) wrong.push(`${q} -> ${e.id}`);
+      }
+    }
+  }
+  assert.deepEqual(wrong, []);
+  // and naming the subject in other words than the full name still finds it
+  assert.equal(answerFromLibrary('gothic subgenres').entries[0].id, 'profile-gothic-fiction-subgenres');
+  assert.equal(answerFromLibrary('history of gothic').entries[0].id, 'profile-gothic-fiction-history');
+  assert.equal(answerFromLibrary('What is gothic fiction?').entries[0].id, 'genre-spec-gothic-fiction', 'a plain "what is" is still answered by the subject\'s own entry');
+});

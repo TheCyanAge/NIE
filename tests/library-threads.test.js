@@ -304,10 +304,49 @@ test('the scripted library conversations (also measured on the real model) are r
       const wanted = [].concat('followRules' in step ? step.followRules : step.follow);
       const got = r.library?.follow ?? null;
       assert.ok(wanted.includes(got), `${session.id}: "${step.say}" was read as ${got}, wanted ${wanted.join(' or ')}`);
-      if (step.notLibrary && !step.modelOnly) assert.ok(!/^From NIE's built-in library|^More on |^[A-Z][^\n]*, [a-z ,]+:\n/.test(r.reply) && r.intent.type !== 'library-question', `${session.id}: "${step.say}" is about the writer's story`);
+      if (step.notLibrary) assert.ok(!/^From NIE's built-in library|^More on |^[A-Z][^\n]*, [a-z ,]+:\n/.test(r.reply) && r.intent.type !== 'library-question', `${session.id}: "${step.say}" is about the writer's story`);
       if (step.mustMention && !('followRules' in step)) {
         for (const alts of step.mustMention) assert.ok(alts.some((a) => r.reply.toLowerCase().includes(a.toLowerCase())), `${session.id}: "${step.say}" should mention one of ${alts.join(', ')}; got: ${r.reply.slice(0, 200)}`);
       }
     }
   }
+});
+
+test('an answer from the library may only name what the library\'s records name: a model that adds an author or a title of its own has that sentence left out, and says so', async () => {
+  const invented = 'Gothic fiction began with The Castle of Otranto in 1764. Anne Rice later made the vampire a tragic hero in Interview With The Vampire. Its settings are ruined castles and decaying houses.';
+  const { o } = withModel(() => invented, { reading: () => ({ task: 'craft', topic: '' }) });
+  const project = projectWith();
+  const r = await say(o, project, 'What is gothic fiction?');
+  assert.ok(!/Anne Rice|Interview With The Vampire/.test(r.reply), 'the sentence that names what no record names is gone');
+  assert.match(r.reply, /Otranto/, 'what the records name stays');
+  assert.match(r.reply, /left out part of that reply because it named something I couldn't find in my library/);
+});
+
+test('an answer from the library that names nothing the library holds is replaced by the library\'s own record, with the reason', async () => {
+  const { o } = withModel(() => 'Anne Rice and Stephen King shaped it, along with Clive Barker and Poppy Brite.', { reading: () => ({ task: 'craft', topic: '' }) });
+  const r = await say(o, projectWith(), 'What is gothic fiction?');
+  assert.equal(r.route, 'builtin');
+  assert.match(r.reply, /couldn't find in my library|could not find in my library/);
+  assert.match(r.reply, /Castle of Otranto/, 'the record itself is shown instead');
+});
+
+test('the model is told the library is NIE\'s own, to speak as NIE, to add no names of its own and not to repeat itself', async () => {
+  const { o, calls } = withModel(() => 'Gothic fiction began in 1764 with The Castle of Otranto.', { reading: () => ({ task: 'craft', topic: '' }) });
+  const project = projectWith();
+  await say(o, project, 'What is gothic fiction?');
+  await say(o, project, 'tell me more');
+  const prompt = calls.map((c) => c.messages.map((m) => m.content).join('\n')).join('\n');
+  assert.match(prompt, /NIE's built-in library, NIE's own reference; they are not something the writer wrote or sent/);
+  assert.match(prompt, /never say "the notes you provided"/);
+  assert.match(prompt, /give no example, work or author of your own/);
+  assert.match(prompt, /go on to what is new instead of repeating it/);
+});
+
+test('a question that uses a word from the writer\'s own recent story messages is about the story, not a library question the library cannot answer', async () => {
+  const o = noModel();
+  const project = projectWith();
+  await say(o, project, "My heroine is trapped in her aunt's house and starts hearing someone in the walls.");
+  const r = await say(o, project, 'What does the aunt hide?');
+  assert.notEqual(r.intent.type, 'library-question');
+  assert.ok(!/isn't in my built-in library/.test(r.reply));
 });
