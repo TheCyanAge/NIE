@@ -98,8 +98,9 @@ function lookupName(phrase, exceptId) {
   const key = keyOf(p);
   // An entry that is called exactly that beats one that merely has the word in its name ("romance" is Romance, not LGBTQ romance).
   const called = hits.find((h) => [h.entry.name, ...(h.entry.aka ?? [])].some((n) => keyOf(n) === key));
-  const top = called ?? hits[0];
-  if (!top || !(called || top.exact || top.headCoverage >= 0.9) || top.entry.id === exceptId) return null;
+  // (Only a name counts. A loose match on the words of a keyword list would take "people use" for a technique called the bandwagon.)
+  const top = called ?? hits.find((h) => h.exact);
+  if (!top || top.entry.id === exceptId) return null;
   return top.entry;
 }
 

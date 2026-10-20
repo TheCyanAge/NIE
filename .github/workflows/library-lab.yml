@@ -1,0 +1,61 @@
+name: library-lab
+
+# Measures, with the REAL model (Qwen2.5-3B) and the app's own llama-server arguments, a conversation ABOUT the library with scripted writers
+# (scripts/library-lab.mjs, tests/fixtures/library-sessions.mjs): are follow-ups ("what about its tropes?", "tell me more", "how is it different from horror?")
+# read as follow-ups, does the reply say what the library's records say, is talk about the writer's own story left alone, and does a reply name anything no record has.
+# Nothing here builds, ships or publishes anything: it only reports numbers (job log + the library-lab-report artifact), so prompts and routing are tuned on evidence.
+on:
+  workflow_dispatch:
+    inputs:
+      sessions:
+        description: 'Scripted conversations to run (comma separated: gothic-thread, another-subject, form-without-profile, not-hijacked)'
+        type: string
+        default: 'gothic-thread,another-subject,form-without-profile,not-hijacked'
+      threads:
+        description: 'Model-server threads (empty = what the app picks: half the cores)'
+        type: string
+        default: ''
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch the llama.cpp runtime (Linux)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p rt apps/desktop/bin
+          gh release download b9085 --repo ggml-org/llama.cpp --pattern 'llama-*-bin-ubuntu-x64*' --dir rt
+          for f in rt/*; do
+            case "$f" in
+              *.zip) unzip -q -o "$f" -d rt/x ;;
+              *.tar.gz|*.tgz) mkdir -p rt/x && tar -xzf "$f" -C rt/x ;;
+            esac
+          done
+          find rt/x \( -type f -o -type l \) \( -name 'llama-server' -o -name '*.so' -o -name '*.so.*' \) -exec cp -P {} apps/desktop/bin/ \;
+          chmod +x apps/desktop/bin/llama-server
+
+      - name: Fetch the real model (about 1.9 GB, resumable)
+        run: node scripts/fetch-runtime.mjs --no-runtime
+
+      - name: Run the lab
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/apps/desktop/bin
+        run: |
+          T=""
+          if [ -n "${{ inputs.threads }}" ]; then T="--threads ${{ inputs.threads }}"; fi
+          node scripts/library-lab.mjs $T --sessions "${{ inputs.sessions }}" --out library-lab-report.json
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-lab-report
+          path: library-lab-report.json
+          if-no-files-found: ignore

@@ -292,3 +292,22 @@ test('without a model, "what is a sonnet?" is a question for the library, though
     assert.equal(r.intent.type, 'request-ideas', q);
   }
 });
+
+import { LIBRARY_SESSIONS } from './fixtures/library-sessions.mjs';
+
+test('the scripted library conversations (also measured on the real model) are read as intended with no model', async () => {
+  for (const session of LIBRARY_SESSIONS) {
+    const o = noModel();
+    const project = projectWith({ title: session.id });
+    for (const step of session.steps) {
+      const r = await say(o, project, step.say);
+      const wanted = [].concat('followRules' in step ? step.followRules : step.follow);
+      const got = r.library?.follow ?? null;
+      assert.ok(wanted.includes(got), `${session.id}: "${step.say}" was read as ${got}, wanted ${wanted.join(' or ')}`);
+      if (step.notLibrary && !step.modelOnly) assert.ok(!/^From NIE's built-in library|^More on |^[A-Z][^\n]*, [a-z ,]+:\n/.test(r.reply) && r.intent.type !== 'library-question', `${session.id}: "${step.say}" is about the writer's story`);
+      if (step.mustMention && !('followRules' in step)) {
+        for (const alts of step.mustMention) assert.ok(alts.some((a) => r.reply.toLowerCase().includes(a.toLowerCase())), `${session.id}: "${step.say}" should mention one of ${alts.join(', ')}; got: ${r.reply.slice(0, 200)}`);
+      }
+    }
+  }
+});
