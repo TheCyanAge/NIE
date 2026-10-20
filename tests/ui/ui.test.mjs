@@ -1311,3 +1311,40 @@ test('Brainstorm stays usable on a narrow window: one column, board below the ch
     assert.ok(await page.isVisible('#brainstorm-input'));
   });
 });
+
+test('a conversation about the library: its answer offers the next questions as chips, a chip asks the library, "tell me more" goes on, and a reload keeps the subject', async () => {
+  await run({}, async ({ page }) => {
+    await openBrainstorm(page);
+    await say(page, 'What is gothic fiction?');
+    const labels = async () => page.$$eval('#chat-chips .chip', (c) => c.map((x) => x.textContent));
+    const first = await labels();
+    assert.ok(first.includes('Tell me more') && first.includes('History') && first.includes('Tropes'), first.join(' | '));
+
+    // a chip is a question the library answers
+    await page.click('#chat-chips .chip:has-text("Tropes")');
+    await page.waitForFunction(() => document.querySelectorAll('.msg-assistant:not(.msg-pending)').length >= 2);
+    assert.match(await page.textContent('.msg-assistant >> nth=-1'), /Gothic fiction, tropes, motifs and character types:/);
+    assert.ok(!(await labels()).includes('Tropes'), 'what was just shown is not offered again');
+
+    // typed follow-ups stay on the subject
+    await say(page, 'tell me more');
+    assert.match(await page.textContent('.msg-assistant >> nth=-1'), /^NIE\s*More on Gothic fiction/);
+    await say(page, 'how is it different from horror?');
+    assert.match(await page.textContent('.msg-assistant >> nth=-1'), /side by side/);
+
+    // the subject is part of the project: after a reload the conversation still goes on from it
+    await page.reload();
+    await openBrainstorm(page);
+    await say(page, 'and the history?');
+    assert.match(await page.textContent('.msg-assistant >> nth=-1'), /Gothic fiction, history and origins:/);
+
+    // a different project does not have it
+    await page.click('.nav-btn[data-view=projects]');
+    await page.click('#new-project');
+    await page.waitForSelector('#setup-dialog');
+    await page.click('#setup-cancel');
+    await openBrainstorm(page);
+    await say(page, 'tell me more');
+    assert.ok(!/Gothic/.test(await page.textContent('.msg-assistant >> nth=-1')), 'the new project has no subject to be told more about');
+  });
+});
