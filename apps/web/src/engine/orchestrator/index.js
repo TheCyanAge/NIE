@@ -1,6 +1,6 @@
 import { detectIntent, extractPremiseCues, updateWorkingPremise } from '../intent/intent.js';
 import { interpretProfile } from '../profile/interpret.js';
-import { answerFromLibrary, forProfile, search } from '../knowledge/index.js';
+import { answerFromLibrary, forProfile, libraryStatus, loadLibrary, search } from '../knowledge/index.js';
 import { afterRest, chipsFor, noteAnswer, resolveFollowUp } from '../knowledge/thread.js';
 import { emptyThread } from '../knowledge/thread-state.js';
 import { appendMessage } from '../project/memory.js';
@@ -511,6 +511,10 @@ export class Orchestrator {
     if (declines()) return decline();
     if (intent.type === 'about-nie') return this.#about({ project, intent, text: askText, onToken });
     const byModel = reading.by === 'model';
+
+    // The full library loads in the background after the app starts. A conversation about it that was saved with the project ("and the history?" after reopening it) needs the subject's
+    // records to be read at all, so a moment is spent waiting for it, once, rather than reading the message without them. (A failed load is not tried again on every message.)
+    if (!libraryStatus().loaded && !libraryStatus().error && project.conversation.library?.subject) await Promise.race([loadLibrary(), new Promise((resolve) => setTimeout(resolve, 8000))]);
 
     // Is this a question about the writer's own long text (a recent paste, or the project's Story Text) even though it never says "my story"?
     // "What is sedgewire made of?" is asked of the text, not of the craft library, and a small model labels it a general question.

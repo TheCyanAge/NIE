@@ -57,6 +57,7 @@ export function mountSettings(root, app, { startTour }) {
         : `${st.total.toLocaleString()} core entries are ready; the full library is loading…`;
     clear(libCoverage).append(...Object.entries(st.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => h('span', { class: 'tag', title: KIND_LABELS[k] ?? k }, `${KIND_LABELS[k] ?? k}: ${n.toLocaleString()}`)));
     libCoverage.append(h('p', { class: 'muted small library-honesty' }, 'How reliable is it? It was compiled with AI assistance, checked by automatic rules and cross-checks, and spot-checked against independent sources, but it has not been fully verified entry by entry. Treat it as a reference, and check the current edition of a style guide for formal work.'));
+    if (st.profileSubjects) libCoverage.append(h('p', { class: 'muted small library-profiles' }, `${st.profileSubjects} genres, forms, traditions and movements have a whole-subject profile (history, subgenres, tropes, what readers expect, how it is built, how it differs from its neighbours, landmark works, pitfalls, vocabulary). Each was written by one AI agent and then fact-checked by a second that searched for the dates, titles and "firsts"; some dates still rest on recall and are worded loosely. Ask for one by name (for example "the history of the essay"), then keep going with "tell me more".`));
     if (st.ruleGuides.length) libCoverage.append(h('p', { class: 'muted small library-guides' }, `Style rules from: ${st.ruleGuides.join(', ')}.`));
     paintLibraryResults();
   }
