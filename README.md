@@ -18,6 +18,13 @@ style limits you set for your own piece. A request to write or rewrite your text
   NIE also **follows your idea like an interviewer**: it keeps a sheet of what you said about it (your own words), asks one question
   now and then, about *this* idea and never the same one twice (questions are written for each kind of piece, form and genre), and,
   once it has the idea, offers to keep it on the Idea Board and in project memory. You can add details first, say "not yet", or take a keep back.
+- **A library you can talk to**: NIE answers questions about genres, forms, traditions, movements, works and style rules from a large
+  built-in library that works with no internet, says where an answer comes from and what is uncertain, and says so plainly when
+  something is not in it. For the bigger genres and forms there are whole-subject profiles (history, subgenres, tropes, what
+  readers expect, how it is built, how it differs from its neighbours, landmark works, pitfalls, vocabulary): ask for one, then keep
+  going with "what about its tropes?", "tell me more" or "how is it different from romance?". The library was written with AI
+  help; the profiles were also fact-checked by a second AI pass that searched for each date and title, but none of it is verified
+  entry by entry, so check a primary source for anything that matters. It informs; it never writes or edits your text.
 - **A memory for each project**: what you say in a project, what you keep, your characters, rules and decisions are held for *that
   project only* (a new project starts blank; deleting one deletes it). NIE finds what bears on each message, shows what it drew on under
   its reply ("What I remembered from earlier"), answers "what do you remember?" from what it really holds, and lists it all under

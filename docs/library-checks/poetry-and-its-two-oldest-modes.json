@@ -1,0 +1,101 @@
+{
+  "subject": "Poetry and its two oldest modes (poetry, lyric poetry, epic poetry)",
+  "searchUsed": true,
+  "method": "Every file was read in full and checked against the README Profiles standard and the parent library entries (poetry, genre-world-lyric-poetry, genre-world-epic-poetry via scripts/library-hub.mjs). Titles, authors, years and 'first/coined/named after' claims were checked with web search; claims that rest on settled general knowledge (for example Tang dynasty 618 to 907, Paradise Lost 1667, Lyrical Ballads 1798) were checked against the library's own works records and my own knowledge. The claim counts below are approximate counts of the discrete checkable claims enumerated in each file. No primary source was consulted; sources were encyclopedias, university and library pages, publisher and press guideline pages, and scholarly summaries returned by search. WebFetch was not used.",
+  "files": {
+    "poetry.js": {
+      "claimsChecked": 72,
+      "confirmed": 69,
+      "corrected": [
+        {
+          "where": "profile-poetry-canon, conv 4 (Romantic and nineteenth century)",
+          "was": "Emily Dickinson (almost all unpublished in her lifetime; first collected in 1890)",
+          "now": "Emily Dickinson (almost all unpublished in her lifetime; her first book appeared in 1890)",
+          "why": "Sources agree the 1890 Poems (Todd and Higginson) was her first posthumous book, a selection that was heavily edited, with further volumes in 1891 and 1896 and a text close to the manuscripts only in 1955. 'First collected' reads as a complete collection, which it was not. Her lifetime publication count is given as four to eleven poems depending on the source, so 'almost all unpublished' stays."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-poetry-readers, conv 6 (chapbook and collection length)",
+          "was": "A chapbook is a short collection, often about 15 to 40 pages, and a full-length collection often runs from about 50 to 100 pages; presses and contests set their own limits.",
+          "now": "A chapbook is a short collection, often about 20 to 40 pages, and a full-length collection often starts around 48 pages and runs to 80 or 100; presses and contests set their own limits.",
+          "why": "Press guidelines and writing guides found disagree (chapbooks 10 to 50 pages, most often 20 to 40 or under 48; full-length 40 to 110, with 48 a frequent dividing line and 50 to 100 a common press range). The wording now follows the commonest ranges and keeps the existing 'presses and contests set their own limits'. The record is already confidence 'varies' with an asOf."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Page counts for chapbooks and full-length collections vary by press and contest; the figures are common guidance, not a standard, and no authoritative body (for example a poetry society) was found to cite.",
+        "Enheduanna: existence, role as high priestess at Ur and a dating of about 2285 to 2250 BCE are well supported, and 'earliest author known by name' is the usual description. Whether she wrote the hymns credited to her is debated (the surviving copies are about six centuries later), and one source says it is unknown whether she was Sargon's blood daughter. The text already says 'traditionally described as' and 'how much she composed is debated', and the watch note repeats it.",
+        "'Poetry books generally sell in far smaller numbers than fiction' and the sentence about social-media poetry (since the 2010s, with critics disputing quality) are qualitative; the critical dispute about Rupi Kaur-style poetry was confirmed in commentary, but no sales statistics were verified or stated.",
+        "'Slam poetry from the mid-1980s' is safe (Marc Smith's Chicago open mic began late 1984; the Green Mill slam is usually dated July 1986), but some histories point to earlier competitive readings in the late 1970s and early 1980s, so no 'first slam' claim is made.",
+        "Baudelaire's Les Fleurs du mal as 'often called a founding book of modern French poetry' and Whitman's Leaves of Grass as 'a model for free verse' are widely held interpretive statements, not facts with a source.",
+        "Stanza from an Italian word for a room or stopping place was confirmed in etymology sources. Volta from the Italian word for turn and ars poetica as the Latin name from Horace's verse letter rest on solid general knowledge and were not searched in this pass.",
+        "Divine Comedy 'finished around 1320' and the Beowulf manuscript 'about 1000' are approximations by design."
+      ]
+    },
+    "lyric-poetry.js": {
+      "claimsChecked": 64,
+      "confirmed": 61,
+      "corrected": [
+        {
+          "where": "profile-lyric-poetry-history, conv 8 (later lyric)",
+          "was": "Emily Dickinson's compressed poems (almost all unpublished in her lifetime, first collected in 1890)",
+          "now": "Emily Dickinson's compressed poems (almost all unpublished in her lifetime, her first book appearing in 1890)",
+          "why": "Same as in poetry.js: the 1890 Poems was a selected, edited first book, not a collected edition."
+        },
+        {
+          "where": "profile-lyric-poetry-terms, conv 7 (Epiphany)",
+          "was": "...at the heart or close of a poem, the word is borrowed from religion, where it means the showing forth of something divine.",
+          "now": "...at the heart or close of a poem; the word is borrowed from religion, where it means the showing forth of something divine.",
+          "why": "The two clauses were joined by a comma. The content is right: Greek epiphaneia means manifestation, and the Christian feast gave the word its religious use before the secular literary sense (usually credited to Joyce in the early twentieth century)."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Pindar's victory odes 'mostly in the first half of the fifth century': his earliest dated ode is Pythian 10 (498 BCE) and the latest is usually taken to be Pythian 8 (446 BCE), though one catalogue listing gave 444; sources give his lifespan as about 518 to 438. This supports the phrase but is a range, not an exact count.",
+        "Alexandrian canon: sources confirm a canon of nine lyric poets formed by Hellenistic scholars (Alcman, Sappho, Alcaeus, Anacreon, Stesichorus, Ibycus, Simonides, Bacchylides, Pindar), and one scholar argues the canonising process began earlier, in the fifth century. The text says only that Hellenistic Alexandria 'later listed nine' and names four, so it makes no claim about who compiled the list or when. The clause that this 'helped shape how Rome and later Europe understood what a lyric poet was' is interpretive but is supported by the finding that by the Roman period lyric was identified with the nine.",
+        "Horace Odes 1 to 3 'about 23 BCE' is the standard view; a few scholars question publication as a single unit, which the word 'about' covers.",
+        "Wordsworth's 1800 preface phrase and John Stuart Mill's 1833 'overheard' remark were web-checked by the writer and not re-fetched from a primary text in this pass; both are brief paraphrases or short quotations well under 14 words.",
+        "Donne's The Sun Rising (first printed in the posthumous 1633 Poems) is described as a 'famous variation' on the aubade. That reading is widely taught but I could not find a source in this pass; it is interpretive.",
+        "Coleridge's Frost at Midnight was composed in February 1798 and printed in the 1798 pamphlet Fears in Solitude, so '1798' is right for publication; the exact month of the pamphlet was not settled in sources.",
+        "Pound's In a Station of the Metro (Poetry, April 1913) is 'often linked to Japanese haiku'. Sources say Pound was inspired by haiku but the poem does not follow the form, which the text does not claim.",
+        "Confessional poetry as 'a label from a 1959 review of Robert Lowell's Life Studies' is right (M. L. Rosenthal, The Nation, 19 September 1959). Sources note this is a simplification, because the adjective first appears in a passage about Whitman's Calamus poems in the same review, and some poets such as Snodgrass disliked the label.",
+        "The closing history point about critics who defend one continuous lyric tradition versus those who say 'the lyric' was made by later reading habits is a summary of a real debate, correctly marked 'contested'; no scholar is named and none was checked.",
+        "Pathetic fallacy (Ruskin, Modern Painters III, 1856) was confirmed. Abrams's 'Structure and Style in the Greater Romantic Lyric' (1965) was confirmed as a title and year; the choice of Tintern Abbey as his example rests on general knowledge."
+      ]
+    },
+    "epic-poetry.js": {
+      "claimsChecked": 95,
+      "confirmed": 94,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "profile-epic-poetry-history, conv 5 (medieval epics)",
+          "was": "Beowulf in Old English (its one manuscript dates to about 1000), the Song of Roland in Old French (about 1100)",
+          "now": "Beowulf in Old English (one manuscript, about 1000), the Song of Roland in Old French (composed about 1100, date debated)",
+          "why": "The Roland date follows a manuscript date in the same sentence and could be read as a manuscript date. The Oxford manuscript is from the twelfth century (put at 1125 to 1170 in different catalogues); scholarly estimates of composition run from about 1040 to 1115, so 'composed about 1100, date debated' is accurate. The sentence was trimmed to stay inside the 300-character limit."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Gilgamesh: Sumerian poems of about 2100 BCE (Ur III) and Old Babylonian tablets of about the eighteenth century BCE are confirmed. The standard Babylonian version linked to Sîn-lēqi-unninni is left undated because sources range from the thirteenth to the tenth century BCE.",
+        "Mahabharata: 'usually placed between about 400 BCE and 400 CE' is a widely cited wide window (Winternitz and others); some authorities favour a narrower span, such as 300 to 100 BCE. The Ramayana is described only as taking shape over a long period with disputed dates, and Valmiki and Vyasa as traditional attributions; no relative order is claimed.",
+        "Iliad and Odyssey 'about the eighth century BCE, the Odyssey perhaps a little later' is the common view; some scholars place the poems into the early seventh century, and the Homeric question is open (the watch note says so).",
+        "Line counts (Iliad 15,693; Odyssey 12,110 or 12,109; Aeneid 9,896) were confirmed and are given as 'about' figures. 'Paradise Lost more than 10,000' is true by every count I know (about 10,565) but the exact figure was not confirmed by a source in this pass.",
+        "C. S. Lewis, A Preface to Paradise Lost (1942), with 'primary epic' for Homer and Beowulf and 'secondary epic' for Virgil and Milton: the year and the pairing were confirmed from listings and summaries, not the text itself; the term is already flagged in the watch note as belonging to particular critics.",
+        "Lucan's Civil War 'first century CE' and the Argonautica 'third century BCE' are standard; the Argonautica is dated within about 270 to 240 BCE on a recent view. The Lucan date came from general knowledge, as the search returned nothing.",
+        "'The ring-composition claim' (Homeric poems framing sections by echoing their beginnings) is established in Homeric scholarship; the clause that it 'may have helped oral singers keep their place' is hedged and was not sourced.",
+        "'New epic poems are uncommon' and the sentence that readers who want epic-scale story today often find it in epic fantasy, historical fiction and screen drama are interpretive, not statistics.",
+        "Venus and Adonis (1593) as an epyllion is a widely used label (with Marlowe's Hero and Leander of 1598 as the other major English example), not universal. Eugene Onegin '1833' is the first complete edition, with serial publication from 1825; it matches the library's other records.",
+        "Kalevala 'first compiled by Elias Lönnrot in 1835': the 1835 Old Kalevala is the first published version, and an enlarged edition followed in 1849. The text does not mention 1849, and the library's own records give 1835."
+      ]
+    }
+  },
+  "lint": {
+    "command": "node scripts/library-profile-check.mjs --staging <file>",
+    "result": "OK for poetry.js, lyric-poetry.js and epic-poetry.js (9 records each, lint clean, every facet found)",
+    "note": "The first Roland edit pushed one conv string to 323 characters (limit 300); it was shortened and the check re-run until clean."
+  },
+  "consistency": "Works records and years in the three files match the library entries for poetry, genre-world-lyric-poetry and genre-world-epic-poetry (Iliad c. 750 BCE, Aeneid c. 19 BCE, Paradise Lost 1667, Omeros 1990, Sappho c. 600 BCE, Duino Elegies 1923, Ariel 1965, Lyrical Ballads 1798 with the two-author string) and with other library records for Gitanjali 1910, Cahier d'un retour au pays natal 1939, Eugene Onegin 1833, Kalevala 1835, Shahnameh c. 1010 CE, Orlando Furioso 1516, The Faerie Queene 1590, Venus and Adonis 1593, Rape of the Lock 1712, The Prelude 1850 and Veinte poemas de amor y una canción desesperada 1924. No sample prose or pasteable lines were found; the only quotation is a five-word phrase from Wordsworth's preface."
+}

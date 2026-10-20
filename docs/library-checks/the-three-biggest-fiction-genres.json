@@ -1,0 +1,220 @@
+{
+  "subject": "The three biggest fiction genres (fantasy, science fiction, romance)",
+  "searchUsed": true,
+  "searchNotes": "WebSearch worked; WebFetch could not reach Wikipedia (DNS failure), so all checks used WebSearch summaries. Years for a few well-known titles returned no usable search result and rest on solid recall plus consistency with the library (listed under remainingDoubts).",
+  "lintOk": true,
+  "files": {
+    "fantasy.js": {
+      "claimsChecked": 80,
+      "confirmed": 73,
+      "corrected": [
+        {
+          "where": "profile-fantasy-canon, pulp and sword and sorcery point",
+          "was": "Leiber is generally credited with coining the label 'sword and sorcery' in the early 1960s.",
+          "now": "Leiber is generally credited with proposing the label 'sword and sorcery' in 1961.",
+          "why": "Leiber's fanzine letter (Ancalagon, dated 6 April 1961, a reply to Moorcock's call for a name) is the usual source, but the SF Encyclopedia notes the phrase turns up earlier in a 1953 headline, so 'coining' is not safe. 'Proposing ... in 1961' is."
+        },
+        {
+          "where": "profile-fantasy-canon, 1980s and 1990s point",
+          "was": "Pratchett, Kay's Tigana (1990), Hobb, Jordan and Martin 'defined the era of long series'.",
+          "now": "1980s and 1990s, the era of long series: Pratchett, Jordan, Hobb (1995) and Martin (1996), alongside the standalone Tigana (1990) by Guy Gavriel Kay.",
+          "why": "Tigana is a standalone novel, so it cannot be said to define the era of long series."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-fantasy-history, nineteenth-century point",
+          "was": "collected and invented fairy tales ... led to George MacDonald's Phantastes (1858) and Alice (1865)",
+          "now": "... were followed by George MacDonald's Phantastes (1858) and Lewis Carroll's Alice (1865)",
+          "why": "A causal 'led to' is an interpretation; the chronology is certain."
+        },
+        {
+          "where": "profile-fantasy-history, last point",
+          "was": "Jemisin, Okorafor and Ken Liu 'brought histories beyond medieval Europe to the centre of the genre'",
+          "now": "... drew on histories and settings far beyond medieval Europe",
+          "why": "'To the centre of the genre' is a judgement about living authors; the bibliographic fact is what they drew on."
+        },
+        {
+          "where": "profile-fantasy-readers, series point",
+          "was": "much of the adult market is built on trilogies and longer series; a first book is still expected to resolve its own main story",
+          "now": "Series are common in adult fantasy, especially epic fantasy, where trilogies and longer series are familiar; a first book is still usually expected to resolve its own main story.",
+          "why": "A market-share claim could not be sourced; narrowed to what is safely true."
+        },
+        {
+          "where": "profile-fantasy-readers, shelving point",
+          "was": "fantasy usually shares a section with science fiction",
+          "now": "fantasy often shares a section with science fiction",
+          "why": "Shelving differs by shop and library."
+        },
+        {
+          "where": "profile-fantasy-craft, On Fairy-Stories point",
+          "was": "it remains the standard statement of why rules and detail matter",
+          "now": "it is a much-cited statement of why rules and detail matter",
+          "why": "'The standard statement' is an unsourced superlative. The 1939 St Andrews lecture (Andrew Lang Lecture, 8 March 1939) and the 1947 printing in Essays Presented to Charles Williams are confirmed."
+        }
+      ],
+      "removed": [],
+      "notes": [
+        "Non-factual edit: in profile-fantasy-history the Eddison (1922) and Dunsany (1924) names were swapped so the point runs earliest first."
+      ],
+      "remainingDoubts": [
+        "Years for Nine Princes in Amber (1970), American Gods (2001), Mistborn (2006), Morris (1894 and 1896), Eddison (1922), Dunsany (1924), the Grimm tales (1812) and Andersen (1830s) rest on solid recall and agree with the library; no search result returned for them in this session.",
+        "The Morris claim ('often cited as early fantasy set in an entirely invented world') is a critical judgement, kept hedged with 'often cited'.",
+        "Length, series and shelving statements are market guidance (matches mkt-len-fantasy), not fact, and are marked 'varies'."
+      ]
+    },
+    "science-fiction.js": {
+      "claimsChecked": 85,
+      "confirmed": 74,
+      "corrected": [
+        {
+          "where": "profile-science-fiction-history, Gernsback point",
+          "was": "the name science fiction became standard in the late 1920s and 1930s",
+          "now": "the name science fiction came into general use from about 1929 and through the 1930s",
+          "why": "Gernsback's magazines used 'scientifiction' in 1926 and 'science fiction' from 1929 (the SF Encyclopedia notes one 1927 appearance), so 'standard in the late 1920s' ran too early."
+        },
+        {
+          "where": "profile-science-fiction-history, Frankenstein point",
+          "was": "an argument made by the critic Brian Aldiss among others",
+          "now": "an argument made by the writer and critic Brian Aldiss among others",
+          "why": "The claim is confirmed (Billion Year Spree, 1973); wording made precise because Aldiss was also a novelist."
+        },
+        {
+          "where": "profile-science-fiction-subgenres, military science fiction",
+          "was": "from Heinlein's Starship Troopers (1959) onward",
+          "now": "Heinlein's Starship Troopers (1959) is an early and much-discussed landmark.",
+          "why": "'From ... onward' implied the book started the subgenre; military SF predates it."
+        },
+        {
+          "where": "profile-science-fiction-tropes, robots point",
+          "was": "Asimov's three laws of robotics (stated in Runaround, 1942)",
+          "now": "(set out in full in the story Runaround, 1942)",
+          "why": "Runaround (Astounding, March 1942) is the first explicit statement of all three, but the First Law alone appeared earlier in Liar! (1941)."
+        },
+        {
+          "where": "profile-science-fiction-craft, Clarke point",
+          "was": "Clarke's third law, that advanced technology looks like magic to the observer",
+          "now": "that any sufficiently advanced technology is indistinguishable from magic",
+          "why": "The paraphrase added 'to the observer', which is not in the law. The close wording is under the 14-word quote limit."
+        },
+        {
+          "where": "profile-science-fiction-terms, novum",
+          "was": "Novum: Darko Suvin's term, in Metamorphoses of Science Fiction (1979)",
+          "now": "Novum: a critics' term, made central to science fiction criticism by Darko Suvin in Metamorphoses of Science Fiction (1979)",
+          "why": "Suvin took the word from Ernst Bloch, so 'Suvin's term' overstated the coinage. His 1979 book is confirmed."
+        },
+        {
+          "where": "profile-science-fiction-terms, space opera",
+          "was": "the term was coined in the early 1940s as a mock-insult",
+          "now": "the term was coined in 1941 by the fan writer Wilson Tucker as a mock-insult, modelled on soap opera and horse opera",
+          "why": "Sources agree on Tucker and 1941 (fanzine Le Zombie), so the vague date was replaced with the verified one."
+        },
+        {
+          "where": "profile-science-fiction-terms, cyberspace",
+          "was": "Cyberspace: William Gibson's word, from his story Burning Chrome (1982)",
+          "now": "a word credited to William Gibson, who used it in his story Burning Chrome (1982); Neuromancer made it famous",
+          "why": "Burning Chrome (Omni, July 1982) and the OED credit are confirmed, but a late-1960s art use of the word is reported, so the claim is attribution, not absolute coinage."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-science-fiction-subgenres, soft SF",
+          "was": "Le Guin's The Left Hand of Darkness is the usual example",
+          "now": "is a frequent example",
+          "why": "'The usual example' is an unsourced superlative."
+        },
+        {
+          "where": "profile-science-fiction-readers, series point",
+          "was": "a debut is generally expected to stand on its own",
+          "now": "a debut is often advised to stand on its own",
+          "why": "This is agent and editor guidance that varies, not a rule."
+        },
+        {
+          "where": "profile-science-fiction-readers, series point",
+          "was": "short fiction ... and the novella, are unusually strong markets for the genre",
+          "now": "have a long tradition in the genre and remain active markets",
+          "why": "'Unusually strong' is a comparative claim that could not be sourced."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Campbell 'from 1937': sources give September or late 1937 for his appointment and May 1938 for full control; the Golden Age is usually dated from 1939. The text says 1937 and 'into the 1950s', and the watch note says critics date it differently.",
+        "Snow Crash (1992) and Solaris (1961) rest on solid recall plus library agreement; no search result returned for them in this session. Roadside Picnic (1972) first appeared in the journal Avrora.",
+        "Earlier isolated uses of the phrase 'science fiction' exist (an 1851 use is reported, and a 1927 letter); the text deliberately leaves them undated.",
+        "Rendezvous with Rama as a 'common example' of hard SF is a widely repeated judgement, not independently sourced here.",
+        "Starship Troopers (1959) sits in the Golden Age canon point; the Golden Age is a loose label and the watch note says so."
+      ]
+    },
+    "romance.js": {
+      "claimsChecked": 66,
+      "confirmed": 57,
+      "corrected": [
+        {
+          "where": "profile-romance-history, Mills & Boon point",
+          "was": "Mills & Boon ... was known by the 1930s for romance sold to lending libraries",
+          "now": "Mills & Boon, founded in London in 1908, was concentrating on romance by the 1930s, much of it for lending libraries.",
+          "why": "Founding in 1908 is confirmed. Sources place the move to romance around 1930 and the 'library house' status by the Second World War, so the sentence now claims only that."
+        },
+        {
+          "where": "profile-romance-history, The Sheik",
+          "was": "The Sheik (1919) was a huge success of a different, desert-adventure kind",
+          "now": "E. M. Hull's The Sheik (1919) was a bestseller",
+          "why": "Sources call it a desert romance, not a desert adventure, so the wrong genre label was dropped. 1919 and the bestseller status are confirmed."
+        },
+        {
+          "where": "profile-romance-history, Heyer",
+          "was": "Georgette Heyer's Regency Buck (1935) is generally credited with establishing the Regency romance",
+          "now": "Georgette Heyer, whose Regency Buck (1935) was her first Regency novel, is credited with establishing the Regency romance",
+          "why": "The credit belongs to the author. Regency Buck is confirmed as her first Regency-set novel (Heinemann, 1935)."
+        },
+        {
+          "where": "profile-romance-history, Woodiwiss point",
+          "was": "Contemporary romance followed, with Nora Roberts publishing her first book in 1981; Romance Writers of America was founded in 1980.",
+          "now": "Romance Writers of America was founded in 1980, and Nora Roberts published her first book in 1981.",
+          "why": "'Contemporary romance followed' wrongly implied it began after the 1970s boom, and the dates ran out of order. RWA 1980 (Houston) and Irish Thoroughbred 1981 are confirmed."
+        },
+        {
+          "where": "profile-romance-terms, meet-cute",
+          "was": "a term from film comedy",
+          "now": "a term that came from Hollywood screenwriting",
+          "why": "Print uses from 1937 and 1941 tie it to Hollywood story conferences and screenwriting. The coiner is unknown."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-romance-history, Harlequin point",
+          "was": "took over the British firm in 1971",
+          "now": "took over the British firm in the early 1970s",
+          "why": "Most sources say 1971; some company histories say 1972. Winnipeg 1949 and the 1950s reprinting are confirmed."
+        },
+        {
+          "where": "profile-romance-history, Woodiwiss point",
+          "was": "The Flame and the Flower (1972) launched the single-title historical paperback boom",
+          "now": "is widely credited with launching the single-title historical paperback boom",
+          "why": "Avon, April 1972, as the first full-length romance to appear first in paperback is confirmed, but 'launched the boom' is a credit, not a fact."
+        },
+        {
+          "where": "profile-romance-compare, Gothic romance",
+          "was": "Gothic romance gives half the book to menace",
+          "now": "Gothic romance gives much of the book to menace",
+          "why": "'Half' was an invented proportion."
+        },
+        {
+          "where": "profile-romance-canon, early and mid twentieth century",
+          "was": "Betty Neels's books from the 1960s",
+          "now": "Betty Neels's books from the late 1960s",
+          "why": "Her first book, Sister Peters in Amsterdam, appeared in 1969."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Persuasion is dated 1817 (matches the library; it was published in December 1817 but the first-edition title page says 1818). The text keeps the library convention.",
+        "Harlequin's takeover date varies by source between 1971 and 1972, so the text says 'early 1970s'.",
+        "Hibbert's Get a Life, Chloe Brown is 2019 per library catalogue records; no exact month was confirmed.",
+        "Pamela 1740, Evelina 1778, Jane Eyre 1847, Rebecca 1938, Nine Coaches Waiting 1958, Sweet Savage Love 1974, The Kiss Quotient 2018, Red, White & Royal Blue 2019 and Beach Read 2020 rest on solid recall plus library agreement; no search result returned for them in this session.",
+        "'Romance has its own section in many bookshops and libraries' and 'a tragic ending usually moves a book into another category' are market and definitional statements, left hedged with 'many' and 'usually'.",
+        "Beverly Jenkins is named with no title or year; her debut Night Song (Avon, 1994) is confirmed if a work is ever added."
+      ]
+    }
+  }
+}

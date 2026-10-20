@@ -1,0 +1,254 @@
+{
+  "subject": "Writing for the stage and the screen (screenplay, stage play, tragedy)",
+  "searchUsed": true,
+  "method": "Every file was read in full and checked against the README Profiles standard and the parent library entries (screenplay, stage-play, tragedy via scripts/library-hub.mjs; the library's own records for works, Freytag, Bradley, zaju and Dou E were grepped for consistency). Titles, authors, years and first/coined/named-after claims were checked with web search (encyclopedias, university and library pages, the Writers Guild Foundation, the Academy rules pages, publisher and catalogue records, theatre-history and classics course pages). Claims resting on settled general knowledge (for example Jazz Singer 1927, A Doll's House 1879, Hamlet c. 1600) were checked against the library's own works records and my own knowledge. A direct fetch of the text of Aristotle's Poetics failed (host not reachable), so Poetics points were checked through secondary sources only. Claim counts are approximate counts of the discrete checkable claims in each file. Only the three staging files and this report were touched.",
+  "files": {
+    "screenplay.js": {
+      "claimsChecked": 70,
+      "confirmed": 64,
+      "corrected": [
+        {
+          "where": "profile-screenplay-history, conv 5 (studio era)",
+          "was": "the Screen Writers Guild, formed in 1933, was a forerunner of today's Writers Guild of America.",
+          "now": "the Screen Writers Guild, organised as a union in 1933, was a forerunner of the Writers Guild of America, which took shape in 1954.",
+          "why": "The Writers Guild Foundation dates the union to 6 April 1933, but an archive describes an earlier Screen Writers Guild formed in 1920 as a professional club, so 'formed in 1933' misleads. The Guild split into Writers Guild of America West and East in 1954 when it merged with the radio and television guilds, so 'took shape in 1954' is safe and the forerunner claim stands."
+        },
+        {
+          "where": "profile-screenplay-history, conv 7 (how-to books)",
+          "was": "From 1979 books on the trade became part of the culture: Syd Field's Screenplay (1979), William Goldman's Adventures in the Screen Trade (1983) and Robert McKee's Story (1997) spread a shared vocabulary of acts and plot points, and drew criticism for encouraging formula.",
+          "now": "Books on the trade became part of the culture: Syd Field's Screenplay (1979) and Robert McKee's Story (1997) spread a shared vocabulary of acts and plot points and drew criticism for encouraging formula, while William Goldman's Adventures in the Screen Trade (1983) gave an insider's view.",
+          "why": "All three titles and years are right (Field 1979, Goldman March 1983 Warner Books, McKee 1997). But Goldman's book is a personal, insider account of Hollywood (its famous line is that nobody knows anything), not a structure manual that spread a vocabulary of acts and plot points or drew a formula criticism. Removed the false lumping and the loose 'From 1979'."
+        },
+        {
+          "where": "profile-screenplay-history, conv 8 (software and writers' rooms)",
+          "was": "Word processors and, from the 1980s and 1990s, dedicated screenwriting software took over the layout work, and the streaming era has made series, which are often written by teams in writers' rooms, a major part of screenwriting.",
+          "now": "Word processors and, from the 1980s, dedicated screenwriting software took over the layout work, and series written by teams in writers' rooms, a practice older than streaming, are now a major part of screenwriting.",
+          "why": "The writer flagged this. Scriptor launched in 1983 and rivals followed by the late 1980s (Humanitas Prize history), so 'from the 1980s' is accurate and '1990s' was redundant. Writers' rooms long predate streaming, so the sentence no longer credits streaming with them."
+        },
+        {
+          "where": "profile-screenplay-canon, conv 5 (1990s scripts)",
+          "was": "Pulp Fiction (1994, Quentin Tarantino and Roger Avary)",
+          "now": "Pulp Fiction (1994, Quentin Tarantino, with the story credited to him and Roger Avary)",
+          "why": "Sources agree Tarantino holds the screenplay credit and the stories are credited to Tarantino and Avary, while the Oscar for Best Original Screenplay went to both. The conv line now gives the credit precisely, matching the style used for Eternal Sunshine. The works entry keeps the library's existing author string, which reflects the shared Oscar."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-screenplay-history, conv 3 (silent era)",
+          "was": "staff scenario writers, among them Anita Loos and Frances Marion, worked inside the American studios of the 1910s and 1920s.",
+          "now": "scenario writers, among them Anita Loos and Frances Marion, wrote for the American studios of the 1910s and 1920s.",
+          "why": "Both women are well attested as leading scenarists (Loos from 1912, reportedly full-time at Triangle from 1915, later freelance with Emerson; Marion with more than 200 films 1916 to 1946, per MoMA). 'Staff' fits Loos at Triangle but not clearly Marion, so the claim now says only what is certain."
+        },
+        {
+          "where": "profile-screenplay-subgenres, conv 2 (short film script)",
+          "was": "commonly under forty minutes and often under fifteen.",
+          "now": "forty minutes or less by the Academy's definition, and often far shorter.",
+          "why": "The Academy's rules define a short film as 40 minutes or less including credits. 'Under forty' was slightly off the definition, and 'often under fifteen' was an uncheckable statistic."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Anita Loos and Frances Marion: exact studio employment status varies by year; the line now says only that they wrote for American studios.",
+        "O.S. versus O.C.: sources disagree (some treat O.C. as an old synonym, some as a narrower term, a forum thread says sitcoms use it); the text keeps 'Some scripts use O.C., off camera' and the watch note says terms vary, which all sources support.",
+        "Bicycle Thieves is credited 'Cesare Zavattini with others': the other credited names vary slightly between sources (Gherardi or Guerrieri), so no names beyond Zavattini are given.",
+        "The works entry for Pulp Fiction keeps the library's author string 'Quentin Tarantino and Roger Avary' (shared Oscar); the strict screenplay credit is Tarantino alone with a shared story credit.",
+        "Robert McKee's Story (1997), Some Like It Hot, Tokyo Story, Wild Strawberries, Double Indemnity, Network, Fargo and Being John Malkovich rest on solid general knowledge; the searches did not return a page for them.",
+        "Page counts (about 90 to 120), the one-page-a-minute guide and the Academy's separate Original and Adapted awards are standard industry statements, hedged in the text and marked varies where they appear in the readers facet."
+      ]
+    },
+    "stage-play.js": {
+      "claimsChecked": 80,
+      "confirmed": 72,
+      "corrected": [
+        {
+          "where": "profile-stage-play-craft, conv 7 (time and place)",
+          "was": "Renaissance critics formulated unities of action, time and place,",
+          "now": "Renaissance critics codified the unities of action, time and place,",
+          "why": "Unity of action is Aristotle's. Renaissance commentators (Robortello 1548, Castelvetro 1570) codified time and place, so 'formulated' all three overstated what was new."
+        },
+        {
+          "where": "profile-stage-play-craft, watch 2 (Aristotle and the unities)",
+          "was": "The unities of time and place were formulated by Renaissance critics, not by Aristotle, who wrote of unity of action.",
+          "now": "The unities of time and place were formulated by Renaissance critics; Aristotle wrote of unity of action, remarked only that tragedy tends to keep to about a day, and said nothing of place.",
+          "why": "The writer flagged this. Aristotle's Poetics does say tragedy tries to stay within a single revolution of the sun, so 'not by Aristotle' was too strong for time; place is absent from the Poetics and comes from Castelvetro's 1570 commentary."
+        },
+        {
+          "where": "profile-stage-play-canon, conv 4 (Figaro)",
+          "was": "Beaumarchais's The Marriage of Figaro (first staged in 1784).",
+          "now": "Beaumarchais's The Marriage of Figaro (first performed in public in 1784).",
+          "why": "The writer flagged this. A private staging planned for 13 June 1783 was banned by Louis XVI, a private performance did take place later in 1783 at Gennevilliers, and the public premiere was at the Comédie-Francaise on 27 April 1784. 'First staged in 1784' was wrong; 'in public' is exact."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-stage-play-history, conv 3 (Asian drama)",
+          "was": "Kabuki and puppet theatre from the seventeenth.",
+          "now": "Kabuki and puppet theatre from around 1600.",
+          "why": "Kabuki is usually dated to about 1603 (Okuni), but some sources trace Kabuki and Bunraku to the end of the sixteenth century. Noh from the fourteenth century (Kan'ami and Zeami) and zaju in the Yuan dynasty are confirmed; Natyashastra 'of disputed date' is confirmed (estimates run from 500 BCE to 500 CE)."
+        },
+        {
+          "where": "profile-stage-play-history, conv 5 (early modern theatre)",
+          "was": "London's public playhouses from the 1570s",
+          "now": "London's public playhouses from the later sixteenth century",
+          "why": "The Theatre (1576) is the first successful permanent playhouse, but the Red Lion (1567) may be earlier and is the subject of 2020 excavation claims, so a decade is not safe."
+        },
+        {
+          "where": "profile-stage-play-history, conv 6 (1642 and 1660)",
+          "was": "reopened at the Restoration in 1660, when actresses began to take women's roles;",
+          "now": "reopened at the Restoration in 1660, and actresses soon began to take women's roles;",
+          "why": "The closure (2 September 1642), the 1660 reopening, the 1737 licensing act (Lord Chamberlain's control until 1968) and the 1968 end of censorship all check out. The 'first actress' tradition (Margaret Hughes, December 1660) is now disputed, though the 1662 patents allowed women to play women's parts, so the text no longer ties it to one moment."
+        },
+        {
+          "where": "profile-stage-play-canon, conv 3 (Asian traditions)",
+          "was": "Guan Hanqing's The Injustice to Dou E in Chinese zaju (c. 1300),",
+          "now": "Guan Hanqing's The Injustice to Dou E in Chinese zaju (late thirteenth century),",
+          "why": "Sources place the play in the late thirteenth century with no exact year; the library holds both c. 1290 and c. 1300 in different records. Chikamatsu's Sonezaki (1703) is confirmed."
+        },
+        {
+          "where": "profile-stage-play-canon, conv 8 (beyond Europe and America)",
+          "was": "Girish Karnad's Hayavadana (1971)",
+          "now": "Girish Karnad's Hayavadana (written 1971)",
+          "why": "Sources agree on 1971 as the year of writing; one gives 1972 for publication or first staging. The Soyinka line already says 'published 1975' (premiere given as 1975 or 1976 by different sources), and Thunderstorm 1934 is the first magazine publication."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Congreve's The Way of the World (March 1700) was not returned by a search; it is held on solid general knowledge and matches the library's works record (1700).",
+        "Practice claims in the readers facet (playwrights commonly keep copyright; some new plays run without an interval; ten-minute, one-act and full-length running times) are hedged and the facet is marked varies, but they are not individually sourced.",
+        "Church drama from about the tenth century, commedia dell'arte in the sixteenth century, Plautus and Terence in the third and second centuries BCE, Everyman as a morality play, Tracy Letts and Our Town were not searched individually; they rest on settled general knowledge.",
+        "Death and the King's Horseman: the text says 'published 1975'; sources give the Ife premiere as 1975 or 1976, so no premiere year is stated.",
+        "Waiting for Godot 'published 1952': sources agree on 1952 but differ on the month (September or October).",
+        "Early-modern dates for Noh, Kabuki and puppet theatre, and the Natyashastra and Kalidasa, are approximate by nature and the text says so."
+      ]
+    },
+    "tragedy.js": {
+      "claimsChecked": 105,
+      "confirmed": 88,
+      "corrected": [
+        {
+          "where": "profile-tragedy-history, conv 7 (eighteenth century and Goethe)",
+          "was": "The eighteenth century brought tragedy of the middle class, such as George Lillo's The London Merchant (1731) and Lessing's Miss Sara Sampson (1755), and the Romantics wrote poetic tragedy, including Goethe's Faust, Part One (1808).",
+          "now": "The eighteenth century made tragedy of the middle class a recognised type, as in George Lillo's The London Merchant (1731) and Lessing's Miss Sara Sampson (1755), while poetic tragedy went on, including Goethe's Faust, Part One (1808), which he called a tragedy.",
+          "why": "Lillo (first staged 22 June 1731) is described as reviving domestic tragedy, which already existed in Elizabethan plays, so 'brought' was wrong. Goethe is usually placed in Weimar Classicism rather than among the Romantics, so 'the Romantics wrote' was loose. Faust, Part One was published in 1808 under the label 'a tragedy'. All years confirmed."
+        },
+        {
+          "where": "profile-tragedy-subgenres, conv 6 (domestic tragedy)",
+          "was": "the fall of an ordinary household instead of a ruler, appearing in the eighteenth century in Lillo's The London Merchant and Lessing's Miss Sara Sampson.",
+          "now": "the fall of an ordinary household instead of a ruler; it had Elizabethan precedents and became a recognised type in the eighteenth century with Lillo's The London Merchant and Lessing's Miss Sara Sampson.",
+          "why": "Elizabethan domestic tragedies exist (Arden of Faversham, 1592; A Woman Killed with Kindness; A Yorkshire Tragedy), so the form did not first appear in the eighteenth century."
+        },
+        {
+          "where": "profile-tragedy-tropes, conv 10 (the survivor who restores order)",
+          "was": "someone from outside the ruined circle, such as Fortinbras in Hamlet or Malcolm in Macbeth,",
+          "now": "someone who stands apart from the ruin, such as Fortinbras in Hamlet or Malcolm in Macbeth,",
+          "why": "The writer flagged this. Fortinbras is an outsider, but Malcolm is Duncan's son and heir, so 'outside the ruined circle' did not fit him. 'Stands apart from the ruin' is true of both."
+        },
+        {
+          "where": "profile-tragedy-readers, conv 2 (a protagonist the audience cares about)",
+          "was": "in Aristotle's account pity and fear depend on seeing someone like us suffer a fall out of proportion to their error.",
+          "now": "in Aristotle's account pity answers undeserved misfortune and fear answers a person like ourselves, so the hero cannot be wholly wicked or wholly perfect.",
+          "why": "In the Poetics pity is for undeserved misfortune and fear is for someone like ourselves; 'out of proportion to their error' was an interpretation presented as his account."
+        },
+        {
+          "where": "profile-tragedy-canon, conv 3 (France and Germany)",
+          "was": "Racine's Andromaque and Phèdre (1677),",
+          "now": "Racine's Andromaque (1667) and Phèdre (1677),",
+          "why": "The single parenthetical year read as dating both plays to 1677. Phèdre premiered on 1 January 1677; Andromaque is 1667. Woyzeck confirmed as written 1836 to 1837, left unfinished, first staged 1913."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-tragedy-history, conv 3 (Aristotle's Poetics)",
+          "was": "and made the first lasting analysis of plot, character and the tragic fall.",
+          "now": "and gave the earliest surviving systematic analysis of plot, character and the tragic fall.",
+          "why": "'First' is only safe for what survives; earlier discussion (Plato) exists."
+        },
+        {
+          "where": "profile-tragedy-history, conv 9 (Williams)",
+          "was": "and Raymond Williams's Modern Tragedy (1966) found it in modern experience.",
+          "now": "and Raymond Williams's Modern Tragedy (1966) argued that it lives on in modern experience.",
+          "why": "Williams's book is a reply to the death-of-tragedy thesis; 'found it' was vague. Years for Nietzsche (1872), Steiner (1961), Williams (1966) confirmed; Bradley 1904 confirmed by the library's own entry and a publisher page."
+        },
+        {
+          "where": "profile-tragedy-subgenres, conv 1 (Greek tragedy)",
+          "was": "Greek (Attic) tragedy: myth-based plays with a chorus,",
+          "now": "Greek (Attic) tragedy: plays mostly drawn from myth, with a chorus,",
+          "why": "Aeschylus's Persians is drawn from recent history, so 'myth-based' for every play was too broad."
+        },
+        {
+          "where": "profile-tragedy-subgenres, conv 4 (Elizabethan and Jacobean tragedy)",
+          "was": "five-act verse drama that mixes high and low,",
+          "now": "five-act drama, mostly in verse, that mixes high and low,",
+          "why": "Shakespeare and his contemporaries also use prose."
+        },
+        {
+          "where": "profile-tragedy-subgenres, conv 5 (French classical tragedy)",
+          "was": "keeping to the unities of action, time and place and keeping violence offstage;",
+          "now": "working within the unities of action, time and place and usually keeping violence offstage;",
+          "why": "Racine's observance of the unities, the rhymed alexandrine and the bienséance rule against showing violence are confirmed; Corneille bent the unities and a death can occur in view (Phèdre's poison), so the absolutes became 'working within' and 'usually'."
+        },
+        {
+          "where": "profile-tragedy-tropes, conv 5 (reversal and recognition)",
+          "was": "Aristotle treats Oedipus the King as the model, because in it the two coincide.",
+          "now": "Aristotle points to Oedipus the King as the example where the two coincide.",
+          "why": "The Poetics names the Oedipus as the case where recognition coincides with reversal; 'the model' overstated it."
+        },
+        {
+          "where": "profile-tragedy-tropes, conv 9 (the impossible choice)",
+          "was": "so that neither side is simply wrong.",
+          "now": "so that many readers find neither side simply wrong.",
+          "why": "The 'right against right' reading of Antigone is a famous interpretation, not a fact."
+        },
+        {
+          "where": "profile-tragedy-craft, conv 2 (the best protagonist)",
+          "was": "who falls through a serious error of judgment;",
+          "now": "who falls through an error of judgment;",
+          "why": "Hamartia is an error or mistake; 'serious' was added. Plot ranked first and 'neither outstandingly good nor bad' confirmed."
+        },
+        {
+          "where": "profile-tragedy-craft, conv 5 (structure)",
+          "was": "five-act tragedy builds through exposition, rising conflict, a turn near the middle, a falling movement and a catastrophe; modern tragedy often compresses this into fewer acts or a novel's arc.",
+          "now": "five-act tragedy is often described, after Freytag and Bradley, as exposition, rising conflict, a turn near the middle, a falling movement and a catastrophe; modern tragedy often compresses this.",
+          "why": "The five-part pyramid is Freytag's 1863 pattern and the library's Bradley entry gives the turn near the middle; the sentence now attributes the pattern instead of stating it as how tragedy is built. Shortened to stay within 300 characters."
+        },
+        {
+          "where": "profile-tragedy-compare, conv 2 (tragicomedy)",
+          "was": "Shakespeare's The Winter's Tale is often placed there,",
+          "now": "Shakespeare's The Winter's Tale is often placed there (it is also called a romance),",
+          "why": "Beckett's English subtitle 'a tragicomedy in two acts' is confirmed. The Winter's Tale is placed among tragicomedies and among the late romances, and the First Folio files it among the comedies."
+        },
+        {
+          "where": "profile-tragedy-canon, conv 7 (beyond Europe)",
+          "was": "Guan Hanqing's The Injustice to Dou E (c. 1300),",
+          "now": "Guan Hanqing's The Injustice to Dou E (late thirteenth century),",
+          "why": "Same as in the stage-play file: sources give the late thirteenth century with no exact year, and the library records c. 1290 and c. 1300."
+        },
+        {
+          "where": "profile-tragedy-pitfalls, conv 3 (coincidence)",
+          "was": "A chance that starts the trouble is easier to accept than one that finishes it.",
+          "now": "A common rule of thumb says chance may start the trouble but should not be what ends it.",
+          "why": "The writer noted this is a craft heuristic, not a sourced fact; it is now labelled as a rule of thumb."
+        }
+      ],
+      "removed": [],
+      "notes": [
+        "profile-tragedy-pitfalls, q: 'Where does my catastrophe come from what the characters did, and where does it come from my need for it?' was ungrammatical. Now 'Does my catastrophe come from what the characters did, or from my need for it?'. A wording fix, not a fact.",
+        "Confirmed with sources: tragoidia as 'goat song' with the reason debated; Thespis as a traditional first actor with the date (about 534 BCE) described as legend; Aristotle crediting Aeschylus with the second actor and Sophocles with the third (the Greek has no verb for Sophocles' clause, so translators supply 'introduced'); Boccaccio's De casibus dated about 1355 to the 1370s; Seneca's performance debated and his influence on Renaissance revenge tragedy; Miller's essay in the New York Times on 27 February 1949; O'Neill's Long Day's Journey into Night first staged in Stockholm in February 1956; Cassandra in Aeschylus's Agamemnon as an unheeded seer; the RWA definition of romance requiring an emotionally satisfying and optimistic ending (supports the readers-facet claim, marked varies, asOf 2025)."
+      ],
+      "remainingDoubts": [
+        "Poetics points (chapters on plot, the best protagonist, recognition and reversal, pathos, comedy versus tragedy) were checked through secondary sources only; a direct fetch of the text failed.",
+        "The etymology of catastrophe (Greek for an overturning) and nemesis as the goddess of retribution are held on general knowledge and light search support.",
+        "Streetcar 1947, The Crucible 1953, Hedda Gabler 1890, Miss Julie 1888, Anna Karenina 1878 in book form, Jude 1895, Madame Bovary 1857 (serialised 1856) were not individually confirmed by search; they rest on settled general knowledge and the library's works records where present.",
+        "'England, 1580s to 1610s' for Marlowe, Kyd, Shakespeare and Webster is a wide range chosen because Kyd's and Marlowe's dates are uncertain; no single year is claimed.",
+        "The romance-market claim is a market-practice statement; marked varies with asOf 2025.",
+        "The pitfalls line on killing women or minority characters describes a criticised habit without attributing it to a named source, as intended."
+      ]
+    }
+  },
+  "totals": {
+    "claimsChecked": 255,
+    "corrected": 12,
+    "softened": 19,
+    "removed": 0
+  }
+}

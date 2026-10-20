@@ -1,0 +1,201 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch was available and used for: Treat's V as in Victim, Newgate Calendar dates, Vidocq's role and ghostwriting, the Historical Novel Society definition, the Walter Scott Prize, the history of the term 'literary fiction', Kirino's Edgar nomination, Nino Frank / Serie noire, gumshoe and shamus, the Edgar Awards, Alias Grace / Regeneration and Hutcheon's category, Black Mask, Mankell, Hutcheon's term, the Pulitzer Prize for the Novel, the Iowa Writers' Workshop, and Maigret. Everything else rests on solid knowledge of well-documented titles, authors and years, and was cross-checked against the library's own entries (historical-fiction, literary-fiction, crime, mkt-len-*, upmarket, novel of manners, philosophical-fiction). claimsChecked is an approximate count of discrete checkable claims (dates, titles with author and year, firsts, numbers, institutions, term meanings).",
+  "files": {
+    "historical-fiction.js": {
+      "claimsChecked": 75,
+      "confirmed": 66,
+      "corrected": [
+        {
+          "where": "history, conv 4",
+          "was": "Mid-century novelists used the past to think about their own society: ... Romola (1863) ... War and Peace (1869)",
+          "now": "Novelists of the 1850s and 1860s used the past to think about their own society: ...",
+          "why": "The three titles are dated 1859, 1863 and 1869; 'mid-century' is a loose label that does not fit 1869. The dates themselves are right."
+        },
+        {
+          "where": "history, conv 5",
+          "was": "In the early twentieth century Sigrid Undset's Kristin Lavransdatter (1920 to 1922) and Robert Graves's I, Claudius (1934) ... Gone with the Wind (1936)",
+          "now": "Between the world wars Sigrid Undset's Kristin Lavransdatter ...",
+          "why": "All three books are interwar; 1934 and 1936 are not 'early' twentieth century. Dates unchanged."
+        },
+        {
+          "where": "canon, conv 3 label",
+          "was": "Early twentieth century:",
+          "now": "Between the wars:",
+          "why": "Same period-label fix as the history facet (1920 to 1922, 1934, 1936)."
+        },
+        {
+          "where": "canon, conv 6 label",
+          "was": "Revisionist and postcolonial voices: Jean Rhys, Toni Morrison, Margaret Atwood",
+          "now": "Revisionist voices: ...",
+          "why": "Rhys fits 'postcolonial', but Morrison and Atwood are not normally filed under that label; 'revisionist' is the claim the list actually supports."
+        },
+        {
+          "where": "terms, kw",
+          "was": "'primary vs secondary sources'",
+          "now": "'primary sources in historical fiction'",
+          "why": "The bare phrase is a general research question, not something a writer asking about this genre's vocabulary types, and would pull this record into unrelated answers."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, conv 7",
+          "was": "Linda Hutcheon named it historiographic metafiction in 1988, and writers such as Pat Barker (Regeneration, 1991) and Margaret Atwood (Alias Grace, 1996) used documents, doubt and voices the record had left out.",
+          "now": "Linda Hutcheon's A Poetics of Postmodernism (1988) named one kind historiographic metafiction, and Pat Barker (Regeneration, 1991) and Margaret Atwood (Alias Grace, 1996) worked with documents, doubt and gaps in the record.",
+          "why": "Hutcheon named a particular self-aware kind of historical novel, not the whole form, and the 1988 date is tied to the book. Critics disagree whether Alias Grace is an instance of her category, and Regeneration is usually read as realist, so the claim is reduced to what is supportable: both use real documents and uncertainty about the record. 'Voices the record had left out' was the writer's own interpretation and is removed."
+        },
+        {
+          "where": "readers, conv 3",
+          "was": "... and readers do write to say so.",
+          "now": "... and informed readers often point such slips out.",
+          "why": "The original was anecdotal. The new wording is a general statement that does not assert a practice."
+        },
+        {
+          "where": "terms, historiographic metafiction",
+          "was": "Linda Hutcheon's term (1988)",
+          "now": "Linda Hutcheon's term, set out in her book A Poetics of Postmodernism (1988)",
+          "why": "Sources tie the term to that book and say only 'late 1980s' for its coining; naming the book makes the date true without claiming a first use."
+        },
+        {
+          "where": "subgenres, atrocity and survival",
+          "was": "... because the events were real and the families affected are recent.",
+          "now": "... because the events were real and their legacy is still felt by families today.",
+          "why": "'Recent' was not true of all the examples named (the neo-slave narrative concerns events of the nineteenth century); the legacy wording holds for all of them."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The history facet cites 'Shakespeare's of the 1590s' loosely: the history plays run from the early 1590s to about 1599, with Henry VIII much later. The text says only 'of the 1590s' and 'such as', so it is kept.",
+        "Hutcheon may have used 'historiographic metafiction' in an essay a year or so before the 1988 book; the text now ties the term to the 1988 book rather than claiming a first use.",
+        "The Historical Novel Society test is paraphrased as 'at least fifty years back or known to the author only through research'. The society's own wording is 'written at least fifty years after the events, or by someone not alive at the time and so relying on research'. The paraphrase matches in sense. The Walter Scott Prize uses a different cut-off (sixty years) and is not claimed.",
+        "Gone with the Wind 'widely criticised for romanticising slavery' is a well-documented critical consensus, kept as written.",
+        "Lukacs's The Historical Novel is dated only as 'written in the 1930s' on purpose; no publication year is given."
+      ],
+      "confirmedFromSearch": [
+        "Walter Scott Prize began 2010; Wolf Hall was the first winner and had won the 2009 Booker.",
+        "Historical Novel Society fifty-year / research test.",
+        "Hutcheon's term is tied to A Poetics of Postmodernism (1988)."
+      ]
+    },
+    "literary-fiction.js": {
+      "claimsChecked": 72,
+      "confirmed": 64,
+      "corrected": [
+        {
+          "where": "history, conv 5",
+          "was": "After the Second World War institutions helped define the category: the Pulitzer Prize for the Novel (later Fiction) had begun in 1918, ... the Iowa Writers' Workshop (established in 1936)",
+          "now": "In the twentieth century institutions helped define the category: ...",
+          "why": "Two of the three institutions named predate the war (Pulitzer novel prize first awarded 1918, Iowa Workshop formally established 1936 under Wilbur Schramm), so the 'after the Second World War' lead-in contradicted its own dates. Only the Booker (1969) is postwar. The dates are correct."
+        },
+        {
+          "where": "compare, conv 7 (versus mystery)",
+          "was": "treat the answer as less important than what the search shows, as in Donna Tartt's The Secret History (1992), whose killing is revealed at the start.",
+          "now": "treat the answer as less important than the people and the world around it, as in Donna Tartt's The Secret History (1992), whose killing is revealed at the start.",
+          "why": "The Secret History has no search or investigation; the killing is revealed in the opening and the book is about how and why it came about. 'What the search shows' described a different kind of book. The 1992 date and the early reveal are correct."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, summary",
+          "was": "... took hold largely in the later twentieth century.",
+          "now": "... took hold largely in the later twentieth century, though accounts of when the term arose differ.",
+          "why": "Sources disagree: one traces the phrase to a 1970s trade interview and its spread to the 1980s; another places the origin of the distinction near the end of the nineteenth century. The record stays 'contested'."
+        },
+        {
+          "where": "history, conv 4",
+          "was": "As pulp magazines and later mass-market paperbacks sorted popular fiction ... 'literary' came to be used as the opposite of 'genre' or 'commercial'; the division is a product of publishing and criticism ...",
+          "now": "One account holds that as pulp magazines and mass-market paperbacks sorted fiction ... 'literary' came to mean the opposite of 'genre' or 'commercial'; the split owes much to publishing and criticism ...",
+          "why": "The causal story is a common generalisation, not an established fact; it is now attributed to 'one account'."
+        },
+        {
+          "where": "history, conv 7",
+          "was": "... and writers such as Toni Morrison, Kazuo Ishiguro and J. M. Coetzee worked within it.",
+          "now": "... and the label was applied to the work of writers such as Toni Morrison, Kazuo Ishiguro and J. M. Coetzee.",
+          "why": "'Worked within it' characterises living writers' intentions; the new wording is only about how the work was labelled (the record itself notes that many authors dislike the sorting)."
+        },
+        {
+          "where": "subgenres, conv 2 (novel of manners)",
+          "was": "Jane Austen is the founding example.",
+          "now": "Jane Austen is the classic example.",
+          "why": "Earlier novelists such as Fanny Burney are often cited as precursors of the novel of manners, so 'founding' was too strong; 'classic' is uncontroversial."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "'Literary fiction' as a category: when the term arose is genuinely disputed, so the record is 'contested' and the summary now says so.",
+        "'With its own imprints, review culture and prize lists' (history, conv 7) is a general statement about the late twentieth century, kept under a contested record.",
+        "Modernism 'roughly from the 1900s to the 1930s' is a loose, conventional span; the word 'roughly' carries it.",
+        "Henry James and Woolf as 'psychological realism', and García Márquez with magical realism, are conventional characterisations. Woolf is more often filed as modernist, so the facet should be read as 'as in the work of', which is what it says.",
+        "The Iowa Workshop is dated to its formal establishment in 1936; some sources point to an earlier 1922 policy accepting creative theses. The text does not claim a 'first'."
+      ],
+      "confirmedFromSearch": [
+        "Pulitzer Prize for the Novel first awarded 1918 (renamed Fiction in 1947 or 1948, not stated in the text).",
+        "Iowa Writers' Workshop formally established 1936.",
+        "Upmarket / book-club fiction link is also in the library's own upmarket entry (aka)."
+      ]
+    },
+    "crime-fiction.js": {
+      "claimsChecked": 81,
+      "confirmed": 73,
+      "corrected": [
+        {
+          "where": "history, conv 1",
+          "was": "the disputed memoirs of the ex-criminal turned Paris police chief Vidocq (1828 to 1829)",
+          "now": "the disputed memoirs of Vidocq, an ex-criminal turned head of the Paris Sûreté (1828 to 1829)",
+          "why": "Vidocq led the Sûreté, the plainclothes detective brigade, not the Paris police as a whole. The 1828 to 1829 dates and the disputed authorship (ghostwriters) are right."
+        },
+        {
+          "where": "terms, private eye / gumshoe / shamus",
+          "was": "names for a private investigator, the last two being slang from the pulp era.",
+          "now": "names for a private investigator or detective, the last two being early twentieth-century American slang.",
+          "why": "Gumshoe for a plainclothes detective is recorded by about 1906, before the hardboiled pulp era, and shamus from the 1920s; both were first used of detectives and police generally. The broader dating and wording are what the sources support."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, conv 5",
+          "was": "the police procedural grew from Lawrence Treat's V as in Victim (1945) to Ed McBain's 87th Precinct series (from 1956).",
+          "now": "the police procedural, often traced to Lawrence Treat's V as in Victim (1945), grew popular with Ed McBain's 87th Precinct (from 1956).",
+          "why": "Treat's 1945 book is widely cited as the first procedural, but that is a common attribution rather than a settled fact (the writer noted one source dating it 1947, and the form has other claimed precursors). The new wording reports the attribution as such. McBain's 1956 start is unchanged."
+        },
+        {
+          "where": "history, conv 6",
+          "was": "George V. Higgins's The Friends of Eddie Coyle (1970) gave the underworld its own speech.",
+          "now": "George V. Higgins's The Friends of Eddie Coyle (1970) is noted for its criminals' dialogue.",
+          "why": "The original was a sweeping characterisation; the new wording says only what critics regularly note."
+        },
+        {
+          "where": "history, conv 9",
+          "was": "Gillian Flynn's Gone Girl (2012) made 'domestic noir' a bestselling mode",
+          "now": "Gillian Flynn's Gone Girl (2012) helped make 'domestic noir' a bestselling mode",
+          "why": "A single book did not make a mode; 'helped' matches the Serial clause in the same sentence."
+        },
+        {
+          "where": "readers, conv 8",
+          "was": "in the UK 'crime' is the usual umbrella where US shops more often say 'mystery' and 'thriller'",
+          "now": "in the UK 'crime' is a common umbrella where US shops more often say 'mystery' and 'thriller'",
+          "why": "Shelving labels vary by shop and the record is set to 'varies'; 'usual' overstated it."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Newgate Calendar: the first book edition is dated 1773 or 1774 depending on source, with the volume count unsettled; 'in book form from the 1770s' covers both.",
+        "Maigret: 'began around 1930' and 'from about 1930' cover the serial (1930), the usual book date (1931) and one source's claim of a later book edition; no single year is asserted.",
+        "Crime Writers' Association founded 1953: not returned by the search this session; it rests on solid knowledge and the writer's own check. The Edgar Awards first given 1946 was confirmed. The Daggers themselves are not dated in the text.",
+        "'In Cold Blood helped make true crime a literary form', Serial 'helped drive a boom', and 'brought women private eyes into the mainstream' are critical characterisations, hedged with 'helped' or kept as widely held views. Earlier women private eyes exist (for example in the late 1970s), so 'into the mainstream' is the claim, not 'first'.",
+        "The femme fatale 'much criticised as a stereotype' matches the library's own wording."
+      ],
+      "confirmedFromSearch": [
+        "Kirino's Out (1997) was an Edgar nominee in English translation, 2004.",
+        "Nino Frank's 'film noir' article of 1946 in L'Ecran francais; Serie noire began 1945 (no causal link claimed).",
+        "Black Mask launched 1920.",
+        "Mankell's Faceless Killers 1991 (Swedish).",
+        "Edgar Awards first given 1946.",
+        "Pulp-era slang dating for gumshoe (about 1906) and shamus (about 1925 to 1930)."
+      ]
+    }
+  },
+  "lint": "node scripts/library-profile-check.mjs --staging prints OK for all three files after the edits (9 records each, lint clean, every facet found). One intermediate edit exceeded the 300-character conv limit in crime-fiction.js history and was shortened before the final run.",
+  "libraryConsistency": "Works and years agree with the library entries historical-fiction, literary-fiction and crime (checked with scripts/library-hub.mjs). Length ranges agree with mkt-len-historical-fiction (80,000 to 120,000), mkt-len-literary-fiction (70,000 to 100,000) and mkt-len-mystery-crime (65,000 to 90,000, procedurals and similar to 100,000).",
+  "noSampleProse": "No facet contains sample prose, sample dialogue or a pasteable line; the 'q' fields are questions to the writer and no record has an 'example' field."
+}

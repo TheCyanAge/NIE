@@ -1,0 +1,175 @@
+{
+  "checker": "independent fact-check of staging profiles: romanticism.js, realism.js, modernism.js",
+  "searchUsed": true,
+  "searchNote": "About 22 web searches ran and were used for the writer's flagged items on Romanticism and Realism (De l'Allemagne, Athenaeum and fragment 116, the Nightingale subtitle and the origin of 'conversation poems', Weltschmerz, Keats's letter, Kubla Khan, Lovejoy 1924, Lake Poets, Balzac's title, Courbet's Pavilion, Duranty's Realisme, Champfleury 1857, the Bovary trial, Watt, dirty realism, Barthes, Middlemarch's dates, Flaubert's letter to Colet, Howells, Woolf 1919 and 1924). The tool's per-turn search budget then ran out. Nothing for modernism.js was searched, and a few realism items (Turgenev 1852, Machado 1881, Verga 1881, Boule de Suif 1880, Sentimental Education 1869, Socialist Realism 1934) were not. Those were checked from solid knowledge and against the library's own entries, and they are listed under remainingDoubts.",
+  "lint": "node scripts/library-profile-check.mjs --staging prints OK for all three files after the edits (9 records each, conv strings 60 to 300 characters, no exclamation marks, no sample prose).",
+  "files": {
+    "romanticism.js": {
+      "claimsChecked": 105,
+      "confirmed": 99,
+      "corrected": [
+        {
+          "where": "profile-romanticism-history, conv 2 (Sturm und Drang)",
+          "was": "Sturm und Drang (1770s): young German writers, including the early Goethe and Schiller ...",
+          "now": "Sturm und Drang (about 1767 to 1785): young German writers, including the early Goethe and Schiller ...",
+          "why": "Schiller's The Robbers is 1781, so a bare '1770s' contradicted the text; the library entry for Sturm und Drang dates the movement about 1767 to 1785."
+        },
+        {
+          "where": "profile-romanticism-history, conv 5 (Madame de Stael)",
+          "was": "Madame de Stael's On Germany, published in 1813 (also 'Scott's Waverley (1814) and the historical novel')",
+          "now": "Madame de Stael's On Germany (suppressed in France in 1810, published in London in 1813); the phrase 'and the historical novel' was dropped to stay under 300 characters",
+          "why": "Sources agree that the Paris printing of 1810 was seized and destroyed on Napoleon's orders and that John Murray issued the book in London in 1813 (a second Paris edition followed in 1814). A bare 'published in 1813' hid the priority question the writer flagged. The Waverley/historical-novel idea is kept in the subgenres facet."
+        },
+        {
+          "where": "profile-romanticism-canon, conv 7 (United States)",
+          "was": "... Irving's Sketch Book (1819), Cooper's frontier novels, Poe's tales, Emerson, Hawthorne ... Leaves of Grass (1855), often grouped as the American Renaissance.",
+          "now": "... Leaves of Grass (1855); the writers from Emerson to Whitman are often grouped as the American Renaissance.",
+          "why": "As written, the label seemed to cover Irving and Cooper too. The 'American Renaissance' label is applied to the Emerson-to-Whitman group; the library's own entry is wider, so the new wording is the safe core."
+        },
+        {
+          "where": "profile-romanticism-terms, conv 7 (Sturm und Drang)",
+          "was": "the 1770s movement of passionate, rule-breaking young writers",
+          "now": "the movement of the 1770s and early 1780s of passionate, rule-breaking young writers",
+          "why": "Keeps the glossary consistent with the history facet and the library entry (about 1767 to 1785)."
+        },
+        {
+          "where": "profile-romanticism-terms, conv 6 (Weltschmerz)",
+          "was": "Weltschmerz is associated with Jean Paul.",
+          "now": "the word Weltschmerz is credited to the novelist Jean Paul.",
+          "why": "Search sources (Wikipedia, the Grimm dictionary as reported) agree that Jean Paul introduced the word, in the novel Selina (1827). 'Associated with' was vaguer than the evidence. No year or title is stated, so the claim stays small."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-romanticism-craft, conv 8 (the historical novel's method)",
+          "was": "a fictional and fairly ordinary hero caught between two sides",
+          "now": "often a fictional and fairly ordinary hero caught between two sides",
+          "why": "The 'middling hero' pattern is a critical generalisation about Scott (after Lukacs), not a rule of every historical novel."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "M. H. Abrams's 1965 date for 'Structure and Style in the Greater Romantic Lyric' was not confirmed by search; the file gives no year, so nothing depends on it. Search did show that 'conversation poems' as a critical label was coined later (George McLean Harper, 1928) from Coleridge's own subtitle for The Nightingale, which is what the file says.",
+        "Chamisso's Peter Schlemihl is grouped with doubles and the uncanny; the lost shadow is read as a double in some criticism, and the sentence says 'especially in German tales such as', so it is loose but not false.",
+        "Byron's Manfred and Shelley's Prometheus Unbound are called poetic dramas 'meant mainly for reading'; this is the closet-drama convention, and Manfred has been staged since. Kept because the library agrees.",
+        "Wordsworth's preface is paraphrased in the singular ('powerful feeling'; the original has the plural). It is not in quotation marks and is well under the 14-word limit.",
+        "Not source-searched, checked from knowledge and the library: Burke 1757, Biographia Literaria 1817, Lamartine 1820, Irving 1819, Lermontov 1840, Mickiewicz 1834, The Prelude texts of 1799, 1805 and 1850, Scott and Hoffmann's invented editors, the Spenserian stanza and ottava rima examples, Kunstmaerchen and Sehnsucht definitions, the Shelleys and science.",
+        "Manzoni's The Betrothed is dated 1827 as the library does; later revised editions (1840 to 1842) differ."
+      ]
+    },
+    "realism.js": {
+      "claimsChecked": 104,
+      "confirmed": 96,
+      "corrected": [
+        {
+          "where": "profile-realism-history, conv 1 (Watt)",
+          "was": "Ian Watt's The Rise of the Novel (1957) called its attention to particular people, places and times formal realism.",
+          "now": "... the eighteenth-century English novel, whose attention to particular people, places and times Ian Watt's The Rise of the Novel (1957) named formal realism. ('Cervantes's' dropped before Don Quixote for length.)",
+          "why": "The old sentence was garbled and could be read as Watt calling the reader's attention to something. Search confirms that Watt named the technique 'formal realism' and applied it to Defoe, Richardson and Fielding."
+        },
+        {
+          "where": "profile-realism-history, conv 4 (Champfleury)",
+          "was": "the critic Champfleury defended the school in a book of 1857",
+          "now": "the critic Champfleury collected his essays on the cause in a book of 1857",
+          "why": "Le Realisme (Michel Levy, 1857) is an anthology of his writings, including the 1855 letter on Courbet; one scholar notes Champfleury himself warned readers not to treat it as a charter."
+        },
+        {
+          "where": "profile-realism-subgenres, conv 10 (magical realism)",
+          "was": "hybrids such as magical realism keep a realist surface and admit one impossible element.",
+          "now": "hybrids such as magical realism keep a realist surface and treat the marvellous as part of ordinary life.",
+          "why": "Magical realism is not limited to a single impossible element; many of its best-known novels contain many."
+        },
+        {
+          "where": "profile-realism-pitfalls, conv 8 (fresh angles)",
+          "was": "or admit a single impossible element in the manner of magical realism.",
+          "now": "or let the marvellous in matter-of-factly, as magical realism does.",
+          "why": "Same reason as the subgenres line."
+        },
+        {
+          "where": "profile-realism-craft, conv 5 (Middlemarch)",
+          "was": "Middlemarch is set in the years just before the Reform Act of 1832",
+          "now": "Middlemarch is set between 1829 and 1832, in the years leading up to the Reform Act",
+          "why": "Search shows the action runs from September 1829 to May 1832 and builds toward the Act, so 'just before' was loose. The years were the writer's from-memory figure, and they are now confirmed."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-realism-history, conv 2 (Balzac's title)",
+          "was": "La Comedie humaine, a title and plan settled in the early 1840s (also 'ambitious, ordinary people', 'post-Revolution social order')",
+          "now": "La Comedie humaine, planned and named between about 1839 and the first volumes of 1842 (also 'ambitious young people', 'post-Revolution order'; trimmed for length)",
+          "why": "Sources differ: a letter of 1839 (Wikipedia), 1840 (Universalis), the publishing contract of 1841, and the Furne edition with its Avant-propos from 1842. The new range holds every version. 'Young' is accurate for Julien Sorel and Rastignac, 'ordinary' was not."
+        },
+        {
+          "where": "profile-realism-readers, conv 1 (where to start)",
+          "was": "Pere Goriot and Fathers and Sons are brisk, Madame Bovary is of moderate length",
+          "now": "Pere Goriot, Fathers and Sons and Madame Bovary are far shorter than Middlemarch, Anna Karenina or War and Peace",
+          "why": "'Brisk' and 'moderate' are opinions; the comparison with the long novels is a plain fact."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-realism-history, conv 3 (Britain in the 1840s)",
+          "was": "Dickens, Thackeray, Elizabeth Gaskell (Mary Barton, 1848), the Brontes and later Trollope turned the novel to contemporary society, work and poverty",
+          "now": "Britain in the 1840s and 1850s: Dickens, Thackeray, Elizabeth Gaskell (Mary Barton, 1848) and later Trollope ...",
+          "why": "Wuthering Heights and much of Jane Eyre do not fit 'turned the novel to society, work and poverty'; the Brontes were removed from the list rather than defended. The date range now includes Trollope's 1850s."
+        }
+      ],
+      "remainingDoubts": [
+        "The search budget ran out before these were checked. They come from solid knowledge, and Machado 1881, Verga 1881, Mary Barton 1848, Adam Bede 1859, Great Expectations 1861, Fathers and Sons 1862, Crime and Punishment 1866, War and Peace 1869 and Hard Times 1854 all match the library's own records: A Sportsman's Sketches as a book in 1852 (serialised from 1847; not in the library), Boule de Suif 1880, Sentimental Education 1869 (both not in the library), Socialist Realism as a doctrine from 1934, kitchen-sink drama in 1950s Britain.",
+        "Dirty realism: Bill Buford's Granta 8 is dated 1983 by most sources, and one reference work says 1984. The file says 'early 1980s', which holds either way.",
+        "Duranty's journal Realisme is confirmed for 1856 to 1857 under his direction (first regular issue 5 November 1856, a trial issue in July 1856). The file does not state an issue count.",
+        "Flaubert's 'present everywhere, visible nowhere' ideal: search confirms the attribution to his letters to Louise Colet but not the French wording or the date. The file paraphrases and gives neither.",
+        "Barthes's 'reality effect' essay: search confirms 1968 and the barometer example in A Simple Heart. The venue was not confirmed and the file does not name it.",
+        "Howells: the Editor's Study column ran 1886 to 1892, so 'in the 1880s' is accurate for the later part only; it is acceptable as a general statement.",
+        "Woolf's Mr Bennett and Mrs Brown first ran in the Nation and Athenaeum in December 1923 and appeared as a Hogarth Press pamphlet in 1924. '1924' follows the usual citation of the pamphlet text.",
+        "Twain's Huckleberry Finn is dated 1884 (British first edition; the US edition followed in 1885), as in the library.",
+        "The shelving claim about 'realistic fiction' in modern book talk is practice-based, not source-checked; the facet is already marked varies with asOf 2025.",
+        "Poetic Realism as the German-speaking strand and naturalism and verismo as 'harder offshoots' are textbook conventions, not hard facts."
+      ]
+    },
+    "modernism.js": {
+      "claimsChecked": 108,
+      "confirmed": 104,
+      "corrected": [
+        {
+          "where": "profile-modernism-subgenres, conv 6 (Proust)",
+          "was": "In Search of Lost Time, published between 1913 and 1927 and finished after his death",
+          "now": "published between 1913 and 1927 with its last volumes appearing after his death",
+          "why": "'Finished after his death' could be read as someone else completing the work. Proust had written the whole; the last three volumes were published posthumously (1923, 1925, 1927)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-modernism-pitfalls, conv 7 (the politics)",
+          "was": "Pound's support for Italian Fascism is the clearest case",
+          "now": "Pound's support for Italian Fascism is a well-documented case",
+          "why": "'The clearest case' is a ranking among several modernists with reactionary or authoritarian views. The documented fact is enough."
+        },
+        {
+          "where": "profile-modernism-readers, conv 6 (Ulysses)",
+          "was": "Ulysses was barred in the United States until a court ruling in 1933 and first published openly in Britain in 1936.",
+          "now": "Ulysses was barred in the United States until a court ruling in 1933, and an ordinary British trade edition came only in 1936.",
+          "why": "The writer noted that 'openly' glosses earlier editions (the Paris printing of 1922, an Egoist Press issue of 1922 with copies seized, the Hamburg edition of 1932). The 1933 ruling and the 1936 Bodley Head trade edition are standard facts; the new wording drops the 'first' claim."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-modernism-canon, conv 6 (other lines)",
+          "was": "... Djuna Barnes (Nightwood, 1936) and Rebecca West, with international modernisms ...",
+          "now": "... Jean Rhys (Good Morning, Midnight, 1939) and Djuna Barnes (Nightwood, 1936), with international modernisms ...",
+          "why": "Rebecca West is discussed in modernist studies (The Return of the Soldier, 1918) but is not a settled entry in a list of modernist writers, and the library does not list her as one. Removed instead of defended; the conv point keeps well over five points in the facet."
+        }
+      ],
+      "remainingDoubts": [
+        "No search could be run for this file (budget exhausted). Every claim was checked from solid knowledge and against the library, and works with years match the library's records: Proust 1913, Metamorphosis 1915, Waste Land 1922, Ulysses 1922, Jacob's Room 1922, Cane 1923, Duino Elegies 1923, Mrs Dalloway 1925, Manhattan Transfer 1925, Berlin Alexanderplatz 1929, Nightwood 1936, Good Morning Midnight 1939, Tender Buttons 1914, Six Characters 1921, Paterson 1946, Heart of Darkness 1899.",
+        "Woolf's 'on or about December 1910' remark: the 1924 date follows the pamphlet; the essay first ran in December 1923. The history facet is already marked contested.",
+        "May Sinclair's 1918 review of Dorothy Richardson is stated without a venue, as the writer intended. William James's 1890 use of the phrase is from the Principles of Psychology and is not a claim of priority.",
+        "Eliot's 1919 'objective correlative' (Hamlet and His Problems), 1919 'impersonality' (Tradition and the Individual Talent) and 1923 'mythic method' (Ulysses, Order and Myth) dates are from knowledge, not search.",
+        "Strindberg's dream plays and Brecht's epic theatre are listed under 'avant-garde and modernist drama'. Whether they are modernist or separate avant-gardes is a critic's call, as the compare facet already says.",
+        "'The new modernist studies of the 2000s' names a field whose label dates from a 2008 PMLA essay, with roots in the 1990s; the file's phrasing is general.",
+        "Hemingway's In Our Time is dated 1925 as in the library; the small-press 'in our time' was 1924.",
+        "Mina Loy, Musil ('from 1930'), Svevo 1923 (title as in the library) and Eliot learning from Laforgue are from knowledge, not search."
+      ]
+    }
+  }
+}

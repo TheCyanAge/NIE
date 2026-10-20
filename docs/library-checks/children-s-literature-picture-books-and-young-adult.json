@@ -1,0 +1,151 @@
+{
+  "searchUsed": true,
+  "files": {
+    "childrens-literature.js": {
+      "claimsChecked": 92,
+      "confirmed": 85,
+      "corrected": [
+        {
+          "where": "canon conv, prizes line",
+          "was": "the Carnegie and Kate Greenaway Medals in Britain",
+          "now": "the Carnegie Medal in Britain with its illustration counterpart (long called the Kate Greenaway Medal)",
+          "why": "CILIP dropped the Kate Greenaway name for the illustration medal (now the Carnegie Medal for Illustration; sources date the change to 2022 or 2023). The new wording is true under either name."
+        },
+        {
+          "where": "history watch, golden age line",
+          "was": "some begin it with Alice, some with the 1850s, and some extend it into the 1920s",
+          "now": "many begin it with Alice, some start earlier, and some carry it on into the 1920s",
+          "why": "Searches found Alice (1865) as the usual opening and 1926 or about 1930 as later endpoints, and earlier starts such as Holiday House (1839). No source supported an 1850s start."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv, Perrault and Newbery",
+          "was": "Perrault published his fairy tales ... Newbery's A Little Pretty Pocket-Book (1744) is the usual marker for a London publisher selling books for children's pleasure as a business",
+          "now": "Perrault published his fairy-tale collection ... is often taken as the marker for a London publisher making a business of books meant to amuse as well as instruct children",
+          "why": "Sources say 'generally considered' the first, not 'the usual marker'. Newbery's full title says instruction and amusement, so 'pleasure' alone overstated it. 1697 (Histoires ou contes du temps passe) and 1744 confirmed."
+        },
+        {
+          "where": "history conv, golden age",
+          "was": "from the 1860s to the First World War",
+          "now": "from the 1860s to around the First World War",
+          "why": "Critics' end points vary (about 1914, 1926, about 1930); the watch line already says so."
+        },
+        {
+          "where": "craft conv, storyteller narrator",
+          "was": "Winnie-the-Pooh and many of Roald Dahl's books",
+          "now": "Winnie-the-Pooh and several of Roald Dahl's books",
+          "why": "Milne's direct address to Christopher Robin and the reader is confirmed. For Dahl only The Magic Finger was confirmed by search, so the count word was lowered rather than claim a number."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Peter Rabbit 1902 is the Warne trade edition (October 1902); the private printing was December 1901. The file uses 1902, which matches the library entry and the works list.",
+        "Charlie and the Chocolate Factory 1964 is the US first edition (Knopf, January 1964). Search results disagreed on the UK date (1964 or 1967). The file gives no UK date, so nothing is claimed.",
+        "Lear 1846 and Pippi Langstrump 1945 returned no search hit; they rest on solid prior knowledge. Andersen 1835 was supported by one French source.",
+        "Dahl as a narrator who addresses the reader: confirmed only for The Magic Finger by search; 'several' relies on general knowledge of Matilda, The Twits and similar books.",
+        "The claim that children's departments in libraries and bookshops helped make a field is general; only the Macmillan children's department (1919) was confirmed.",
+        "Alice as a turning point rests on widely repeated secondary summaries, which is why the text keeps 'often seen as'."
+      ]
+    },
+    "picture-book.js": {
+      "claimsChecked": 98,
+      "confirmed": 90,
+      "corrected": [
+        {
+          "where": "canon conv, Roots line",
+          "was": "Heinrich Hoffmann's Struwwelpeter (1845)",
+          "now": "Heinrich Hoffmann's Struwwelpeter (first issued in 1845 under another title)",
+          "why": "The 1845 first edition was titled Lustige Geschichten und drollige Bilder; the name Struwwelpeter was added in a later edition."
+        },
+        {
+          "where": "history conv, 1947-1969 line",
+          "was": "Mid-century widened the emotional range and the art: [books from 1947 to 1969]",
+          "now": "From the late 1940s to the 1960s the range and the art widened: [same books]",
+          "why": "The books run to 1969, which is not mid-century; the label now matches the dates."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv, Peter Rabbit",
+          "was": "paired a short text with a picture on nearly every page opening",
+          "now": "paired a short text with pictures throughout",
+          "why": "The openings were not counted; the layout of text with pictures through the book is certain, the exact proportion is not."
+        },
+        {
+          "where": "history conv, shorter texts",
+          "was": "From the late 1990s trade preference moved toward shorter texts, and ... books sold widely",
+          "now": "In recent decades trade preference has moved toward shorter texts, and ... books have sold widely",
+          "why": "A general market observation with no dated source; the date was dropped."
+        },
+        {
+          "where": "craft conv, 32-page format",
+          "was": "leaves a dozen or so spreads for the story",
+          "now": "leaves roughly twelve to fourteen spreads for the story ... depending on the layout",
+          "why": "Guides give 12 to 14 story spreads depending on how many pages the front matter uses."
+        }
+      ],
+      "removed": [
+        {
+          "where": "history conv, Little Golden Books",
+          "was": "sold picture books to a mass market outside bookshops",
+          "now": "took picture books to a mass market",
+          "why": "The 1942 launch (Simon & Schuster with Western Printing, 25 cents) was confirmed; the 'outside bookshops' qualifier was not checked, so it was dropped."
+        }
+      ],
+      "remainingDoubts": [
+        "Caldecott as the start of the modern picture book is a critical judgement (Sendak is the usual source); the text keeps 'often called'.",
+        "Tablets from about 2010 bringing picture-book apps was not searched; it rests on the iPad's 2010 launch and is kept as a loose date.",
+        "Rosie's Walk: one museum page gives 1967, but Macmillan and Bodley Head catalogue records, Kirkus and the ALA notable list all give 1968, so 1968 is kept.",
+        "The number of story spreads in a 32-page book varies by printer layout; the text now says so.",
+        "Writing Picture Books (Ann Whitford Paul, 2009), How Picturebooks Work (Nikolajeva and Scott, 2001) and Words About Pictures (Nodelman, 1988) are real titles; the record gives titles only, as the standard asks.",
+        "The words/pictures range (repeat, extend, counterpoint) is a simplified paraphrase of the Nikolajeva and Scott style typology and is attributed to no one by name.",
+        "Oliver Jeffers's Lost and Found: 2005 UK first edition supported by two catalogue records; some listings say 2006."
+      ]
+    },
+    "young-adult-fiction.js": {
+      "claimsChecked": 88,
+      "confirmed": 84,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "craft conv, point of view",
+          "was": "present tense has been widespread since the 2000s",
+          "now": "present tense has become common in recent decades",
+          "why": "No source traced the spread to a decade; a present-tense trend was discussed around The Hunger Games, but earlier present-tense YA exists."
+        },
+        {
+          "where": "compare conv, new adult",
+          "was": "for protagonists of about eighteen to twenty-five",
+          "now": "for protagonists of about eighteen to twenty-five, sometimes older",
+          "why": "Sources vary between 18-25, 18-29 and 18-30; this matches the library's own new adult entry."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "New adult: a Cambridge Element (McAlister) credits St Martin's Press with coining the term in 2009, which supports 'around 2009'; the Publishers Weekly article itself was not read. Whether it is a true category is disputed, and the text says so.",
+        "A Wizard of Earthsea is listed as a 'fantasy strand' landmark; its YA intent rests on a single secondary source, and the watch line already says some listed books were not written for the YA market.",
+        "A Monster Calls is credited to Patrick Ness alone, as on the cover; the 'from an idea by Siobhan Dowd' credit is true but not included.",
+        "'Teen books among those most often challenged' was not confirmed by search; it is a hedged general observation based on ALA lists. BookTok shaping sales is supported by 2021 and 2022 sales reporting, though pandemic-era growth blurs causation.",
+        "Dates for Fault in Our Stars, Hate U Give, Twilight, Hunger Games, Speak and Perks rest on solid prior knowledge (Speak and Perks only via Printz-era sources); no source conflicted.",
+        "OwnVoices: Corinne Duyvis started the hashtag in 2015 and defined it as author and protagonist sharing a marginalised identity; the text makes no coinage claim and says its use is debated, which is supported (We Need Diverse Books stopped using the term in 2021)."
+      ]
+    }
+  },
+  "lint": {
+    "childrens-literature.js": "OK",
+    "picture-book.js": "OK",
+    "young-adult-fiction.js": "OK"
+  },
+  "confirmedByCheck": [
+    "Newbery Medal 1922 (Story of Mankind); Caldecott Medal 1938 (Animals of the Bible, Lathrop)",
+    "Larrick essay, Saturday Review, September 1965; Bishop essay, Perspectives, Summer 1990; We Need Diverse Books, April 2014",
+    "Orbis Pictus 1658; Perrault 1697; Grimms 1812; Peter and Wendy 1911; Emil and the Detectives 1929; Swallows and Amazons 1930; A Wrinkle in Time 1962",
+    "Edmund Evans toy books with Crane, Caldecott (1878) and Greenaway; Little Golden Books October 1942",
+    "Hans Christian Andersen Award 1956 (IBBY); Carnegie Medal 1936; Oxford Encyclopedia of Children's Literature (Zipes, OUP, 2006, four volumes)",
+    "Picture book works: Millions of Cats 1928, Babar 1931 (English 1933), Madeline 1939, Make Way for Ducklings 1941, The Little House 1942, Goodnight Moon 1947, Stone Soup 1947, Harold 1955, The Snowy Day 1962 (Caldecott 1963), Swimmy 1963, Rosie's Walk 1968, Jumanji 1981, Polar Express 1985, Jolly Postman 1986, Tuesday 1991, Gruffalo 1999, Pigeon 2003, Lost and Found 2005, The Arrival 2006, I Want My Hat Back 2011",
+    "ALA Young Adult Services Division founded 24 June 1957; Edwards Award 1988; Printz Award 2000 first won by Monster; Sweet Valley High 1983; Fear Street 1989; Gurdon essay in the Wall Street Journal, June 2011",
+    "Seventeenth Summer 1942; The Outsiders 1967 (Hinton began at 15); Looking for Alibrandi 1992; Tomorrow, When the War Began 1993; Sabriel 1995; Northern Lights 1995; Monster 1999; The Book Thief 2005 (Pan Macmillan Australia); Uglies 2005; Absolutely True Diary 2007; A Monster Calls 2011",
+    "Michael Cart, Young Adult Literature: From Romance to Realism; Regina Brooks, Writing Great Books for Young Adults"
+  ]
+}

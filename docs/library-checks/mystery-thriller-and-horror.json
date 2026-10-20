@@ -1,0 +1,143 @@
+{
+  "searchUsed": true,
+  "method": "WebSearch (standard and extended) for the flagged items and for every first/coined/earliest claim; WebFetch to Wikipedia failed (host not resolvable) so only search summaries were used. Items not covered by search were judged from solid knowledge and cross-checked against the library's own work, genre and market records. Counts are approximate: one claim is one date, one title-with-author-and-year, one first/coined/named-after claim, one number, or one term-origin statement.",
+  "files": {
+    "mystery.js": {
+      "claimsChecked": 74,
+      "confirmed": 72,
+      "corrected": [
+        {
+          "where": "canon / conv, heading of the 'Mid-century and historical' point",
+          "was": "Mid-century and historical: Josephine Tey's The Daughter of Time (1951), P. D. James's Cover Her Face (1962) and Ellis Peters's Cadfael novels, beginning with A Morbid Taste for Bones (1977).",
+          "now": "Postwar and historical: (same list)",
+          "why": "The list runs from 1951 to 1977, which is not 'mid-century'; 'postwar' fits all three dates. The titles, authors and years were confirmed (all agree with the library)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history / conv, the postwar point (Roseanna)",
+          "was": "Maj Sjöwall and Per Wahlöö's Roseanna (1965) helped found Scandinavian crime fiction.",
+          "now": "Sjöwall and Wahlöö's Roseanna (1965) began a series seen as foundational to Scandinavian crime fiction.",
+          "why": "Roseanna is the first of ten Martin Beck novels and sources describe the series as a foundation of Nordic crime writing, but 'helped found' states as fact something that is a critical view. Also shortened 'made a historical question an armchair case' to keep the line within the 300-character limit."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Gaboriau's L'Affaire Lerouge: sources I could reach say it was serialised in Le Pays in 1865 (scholarly bibliography: 14 September to 7 December 1865), republished in Le Soleil in 1866, and published as a book by Dentu in 1866. The 1863 serial date in the writer's note was not supported by anything I found (only one unreliable retailer listing). The text says only '1866', which is the book and breakthrough date and agrees with the library; no change made.",
+        "Hoffmann's Das Fräulein von Scuderi: 1819 (in the Taschenbuch für das Jahr 1820, issued 1819) is well supported; the text calls it neither the first detective story nor a detective story in the later sense, which is fair.",
+        "Voltaire's Zadig: first printed 1747 as Memnon, retitled Zadig 1748; the tracks-reasoning scene is the chapter 'The Dog and the Horse' (chapter 3). '1740s' kept.",
+        "The Honjin Murders: serialised in the magazine Hōseki from April 1946, book form 1947 per one source; '1946' is the first-publication (serial) year and agrees with the library.",
+        "Hammett dates (Red Harvest 1929, The Maltese Falcon 1930) are the book dates; both ran in Black Mask earlier. The text does not claim first publication, so left as is.",
+        "The Mysterious Affair at Styles 1920 (US first, John Lane) with UK publication in January 1921, from my own knowledge, not a fresh search; library-consistent.",
+        "Van Dine's 1928 and Knox's 1929 rule lists, and the Detection Club's 1930 founding: the search confirmed 1930 as the commonly cited year (dinners from 1928, constitution adopted 1932); the 1928 and 1929 dates agree with the library's own work records but were not independently re-found by search.",
+        "Word count (65,000 to 90,000) matches the library's market entry; shelving statements are general practice and rightly marked 'varies'."
+      ]
+    },
+    "thriller.js": {
+      "claimsChecked": 68,
+      "confirmed": 63,
+      "corrected": [
+        {
+          "where": "history / conv, the interwar point (Ambler and Household)",
+          "was": "...put reluctant, ordinary men into political danger.",
+          "now": "...put amateurs, not professional agents, into political danger.",
+          "why": "Rogue Male's narrator is not reluctant (he sets out to stalk a dictator), so 'reluctant' was wrong for one of the two books. Ambler's heroes are widely described as amateurs pulled into spy and criminal affairs, which fits both."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history / conv, Buchan point",
+          "was": "The Thirty-Nine Steps (1915) fixed the pattern of the ordinary man on the run...",
+          "now": "The Thirty-Nine Steps (1915) helped set the pattern of the ordinary man on the run...",
+          "why": "'Fixed' claimed sole origin. The 'shocker' attribution itself was checked and is correct: Buchan's dedication to Thomas Arthur Nelson uses the word for this kind of tale, and the text paraphrases without quoting."
+        },
+        {
+          "where": "history / conv, Hitchcock point",
+          "was": "made the wrong-man chase and the staged suspense scene a model for both screen and page.",
+          "now": "helped make the wrong-man chase and the staged suspense scene a model for both screen and page.",
+          "why": "The wrong-man chase predates Hitchcock (Buchan); his films popularised it. Dates 1935 and 1959 are correct."
+        },
+        {
+          "where": "history / conv, 1970s point (Forsyth)",
+          "was": "The Day of the Jackal (1971) made documentary-style detail a bestseller formula...",
+          "now": "The Day of the Jackal (1971) showed that documentary-style detail could carry a bestseller...",
+          "why": "'Made a formula' is an interpretive claim about the market; the softer wording says what is defensible. The Parallax View (1974) and Three Days of the Condor (1975) dates were confirmed, and the post-Watergate institutional-distrust framing is standard in critical writing."
+        },
+        {
+          "where": "history / conv, since-2000 point (Larsson)",
+          "was": "...The Girl with the Dragon Tattoo (2005) carried Scandinavian crime worldwide...",
+          "now": "...The Girl with the Dragon Tattoo (2005) helped carry Scandinavian crime to a worldwide audience...",
+          "why": "Larsson was one of several writers (Mankell and others before him) who built the international audience; 2005 is the Swedish original year and agrees with the library."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The whole history facet is 'contested': that label suits it (there is no agreed first thriller) and the 'strands became recognisable' framing is stated in the watch note as marking strands, not an origin. Kept.",
+        "The Woman in White serialised 29 November 1859 to 25 August 1860 (book 1860) per my knowledge; the library gives 1860 in one place, but the text says 'serialised 1859 to 1860', which is accurate.",
+        "MacGuffin: search confirms Hitchcock popularised the term (earliest recorded use in a 1939 Columbia University lecture typescript per the OED); the coiner is usually given as the screenwriter Angus MacPhail but this is hedged by Britannica. The text names no coiner, so it stays accurate.",
+        "Graham Greene's 'entertainments': confirmed that he used the label for several books and later abandoned it; the text says 'labelled', no titles given.",
+        "Hitchcock and the suspense versus surprise distinction: 'popularly credited' is the right hedge (from the Truffaut conversations); not independently searched.",
+        "'High concept', 'page-turner' and the shop usage of 'suspense' are general trade-practice statements, not searched; wording is hedged ('used in publishing and film', 'some shops').",
+        "Bulldog Drummond 1920, The Girl on the Train 2015, Eye of the Needle 1978 and Presumed Innocent 1987 etc. are from solid knowledge and the library's own records; Slow Horses 2010 and The Battle of Dorking 1871 (Blackwood's, May 1871) were confirmed by search.",
+        "Word count (80,000 to 100,000) matches the library's thriller market entry, which also says psychological and domestic suspense runs shorter."
+      ]
+    },
+    "horror.js": {
+      "claimsChecked": 78,
+      "confirmed": 71,
+      "corrected": [
+        {
+          "where": "history / conv, Radcliffe point",
+          "was": "...set terror, which expands the mind, against horror, which freezes it...",
+          "now": "...set terror, which expands the soul and sharpens the faculties, against horror, which contracts and freezes them...",
+          "why": "Radcliffe's essay speaks of the soul and the faculties, not 'the mind'. The date (1826, New Monthly Magazine, after her death in 1823) is confirmed. Paraphrase, no quotation."
+        },
+        {
+          "where": "history / conv, weird-tale point",
+          "was": "Around 1900 the ghost story and the weird tale flourished: Machen's The Great God Pan (1894), M. R. James's Ghost Stories of an Antiquary (1904), Blackwood's The Willows (1907), Weird Tales (from 1923), Lovecraft's The Call of Cthulhu (1928).",
+          "now": "From the 1890s to the 1920s the ghost story and the weird tale flourished: (same list)",
+          "why": "The dates listed span 1894 to 1928, so 'around 1900' misdescribed the span."
+        },
+        {
+          "where": "craft / conv, King's Danse Macabre point",
+          "was": "...named three levels of effect, terror, horror and revulsion, and preferred the first.",
+          "now": "...named three levels of effect, terror, horror and the gross-out, and called terror the finest.",
+          "why": "King's own hierarchy, as presented in the book, runs terror, horror, gross-out and calls terror the finest emotion. Danse Macabre is 1981 (confirmed; Hugo winner 1982)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "terms / conv, the uncanny",
+          "was": "The uncanny: a term from Sigmund Freud (1919) for the familiar made strange...",
+          "now": "The uncanny: the familiar made strange, a term given wide currency by Sigmund Freud's essay of 1919...",
+          "why": "The German word and the idea predate Freud (Jentsch, 1906, and earlier); his 1919 essay made it famous. The date 1919 is correct."
+        },
+        {
+          "where": "terms / conv, terror and horror",
+          "was": "a distinction usually traced to Ann Radcliffe's essay of 1826",
+          "now": "a distinction often traced to Ann Radcliffe's essay of 1826",
+          "why": "Eighteenth-century writers drew related distinctions, and one source reports Radcliffe composed her theory as early as 1802 to 1803; 'often' is defensible, 'usually' is not. The 'before it shows, once seen' gloss is already marked as a common reading, not Radcliffe's wording."
+        }
+      ],
+      "removed": [
+        {
+          "where": "history / watch, 1990s contraction",
+          "was": "Many accounts describe a contraction of horror publishing in the 1990s, with some writers moving to thriller or dark fantasy labels; accounts differ on the details.",
+          "now": "Many accounts describe a contraction of horror publishing in the early to mid 1990s, when the label became hard to sell and some books were shelved or sold under other labels; accounts differ on timing and causes.",
+          "why": "The contraction itself is well supported (imprints folding, the word 'horror' becoming hard to sell, books shelved under mystery or other sections, some authors changing genre; sources place the end of the boom between the early and mid 1990s). Nothing I found supported 'thriller or dark fantasy' as the destinations, so that detail is removed and the claim kept in its hedged, supported form."
+        }
+      ],
+      "remainingDoubts": [
+        "The Great God Pan (1894) is the book date (Keynotes Series, John Lane); some references also list a version in 1890, which I could not confirm. The library uses 1894 and the text does not claim first publication of the story.",
+        "Ring (1991) and Uzumaki (1998, serialised from 1998) returned no search results; they come from my own knowledge and the library's Uzumaki record (1998). Mexican Gothic (30 June 2020) was confirmed by search; The Only Good Indians (2020) appeared only in 2020 reading lists in the results, so its year rests on my knowledge. Most older titles agree with the library's own work records.",
+        "Carroll's 'complex discovery plot' (onset, discovery, confirmation, confrontation) is confirmed in The Philosophy of Horror (1990). The structure sentence before it is the writer's own composite and is not attributed to Carroll.",
+        "Clover coined 'final girl' in her 1987 article 'Her Body, Himself' and developed it in her 1992 book; confirmed. The text names no year.",
+        "'Elevated horror' is deliberately undated and marked contested; no originator is given.",
+        "Frankenstein and Who Goes There? (Campbell, 1938) as science-fiction horror examples, and dark fantasy as the overlap, are consistent with the library's science-fiction horror and weird-fiction entries; not separately searched.",
+        "Word count (70,000 to 90,000) follows the library's horror market summary; the same entry also mentions 65,000 as the lower end elsewhere, so the profile uses the summary range. Shelving claims are marked 'varies'."
+      ]
+    }
+  },
+  "titlesInRefs": "Danse Macabre (King, 1981) and The Philosophy of Horror (Carroll, 1990) were confirmed by the searches on the King and Carroll claims. Bloody Murder: From the Detective Story to the Crime Novel (Julian Symons), The Cambridge Companion to Crime Fiction and The Cambridge Companion to Gothic Fiction were not searched; they are believed real from solid knowledge and are given as titles only, as the writer said.",
+  "otherChecks": "No sample prose or pasteable line in any facet. kw are phrases a writer would type. Facets mean what the README says for a genre. No contradictions with the library's mystery, thriller and horror entries or their market-length entries (checked with library-hub and by grep of work years). No exclamation marks, URLs or quotes over 14 words. node scripts/library-profile-check.mjs --staging prints OK for all three files after the edits."
+}

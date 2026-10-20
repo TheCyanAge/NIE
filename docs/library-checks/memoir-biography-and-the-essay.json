@@ -1,0 +1,168 @@
+{
+  "subject": "Memoir, biography and the essay (memoir, form-prose-biography, essay)",
+  "searchUsed": true,
+  "method": "Every file was read in full and checked against the README Profiles standard and the parent library entries (memoir, form-prose-biography and essay via scripts/library-hub.mjs, plus a grep of the library for each work's recorded year). Every title with author and year, every 'first / coined / named' claim and every number was checked with web search (WebSearch only; WebFetch was not used); sources were encyclopedias, library and bookseller catalogue records, university and press pages, and scholarly summaries returned by search. Claims that rest on settled general knowledge and that search did not return (for example Black Boy 1945, Testament of Youth 1933, Goodbye to All That 1929, Bacon's 1612 edition) were checked against the library's own works records and are listed under remainingDoubts where the check was thinner. Claim counts are approximate counts of the discrete checkable claims enumerated in each file (dates, title-author-year triples, firsts and coinages, numbers, term meanings). No primary source was consulted.",
+  "files": {
+    "memoir.js": {
+      "claimsChecked": 78,
+      "confirmed": 72,
+      "corrected": [
+        {
+          "where": "profile-memoir-subgenres, conv 10 (travel, place and nature memoir)",
+          "was": "Helen Macdonald's H Is for Hawk (2015)",
+          "now": "Helen Macdonald's H Is for Hawk (2014)",
+          "why": "Jonathan Cape first published it in the UK in 2014 and it won the 2014 Samuel Johnson Prize and the 2014 Costa Book of the Year. 2015 is the date of the US edition. The library's own records give 2014 in three places, so the profile contradicted the library."
+        },
+        {
+          "where": "profile-memoir-canon, conv 2",
+          "was": "Testimony in the nineteenth century: Olaudah Equiano's Interesting Narrative (1789) and Frederick Douglass's Narrative (1845)",
+          "now": "Testimony from enslavement, 1789 to 1845: Olaudah Equiano's Interesting Narrative (1789) and Frederick Douglass's Narrative (1845)",
+          "why": "Equiano's book is 1789, which is the eighteenth century. The heading put both books in the nineteenth century; the dates themselves were right (also matching the library records for both)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-memoir-history conv 3 and summary (sense of 'memoirs')",
+          "was": "'For centuries memoirs usually meant a participant's record of public events' / 'the word itself once meant an insider's record of public events'",
+          "now": "'For a long time memoirs often meant ...' / 'the word memoirs often meant ...'",
+          "why": "Etymological sources date 'memoirs' as a personal record from personal knowledge to the 1650s and as a person's account of their own life to the 1670s, so 'usually' and 'for centuries' overstate. 'Often' is supported."
+        },
+        {
+          "where": "profile-memoir-history conv 9 (Annie Ernaux)",
+          "was": "'a sign of how fully writing drawn from the author's own life now sits inside the literary mainstream'",
+          "now": "'which many took as a sign of how far writing drawn from an author's own life now sits within the literary mainstream'",
+          "why": "The Nobel win in 2022 is confirmed, but the reading of it is an interpretation, not a fact, so it is now attributed to 'many' instead of asserted. Her classification (memoir, autofiction or neither) is still left open."
+        },
+        {
+          "where": "profile-memoir-history conv 2 (The Gossamer Years)",
+          "was": "court women's diaries in Heian Japan such as The Gossamer Years",
+          "now": "diaries by aristocratic women in Heian Japan such as The Gossamer Years",
+          "why": "The author, Michitsuna's mother, was the wife of the nobleman Fujiwara no Kaneie, not a lady-in-waiting; 'aristocratic women' is true of her and of Sei Shonagon and Murasaki Shikibu, 'court women' is not. The diary is dated to about 974 (covering 954 to 974), so 'late tenth century' stands."
+        },
+        {
+          "where": "profile-memoir-canon, conv 4 (Wiesel)",
+          "was": "Elie Wiesel's Night (1956)",
+          "now": "Elie Wiesel's Night (1956, in Yiddish)",
+          "why": "1956 is the Yiddish original (Un di velt hot geshvign, Buenos Aires); the French La Nuit is 1958 and the English Night 1960. The year agrees with the library's record and the works array, and the label stops a reader taking 1956 as the date of the book most people know."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The Gossamer Years is dated c. 974 in some sources and c. 975 in the library; some sources say she began writing around 971 and wrote the earlier years in retrospect. 'Late tenth century' is safe either way.",
+        "The Book of Margery Kempe: dictation is placed in the early 1430s by one scholarly profile, a scribe began the written version in 1436, and one reference says the 1420s. 'Fifteenth century' is safe; the exact year is uncertain.",
+        "Memoir boom: sources agree that The Liars' Club and Angela's Ashes were central to the mid-1990s wave, but disagree on who started it (some argue Tobias Wolff's This Boy's Life, 1989). The text says 'often described' and 'among its best-known successes', which the sources support. Public disputes over invented details are real (James Frey's A Million Little Pieces, 2006) but no case is named, as in the original.",
+        "Nabokov: 1951 is the UK title Speak, Memory (Gollancz); the US edition that year was Conclusive Evidence (Harper); the revised edition is 1966. The text and the library's work record use Speak, Memory (1951), which is true of the UK edition.",
+        "Night: the Yiddish 1956 date is the one the library records and the works array must agree with it; one bookseller puts the French edition in 1957 rather than 1958 (not used in the text).",
+        "Doubrovsky and 'autofiction': coinage in connection with Fils (1977) is the standard attribution and the library says the same; sources note that Lejeune used the word in 1978 in a different sense and that the practice is older. The record stays 'contested'.",
+        "Shelving (memoir filed with biography and autobiography) and 'unknown author offers a finished manuscript, known author can sell on a proposal' are market norms. The second matches the library's mkt-len-memoir entry; search did not return a source for either, so both stay hedged ('usually', 'often', 'some shops and libraries') under confidence 'varies' with an asOf.",
+        "Black Boy 1945, Testament of Youth 1933 and Goodbye to All That 1929 were not returned by search; each matches the library's own works records and settled knowledge. Aké 1981 and Hunger of Memory 1982 were checked against first-edition imprints (one award page puts Hunger of Memory's essays in 1981; 1982 is better supported).",
+        "Second opinion asked for: memoir craft is kept at 'varies' (not 'established'), because two of its eight points say author's-note expectations and privacy and defamation law differ by publisher and country. The double-perspective and scene-and-reflection points alone would be 'established'."
+      ]
+    },
+    "biography.js": {
+      "claimsChecked": 52,
+      "confirmed": 44,
+      "corrected": [
+        {
+          "where": "profile-biography-history, summary",
+          "was": "Plutarch and Suetonius wrote lives around 100 CE",
+          "now": "Plutarch and Suetonius wrote lives around 100 to 120 CE",
+          "why": "Plutarch's Parallel Lives is dated to about the start of the second century, but Suetonius's Lives of the Caesars is dated to about 121 CE, so 'around 100 CE' for both put Suetonius two decades early. The conv text and canon already gave 121 correctly."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-biography-history, summary",
+          "was": "saints' lives dominated the Middle Ages",
+          "now": "saints' lives flourished in the Middle Ages",
+          "why": "'Dominated' is a ranking claim no source checked supports; 'flourished' is the defensible general statement."
+        },
+        {
+          "where": "profile-biography-history, conv 2 (Athanasius)",
+          "was": "Christian lives of saints (hagiography), beginning with works such as Athanasius's Life of Antony in the fourth century",
+          "now": "... (hagiography), among them Athanasius's Life of Antony in the fourth century",
+          "why": "'Beginning with' is a hidden 'first'. The Life of Antony is dated 356 to 362 on the conventional account (so 'fourth century' stands) but earlier martyr narratives exist, and some scholars question the dating and authorship."
+        },
+        {
+          "where": "profile-biography-history, watch",
+          "was": "the modern sense ... is usually dated to the eighteenth century",
+          "now": "... is often dated to the eighteenth century",
+          "why": "A common critical dating that no source checked states as a rule."
+        },
+        {
+          "where": "profile-biography-subgenres, conv 7 (psychobiography)",
+          "was": "a much-debated type",
+          "now": "a debated type",
+          "why": "Judgement; the milder wording is defensible. Freud's 1910 Leonardo study is confirmed as an early, much-criticised example, and the history record makes no 'first' claim for it."
+        },
+        {
+          "where": "profile-biography-readers, conv 6",
+          "was": "trade biographies are usually long books",
+          "now": "trade biographies are often long books",
+          "why": "General market claim with no figures; 'often' is what can be supported. The sentence already adds 'expectations vary by publisher and subject'."
+        },
+        {
+          "where": "profile-biography-readers, conv 7",
+          "was": "a biography is usually sold on a proposal with sample chapters",
+          "now": "a biography is commonly sold on a proposal with sample chapters",
+          "why": "Standard trade-nonfiction practice but varies by author and house; the record is 'varies' with an asOf."
+        },
+        {
+          "where": "profile-biography-canon, conv 1 (Suetonius)",
+          "was": "a set of imperial lives arranged by theme as well as time",
+          "now": "a set of imperial lives, each arranged by theme as well as time",
+          "why": "Search shows the twelve lives run in rough chronological order of the emperors while each life is organised by topic (family, character, death, appearance). The old wording could be read as the whole book being arranged by theme."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Plutarch 'about 100 CE' and Suetonius 'about 121 CE' are approximate scholarly dates (Suetonius's lifespan is given as roughly 69 to 122), and the lint accepts 'c. 100 CE' for Plutarch because it matches the library.",
+        "Athanasius's Life of Antony: 356 to 362 is the conventional range; one source argues for a later date and the authorship has been debated, so only 'fourth century' is stated. Einhard's Life of Charlemagne is dated c. 817 to 830 by sources; 'ninth century' is safe.",
+        "Janet Malcolm's The Silent Woman: Knopf 1994 is the book; the material ran in The New Yorker in 1993, and one source dates the book to 1993. The text says 1994 and describes the book as a study of Plath's biographers and the ethics of biography, which the sources support.",
+        "Woolf's 'The New Biography' 1927 is confirmed by scholarship; the newspaper it first appeared in was not checked and is not claimed. Footsteps (1985) and Biography: A Very Short Introduction (2009) are confirmed only in part by search (Footsteps by a description, the Very Short Introduction by the OUP catalogue); both match settled knowledge. Gaskell 1857 and the other canon dates match the library's records.",
+        "'Biographical fallacy' is a real term of New Criticism and is in use, but how standard it is varies. The text says only that critics warn against it. 'Hatchet job' and 'life and letters ... often compiled by a relative or friend' are general descriptions not tied to a source.",
+        "Shelving and selling statements are general market claims (confidence 'varies', asOf 2025); search returned no source for them.",
+        "Confidence changed for profile-biography-history from 'established' to 'contested' (second opinion asked for). Its own watch point says that what counts as 'the first biography' depends on the definition (ancient lives, saints' lives, Plutarch), and the README says disputed origins are 'contested'; the other installed profiles with a definitional dispute over origins (fantasy, romance, science fiction, thriller, young adult) use 'contested' for history. The dated milestones themselves are not disputed."
+      ],
+      "structural": [
+        "profile-biography-history: the Freud (1910) point now precedes the Strachey (1918) and Woolf (1927) point, so the milestones run earliest first as the README requires; the clause about later biographers widening the cast of subjects moved to the mid and late twentieth century point (and 'became a large publishing category' was shortened to 'grew into a large category' to stay under 300 characters)."
+      ]
+    },
+    "essay.js": {
+      "claimsChecked": 58,
+      "confirmed": 56,
+      "corrected": [
+        {
+          "where": "profile-essay-history, conv 4 (periodical essay)",
+          "was": "in Addison and Steele's The Tatler (1709) and The Spectator (1711)",
+          "now": "in Richard Steele's The Tatler (1709), Addison and Steele's The Spectator (1711) and Samuel Johnson's The Rambler (1750 to 1752)",
+          "why": "Steele began The Tatler in 1709 and Addison joined him later; The Spectator was their joint paper. Crediting The Tatler to both from the start was inexact. The library credits The Spectator to Addison and Steele (1711), so that attribution is unchanged."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-essay-history, conv 6 (Thoreau)",
+          "was": "Henry David Thoreau's Civil Disobedience (1849)",
+          "now": "Henry David Thoreau's Civil Disobedience (1849, first printed as Resistance to Civil Government)",
+          "why": "The 1849 printing in Aesthetic Papers carried the title Resistance to Civil Government; Civil Disobedience is the later name. The year and the library's record (1849) are kept; the note stops the date being read as the date of that title."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The Pillow Book is c. 1000 to 1002 and Essays in Idleness c. 1330 (sources give 1330 to 1332); the text uses 'about 1000 CE' and 'about 1330', which agree with the library (it holds both c. 1000 and c. 1002 for the Pillow Book).",
+        "Lyric essay: the Seneca Review Fall 1997 editorial by Deborah Tall and John D'Agata is the most-cited statement, but accounts give 1993, 1996 or 1997 for when the term was first used. The text says only 'in the 1990s' and names no one, which is safe.",
+        "Bacon's second edition 1612 (38 essays) rests on settled knowledge; search confirmed 1597 (ten essays) and 1625 (fifty-eight) but returned no authoritative page for 1612. Only the year is stated, not the count.",
+        "Tanizaki's In Praise of Shadows is 1933 in most sources (one says 1934, and it was serialised across the turn of the year); the library records 1933 and the text follows it. Okakura's The Book of Tea is 1906 in every source; the publisher given varies (Putnam's or Fox, Duffield) and is not stated in the text.",
+        "Hazlitt's Table-Talk: volume one 1821 and volume two 1822 are confirmed (different imprints on the two title pages); the text gives 1821 and the library records 1821.",
+        "'A debut essay collection can be harder to sell than a memoir or narrative book' is a market judgement repeated by agents; search returned no source, so it stays hedged by 'can be' and 'practice differs between houses and countries'. The 1,500 to 6,000 and 50,000 to 80,000 word ranges match the library's mkt-len-essay-collection.",
+        "Seneca's moral letters and Plutarch's Moralia as antecedents of the essay, Montaigne quoting ancient authors constantly, and Sei Shonagon's Pillow Book as zuihitsu are widely stated and match library entries but were not individually searched beyond the Pillow Book and zuihitsu. 'Following the brush' is the usual gloss of zuihitsu (confirmed). The op-ed definition (opposite the editorial page, usually outside contributors) is confirmed; the term is older than the New York Times page of 1970."
+      ]
+    }
+  },
+  "lint": {
+    "command": "node scripts/library-profile-check.mjs --staging <file>",
+    "result": "OK for memoir.js, biography.js and essay.js (9 records each, lint clean, every facet found)",
+    "note": "The first biography edit left the reordered 'mid and late twentieth century' history point at 303 characters (limit 300); it was shortened and the check re-run until clean. A separate scan found every conv string between 60 and 300 characters, every summary between 40 and 460, and no exclamation marks."
+  },
+  "consistency": "Works records and years in the three files match the library's entries for memoir (Douglass 1845, Graves 1929, Night 1956, Angelou 1969, Kingston 1976, Angela's Ashes 1996, Didion 2005, Educated 2018), form-prose-biography (Boswell 1791, Gaskell 1857, Ellmann 1959, with Plutarch c. 100 CE, Vasari 1550, Strachey 1918 in the library's biography forms) and essay (Montaigne 1580, Bacon 1597, Lamb 1823, Emerson 1841, Orwell 1946, Baldwin 1955, Didion 1968). Titles mentioned only in conv text agree with other library records: H Is for Hawk 2014 (corrected to match), Fun Home 2006, Darkness Visible 1990, Wild Swans, Aké 1981, Heart Berries 2018, The Years 2008, Equiano 1789, Testament of Youth 1933, Black Boy 1945, Bluets 2009, The Empathy Exams 2014, Against Interpretation 1966, The Common Reader 1925, In Praise of Shadows 1933, Table-Talk 1821, The Spectator 1711, the Pillow Book c. 1000 to 1002 and Essays in Idleness c. 1330. The Doubrovsky 1977 attribution for autofiction and the Lejeune reference agree with the library's autofiction and autobiography entries. Facet meaning follows the README (history earliest first with 9 dated points per file; canon with 8 works each). No sample prose, dialogue or pasteable line was found in any of the three files; the only quoted phrases are short titles and terms. The writer's own rules were not touched."
+}

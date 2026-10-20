@@ -113,6 +113,46 @@ not with a fake. Runner speed varies a lot from run to run, so only same-run com
 - Honest limit: a 3B model is not GPT, Gemini, Claude or Perplexity. What the instruments and the mind give is exact counts, a memory that cannot drift, and checks on every reply; they do not give the model
   better judgment of a story.
 
+## Whole-subject profiles and talking about the library
+
+Why: a probe showed single-topic questions were well covered ("what is a villanelle?") but whole-subject ones were not ("what are the subgenres of fantasy?" found nothing), and a writer who asked NIE what its model knew
+was told, wrongly, that it had no library. The fixes are in three parts.
+
+- **Profiles** (`library/profiles/*.js`): one record per facet (history, subgenres, tropes, what readers expect, how it is built, how it differs from its neighbours, landmark works, pitfalls, vocabulary) for a genre, form,
+  tradition or movement. **As of this writing 23 subjects are installed besides the Gothic fiction example** (24 in all, 216 records): fantasy, science fiction, romance, mystery, thriller, horror, children's literature, picture books, young adult fiction,
+  poetry, lyric poetry, epic poetry, memoir, biography, the essay, the screenplay, the stage play, tragedy, historical fiction, literary fiction, crime fiction, Romanticism and Realism. The plan is about 96 subjects in priority order; the rest
+  are written in waves as the work allows, and the Settings page and "what does your library know?" report the real number at any time. **Held back: Modernism** (its fact-checker ran out of search budget before checking it).
+- **How they were made and checked.** Each file is written by one AI agent from a strict brief (no sample prose, dates only when sure, a work is listed only with its author and year, fewer certain points over more shaky ones) and then
+  fact-checked by a second agent that did not write it, which lists every date, title, author, number and "first"/"coined" claim, searches the web for them, and corrects, softens or removes what it cannot confirm. Counts from the
+  verifiers (claims checked / corrected / softened / removed): first three batches 729 / 24 / 27 / 2; poetry 231 / 3 / 2 / 0; memoir, biography and the essay 188 / 4 / 12 / 0; stage and screen 255 / 12 / 19 / 0; historical, literary and crime fiction
+  228 / 9 / 12 / 0; Romanticism, Realism and Modernism 317 / 11 / 5 / 2 (of which Modernism was not searched). Every file also passes the library lint (including a cross-check that the year of any work agrees with every other record that lists it)
+  and `scripts/library-profile-check.mjs`, which asks each facet its own question and checks the right record answers. **What this is not:** the web checks were search summaries (the verifiers could not fetch Wikipedia), a number of well-known dates were
+  confirmed only from recall and the library's own records, and market and shelving practice is hedged and marked "varies". It is a much better-checked set of records than the rest of the library, not a verified one. The verifiers' own lists of
+  what they could not confirm are kept in `docs/library-checks/` and are worded loosely in the text.
+- **Retrieval.** A profile competes only when the question asks for its facet *and* names its subject. This was measured to matter: before the second condition, "What are the subgenres of fantasy?" was answered, as a strong match, with the subgenres
+  of Gothic fiction (a regression test now covers it).
+- **A conversation about the library** (`knowledge/thread.js`): after an answer, "what about its tropes?", "and the history?", "tell me more" / "what else?" (the rest of the overview, then each facet once, then a plain "that is everything I hold"),
+  "how is it different from romance?" (side by side, with the profile's own point) and, with a model, a pronoun question ("why did it start in Britain?") stay on the subject; a facet the library has no record of is said plainly; the facets not yet shown
+  are offered as chips. It is kept per project and ends when idea cards take over. Measured on the real model (`scripts/library-lab.mjs`, scripted conversations in `tests/fixtures/library-sessions.mjs`, a slow 2-thread runner, about 35 s a turn):
+
+  | | first run | after the fixes below |
+  | --- | --- | --- |
+  | follow-ups read as intended | 17 of 17 | 17 of 17 |
+  | replies using the record's own words (checked ones) | 7 of 8 | 8 of 8 |
+  | the writer's own story talk left alone | 1 of 2 | 2 of 2 |
+  | replies naming something no record holds | 6 | 2 |
+
+  What the first run showed, and what changed: a profile of the wrong subject answered a facet question (above); a reply built from the records still added authors, titles and examples of its own ("Anne Rice", "Rosemary's Baby"), so a library
+  answer from the model now goes through the names-and-numbers check against the records and the conversation (the sentence goes, and NIE says so; if nothing is left it shows the record itself); the model spoke of "the notes you provided" and
+  of NIE in the third person, so the instruction now says the library is NIE's own; and "What does the aunt hide?" after a message about "her aunt's house" was taken for a library question. The second run showed two more (the subject of
+  "what are the tropes of romance?" became the trope "Forbidden love"; the model cited the Chicago Manual of Style for a record that names no guide), fixed in the commit after it; that change has not been re-measured yet. The check can
+  also remove a correct sentence (it flagged "Couples", the first word of a sentence, as a name): it errs towards leaving out.
+- **A rule-reading bug found on the way**: with no model, "What is a sonnet?", "what is a haiku" and "Explain the villanelle" were read as requests for ideas (the form word counted as a lens) and got no answer. They now go to the library.
+- **Honest limits.** The model composing the answer is still a 3B model: it can be flat, repeat itself or drift, and a reply from it takes 15 to 70 s on a slow computer. The records are what NIE knows; the library cannot be complete, and "seemingly
+  infinite knowledge of all literature" is not something a program on one computer can offer. What can be offered is a large library that says what it holds and what it does not, a conversation that stays on the subject, and the optional online
+  model in Settings for questions beyond it. A larger offline model (for example a 7B) was considered and **not** added: Settings has no model chooser beyond the one bundled model, the download address of a larger model cannot be verified from
+  here, and it would be several times slower on an ordinary CPU.
+
 ## Rules, in detail
 Understood and **checked exactly**: forbidden words/phrases; terminology ("use X not Y"); sentence/paragraph length limits; first/second/third person and
 past/present tense; named patterns (adverbs, exclamation marks, semicolons, em dashes, ellipses, contractions, profanity, filter/hedge words, similes,
