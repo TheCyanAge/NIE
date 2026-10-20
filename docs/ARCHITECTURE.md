@@ -57,11 +57,29 @@ listed, one of its two planted inconsistencies is flagged (the water volume; the
 and 14 of its 24 defined terms are in the list of recurring terms. What it cannot do: `groundNames` checks names and numbers, so an invented set-up told in ordinary words ("plunged into danger without context") is kept;
 the heuristics are English only; and a heading like "IV. Tide Table" is not recognised as one.
 
+## The library, whole-subject profiles, and talking about them
+
+`engine/knowledge/` holds the offline library: plain data records (genres, forms, techniques, movements, traditions, works, style-guide rules, usage, publishing practice) searched by a BM25-style index with name, keyword and body weights
+(`searchScored`, `answerFromLibrary`: a match is `strong`, `weak` or `none`, and a miss says so instead of guessing). It is reference knowledge; only the writer's own rules are ever enforced.
+
+**Profiles** (kind `profile`, `library/profiles/*.js`) are the whole-subject view of one genre, form, tradition or movement, one record per facet: history, subgenres, tropes, what readers expect, how it is built, how it differs from its neighbours,
+landmark authors and works, pitfalls, vocabulary (`PROFILE_FACETS` in `knowledge/index.js`). A profile competes in search only when the question asks for its facet (`facetsAsked`), so "what is gothic fiction?" is still answered by the genre's own entry and
+"what are the subgenres of gothic fiction?" by the profile. The lint holds profiles to a stricter standard than other records (nine facets per subject, a parent that exists, dated works whose years agree with the rest of the library; `scripts/library-lint.mjs`),
+`tests/library-profiles.test.js` asks every facet of every profile its own question, and `scripts/library-profile-check.mjs --staging` does the same for a file before it is installed. Profiles are written by one agent and then checked by another that searches for each date,
+title, author and "first" and corrects or removes what it cannot confirm (`docs/STATUS.md` says how many subjects have one and how that was checked: it is AI-written and checked, not verified entry by entry).
+
+**Talking about it** (`knowledge/thread.js`, `thread-state.js`). After a library answer, `project.conversation.library` records the subject of the answer, which facets have been shown, and at which message. The thread is plain JSON in the project (sanitized in `project/store.js`, isolated and removed with it);
+the module holds no state of its own. `resolveFollowUp` reads a short message against it: "what about its tropes?", "and the history?" (the library's record of that facet), "tell me more" / "what else?" (the rest of the overview, then each facet once, then a plain "that is everything I hold"),
+"how is it different from romance?" (the two entries side by side, with the profile's own point for that neighbour), and, only when a model is running, a pronoun question the library cannot pick out ("why did it start in Britain?"), where the subject's records are put in front of the model.
+A message that names another subject by its name, or a thing of its own ("how do I write dialogue?"), is not a follow-up; a thread is followed for three messages; idea cards end it (so "more" still means more ideas); a follow-up is never kept as something the writer told NIE. A facet the library has no record of is said plainly
+("I don't have a separate entry on the tropes of the villanelle, and I won't guess"). Each library answer offers the facets not yet shown as chips. With a model running, the records are what it is shown and it words the answer; without one, the records are the answer. The writer's own message is never rewritten: only which record answers it is chosen.
+`scripts/library-lab.mjs` (workflow `library-lab`) measures this on the real model over scripted conversations (`tests/fixtures/library-sessions.mjs`), including whether a reply names anything no record has.
+
 ## Where things live
 
 | Concern | Code |
 | --- | --- |
-| Narrative library (≈180 genres, structures, styles, forms, techniques; BM25-style search) | `apps/web/src/engine/knowledge/` |
+| Narrative library (about 12,000 records incl. derived lookups; BM25-style search), whole-subject profiles, the thread of a conversation about the library | `apps/web/src/engine/knowledge/` (`thread.js`, `library/profiles/`) |
 | Project profile + interpreter (fragmented, unreliable, surreal, clinical, nonfiction forms → what to treat as deliberate) | `engine/profile/` |
 | Rule-based intent recognition (the fallback reader), working premise (adapts when the writer changes direction), form sniffing | `engine/intent/` |
 | Project store: fresh-by-construction creation, full deletion, preferences | `engine/project/` |

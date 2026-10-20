@@ -82,6 +82,11 @@
   real `works` on genres). `node scripts/build-library-index.mjs` regenerates `library/index.js` (the test fails if it is stale).
 - NIE answers general craft/style/usage/work questions from it with the guide and edition, flags `varies`/`contested`, and when nothing matches says
   so instead of guessing (`answerFromLibrary`, `libraryReply`, `libraryMissReply`). Library knowledge is reference only: only the writer's own rules are enforced.
+- Profiles (kind `profile`, `library/profiles/*.js`, written to the README's "Profiles" section) are the whole-subject view of one genre/form/tradition/movement, one record per facet (history, subgenres, tropes, readers, craft, compare, canon, pitfalls, terms);
+  they compete in search only when a question asks for their facet, and `tests/library-profiles.test.js` asks every facet of every profile its own question. A profile is written by one agent and fact-checked by another with web search before it is installed
+  (`scripts/library-profile-check.mjs --staging`). Never state a fact in a profile you are not sure of: leave it out or say it approximately.
+- Talking about the library: `knowledge/thread.js` (+ `thread-state.js`, stored at `project.conversation.library`, sanitized in `project/store.js`) lets "what about its tropes?", "tell me more", "how is it different from romance?" and (with a model) pronoun questions
+  stay on the subject of the last library answer. It only chooses WHICH library record answers; it rewrites nothing of the writer's, keeps no state of its own, and a follow-up is never recorded in the project mind. Measured on the real model by `scripts/library-lab.mjs`.
 - It cannot be exhaustive and is not fully verified; never claim either. It was written with AI assistance and only spot-checked (a 220-claim sample; see docs/STATUS.md); coverage and the reliability note are shown in Settings (`libraryStats`). Retrieval is measured by `tests/fixtures/library-questions.json` (`scripts/library-probe.mjs` asks it anything). Works listed only inside other entries get derived lookup records (`derivedWorks`).
 
 ## Windows package

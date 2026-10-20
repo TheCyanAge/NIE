@@ -65,7 +65,7 @@ export function knowledgeReply(status) {
         b.work && `${roundDown(b.work)} notable works`,
         b.rule && `${roundDown(b.rule)} style-guide rules`,
         b.usage && `${roundDown(b.usage)} word-usage notes`,
-      ].filter(Boolean).join(', ')}, plus publishing and formatting practice. When you ask about a genre, form, work or rule, I answer from the library and say what I'm drawing on.`
+      ].filter(Boolean).join(', ')}, plus publishing and formatting practice. When you ask about a genre, form, work or rule, I answer from the library and say what I'm drawing on.${st.profileSubjects ? ` For ${st.profileSubjects === 1 ? 'one subject' : `${st.profileSubjects} subjects`} so far it also holds a whole-subject profile (its history, subgenres, tropes, what readers expect, how it is built, how it differs from its neighbours, landmark works, pitfalls and vocabulary): ask for one facet, then keep going with "tell me more" or "what about its tropes?".` : ''}`
     : "For facts I use my built-in library, which is separate from the model and works with no internet. It is still loading, so for the next moment I can only answer from my core craft notes.";
   return [
     "There are two different things here, and I try to keep them apart.",

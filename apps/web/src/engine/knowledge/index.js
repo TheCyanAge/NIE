@@ -499,5 +499,6 @@ export function libraryStats() {
     if (k.kind === 'rule' && k.guide) guides.add(k.guide);
   }
   const derived = KNOWLEDGE.filter((k) => k.derived).length;
-  return { total: KNOWLEDGE.length, derived, byKind, ruleGuides: [...guides].sort(), loaded: libraryState.loaded };
+  const profileSubjects = new Set(KNOWLEDGE.filter((k) => k.kind === 'profile' && k.parent).map((k) => k.parent)).size; // how many genres, forms, traditions and movements have whole-subject profiles
+  return { total: KNOWLEDGE.length, derived, byKind, profileSubjects, ruleGuides: [...guides].sort(), loaded: libraryState.loaded };
 }
