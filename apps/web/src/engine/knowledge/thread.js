@@ -59,13 +59,18 @@ export function subjectFrom(entry) {
  * The thread after the library answered with these entries at this turn. A new subject starts a new thread; the same subject keeps what has been shown.
  * An answer with no subject to follow (a single work, nothing at all) ends the thread.
  */
-export function noteAnswer(thread, entries, turn) {
-  const s = subjectFrom(entries?.[0]);
+export function noteAnswer(thread, entries, turn, query = '') {
+  let s = subjectFrom(entries?.[0]);
+  // The question can name the subject itself while the closest entries are about something else: "what are the tropes of romance?" is answered by entries about particular tropes, but it is
+  // Romance that the conversation is about. (Unless the answer already is that subject's own entry or one of its profiles.)
+  const phrase = query ? String(query).trim().match(NAMED_AFTER)?.[1] : null;
+  const named = phrase && remainderOf(phrase) ? lookupName(phrase, null, s?.kind) : null; // (a phrase of only facet words, "the history", names nothing)
+  if (named && named.id !== s?.id) s = subjectFrom(named);
   if (!s) return { ...emptyThread(), turn: int(turn, 1000000) };
   const same = thread?.subject?.id === s.id;
   const shown = new Set(same ? thread.shown : []);
   let entryShown = same ? thread.entryShown : 0;
-  for (const e of entries) {
+  for (const e of entries ?? []) {
     if (e.kind === 'profile' && e.parent === s.id) shown.add(e.topic);
     else if (e.id === s.id) entryShown = Math.max(entryShown, Math.min(OVERVIEW_SHOWN, e.conventions?.length ?? 0));
   }

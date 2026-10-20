@@ -29,7 +29,7 @@ export const LIBRARY_SESSIONS = [
     steps: [
       { say: 'What is gothic fiction?', follow: null },
       { say: 'what are the tropes of romance?', follow: null },
-      { say: 'and the history?', follow: ['facet', 'missing'] }, // (a history of romance, or a plain statement that the library holds none)
+      { say: 'and the history?', follow: ['facet', 'missing'], mustMention: [['romance', 'Romance']] }, // (a history of romance, or a plain statement that the library holds none)
       { say: 'tell me more', follow: 'more' },
     ],
   },

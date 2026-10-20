@@ -350,3 +350,20 @@ test('a question that uses a word from the writer\'s own recent story messages i
   assert.notEqual(r.intent.type, 'library-question');
   assert.ok(!/isn't in my built-in library/.test(r.reply));
 });
+
+test('the subject of a thread is the one the question names, even when the closest entries are about something else; a follow-up phrase never renames it', async () => {
+  const o = noModel();
+  const project = projectWith();
+  const r = await say(o, project, 'what are the tropes of romance?');
+  assert.equal(project.conversation.library.subject.id, 'romance', 'answered by entries about particular tropes, but the conversation is about Romance');
+  assert.equal(r.library.subject, 'Romance');
+  const h = await say(o, project, 'and the history?');
+  assert.equal(h.library.follow, 'facet');
+  assert.equal(project.conversation.library.subject.id, 'romance', '"the history" is a facet, not a subject called History');
+  assert.match(h.reply, /^Romance, history and origins:/);
+  const more = await say(o, project, 'tell me more');
+  assert.match(more.reply, /^More on Romance/);
+  // the answer's own first entry still names the subject when the question does not
+  const plain = await say(o, projectWith(), 'What is free indirect discourse?');
+  assert.match(plain.library.subject, /free indirect/i);
+});
