@@ -23,6 +23,7 @@ export default [
     watch: [
       "\"The first children's book\" depends on the definition used (written for children, or read by them, or sold to them); Orbis Pictus, Perrault and Newbery are all argued for.",
       "Golden age dates differ between critics; many begin it with Alice, some start earlier, and some carry it on into the 1920s.",
+      "Years are those of first book publication: some titles ran in magazines first (Treasure Island in 1881 to 1882, The Secret Garden in 1910 to 1911), and a few appeared in one country before another, such as Charlie and the Chocolate Factory in the United States in 1964.",
     ],
     intent: ["A writer may choose one era's habits on purpose, such as the episodic Edwardian animal tale or the mid-century family story, as long as the book knows it is doing so."],
     q: ["Which era of children's books is my project in conversation with, and what has changed for young readers since?"],
@@ -161,7 +162,7 @@ export default [
       "Children's books versus books children read: the second group is far larger and includes adult novels, so audience in the trade means who the book was written, priced and shelved for.",
     ],
     watch: [
-      "\"Children's\" in the trade usually means up to about twelve, while in academic writing it can include teenage fiction; check which sense a source is using.",
+      "\"Children's\" in the trade often means up to about twelve, while in academic writing it can include teenage fiction; check which sense a source is using.",
     ],
     intent: ["Writers often aim a book at the border of two bands, such as the top of middle grade or a picture book for older readers, and accept that shelving will vary."],
     q: ["If I describe my book's reader in one sentence, which neighbouring category does that sentence belong to?"],
@@ -179,7 +180,7 @@ export default [
     conv: [
       "Tale sources: Charles Perrault (1697), the Brothers Grimm (from 1812) and Hans Christian Andersen (from 1835), whose collected or authored tales still shape fantasy and picture books.",
       "Victorian and Edwardian classics: Carroll's Alice (1865), Alcott's Little Women (1868), Stevenson's Treasure Island (1883), Kipling's The Jungle Book (1894), Baum's The Wonderful Wizard of Oz (1900) and Barrie's Peter and Wendy (1911).",
-      "Animal and nursery classics: Beatrix Potter's Peter Rabbit (1902), Kenneth Grahame's The Wind in the Willows (1908) and A. A. Milne's Winnie-the-Pooh (1926).",
+      "Animal and nursery classics: Beatrix Potter's Peter Rabbit (1902, after a private printing in 1901), Kenneth Grahame's The Wind in the Willows (1908) and A. A. Milne's Winnie-the-Pooh (1926).",
       "Between the wars: Erich Kästner's Emil and the Detectives (1929), Arthur Ransome's Swallows and Amazons (1930) and J. R. R. Tolkien's The Hobbit (1937), written for children before it was read by everyone.",
       "Mid-century: Astrid Lindgren's Pippi Longstocking (1945), C. S. Lewis's Narnia from 1950, E. B. White's Charlotte's Web (1952), Madeleine L'Engle's A Wrinkle in Time (1962), Sendak's Where the Wild Things Are (1963) and Roald Dahl's Charlie and the Chocolate Factory (1964).",
       "Since 1990: Philip Pullman's Northern Lights (1995), J. K. Rowling's Harry Potter and the Philosopher's Stone (1997), Kate DiCamillo's Because of Winn-Dixie (2000), Rick Riordan's The Lightning Thief (2005) and Jacqueline Woodson's Brown Girl Dreaming (2014).",
@@ -188,6 +189,7 @@ export default [
     watch: [
       "Canon lists reflect the English-language and Western bias of many surveys; translated books, and books by authors outside Britain and the United States, deserve their own reading.",
       "Some of these works were not written for children alone (Alice and The Hobbit are read by all ages), and the label \"classic\" is a critical habit, not a measure of what children choose.",
+      "Years follow first publication, which can differ by country: Northern Lights (Britain, 1995) was published in the United States as The Golden Compass in 1996, and Charlie and the Chocolate Factory (1964) appeared in the United States before Britain.",
     ],
     intent: ["A writer need not read the whole canon, but knowing which classics a reader or an editor will compare a new book with is useful."],
     q: ["Which two or three children's books would a reader compare mine to, and what do I want mine to do differently?"],

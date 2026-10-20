@@ -1,0 +1,66 @@
+{
+  "searchUsed": true,
+  "notes": "WebSearch worked; WebFetch could not resolve hosts (DNS), so verification rests on search-result summaries, mostly encyclopedia, library, museum and rare-book-dealer pages, plus solid prior knowledge for the items listed under confirmed.",
+  "files": {
+    "modernism.js": {
+      "claimsChecked": 112,
+      "confirmed": 105,
+      "corrected": [
+        {
+          "where": "profile-modernism-readers, conv[5] (publication history)",
+          "was": "Ulysses was barred in the United States until a court ruling in 1933, and an ordinary British trade edition came only in 1936.",
+          "now": "Ulysses was barred in the US until a 1933 court ruling, and Britain had a limited Bodley Head edition in 1936 and a trade edition in 1937.",
+          "why": "The Bodley Head's 1936 edition was a limited issue of 1,000 numbered copies; the ordinary trade edition followed in 1937. US ruling (Judge Woolsey, 6 Dec 1933) confirmed."
+        },
+        {
+          "where": "profile-modernism-subgenres, conv[1] (long collage poem)",
+          "was": "The Waste Land, Pound's Cantos and Williams's Paterson, published in parts from 1946, assemble fragments...",
+          "now": "The Waste Land, Pound's Cantos and Williams's Paterson (issued in five books from 1946) assemble fragments...",
+          "why": "The 'published in parts from 1946' clause read as if it covered The Cantos (which began appearing in 1917 and 1925) and The Waste Land. 1946 is only Paterson Book One; its five books came 1946, 1948, 1949, 1951, 1958."
+        },
+        {
+          "where": "profile-modernism-craft, conv[2] (free indirect style)",
+          "was": "Faulkner gives different minds their own sections (The Sound and the Fury has four)",
+          "now": "Faulkner gives the Compson brothers a section each (The Sound and the Fury has four, the last in third person)",
+          "why": "The novel has four sections but only three are the minds of Benjy, Quentin and Jason; the fourth is an omniscient third-person section centred on Dilsey, so 'four minds' was inexact."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-modernism-terms, conv[0] (stream of consciousness)",
+          "was": "May Sinclair applied it to fiction in 1918, in a review of Dorothy Richardson.",
+          "now": "May Sinclair is usually credited with first applying it to fiction, in a 1918 review of Dorothy Richardson.",
+          "why": "Her April 1918 Egoist review is the standard attribution but it is a convention, and the phrase was used earlier outside fiction (Bain 1855, James 1890)."
+        },
+        {
+          "where": "profile-modernism-compare, conv[5] (Expressionism)",
+          "was": "German-language Expressionism (about 1910 to 1925)",
+          "now": "German-language Expressionism (roughly 1905 or 1910 to the mid-1920s)",
+          "why": "Scholarly dating varies: some give 1905 (Die Brucke era), others 1910; 1925 or the mid-1920s is the usual end."
+        },
+        {
+          "where": "profile-modernism-history, conv[7] (after 1945)",
+          "was": "the New Modernist Studies of the 2000s widened the field",
+          "now": "the New Modernist Studies, from about the turn of the twenty-first century, widened the field",
+          "why": "Mao and Walkowitz (PMLA 2008) date the movement from about 1999, so 'of the 2000s' was slightly too narrow."
+        },
+        {
+          "where": "profile-modernism-canon, conv[0] (precursors)",
+          "was": "Joseph Conrad (Heart of Darkness, 1899)",
+          "now": "Joseph Conrad (Heart of Darkness, serialised 1899)",
+          "why": "Blackwood's Magazine serial, Feb to Apr 1899; first book publication was 1902 in Youth. 1899 stays as the library's first-publication year, now labelled accurately."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Pound's 'direct treatment of the thing' and 'no word that does not contribute' (craft conv[4]) are given as paraphrase of the three Imagist principles printed over Flint's name in Poetry, March 1913. Search confirmed the March 1913 source but did not return the wording itself; it is a paraphrase from solid prior knowledge.",
+        "Eliot's 'escape from personality' (craft conv[4], terms conv[6]) is paraphrase of 'Tradition and the Individual Talent' (Egoist, Sept and Dec 1919). Search confirmed the essay and date and the idea, not the exact line; paraphrase only, no quotation in the file.",
+        "Objective correlative is given as 'Eliot's 1919 phrase' (Hamlet and His Problems, Athenaeum, 26 Sept 1919). Earlier uses of the words by others exist, but the file claims only Eliot's 1919 use, which holds.",
+        "Duino Elegies 1923 (Insel-Verlag) confirmed; the text does not mention the 1922 completion, so nothing depends on it.",
+        "Svevo's Confessions of Zeno (1923) confirmed as year; publisher details vary by source and are not in the file.",
+        "Items confirmed from solid knowledge without a returned search hit: Woolf's death on 28 March 1941, Mann's The Magic Mountain (1924), Kafka's posthumous novels (1925 to 1927), Hemingway's In Our Time (1925), Toomer's Cane (1923), Faulkner's The Sound and the Fury (1929), Rhys's Good Morning, Midnight (1939) and Barnes's Nightwood (1936) (the last two agree with existing library work records), Spanish-American Modernismo 'about 1880 to 1915' (agrees with library entry move-west-spanish-american-modernismo).",
+        "The 'modernist' status of Fitzgerald's The Great Gatsby and the inclusion of Hemingway are arguable classifications, not factual claims; the canon facet is marked established as a list of commonly named authors."
+      ]
+    }
+  }
+}

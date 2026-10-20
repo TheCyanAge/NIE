@@ -11,7 +11,7 @@ export default [
     summary: "The lyric takes its name from the Greek lyre; poetry sung by one voice was named and collected in ancient Greece, recast by medieval and Renaissance love poets, and made almost the default idea of a poem by the Romantics, though critics still debate how continuous the tradition is.",
     conv: [
       "The word lyric comes from the Greek lyra, the stringed instrument that accompanied early Greek song; ancient 'lyric' (also called melic poetry) was sung or chanted, by one voice or by a chorus.",
-      "The archaic Greek lyric poets wrote from about the seventh to the fifth century BCE: Archilochus in the seventh, Alcaeus and Sappho of Lesbos about 600 BCE, then Anacreon, and Pindar, whose victory odes belong mostly to the first half of the fifth century.",
+      "The archaic Greek lyric poets wrote from about the seventh to the fifth century BCE: Alcman in the later seventh, Alcaeus and Sappho of Lesbos about 600 BCE, then Anacreon, and Pindar, whose victory odes belong mostly to the first half of the fifth century.",
       "Scholars in Hellenistic Alexandria later listed nine canonical lyric poets, Sappho, Alcaeus, Anacreon and Pindar among them, which helped shape how Rome and later Europe understood what a lyric poet was.",
       "Roman poets adapted Greek models: Catullus wrote short personal poems in the first century BCE, and Horace's Odes (the first three books published about 23 BCE) became a model of the polished, reflective lyric.",
       "Lyric traditions arose independently elsewhere: the Chinese Book of Songs and later Tang poets such as Li Bai and Du Fu, Arabic and Persian poetry (the ghazal, with Hafez in the fourteenth century), and Japanese waka and, later, haiku.",
@@ -44,7 +44,7 @@ export default [
       "Sonnet and other short fixed forms: the fourteen-line sonnet in its Italian (Petrarchan) and English (Shakespearean) patterns, plus the villanelle, ghazal, haiku and tanka, each fixing a length and a pattern of rhyme or repetition.",
       "Love lyric: poems of desire, devotion, absence and betrayal, from Sappho and the troubadours to Petrarch and Neruda, found in nearly every tradition.",
       "Meditative or conversation lyric: a speaker in a particular place thinks aloud, moves from the scene to a larger thought and often returns changed, as in Coleridge's Frost at Midnight and Wordsworth's lines above Tintern Abbey (both 1798).",
-      "Aubade and serenade: small named types of the dawn parting of lovers and the evening song beneath a window, found in medieval and Renaissance Europe; Donne's The Sun Rising (printed 1633) is a famous variation on the type.",
+      "Aubade and serenade: small named types of the dawn parting of lovers and the evening song beneath a window, found in medieval and Renaissance Europe; Donne's The Sun Rising (printed 1633) is often read as a variation on the type.",
       "Lyrics defined by subject: nature lyric, devotional lyric (George Herbert's The Temple, 1633, is a well-known example), war and protest lyric, and poems of place, where the subject rather than the form gives the name.",
       "Imagist and minimal lyric: a very short poem built on one image, as in Ezra Pound's In a Station of the Metro (1913), often linked to Japanese haiku.",
       "Confessional and persona lyric: the first asks the reader to take the 'I' as the poet's own life, the second makes the speaker a character; the difference lies in what the poem asks you to believe about the speaker.",
@@ -175,7 +175,7 @@ export default [
     conv: [
       "Ancient world: Sappho, Alcaeus, Anacreon and Pindar in Greek, and Catullus and Horace in Latin; much early Greek lyric survives only in fragments.",
       "Other classical traditions: Li Bai and Du Fu in Chinese, Hafez and Rumi in Persian, and Matsuo Bashō in Japanese haiku.",
-      "Medieval to Renaissance Europe: the troubadours, Dante's Vita Nuova, Petrarch's love poems, Philip Sidney, Shakespeare's Sonnets and John Donne's love poems, printed after his death in 1633.",
+      "Medieval to Renaissance Europe: the troubadours, Dante's Vita Nuova, Petrarch's love poems, Philip Sidney, Shakespeare's Sonnets and John Donne's love poems, first collected in print in 1633, after his death.",
       "Romantic period: William Blake's songs, Wordsworth and Coleridge's Lyrical Ballads, and the odes and sonnets of Keats and Shelley, which set the English-language idea of the personal lyric.",
       "Nineteenth century: Emily Dickinson, Charles Baudelaire, Paul Verlaine, Arthur Rimbaud and Gerard Manley Hopkins, each pushing the lyric toward compression, symbol or new sound.",
       "Early twentieth century: Rilke's Duino Elegies, W. B. Yeats, Anna Akhmatova, Pablo Neruda's Veinte poemas de amor y una canción desesperada (1924) and Federico García Lorca.",

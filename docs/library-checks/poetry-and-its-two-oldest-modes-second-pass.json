@@ -1,0 +1,100 @@
+{
+  "subject": "Poetry and its two oldest modes (poetry, lyric poetry, epic poetry)",
+  "searchUsed": true,
+  "passNote": "Second independent pass. An earlier pass (report written 15:00) had already corrected Dickinson's 1890 wording in poetry.js and lyric-poetry.js, the chapbook/collection page ranges in poetry.js, the Song of Roland wording in epic-poetry.js and a comma splice in lyric-poetry.js (Epiphany). Those edits were in the files when this pass began and were re-verified, not repeated. The entries below are only what this pass changed.",
+  "method": "Read all three files in full, the README Profiles standard, and the library's own entries for poetry, genre-world-lyric-poetry and genre-world-epic-poetry (scripts/library-hub.mjs) plus every library record that states a year for the works the profiles name. About 30 web searches (encyclopedias, university and library pages, scholarly summaries) covered Enheduanna, the Shijing, Dickinson, slam poetry, Gitanjali and the Cahier, Alcman and the Alexandrian canon, Donne's Sun Rising, Wordsworth's 1800 preface, Abrams, C. S. Lewis, Horace's Odes and Sidney, Rosenthal, Mill, Ruskin, Browning and Pound, Gilgamesh, the Mahabharata and Ramayana, the Song of Roland, the Shahnameh, Parry and Lord, line counts, Tasso, Kazantzakis, Oswald, in medias res, stanza, volta and the Nibelungenlied. The shared web search budget ran out before the last checks (Pindar's dated range, the title Ars Poetica and Quintilian); the tool said not to work around the limit, so those were not searched and rest on solid general knowledge and on what earlier searches returned. WebFetch was not used.",
+  "files": {
+    "poetry.js": {
+      "claimsChecked": 72,
+      "confirmed": 71,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "profile-poetry-history, conv 4 (Greece and Rome)",
+          "was": "Virgil, Horace and Ovid writing in the decades around the turn of the era.",
+          "now": "Virgil, Horace and Ovid writing in the age of the emperor Augustus.",
+          "why": "Virgil worked from about 40 BCE and died in 19 BCE, Horace's Odes appeared about 23 BCE, and Ovid ran from the 40s BCE to about 17 CE. 'Around the turn of the era' is loose for Virgil; 'the age of Augustus' is the standard period label and is true of all three."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Enheduanna: a disk naming her as daughter of Sargon and wife of Nanna is documented, dating is about 2285 to 2250 BCE (twenty-third century), and she is called the earliest author known by name. Whether she wrote the hymns credited to her is debated (the surviving copies are about six centuries later). The text says 'traditionally described as', 'how much she composed is debated', and the watch note repeats the point, so the hedging is enough.",
+        "Book of Songs 'roughly the eleventh to seventh centuries BCE' matches the usual scholarly range (latest poem about 700 BCE); some sources say sixth century for the compilation, which the text does not claim.",
+        "Slam poetry 'from the mid-1980s' is safe (Marc Smith's open mic began in November 1984 at the Get Me High lounge; the Green Mill slam is usually dated July 1986). Sources disagree on where the first slam was held, and no 'first slam' claim is made.",
+        "Dickinson: 'her first book appeared in 1890' is right (Todd and Higginson, heavily edited). 'Almost all unpublished in her lifetime' stands (sources say fewer than a dozen of about 1,800 poems). The 1891 and 1896 volumes are not mentioned in the text.",
+        "Chapbook 'about 20 to 40 pages' and collection 'starts around 48 pages and runs to 80 or 100' are common guidance, not a standard; the record is marked varies with an asOf and the watch note tells the writer to check each venue. 'Poetry books generally sell in far smaller numbers than fiction' and the dispute over social-media poetry are qualitative, with no statistics stated.",
+        "Whitman's Leaves of Grass as 'a model for free verse' and Baudelaire's Les Fleurs du mal as 'often called a founding book of modern French poetry' are widely held interpretive statements, hedged by 'often' in the second case only.",
+        "Gitanjali '(Bengali, 1910)': confirmed (Bengali collection of 4 August 1910; the English Song Offerings is November 1912) and matches four library records. Cesaire's Notebook '(1939)': confirmed (first printed in the journal Volontes in 1939; first book form came later) and matches the library's work record.",
+        "Stanza from an Italian word for a room or stopping place: confirmed in glossary and etymology sources. Volta from the Italian word for turn: confirmed by two glossaries. Ars poetica as the Latin name from Horace's verse letter rests on general knowledge (the title Ars Poetica is a later label for the letter to the Pisones, which 'comes from' covers); the search budget ran out before this was re-checked.",
+        "Divine Comedy 'finished around 1320', Beowulf manuscript 'about 1000' and troubadours 'from about 1100' are approximations by design and match the library's own records."
+      ]
+    },
+    "lyric-poetry.js": {
+      "claimsChecked": 64,
+      "confirmed": 61,
+      "corrected": [
+        {
+          "where": "profile-lyric-poetry-history, conv 2 (archaic Greek lyric poets)",
+          "was": "Archilochus in the seventh, Alcaeus and Sappho of Lesbos about 600 BCE",
+          "now": "Alcman in the later seventh, Alcaeus and Sappho of Lesbos about 600 BCE",
+          "why": "Archilochus is not one of the Alexandrian canon of nine, whose criteria excluded elegy and iambus, and some scholars classify his verse separately. Alcman is the earliest of the nine, a Spartan choral poet active in the late seventh century BCE, so the sentence now names only poets who are lyric poets on any account. The 'seventh to the fifth century' span still holds."
+        },
+        {
+          "where": "profile-lyric-poetry-canon, conv 3 (Medieval to Renaissance Europe)",
+          "was": "John Donne's love poems, printed after his death in 1633.",
+          "now": "John Donne's love poems, first collected in print in 1633, after his death.",
+          "why": "Donne died in 1631. 'After his death in 1633' can be read as giving 1633 as the year of his death. The 1633 Poems was the posthumous first collected edition; the new wording says that and cannot be misread."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-lyric-poetry-subgenres, conv 7 (aubade and serenade)",
+          "was": "Donne's The Sun Rising (printed 1633) is a famous variation on the type.",
+          "now": "Donne's The Sun Rising (printed 1633) is often read as a variation on the type.",
+          "why": "Sources describe the poem as an anti-aubade or inversion of the dawn-parting convention (the lovers refuse the dawn), so the reading is common, but 'famous' claimed more than the sources show."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Pindar's victory odes 'mostly in the first half of the fifth century': his dated odes run from Pythian 10 (498 BCE) to about 446 BCE, which supports the phrase. Not re-searched in this pass because the search budget ran out; it rests on the earlier pass and general knowledge.",
+        "Alexandrian canon: the nine (Alcman, Sappho, Alcaeus, Anacreon, Stesichorus, Ibycus, Simonides, Bacchylides, Pindar) were confirmed, and the text names only four, all canonical. Some scholars argue the canonising began earlier, and the text makes no claim about who compiled the list or when. The clause that the canon 'helped shape' later ideas of the lyric poet is interpretive.",
+        "Horace Odes 1 to 3 'about 23 BCE' is the standard view; one scholarly chapter argues against joint first publication, which 'about' covers. Sidney's Astrophil and Stella 'published 1591' is right (posthumous first printing; Sidney died in 1586).",
+        "Wordsworth's 1800 preface: the five-word quotation was confirmed against a transcription of the second edition (title page dated 1800; some catalogues say January 1801). Mill's 'overheard' (Monthly Repository, January 1833) was confirmed.",
+        "Keats's Ode to a Nightingale 1819, Tennyson's In Memoriam 1850, Herbert's The Temple 1633 and Browning's Dramatic Lyrics 1842 (confirmed, third number of Bells and Pomegranates) are standard dates. Coleridge's Frost at Midnight and Wordsworth's Tintern Abbey are both 1798 as publication years; the month of the Fears in Solitude pamphlet is not settled and the text gives only the year.",
+        "Pound's In a Station of the Metro (Poetry, April 1913) 'often linked to Japanese haiku': sources say it is sometimes called the first haiku in English yet does not follow the form; the text claims only the link.",
+        "Confessional poetry 'a label from a 1959 review of Robert Lowell's Life Studies': right (M. L. Rosenthal, The Nation, 19 September 1959). It simplifies, since the adjective first appears in a passage about Whitman, and some poets disliked the label.",
+        "Gluck's Nobel Prize in Literature (2020) and Neruda's Veinte poemas (1924) are standard; Hopkins is grouped with nineteenth-century lyric poets by when he wrote, although he was published only in 1918. The text makes no claim about publication.",
+        "Ruskin's pathetic fallacy (Modern Painters III, 1856): confirmed, with one reference article giving 1854 in error. Abrams's 'Structure and Style in the Greater Romantic Lyric' (1965) lists Tintern Abbey and Frost at Midnight among its examples: confirmed. Epiphany from Greek epiphaneia is not stated beyond the religious sense and was not searched.",
+        "The closing history point about the debate over one continuous lyric tradition is a summary of a real dispute, marked contested, and names no scholar."
+      ]
+    },
+    "epic-poetry.js": {
+      "claimsChecked": 95,
+      "confirmed": 95,
+      "corrected": [],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Gilgamesh: Sumerian poems of about 2100 BCE (Ur III) and Old Babylonian tablets of about the eighteenth century BCE are confirmed; the standard version linked to Sin-leqi-unninni is deliberately undated (sources range from the thirteenth to the tenth century BCE).",
+        "Mahabharata 'between about 400 BCE and 400 CE' is a wide, widely cited window (Winternitz); an older authority favoured 300 to 100 BCE. Ramayana dates are disputed and the text says so; Valmiki and Vyasa are given as traditional attributions.",
+        "Iliad and Odyssey 'about the eighth century BCE, the Odyssey perhaps a little later' is the common view; some scholars say early seventh century. Not re-searched this pass.",
+        "Song of Roland 'composed about 1100, date debated': estimates run from about 1040 to 1115, with some proposals from 1095 to as late as 1150; the Oxford manuscript is twelfth century. Nibelungenlied 'about 1200': an edition note says around 1200 and not certain; no scholarly source was returned. Shahnameh 'completed about 1010': confirmed.",
+        "Lucan's Civil War 'first century CE' and Apollonius's Argonautica 'third century BCE' are standard dates from general knowledge; Aeneid 'left unfinished at his death in 19 BCE' is standard.",
+        "Gerusalemme liberata '1581': the first complete printings and the first Tasso-authorised edition are 1581; an unauthorised, incomplete edition appeared in 1580, so 1581 is the usual date but not the first printing of any part. The Faerie Queene (1590 and 1596), Orlando Furioso (1516), Os Lusiadas (1572), Rape of the Lock (first version 1712), The Prelude (1850), Venus and Adonis (1593), Eugene Onegin (1833 first complete edition) and the Kalevala (1835, enlarged 1849) are standard and agree with the library's own records.",
+        "Parry recorded singers in what was then Yugoslavia in 1933 and 1934 to 1935; Lord is described as his student and assistant (sources say assistant on the second trip, former Harvard student); The Singer of Tales is 1960. 'Refined and disputed since' is accurate.",
+        "Line counts (Iliad 15,693, Odyssey 12,110 or 12,109, Aeneid 9,896) were confirmed and are given as approximate with a watch note. 'More than 10,000' for Paradise Lost holds on every count (about 10,565); no source was returned for that exact figure in this pass.",
+        "Kazantzakis's The Odyssey: A Modern Sequel (Greek, 1938) confirmed. Oswald's Memorial (2011) confirmed as a version of the Iliad built around its dead. The translators named are standard.",
+        "C. S. Lewis's 'primary epic' (Homer, Beowulf) and 'secondary epic' (Virgil, Milton) in A Preface to Paradise Lost (1942): confirmed from the book's published chapter structure and summaries, not the text; the watch note says such terms belong to particular critics. In medias res from Horace's verse letter: confirmed (about lines 147 to 149). Nostos as a root of 'nostalgia' (nostos plus algos): confirmed.",
+        "Works list: the Odyssey is given as 'c. 700 BCE', which matches the majority of the library's own records, while one library work record (work-anc-odyssey) says 'c. 725 BCE'. Both sit inside the text's 'about the eighth century BCE, the Odyssey perhaps a little later'. The lint accepts it, but the library holds two Odyssey years.",
+        "Interpretive statements: 'new epic poems are uncommon', the remark that epic-scale story is now found in epic fantasy, historical fiction and screen drama, 'many find the Iliad questions glory through its grief', and ring composition 'may have helped oral singers keep their place' (hedged, unsourced). Venus and Adonis as an epyllion is a common but not universal label."
+      ]
+    }
+  },
+  "lint": {
+    "command": "node scripts/library-profile-check.mjs --staging <file>",
+    "result": "OK for poetry.js, lyric-poetry.js and epic-poetry.js (9 records each, lint clean, every facet found), run against a scratch copy of the library.",
+    "note": "Run against the real repository, the check reports 18 lint problems per file, every one a 'duplicate id' or 'duplicate profile' against library/profiles/poetry.js, lyric-poetry.js and epic-poetry.js. Those three files are already installed and were byte-identical to staging before this pass. The scratch copy (a copy of apps/web/src/engine and scripts with those three profile files and their index lines removed, kept in the scratchpad lintcopy folder) is the only way to get the OK without touching the repository. No repository file was changed."
+  },
+  "installNote": "The staging files now differ from the installed library/profiles copies by exactly four conv strings: poetry-history conv 4, lyric-poetry-history conv 2, lyric-poetry-subgenres conv 7 and lyric-poetry-canon conv 3. The installed copies need re-copying from staging, and the library index needs no change because ids and file names are unchanged.",
+  "consistency": "Works records and years in the three files match the library entries for poetry, genre-world-lyric-poetry and genre-world-epic-poetry (Iliad c. 750 BCE, Aeneid c. 19 BCE, Paradise Lost 1667, Omeros 1990, Sappho c. 600 BCE, Horace c. 23 BCE, Duino Elegies 1923, Ariel 1965, Lyrical Ballads 1798) and with the other library records for Gitanjali 1910, Cahier d'un retour au pays natal 1939, Kalevala 1835, Beowulf c. 1000 CE and the Odyssey (majority c. 700 BCE). No sample prose or pasteable lines were found; the only quotations are the five-word Wordsworth phrase and the single word 'overheard'. No URLs, no exclamation marks, no section or page numbers."
+}

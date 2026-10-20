@@ -103,6 +103,60 @@ The checkers could not fetch Wikipedia (DNS failure) and worked from search summ
 - M. H. Abrams's 1965 date was not confirmed, but no file states it. 'Conversation poems' as a critical label was coined later by Harper (1928) from Coleridge's subtitle, which the file says.
 - Judgement calls kept with hedges: Byron's Manfred and Shelley's Prometheus Unbound as closet drama, Peter Schlemihl under doubles, Strindberg and Brecht under modernist drama, Poetic Realism and naturalism as offshoots of realism.
 
-## Held back
+## Second pass on the first four batches
 
-`modernism.js` (Romanticism, realism and modernism batch): its checker ran out of web-search budget and searched nothing in this file, so it is not installed until it has been checked again.
+A restarted run checked the first four batches a second time with a fresh checker (an unplanned repeat, but a useful second opinion). The installed text includes the second pass's edits: it changed about 50 more lines (insertions and deletions counted) across 11 of the 12 files, all of them corrections or softenings (for example "from 1937" became "from the late 1930s", Archilochus was replaced by Alcman in a list, "mock-insult" became "put-down", a note was added that The Peter Rabbit text was privately printed in 1901). The first pass's reports are the files without a suffix; the second pass's are `*-second-pass.json`.
+
+| Batch | Claims checked | Corrected | Softened | Removed |
+| --- | --- | --- | --- | --- |
+| The three biggest fiction genres | 246 | 3 | 5 | 0 |
+| Mystery, thriller and horror | 220 | 4 | 3 | 0 |
+| Children's literature, picture books and young adult | 236 | 1 | 7 | 0 |
+| Poetry and its two oldest modes | 231 | 2 | 2 | 0 |
+
+What the second-pass checkers could not confirm:
+
+### The three biggest fiction genres (second pass)
+
+- Lint caveat: in the repo, `library-profile-check.mjs --staging` reports 18 duplicate-id/name problems per file. Byte-identical copies of fantasy.js, science-fiction.js and romance.js are already installed in library/profiles/, and I did not touch them. In a scratch copy with those three removed, all three files print OK (9 records each, every facet found). The repo is untouched (git status clean).
+- The first checker's report at this path was replaced. Its corrections were already in the text and I re-verified them.
+- Not returned by search, held on solid knowledge and library agreement: Mistborn 2006, Who Fears Death 2010, The Grace of Kings 2015, Pamela 1740, Rebecca 1938, The Sheik 1919, Solaris 1961, Dune 1965, Dhalgren 1975, Kindred 1979, Snow Crash and A Fire Upon the Deep 1992, Parable of the Sower 1993, Stories of Your Life and Others 2002, Ancillary Justice 2013, Dangerous Visions 1967, The Kiss Quotient 2018, Red, White & Royal Blue 2019.
+- The earlier-use claim that sword and sorcery appeared in a 1953 headline could not be found in any source. The text does not state it, and 'proposing in 1961' is confirmed (Ancalagon, April 1961).
+- Persuasion is dated 1817 to match the library (the first-edition title page says 1818). Campbell's start at Astounding is dated differently by different sources, so the text now says 'late 1930s'. Harlequin's takeover of Mills & Boon is 1971 or 1972, so the text says 'early 1970s'.
+- Critical judgements left hedged: Morris as early fantasy in an entirely invented world, Rendezvous with Rama as hard SF, Left Hand of Darkness as soft SF, Starship Troopers as military SF. Market statements (word counts, shelving, series) are marked varies with asOf 2025.
+
+### Mystery, thriller and horror (second pass)
+
+- Lint: node scripts/library-profile-check.mjs --staging run inside the repo reports only 'duplicate id / duplicate profile' because byte-identical pre-edit copies of all three files are already installed in apps/web/src/engine/knowledge/library/profiles. I did not touch them. I ran the check from a scratch copy with those three installed files removed, and it printed OK for mystery.js, thriller.js and horror.js (9 records each, lint clean, every facet found). The installed copies are now stale and need re-installing from staging.
+- Several well-known dates were not returned by any search and rest on solid knowledge plus agreement with the library's own work records: Eco 1980, Magpie Murders 2016, Polidori 1819, Nosferatu 1922, Universal's Dracula and Frankenstein 1931, Psycho (film) 1960, Hill House 1959, Rosemary's Baby 1967, The Exorcist 1971, Carrie 1974, The Shining 1977, Conrad 1907, Fleming 1953, Deighton 1962, le Carre 1963, Forsyth 1971, Clancy 1984, Turow 1987, Harris 1988, Grisham 1991.
+- Not sourced and kept hedged: the 'narration may leave things out but not state falsehoods' craft standard (mystery); 'amateurs, not professional agents' for Ambler and Household (thriller); the Hitchcock suspense-versus-surprise credit ('popularly credited') and the MacGuffin ('popularised by', no coiner named); the shop use of 'suspense', 'high concept', 'page-turner' and 'tradecraft'.
+- Contested or inexact sources, text kept hedged or limited to the safe claim: Gaboriau (serial 1865, book 1866, text says only 1866); The Honjin Murders (1946, serial-versus-book split unconfirmed); Radcliffe's essay (1826, with older related distinctions); Machen's The Great God Pan (now 'book, 1894'; the first chapter ran in 1890); the Detection Club (founded 1930, constitution 1932).
+
+### Children's literature, picture books and young adult (second pass)
+
+- The lint result is not from the stock command in the real tree. These three profiles are already installed in apps/web/src/engine/knowledge/library/profiles/ (identical to staging before my edits), so `library-profile-check.mjs --staging` there reports only 18 duplicate id/name problems per file and nothing else. I ran it on a scratch copy of the tooling with the installed copies removed, and all three print OK.
+- The installed copies were not touched, as instructed. They now differ from staging by 8 small edits and must be re-copied if the fixes should ship.
+- The per-turn web search budget ran out after about 35 searches in this pass. Not re-searched: Margaret A. Edwards Award 1988, Newbery Medal 1922, Edmund Evans toy books, the Snowy Day Caldecott win of 1963, the Macmillan children's department of 1919, and BookTok. These rest on solid prior knowledge and the earlier checker's report.
+- Charlie and the Chocolate Factory: the US first edition (Knopf, January 1964) is confirmed. The UK date is genuinely disputed (booksellers say 1967, one encyclopedia infobox says late 1964), so the files only say Britain came later and give no UK year.
+- Still resting on hedged critical judgements rather than checkable facts: Alice as a turning point, Newbery and Orbis Pictus as origin markers, Caldecott as the start of the modern picture book, Seventeenth Summer and The Outsiders as first YA novel, and Harry Potter widening the audience.
+- Not searched: 'tablets from about 2010 brought picture-book apps' and 'present tense has become common in recent decades'. Both are deliberately loose.
+- Struwwelpeter: sources disagree on when it took that title (1847 or 1858), so the text says only that 1845 was under another title. Babar: the first English edition is dated 1933 or 1934 by different sources, so no English year is given.
+
+### Poetry and its two oldest modes (second pass)
+
+- INSTALL: poetry.js, lyric-poetry.js and epic-poetry.js were already installed in library/profiles/ (byte-identical to staging before this pass). Staging now differs by four conv strings (poetry-history conv 4; lyric-poetry-history conv 2, lyric-poetry-subgenres conv 7, lyric-poetry-canon conv 3), so the installed copies must be re-copied from staging.
+- LINT: node scripts/library-profile-check.mjs --staging reports only 'duplicate id/profile' errors (18 per file) against the installed copies. It prints OK for all three files when run against a scratch copy of the library with those three installed files removed. No repository file was touched.
+- SEARCH BUDGET: the shared web-search limit ran out before Pindar's dated range, the title Ars Poetica (Quintilian) and a few similar checks. These rest on earlier results and solid general knowledge, not on a fresh search.
+- Nibelungenlied 'about 1200' got only an edition note (around 1200, not certain), not a scholarly source. Lucan 'first century CE', Argonautica 'third century BCE' and the Iliad/Odyssey 'eighth century BCE' are from general knowledge.
+- The library holds two Odyssey years (work-anc-odyssey says c. 725 BCE; the majority of other records, and the profile, say c. 700 BCE). Both fit the profile text, and the lint accepts it.
+- Interpretive claims remain, hedged where the text hedges: the Alexandrian canon 'helped shape' later ideas of the lyric poet, Whitman as 'a model for free verse', Baudelaire as 'often called a founding book', the social-media poetry dispute, 'new epic poems are uncommon', ring composition 'may have helped oral singers keep their place'.
+- Enheduanna: hedging is sufficient. The text says 'traditionally described as' and 'how much she composed is debated', and the watch note repeats it.
+
+## Modernism
+
+Held back after its first check (which searched nothing); checked again on its own: 112 claims, 3 corrected, 4 softened, 0 removed, web search used.
+
+- Pound's Imagist principles (direct treatment of the thing, no unneeded word) are kept as paraphrase of the March 1913 Poetry statement; search confirmed the source but did not return the wording.
+- Eliot's 'escape from personality' is kept as paraphrase of 'Tradition and the Individual Talent' (1919); the essay and date are confirmed, the exact line was not returned by search.
+- WebFetch could not resolve hosts, so verification used WebSearch summaries (mostly encyclopedia, library and dealer pages) plus prior knowledge. Woolf's death date, Mann 1924, the Kafka posthumous novels, In Our Time 1925, Cane 1923 and Faulkner 1929 were confirmed from knowledge, not from a returned search hit.
+- The inclusion of Fitzgerald's The Great Gatsby and Hemingway in the modernist canon is a classification that critics argue over, not a factual claim.

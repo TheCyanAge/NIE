@@ -12,7 +12,7 @@ export default [
     conv: [
       "Illustrated books for children go back at least to Comenius's Orbis Pictus (1658), a picture-led schoolbook; the picture book as a form of storytelling is usually traced to the nineteenth century.",
       "From the 1860s the printer Edmund Evans made affordable colour toy books with artists such as Walter Crane, Randolph Caldecott and Kate Greenaway; Caldecott's books, from 1878, are often called the start of the modern picture book because his pictures add to and play against the words.",
-      "Beatrix Potter's The Tale of Peter Rabbit (1902) paired a short text with pictures throughout, in a small format made for small hands.",
+      "Beatrix Potter's The Tale of Peter Rabbit (1902, after a private printing in 1901) paired a short text with pictures throughout, in a small format made for small hands.",
       "From the 1920s to the 1940s the form became a staple: Wanda Gág's Millions of Cats (1928), Jean de Brunhoff's Histoire de Babar (1931), Ludwig Bemelmans's Madeline (1939), Robert McCloskey's Make Way for Ducklings (1941) and Virginia Lee Burton's The Little House (1942).",
       "The Caldecott Medal for American picture-book illustration was first awarded in 1938, and cheap lines such as Little Golden Books (launched in 1942) took picture books to a mass market.",
       "From the late 1940s to the 1960s the range and the art widened: Margaret Wise Brown's Goodnight Moon (1947), Crockett Johnson's Harold and the Purple Crayon (1955), Ezra Jack Keats's The Snowy Day (1962), Sendak's Where the Wild Things Are (1963) and Eric Carle's The Very Hungry Caterpillar (1969).",
@@ -186,6 +186,7 @@ export default [
     watch: [
       "Landmark lists favour English-language and mainly American and British books; picture books from other languages and traditions are less often translated and listed.",
       "Prizes and canons change; some classics have been criticised for the way they depict race or gender and are read today with that context.",
+      "Years follow first publication, which can differ by country: Lost and Found (Britain, 2005) and The Arrival (Australia, 2006) reached the United States later, and Histoire de Babar (1931) is the French original, published in English as The Story of Babar.",
     ],
     intent: ["A writer need not own every landmark, but reading widely across eras shows what a book can do with a page turn and what editors have already seen."],
     q: ["Which two or three picture books would an editor compare mine to, and what does mine do that they do not?"],

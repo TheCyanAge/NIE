@@ -1,0 +1,121 @@
+{
+  "searchUsed": true,
+  "method": "Independent second pass. WebSearch (standard and extended) for every flagged item and for every first/coined/earliest/named-after claim and every work/author/year; WebFetch to Wikipedia failed (host not resolvable), so only search summaries were used. Claims that no search result covered (listed under remainingDoubts as 'knowledge only') were judged from solid knowledge and cross-checked against the library's own work, genre and market records (grep and library-hub). One claim = one date, one title-with-author-and-year, one first/coined/named-after statement, one number, or one term-origin statement; counts are approximate.",
+  "lintNote": "The three staging files were already installed in library/profiles as byte-identical copies of the pre-edit staging files, so 'node scripts/library-profile-check.mjs --staging' run in the repo reports only 'duplicate id / duplicate profile' against profiles/*.js. To get a real result without touching any library file, the check was run from a scratch copy of the knowledge folder and scripts (in the scratchpad) with the three installed profile files and their index lines removed: it printed OK for all three staging files after the edits (9 records each, lint clean, every facet found). The installed copies in library/profiles are now stale relative to staging and must be re-installed from staging (the index does not need regenerating: no file was added or removed).",
+  "files": {
+    "mystery.js": {
+      "claimsChecked": 76,
+      "confirmed": 74,
+      "corrected": [
+        {
+          "where": "craft / conv, first point (Todorov)",
+          "was": "The critic Tzvetan Todorov described detective fiction as these two stories, the crime and the investigation.",
+          "now": "The critic Tzvetan Todorov described the classic whodunit as these two stories, the crime and the investigation.",
+          "why": "In 'The Typology of Detective Fiction' (1966) Todorov says the classic whodunit has two stories, the crime and the investigation, and contrasts it with the thriller, which he treats as a single story that fuses or suppresses one of them. 'Detective fiction' as a whole overstated his claim."
+        },
+        {
+          "where": "terms / conv, Denouement or reveal",
+          "was": "...the drawing-room scene when the suspects are gathered.",
+          "now": "...when the suspects are gathered for it, it is often called the drawing-room denouement.",
+          "why": "'Drawing-room scene' is not an attested term. 'Drawing-room denouement' (and 'summation gathering' in fan usage) is the name the trope goes by; the new wording says 'often called' and makes no claim of origin."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Flagged item, Gaboriau's L'Affaire Lerouge: searches support serialisation in Le Pays in 1865 and book publication in 1866 (one source gives the serial as 1866, another names a different paper); nothing supported 1863. The text says only 1866, which is the book date and agrees with the library. Kept. Marked 'early French detective novel', not 'first'.",
+        "Flagged item, Zadig: searches confirm first printing as Memnon in 1747 and as Zadig in 1748 (Chapter 3 is titled for the dog and the horse); the text's '1740s' is correct. The detail of the tracks scene was not read in the search results but is standard (Zadig describes the queen's dog and the king's horse from tracks). Kept.",
+        "Flagged item, Hoffmann: Das Fräulein von Scuderi, 1819 (in the yearbook for 1820), set in Paris under Louis XIV, with Mlle de Scudéri, a poet, working to clear Olivier Brusson, is confirmed. Sources disagree on whether it is an early detective story; the text says it is not one 'in the later sense'. Kept.",
+        "Flagged item, Styles: search confirms US first publication (John Lane) in October 1920 and UK publication (Bodley Head) on 21 January 1921. The text gives 1920, which is the first-publication year and agrees with the library's work record. Kept.",
+        "Flagged item, Van Dine, Knox, Detection Club: Van Dine's rules are confirmed for the American Magazine, September 1928; Knox's decalogue is confirmed as 1929 (28 February 1929 per one source); the Detection Club is founded 1930, with the constitution adopted in 1932 (the text says only 'began in 1930'). Kept.",
+        "Flagged item, Hammett: Red Harvest ran in Black Mask from November 1927 to February 1928 and appeared as a Knopf book in 1929; The Maltese Falcon ran in Black Mask from September 1929 to January 1930 and appeared as a Knopf book in 1930. The text gives book years and does not claim first publication. 'Black Mask helped shape the hardboiled school' is supported by encyclopedia accounts. Kept.",
+        "Flagged item, Honjin Murders: a source gives first publication in 1946; the serial/book split (serial from 1946, book 1947) was not independently confirmed, and the 1946 year agrees with the library. The Decagon House Murders, 1987, is confirmed (Ayatsuji's debut, credited with heralding shin honkaku). Kept.",
+        "Flagged item, Roseanna: confirmed as the first of ten Martin Beck novels (1965); 'a series seen as foundational' is the softened critical claim and is supported by critical accounts. Kept.",
+        "Flagged item, Muller, Paretsky, Grafton: Edwin of the Iron Shoes 1977 (Muller), Indemnity Only 1982 (Paretsky), A is for Alibi 1982 (Grafton) all confirmed. The text names no 'first' claim, so it stays accurate. Kept.",
+        "Flagged item, The Moonstone and Bleak House: T. S. Eliot's praise of The Moonstone as the first (and best) of modern English detective novels is widely quoted, and the text hedges with 'often called'. Bleak House: serial 1852 to 1853, book 1853, with Inspector Bucket, widely described as one of the first police detectives in English fiction; the text makes no 'first' claim for him. Kept.",
+        "Flagged item, The Hollow Man, Cover Her Face, A Morbid Taste for Bones, Cop Hater: all four confirmed (Hollow Man is the UK title of The Three Coffins, 1935; James 1962; Peters 1977 first Cadfael; McBain 1956 first 87th Precinct).",
+        "Flagged item, craft: Todorov point now corrected. 'A common standard that narration may leave things out but not state falsehoods' is a general craft statement and is not sourced (the Ackroyd fair-play debate is the usual illustration); it is hedged as 'common'. Kept.",
+        "Flagged item, readers: 65,000 to 90,000 words matches the library's 'Mystery and crime novel length' entry (cozies lower, procedurals 80,000 to 100,000 there, 'often longer' here). Shelving statements are general practice, marked 'varies'.",
+        "Flagged item, refs: Julian Symons's Bloody Murder (Faber, 1972; revised editions 1985, 1992, 1994) and The Cambridge Companion to Crime Fiction (ed. Martin Priestman, Cambridge University Press, 2003) both confirmed to exist.",
+        "Flagged item, terms: 'drawing-room scene' corrected (above). 'Howcatchem' is a recognised label for the inverted mystery (associated with Columbo); sources disagree on who first used it, and the text claims no origin. 'Watson figure' is common usage (the sidekick as the reader's stand-in), confirmed in the sense used.",
+        "Knowledge only, not found in search results (all library-consistent): Eco's Il nome della rosa 1980, Horowitz's Magpie Murders 2016, Poe's Marie Rogêt (1842 to 1843) and Purloined Letter (1844), Christie's Roger Ackroyd 1926, Orient Express 1934, And Then There Were None 1939, Chandler's The Big Sleep 1939, Hound of the Baskervilles 1902. Confirmed by search: Tey 1951, Sayers 1935, French 2007, Osman 2020 and Doyle (A Study in Scarlet, November 1887; the Strand series from July 1891)."
+      ]
+    },
+    "thriller.js": {
+      "claimsChecked": 66,
+      "confirmed": 65,
+      "corrected": [
+        {
+          "where": "canon / conv, 'Between the wars' point (Greene)",
+          "was": "Between the wars: Eric Ambler's The Mask of Dimitrios (1939) and Geoffrey Household's Rogue Male (1939), and Graham Greene's novels that he labelled entertainments.",
+          "now": "Between the wars: Eric Ambler's The Mask of Dimitrios (1939) and Geoffrey Household's Rogue Male (1939), and, from the 1930s on, Graham Greene's novels that he labelled entertainments.",
+          "why": "Greene's entertainments run from Stamboul Train (1932) through The Ministry of Fear (1943) and The Third Man (1949) and later, so placing them wholly 'between the wars' was wrong; 'from the 1930s on' is true. No titles or label end-date are claimed."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Flagged item, 'roots' framing: Gothic, sensation fiction and adventure romance as roots is a critical framing and is stated as such ('Roots are argued over'); the whole history facet is correctly 'contested'.",
+        "Flagged item, The Woman in White: serialised in All the Year Round from late November 1859 (sources give 26 or 29 November; one gives 25 November) to 25 August 1860, so 'serialised 1859 to 1860' is accurate. Battle of Dorking (Blackwood's Magazine, May 1871) and Riddle of the Sands (Smith, Elder, May 1903) both confirmed.",
+        "Flagged item, Buchan 'shocker': confirmed as Buchan's own word for this kind of tale (in his dedication to Thomas Arthur Nelson and in a letter to his publisher). Paraphrased, not quoted. The Thirty-Nine Steps is 1915 (Blackwood's serial in summer 1915, then book); sources differ on the first serial month, which the text does not state.",
+        "Flagged item, Ambler and Household: both 1939 (The Mask of Dimitrios, US title A Coffin for Dimitrios; Rogue Male). Latimer in Dimitrios is a crime writer on holiday dragged into political intrigue. 'Amateurs, not professional agents' is a fair characterisation of both and is not sourced to a critic. Rogue Male's details were not returned by search (knowledge only).",
+        "Flagged item, Greene: corrected above. Britannica confirms Stamboul Train as the first of the 'entertainments' and The Third Man as the fifth; the text names none by title.",
+        "Flagged item, Parallax View and Three Days of the Condor: 1974 and 1975, both written by the same screenwriter, and widely discussed as post-Watergate paranoia films; the 'distrust of institutions' framing is standard commentary. The softened claim that The Day of the Jackal 'showed that documentary-style detail could carry a bestseller' is interpretive and kept hedged.",
+        "Flagged item, dates: Bulldog Drummond (book 1920, after a magazine serial from September 1919), Eye of the Needle 1978 (UK title Storm Island), Strangers on a Train 1950, The Talented Mr. Ripley 1955, Tinker Tailor Soldier Spy 1974, The Girl on the Train (January 2015), Slow Horses 2010 and The Bourne Identity 1980 all confirmed by search.",
+        "Flagged item, Larsson: The Girl with the Dragon Tattoo is 2005 only as the Swedish original (Män som hatar kvinnor); the English edition is 2008. This follows the library's rule that the year is the original's, and agrees with the library's thriller entry. 'Helped carry Scandinavian crime to a worldwide audience' is hedged (Mankell's Faceless Killers, 1991, came earlier).",
+        "Flagged item, Hitchcock: the suspense-versus-surprise distinction is 'popularly credited' to him from the Truffaut interviews; film scholars note he was explaining the idea in the 1930s and that its origin is not documented, so the hedge is correct. The MacGuffin is 'popularised by' Hitchcock; Angus MacPhail is the commonly credited coiner but the evidence is thin, and the text names no coiner. Both kept.",
+        "Flagged item, Day of the Jackal as an example of suspense with a known outcome: rests on de Gaulle surviving the real attempts (he died in 1970); the craft judgement is interpretive and kept.",
+        "Flagged item, readers: 80,000 to 100,000 words matches the library's 'Thriller and suspense novel length' entry (psychological suspense 70,000 to 90,000 there, 'somewhat shorter' here). The shop use of 'suspense' is general trade practice, marked 'varies'.",
+        "Flagged item, terms: 'high concept', 'page-turner' and 'tradecraft' are described from general usage and not checked against a source (knowledge only); the wording is hedged ('used in publishing and film', 'some shops').",
+        "Knowledge only, not found in search results (library-consistent): Conrad's The Secret Agent 1907, Fleming's Casino Royale 1953, Deighton's The Ipcress File 1962, le Carré's The Spy Who Came in from the Cold 1963, The Day of the Jackal 1971, Clancy 1984, Turow 1987, Harris 1988, Grisham 1991, Dan Brown 2003, Flynn 2012, Hitchcock's The 39 Steps 1935 and North by Northwest 1959. The Cambridge Companion to Crime Fiction contains chapters on the thriller and spy fiction, which supports its use as a reference here."
+      ]
+    },
+    "horror.js": {
+      "claimsChecked": 78,
+      "confirmed": 74,
+      "corrected": [
+        {
+          "where": "history / conv, Radcliffe point",
+          "was": "...terror, which expands the soul and sharpens the faculties, against horror, which contracts and freezes them...",
+          "now": "...terror, which expands the soul and awakens the faculties, against horror, which contracts and freezes them...",
+          "why": "Radcliffe's essay says terror expands the soul and awakens the faculties to a high degree of life, while horror contracts, freezes and nearly annihilates them; 'sharpens' shifted the sense. The date (1826, New Monthly Magazine, posthumous) is confirmed. Kept as a paraphrase."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history and canon / conv, Machen (two places)",
+          "was": "Machen's The Great God Pan (1894)",
+          "now": "Machen's The Great God Pan (book, 1894)",
+          "why": "Search found that the opening chapter appeared in the paper The Whirlwind in 1890 and that the complete novella was published as a book in 1894 (Keynotes Series, John Lane). 1894 is true only as the book date, so the text now says so. The library's own record uses 1894."
+        },
+        {
+          "where": "history / watch, 1990s contraction",
+          "was": "...a contraction of horror publishing in the early to mid 1990s, when the label became hard to sell and some books were shelved or sold under other labels; accounts differ on timing and causes.",
+          "now": "...a contraction of horror publishing in the early to mid 1990s, when publishers cut back, some imprints closed and some books were shelved or sold under other labels; accounts differ on timing and causes.",
+          "why": "Sources support publishers cutting back, imprints folding and books being shelved in other sections, but 'the label became hard to sell' was an inference no source stated in those terms."
+        },
+        {
+          "where": "compare / conv, horror versus weird fiction",
+          "was": "...and may not frighten at all; cosmic horror is the part of weird fiction that does.",
+          "now": "...and may not frighten at all; cosmic horror is where the two overlap.",
+          "why": "'The part of weird fiction that frightens' is an interpretive boundary claim (weird fiction also includes plainly frightening tales that are not cosmic). 'Overlap' is defensible and matches how the compare facet treats dark fantasy."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Flagged item, Radcliffe: the essay is from 1826 (New Monthly Magazine, intended for the prologue of Gaston de Blondeville and published after her death in 1823). One source says she composed her theory of terror and horror as early as 1802 to 1803, and related distinctions are older, so both the history and the terms facets keep the hedge 'often traced to'.",
+        "Flagged item, The Great God Pan: now 'book, 1894' (see softened). The Whirlwind first-chapter date of 1890 comes from one search summary and is not written into the text.",
+        "Flagged item, dates confirmed by search this pass: Ring 1991, Uzumaki serialised in Big Comic Spirits 1998 to 1999 (text says 1998, the start; the library has 1998), The Only Good Indians (July 2020), Mexican Gothic (30 June 2020), Dark Entries 1964, The Woman in Black 1983, Ghost Story 1979, Books of Blood 1984 (the volumes 1 to 3 Sphere paperbacks; volumes 4 to 6 in 1985), Interview with the Vampire 1976, 'Salem's Lot 1975, I Am Legend (Gold Medal, 1954), Psycho (Simon and Schuster, 1959), Who Goes There? (Astounding, August 1938), Carmilla (serialised in The Dark Blue, December 1871 to March 1872; book 1872), Weird Tales (first issue dated March 1923), The Castle of Otranto (24 December 1764, title page 1765; the text and library use 1764), The Monk 1796, The Fall of the House of Usher (September 1839) and The Tell-Tale Heart (January 1843).",
+        "Flagged item, King and Carroll: King's three levels in Danse Macabre (1981), terror, horror and the gross-out, with terror called the finest, confirmed (one source says 'revulsion' for the third; the text uses the gross-out). Carroll's 'complex discovery plot' (onset, discovery, confirmation, confrontation) confirmed in The Philosophy of Horror (1990); the structure sentence before it is not attributed to him.",
+        "Flagged item, Clover and Freud: Clover coined 'final girl' in 'Her Body, Himself' (Representations, 1987) and developed it in Men, Women, and Chain Saws (1992); the text gives no year. Freud's essay 'The Uncanny' is 1919 and followed Jentsch's 1906 study, so 'given wide currency by' Freud is correct.",
+        "Flagged item, splatterpunk: the term was coined by David J. Schow in 1986 and tied to a 1980s movement of explicit horror (Barker is linked by Schow's own account); the text says '1980s splatterpunk movement', not a coinage. Found-footage, analog horror and eco-horror are described from general usage and match the library's own genre entries.",
+        "Flagged item, readers: 70,000 to 90,000 words follows the library's summary for horror length; the library's conv point on the same entry says 65,000 to 90,000. Shelving claims are marked 'varies'.",
+        "Flagged item, compare and canon: 'Frankenstein and Who Goes There? as science-fiction horror' and 'dark fantasy as the overlap' are interpretive and match the library's science-fiction horror and weird-fiction entries (not separately searched). Lovecraft's Supernatural Horror in Literature is named with no year, which is safe.",
+        "Flagged item, refs: Danse Macabre (King, 1981) and The Philosophy of Horror (Carroll, 1990) confirmed; The Cambridge Companion to Gothic Fiction (ed. Jerrold Hogle, Cambridge University Press, 2002) confirmed to exist.",
+        "Knowledge only, not found in search results (all library-consistent): Polidori's The Vampyre 1819, Le Fanu/Stevenson/Stoker/James dates (1886, 1897, 1898), M. R. James 1904, Blackwood's The Willows 1907, Nosferatu 1922, Universal's Dracula and Frankenstein 1931, Psycho (film) 1960, Hill House 1959, Rosemary's Baby 1967, The Exorcist 1971, Carrie 1974, The Shining 1977. 'Elevated horror' is deliberately undated, given no originator and marked contested."
+      ]
+    }
+  },
+  "titlesInRefs": "Bloody Murder: From the Detective Story to the Crime Novel (Julian Symons, Faber, 1972), The Cambridge Companion to Crime Fiction (ed. Martin Priestman, CUP, 2003), The Cambridge Companion to Gothic Fiction (ed. Jerrold Hogle, CUP, 2002), Danse Macabre (Stephen King, 1981) and The Philosophy of Horror (Noel Carroll, 1990) were all confirmed to exist by search. Refs are titles only.",
+  "otherChecks": "No sample prose or pasteable line in any facet (the only quoted strings are the Radcliffe essay title). Facets mean what the README says for a genre. kw are phrases a writer would really type. No quotes over 14 words, no URLs, no section or page numbers, no exclamation marks. Nothing contradicts the library's mystery, thriller and horror entries, the mystery and thriller and horror length market entries, or the library's work records (checked with library-hub and grep of work years). Only the three staging files and this report were changed; git status is clean. See lintNote for how the profile check was run."
+}

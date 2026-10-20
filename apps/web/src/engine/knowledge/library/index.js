@@ -34,6 +34,7 @@ export const LIBRARY_FILES = [
   () => import('./profiles/literary-fiction.js'),
   () => import('./profiles/lyric-poetry.js'),
   () => import('./profiles/memoir.js'),
+  () => import('./profiles/modernism.js'),
   () => import('./profiles/mystery.js'),
   () => import('./profiles/picture-book.js'),
   () => import('./profiles/poetry.js'),

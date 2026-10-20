@@ -124,7 +124,7 @@ export default [
     name: 'Mystery: how it is built (structure, voice, setting)',
     summary: "A mystery is built as two stories: the crime as it really happened, which the writer knows completely, and the investigation, which reveals it in a controlled order. The craft is managing what the reader is told, and when.",
     conv: [
-      "Begin from the solution: decide who did it, how, why and the true sequence of events, then build the investigation as a controlled release of that hidden story. The critic Tzvetan Todorov described detective fiction as these two stories, the crime and the investigation.",
+      "Begin from the solution: decide who did it, how, why and the true sequence of events, then build the investigation as a controlled release of that hidden story. The critic Tzvetan Todorov described the classic whodunit as these two stories, the crime and the investigation.",
       "A common structure is a crime or discovery, an investigation that gathers statements and clues, complications such as a second crime or a false solution, and a reveal that names the culprit and sets out the evidence, with a short aftermath.",
       "Clue design: plant each clue where the reader will see it but misread it, for example by placing it in a list, giving it an innocent explanation or setting it beside something more exciting.",
       "Point of view controls fairness: a narrating companion, a close third person on the detective or a rotating cast can each show the evidence, and a common standard is that narration may leave things out but not state falsehoods.",
@@ -244,7 +244,7 @@ export default [
       "Fair play: the convention that the reader gets the same clues as the detective and could in principle solve the case.",
       "Closed circle: a limited, named group of suspects cut off together, such as house guests or passengers.",
       "Locked room (impossible crime): a crime that seems impossible in the circumstances, such as a killing in a sealed room.",
-      "Denouement or reveal: the closing explanation in which the detective names the culprit and sets out the evidence; the drawing-room scene when the suspects are gathered.",
+      "Denouement or reveal: the closing explanation in which the detective names the culprit and sets out the evidence; when the suspects are gathered for it, it is often called the drawing-room denouement.",
       "Watson figure: the companion who narrates or questions, named after Sherlock Holmes's friend, and who stands in for the reader.",
       "Amateur sleuth: an investigator who is not a police officer or professional detective, whose other life supplies the way into the case.",
       "Cozy (also spelled cosy): a mystery with little violence on the page, set in a close community.",

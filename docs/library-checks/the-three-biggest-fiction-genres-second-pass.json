@@ -1,0 +1,130 @@
+{
+  "subject": "The three biggest fiction genres (fantasy, science fiction, romance)",
+  "pass": "second, independent fact-check (the first checker's report at this path was replaced; its corrections were already in the text and were re-verified)",
+  "searchUsed": true,
+  "searchNotes": "WebSearch worked (standard mode); WebFetch was not needed. About 50 searches covering every flagged item plus the titles, authors, years, coinages and 'first' claims in works arrays and conv text. Several multi-title searches returned partial results; items search did not return are listed under remainingDoubts and rest on solid knowledge plus agreement with the library's own records.",
+  "lintOk": true,
+  "lintNotes": "node scripts/library-profile-check.mjs --staging <file> run in the repo prints only '18 lint problem(s)' per file, all of them 'duplicate id / duplicate profile' against byte-identical copies already installed in library/profiles/ (fantasy.js, science-fiction.js, romance.js). Those copies were not touched (rule: touch only staging files and the report). The same command run in a scratch copy of engine+scripts with those three installed files removed prints OK for all three files (9 records each, lint clean, every facet found). git status in the repo is clean.",
+  "files": {
+    "fantasy.js": {
+      "claimsChecked": 82,
+      "confirmed": 79,
+      "corrected": [
+        {
+          "where": "profile-fantasy-canon, 2000s point",
+          "was": "2000s: Rowling's Harry Potter, Neil Gaiman's American Gods (2001), ...",
+          "now": "Late 1990s and 2000s: Rowling's Harry Potter (from 1997), Neil Gaiman's American Gods (2001), ...",
+          "why": "Harry Potter began in 1997 (and the same file dates it 1997 elsewhere), so listing it flatly under '2000s' mis-dated it. The period label and the year now agree."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-fantasy-history, Tolkien/Lewis point",
+          "was": "...fixed the picture of a world with its own history, languages and map",
+          "now": "...shaped the picture of a world with its own history, languages and map",
+          "why": "'Fixed' claims Tolkien settled the convention; 'shaped' is the defensible critical judgement."
+        },
+        {
+          "where": "profile-fantasy-canon, before 1930 point",
+          "was": "MacDonald, Morris, Dunsany and Eddison made invented worlds literary",
+          "now": "MacDonald, Morris, Dunsany and Eddison wrote early literary fantasy set in otherworlds and invented worlds",
+          "why": "'Made invented worlds literary' is an unsourced sweeping claim; the revised wording states only what they wrote."
+        }
+      ],
+      "removed": [],
+      "verifiedBy": [
+        "Leiber 'proposing' sword and sorcery in 1961: confirmed (Ancalagon, dated 6 April 1961, reply to Moorcock). The 1953-headline earlier use mentioned in the brief could not be found in any source; the text does not state it and 'proposing' (not 'coining') stays the safe word.",
+        "Morris The Wood Beyond the World 1894 and The Well at the World's End 1896: confirmed; 'often cited as early fantasy set in an entirely invented world' is repeated in publisher and fan-history sources, so the hedge 'often cited' is the right strength.",
+        "Ballantine Adult Fantasy: first title The Blue Star, May 1969; series ran 1969 to 1974 (editorial consultant Lin Carter): confirmed.",
+        "Mendlesohn, Rhetorics of Fantasy (Wesleyan UP, 2008): portal-quest, immersive, intrusion, liminal: confirmed.",
+        "Tolkien, On Fairy-Stories: Andrew Lang Lecture at St Andrews 8 March 1939; printed in Essays Presented to Charles Williams, 1947: confirmed.",
+        "Eddison 1922, Dunsany 1924 (Putnam), Weird Tales first issue 1923, Conan's debut 'The Phoenix on the Sword' in Weird Tales December 1932, Peter and Wendy 1911, Phantastes 1858, Grimm vol. 1 1812, Andersen first booklet 8 May 1835: all confirmed.",
+        "Titus Groan 1946, Nine Princes in Amber 1970 (Doubleday), The Forgotten Beasts of Eld 1974 (Atheneum), Tigana 1990, Assassin's Apprentice 1995, American Gods 2001, The Poppy War 2018: confirmed."
+      ],
+      "remainingDoubts": [
+        "Mistborn (2006), Who Fears Death (2010) and The Grace of Kings (2015): no search result returned for them; held on solid knowledge of the publication years (Tor July 2006, DAW 2010, Saga 2015).",
+        "Morris as 'early fantasy set in an entirely invented world' is a critical judgement from promotional and fan-history sources; hedged with 'often cited'.",
+        "Length (90,000 to 120,000), series, shelving and appendix statements are market guidance, marked varies with asOf 2025 (consistent with library record mkt-len-fantasy).",
+        "Sanderson's first law is a paraphrase of a proportionality statement ('ability to solve conflict with magic is proportional to how well the reader understands it'); the paraphrase is faithful."
+      ]
+    },
+    "science-fiction.js": {
+      "claimsChecked": 92,
+      "confirmed": 88,
+      "corrected": [
+        {
+          "where": "profile-science-fiction-terms, space opera",
+          "was": "coined in 1941 by the fan writer Wilson Tucker as a mock-insult",
+          "now": "coined in 1941 by the fan writer Wilson Tucker as a put-down",
+          "why": "Sources describe Tucker's term (fanzine Le Zombie, 1941) as a genuine put-down of hackneyed spaceship yarns, modelled on soap opera and horse opera. 'Mock-insult' implied it was playful."
+        },
+        {
+          "where": "profile-science-fiction-canon, Golden Age point",
+          "was": "Golden Age: Asimov's I, Robot (1950) and Foundation (1951), Heinlein's Starship Troopers (1959), Clarke's Childhood's End (1953), Bradbury's The Martian Chronicles (1950)",
+          "now": "Golden Age and the 1950s: (same works)",
+          "why": "Starship Troopers (1959) is late for the Golden Age and the profile itself calls the Golden Age a loose label; the heading now matches the dates listed. No work or year changed."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-science-fiction-history, Campbell point",
+          "was": "From 1937 the editor John W. Campbell at Astounding pressed for plausible science...",
+          "now": "From the late 1930s the editor John W. Campbell at Astounding pressed for plausible science...",
+          "why": "Sources disagree: hired in late 1937 (an October 1937 first issue is often given), direct control from about January 1938, full authority from May 1938. 'The late 1930s' is true on every account and matches the library's Golden Age entry."
+        }
+      ],
+      "removed": [],
+      "verifiedBy": [
+        "Gernsback launched Amazing Stories with the April 1926 issue; 'scientifiction' earlier (1916 per Wikipedia); 'science fiction' used by Gernsback from 1929 (Science Wonder Stories), with isolated earlier uses (1851, a 1927 letter) left undated by the text: confirmed.",
+        "Aldiss, Billion Year Spree (1973), argues Frankenstein is the first real SF novel: confirmed. Kepler's Somnium printed 1634 (written about 1608 to 1610); Lucian's True History second century CE with a Moon voyage; More's Utopia 1516: confirmed.",
+        "Moorcock edited New Worlds from May 1964; first Hugo Awards 1953 at the Philadelphia Worldcon (none in 1954): confirmed.",
+        "Asimov's Three Laws first stated in full in Runaround (Astounding, March 1942); the First Law alone appeared in Liar! (May 1941): confirmed, and the text's wording is exact.",
+        "Le Guin's introduction to The Left Hand of Darkness (1976 edition): 'science fiction is not predictive; it is descriptive': confirmed, the profile's paraphrase is faithful.",
+        "Suvin's Metamorphoses of Science Fiction (1979) with cognitive estrangement and the novum: confirmed (the text correctly avoids calling novum Suvin's own coinage).",
+        "Cyberspace: Gibson's Burning Chrome (Omni, July 1982) is the usual first printed use; a late-1960s art-collective use is reported, so 'credited to' is correct.",
+        "Roadside Picnic first appeared in the journal Avrora in 1972 (English translation 1977); Zamyatin's We written 1920 to 1921, first published in English in 1924, so 'written in the early 1920s' is right; The Three-Body Problem 2008, English translation (Ken Liu, Tor) 2014, 2015 Hugo for Best Novel; Banks's Consider Phlebas 1987: confirmed."
+      ],
+      "remainingDoubts": [
+        "Solaris (1961), Dune (1965), The Man in the High Castle (1962), Dhalgren (1975), The Dispossessed (1974), Kindred (1979), Snow Crash (1992), A Fire Upon the Deep (1992), Parable of the Sower (1993), Stories of Your Life and Others (2002), Ancillary Justice (2013) and Dangerous Visions (1967): no search result returned for them; each agrees with the library's own records and with solid knowledge.",
+        "Rendezvous with Rama as a 'common example' of hard SF, The Left Hand of Darkness as a 'frequent example' of soft SF, and Starship Troopers as an 'early and much-discussed landmark' of military SF are widely repeated judgements, hedged in the text.",
+        "Roadside Picnic (1972) is the journal publication; the Russian book edition and the English translation came later.",
+        "Clarke's third law is given in close paraphrase (under the 14-word limit); the lint passes.",
+        "Word-count range (80,000 to 110,000) and 'a debut is often advised to stand on its own' are market guidance, marked varies, consistent with library record mkt-len-science-fiction."
+      ]
+    },
+    "romance.js": {
+      "claimsChecked": 72,
+      "confirmed": 70,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "profile-romance-terms, meet-cute",
+          "was": "a term that came from Hollywood screenwriting",
+          "now": "a term long associated with Hollywood screenwriting",
+          "why": "The origin is unknown; the earliest attested use found is 1941, in a story-conference context, and some popular sources trace it to a 1938 film without proof. 'Came from' asserted an origin that sources do not establish."
+        },
+        {
+          "where": "profile-romance-history, last point",
+          "was": "revived the romantic comedy (The Hating Game, 2016; Beach Read, 2020) and let online reader communities and romantasy drive sales",
+          "now": "helped revive the romantic comedy (The Hating Game, 2016; Beach Read, 2020) and let online reader communities and romantasy shape sales",
+          "why": "'Revived' and 'drive sales' were unsourced market-causation claims about recent years; the softer verbs keep the dated titles and drop the overstatement."
+        }
+      ],
+      "removed": [],
+      "verifiedBy": [
+        "Mills & Boon founded in London in 1908 by Gerald Mills and Charles Boon, concentrating on romance from about 1930, library trade in the 1930s: confirmed. Harlequin founded in Winnipeg in 1949, North American rights to Mills & Boon from 1957 or 1958, merger 1971 (some company histories say 1972): 'early 1970s' is correct.",
+        "Regency Buck (1935) is Heyer's first Regency novel and Heyer is credited with establishing the Regency romance: confirmed. The Flame and the Flower: Avon, April 1972, the first full-length romance to appear first in paperback: confirmed. RWA founded in Houston in 1980 (first conference 1981); Irish Thoroughbred (Silhouette, 1981) is Roberts's first book: confirmed.",
+        "Evelina 1778; Sweet Savage Love 1974 (Avon); Nine Coaches Waiting 1958; Betty Neels's debut Sister Peters in Amsterdam 1969; The Duke and I (Avon, 5 January 2000); Outlander 1991; The Hating Game (William Morrow, 2016); Get a Life, Chloe Brown (Avon, 5 November 2019); Fifty Shades of Grey published 2011 by The Writer's Coffee Shop after beginning as Twilight fan fiction: confirmed.",
+        "Beverly Jenkins writes historical romance centring Black characters (debut Night Song, Avon, 1994): confirmed; the profile deliberately gives no title or year.",
+        "'Grovel' is established romance-reader usage for a lead making amends; 'bodice-ripper' is a dismissive label for 1970s and early 1980s historical romances (earliest dated print use found 1978), as the text says and as the library entry agrees."
+      ],
+      "remainingDoubts": [
+        "Persuasion is dated 1817 to match the library (published December 1817; the first-edition title page says 1818). The text keeps the library convention.",
+        "Pamela (1740), Rebecca (1938), The Sheik (1919, bestseller), The Kiss Quotient (2018) and Red, White & Royal Blue (2019): no search result returned for them; held on solid knowledge and library agreement (Beach Read 2020 and The Hating Game 2016 agree with the library's genre entry).",
+        "Harlequin's takeover year varies by source between 1971 and 1972; the text says 'early 1970s'.",
+        "Market and definitional statements (75,000 to 95,000 words, own section in many bookshops and libraries, a tragic ending usually moves a book into another category, HEA and HFN as the genre's promise) are hedged with 'commonly', 'many' and 'usually' and match library record mkt-len-romance.",
+        "The women's fiction, erotic romance and erotica, and domestic fiction distinctions are conventional trade usage; the record is marked varies."
+      ]
+    }
+  }
+}

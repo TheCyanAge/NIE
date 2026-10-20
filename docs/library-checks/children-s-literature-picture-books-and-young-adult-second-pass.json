@@ -1,0 +1,127 @@
+{
+  "searchUsed": true,
+  "searchNote": "About 35 web searches were run in this pass. The per-turn web search budget (200, shared by every agent in the turn) ran out before the last five lookups, so those items rest on solid prior knowledge and the earlier checker's report; they are listed under remainingDoubts.",
+  "files": {
+    "childrens-literature.js": {
+      "claimsChecked": 90,
+      "confirmed": 83,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "compare watch, 'Children's' in the trade",
+          "was": "\"Children's\" in the trade usually means up to about twelve",
+          "now": "\"Children's\" in the trade often means up to about twelve",
+          "why": "A general trade observation with no dated source; 'often' is the defensible strength."
+        },
+        {
+          "where": "history watch (new third item)",
+          "was": "no note on what the years mean; Treasure Island (1883), The Secret Garden (1911) and Charlie and the Chocolate Factory (1964) were given as bare years",
+          "now": "Years are those of first book publication: some titles ran in magazines first (Treasure Island in 1881 to 1882, The Secret Garden in 1910 to 1911), and a few appeared in one country before another, such as Charlie and the Chocolate Factory in the United States in 1964.",
+          "why": "Not an error. Treasure Island ran in Young Folks from 1 October 1881 to 28 January 1882 and appeared as a book in 1883; The Secret Garden ran in The American Magazine from autumn 1910 and appeared as a book in 1911; Charlie was published by Knopf in the US in January 1964. Sources disagree on the UK date (booksellers and Open Library imply 1967; one encyclopedia infobox says late 1964), so the note says only that Britain came later and gives no UK year."
+        },
+        {
+          "where": "canon conv, animal and nursery classics",
+          "was": "Beatrix Potter's Peter Rabbit (1902)",
+          "now": "Beatrix Potter's Peter Rabbit (1902, after a private printing in 1901)",
+          "why": "Not an error. Potter's private printing was ready on 16 December 1901; Warne's trade edition appeared in October 1902 (2 October in one biography-based record). 1902 stays because it matches the library's own entry and works lists."
+        },
+        {
+          "where": "canon watch (new third item)",
+          "was": "Northern Lights (1995) and Charlie (1964) given without saying which country's edition",
+          "now": "Years follow first publication, which can differ by country: Northern Lights (Britain, 1995) was published in the United States as The Golden Compass in 1996, and Charlie and the Chocolate Factory (1964) appeared in the United States before Britain.",
+          "why": "Not an error. Northern Lights was published in Britain by Scholastic in July 1995 and as The Golden Compass by Knopf in April 1996. Stating the title and year difference stops a reader taking 1996 for a conflict."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Alice (1865) is the conventional date and matches the library entry. The first printing dated 1865 was withdrawn, and the edition that circulated carried 1866 on its title page although it was issued in late 1865. Sources differ on how to count it; the file keeps the convention.",
+        "Alice 'often seen as a turning point away from improving lessons' is a repeated critical judgement, not a measurable fact; it stays hedged with 'often seen as'.",
+        "'Children's departments in publishing houses, libraries and bookshops helped make a field' is a general statement. This pass did not re-search it (budget ran out). The Macmillan children's department of 1919 and the Boston Bookshop for Boys and Girls (1916) are from solid prior knowledge and the earlier check.",
+        "Dahl as a narrator who speaks to the reader: the search found a Dahl narration study saying direct 'you' address is characteristic of his fiction, plus Charlie and The Magic Finger. 'Several' is therefore supported, but no search covered Matilda or The Twits specifically.",
+        "Newbery Medal 1922 was not returned by search in this pass (Caldecott 1938 and Lathrop's Animals of the Bible were). It rests on solid prior knowledge (The Story of Mankind, first winner) and the earlier check.",
+        "The Carnegie illustration counterpart: sources date the rename from Kate Greenaway Medal to Carnegie Medal for Illustration to 2022 or 2023, so the text gives no date.",
+        "Age bands and word counts are trade rules of thumb marked 'varies' with asOf; they agree with the library's own early chapter, lower and upper middle grade entries."
+      ]
+    },
+    "picture-book.js": {
+      "claimsChecked": 80,
+      "confirmed": 74,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history conv, Beatrix Potter",
+          "was": "The Tale of Peter Rabbit (1902) paired a short text with pictures throughout",
+          "now": "The Tale of Peter Rabbit (1902, after a private printing in 1901) paired a short text with pictures throughout",
+          "why": "Not an error: 1902 is the Warne trade edition. The private printing of December 1901 is now stated, so the date cannot be read as the very first printing."
+        },
+        {
+          "where": "canon watch (new third item)",
+          "was": "Lost and Found 2005, The Arrival 2006 and Histoire de Babar 1931 given as bare years",
+          "now": "Years follow first publication, which can differ by country: Lost and Found (Britain, 2005) and The Arrival (Australia, 2006) reached the United States later, and Histoire de Babar (1931) is the French original, published in English as The Story of Babar.",
+          "why": "Not an error. Lost and Found: HarperCollins UK, 5 September 2005, US edition (Philomel) 2005 or 2006 depending on the listing, so only 'later' is claimed. The Arrival: Lothian (Australia) 2006, Arthur A. Levine (US) 2007. Babar: French original 1931 (Jardin des Modes); the first English edition is dated 1933 by a rare-book dealer and 1934 by other sources, so no English year is given."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Caldecott's books (from 1878) as 'often called the start of the modern picture book' is a critical judgement usually traced to Sendak. This pass could not re-search it; the hedge 'often called' stays.",
+        "Edmund Evans's toy books from the 1860s with Crane, Caldecott and Greenaway, and Caldecott's 1963 award for The Snowy Day, rest on solid prior knowledge and the earlier check; they were not re-searched here because the search budget ran out.",
+        "'Tablets from about 2010 brought picture-book apps and fixed-layout ebooks' rests on the iPad's 2010 launch and was not searched. It is a loose date, not a precise claim.",
+        "'32 pages', 'about five hundred words or fewer' and 'twelve to fourteen story spreads' are trade norms that vary with printer layout and publisher. They agree with the library's own Picture book entry, and the readers record is marked 'varies' with asOf.",
+        "Struwwelpeter: the 1845 first edition had the title Lustige Geschichten und drollige Bilder. Sources disagree on when the book became Struwwelpeter (1847 in one library blog, an 1858 edition in a bookseller listing), so the text says only 'under another title'.",
+        "Rosie's Walk: 1968 is supported by Kirkus (1 April 1968), the Royal Academy catalogue and the ALA notable list. One museum page gives 1967.",
+        "The words/pictures range (repeat, extend, counterpoint) is a simplified paraphrase of the Nikolajeva and Scott typology and is credited to no one by name; the three refs are real titles given as titles only."
+      ]
+    },
+    "young-adult-fiction.js": {
+      "claimsChecked": 66,
+      "confirmed": 59,
+      "corrected": [
+        {
+          "where": "canon conv, the 2010s",
+          "was": "Patrick Ness's A Monster Calls (2011)",
+          "now": "Patrick Ness's A Monster Calls (2011, from an idea by Siobhan Dowd)",
+          "why": "The attribution was incomplete. The book was written by Ness from an idea by Siobhan Dowd, who died in 2007; Walker Books published it in 2011. Works must be correctly attributed."
+        }
+      ],
+      "softened": [
+        {
+          "where": "canon watch (new second item)",
+          "was": "The Book Thief (2005) and Northern Lights (1995) given as bare years",
+          "now": "Years follow first publication, which can differ by country: The Book Thief (Australia, 2005) reached the United States in 2006, and Northern Lights (Britain, 1995) was published there as The Golden Compass.",
+          "why": "Not an error. The Book Thief: Picador (Pan Macmillan Australia) 2005, Knopf 2006. Northern Lights: Scholastic UK July 1995, The Golden Compass: Knopf April 1996."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "ALA 1957: the Young Adult Services Division was formally established on 24 June 1957 (ALA's own history page). The sentence's inference that librarians were using the label by then follows directly from the division's name, so it is kept unchanged.",
+        "New adult: a 2009 St Martin's Press contest is credited with coining the term by a Cambridge Element and by Writer's Digest, which supports 'around 2009'. Whether it is a true category is disputed, and the text says so.",
+        "'Teen books among those most often challenged in US schools and libraries': a search summary of ALA's list of the 150 most challenged books since 1990 reports 81 young adult titles, which supports the hedged wording. The ALA page itself was not read.",
+        "BookTok shaping what sells 'since about 2020' was not re-searched in this pass (budget ran out); it rests on 2021 and 2022 sales reporting seen in the earlier check, and pandemic-era growth blurs causation.",
+        "The Margaret A. Edwards Award starting in 1988 was not returned by the one search made on it (the budget ran out on the follow-up). It rests on solid prior knowledge and the earlier check; the Printz Award (2000, first won by Monster) was confirmed.",
+        "A Wizard of Earthsea (1968): Parnassus Press asked Le Guin in 1967 for a book for older children or young adults, which supports listing it in the fantasy strand. The watch line already says some listed books were not written for the YA market.",
+        "Gurdon's essay: Wall Street Journal, 5 June 2011 (online 4 June). The text says only '2011'.",
+        "OwnVoices: Corinne Duyvis started the hashtag in September 2015, and We Need Diverse Books stopped using the term in 2021. The text makes no coinage claim and says only that its use is debated.",
+        "Present tense 'has become common in recent decades' has no sourced decade; earlier present-tense YA exists. The wording is deliberately loose."
+      ]
+    }
+  },
+  "lint": {
+    "childrens-literature.js": "OK (9 records, lint clean, every facet found)",
+    "picture-book.js": "OK (9 records, lint clean, every facet found)",
+    "young-adult-fiction.js": "OK (9 records, lint clean, every facet found)",
+    "how": "These three profiles are already installed in apps/web/src/engine/knowledge/library/profiles/ with the same ids and names. In the real tree `library-profile-check.mjs --staging` therefore reports only 18 'duplicate id / duplicate profile' problems per file and nothing else. To get a real result without touching project files, the check was run on a scratch copy of the tooling and library (scratchpad/sandbox) with those three installed profile files and their index entries removed. All three files print OK there."
+  },
+  "installedCopies": "The installed copies (library/profiles/childrens-literature.js, picture-book.js, young-adult-fiction.js) were identical to the staging files before this pass and were not touched. They now differ from staging by the 8 edits above (4 in childrens-literature.js, 2 in picture-book.js, 2 in young-adult-fiction.js), so they must be re-copied if these fixes should ship.",
+  "confirmedByCheck": [
+    "Charlie and the Chocolate Factory: Knopf, 17 January 1964 (US first edition). UK first edition by George Allen and Unwin, 1967 per booksellers; one encyclopedia infobox says 23 November 1964, so the UK date is disputed and the file gives none",
+    "Peter Rabbit: private printing ready 16 December 1901; Warne trade edition October 1902 (2 October in one record)",
+    "Lear A Book of Nonsense: Thomas McLean, 10 February 1846; Andersen Eventyr, fortalte for Boern: 8 May 1835 (Reitzel); Grimm Kinder- und Hausmaerchen vol. 1: 20 December 1812",
+    "Pippi Langstrump: Raben and Sjogren, November 1945; Northern Lights: Scholastic UK, 9 July 1995; The Golden Compass: Knopf, April 1996",
+    "Treasure Island: Young Folks, 1 October 1881 to 28 January 1882, book 1883; The Secret Garden: The American Magazine from autumn 1910, book 1911",
+    "Newbery A Little Pretty Pocket-Book: 1744 (18 July), described as for instruction and amusement; generally considered the first children's book, hence the hedge",
+    "Caldecott Medal 1938 (Lathrop, Animals of the Bible); Larrick essay, Saturday Review, 11 September 1965; Bishop essay, Perspectives, 1990",
+    "Rosie's Walk 1968; Lost and Found, HarperCollins UK, 5 September 2005; The Arrival, Lothian 2006, Arthur A. Levine 2007; Histoire de Babar, December 1931; Little Golden Books, October 1942, 25 cents, Simon and Schuster with Western Printing",
+    "Young Adult Services Division, 24 June 1957; new adult coined 2009 (St Martin's Press contest); Printz Award 2000 first won by Monster; Sweet Valley High 1983; Fear Street: The New Girl, August 1989",
+    "Seventeenth Summer 1942 (Dodd, Mead), The Outsiders 1967 (Viking; Hinton began at 15, published at 18); The Book Thief: Picador Australia 2005, Knopf 2006; A Wizard of Earthsea: Parnassus Press 1968, commissioned in 1967 for older children"
+  ]
+}

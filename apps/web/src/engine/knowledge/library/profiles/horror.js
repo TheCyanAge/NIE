@@ -11,10 +11,10 @@ export default [
     summary: "Tales of fear are as old as storytelling, but horror as a literary mode is usually traced to the Gothic novel of the later eighteenth century. It grew through the Victorian ghost and monster tale, the pulps and cinema, and a popular boom in the 1970s and 1980s.",
     conv: [
       "Fear tales are as old as folklore, ghost stories and religious writing; horror as a literary mode is usually dated from the Gothic novel, with Horace Walpole's The Castle of Otranto (1764) and Matthew Lewis's The Monk (1796) as early landmarks.",
-      "Ann Radcliffe's essay \"On the Supernatural in Poetry\", published in 1826 after her death, set terror, which expands the soul and sharpens the faculties, against horror, which contracts and freezes them; the distinction still shapes how writers talk about fear.",
+      "Ann Radcliffe's essay \"On the Supernatural in Poetry\", published in 1826 after her death, set terror, which expands the soul and awakens the faculties, against horror, which contracts and freezes them; the distinction still shapes how writers talk about fear.",
       "Mary Shelley's Frankenstein (1818), John Polidori's The Vampyre (1819) and Edgar Allan Poe's tales, such as The Fall of the House of Usher (1839) and The Tell-Tale Heart (1843), moved fear into science, monsters and the disturbed mind.",
       "The Victorian age produced its classic monsters and doubles: Le Fanu's Carmilla (1872), Stevenson's Strange Case of Dr Jekyll and Mr Hyde (1886), Stoker's Dracula (1897) and Henry James's ambiguous ghost story The Turn of the Screw (1898).",
-      "From the 1890s to the 1920s the ghost story and the weird tale flourished: Machen's The Great God Pan (1894), M. R. James's Ghost Stories of an Antiquary (1904), Blackwood's The Willows (1907), the magazine Weird Tales (from 1923) and Lovecraft's The Call of Cthulhu (1928).",
+      "From the 1890s to the 1920s the ghost story and the weird tale flourished: Machen's The Great God Pan (book, 1894), M. R. James's Ghost Stories of an Antiquary (1904), Blackwood's The Willows (1907), the magazine Weird Tales (from 1923) and Lovecraft's The Call of Cthulhu (1928).",
       "Cinema gave horror a mass audience: F. W. Murnau's Nosferatu (1922), Universal's Dracula and Frankenstein (both 1931) and, later, Hitchcock's Psycho (1960), based on Robert Bloch's novel of 1959.",
       "Mid-century fiction made the modern haunting and the modern threat: Richard Matheson's I Am Legend (1954), Shirley Jackson's The Haunting of Hill House (1959), Ira Levin's Rosemary's Baby (1967) and William Peter Blatty's The Exorcist (1971).",
       "A popular boom followed in the 1970s and 1980s: Stephen King's Carrie (1974), 'Salem's Lot (1975) and The Shining (1977), Anne Rice's Interview with the Vampire (1976), Peter Straub's Ghost Story (1979) and, in extreme mode, Clive Barker's Books of Blood (1984).",
@@ -22,7 +22,7 @@ export default [
     ],
     watch: [
       "The Gothic origin is a convention, not a hard fact: horror is also traced to folklore and the ancient world, and \"horror\" as a publishing label is far newer than the Gothic novel.",
-      "Many accounts describe a contraction of horror publishing in the early to mid 1990s, when the label became hard to sell and some books were shelved or sold under other labels; accounts differ on timing and causes.",
+      "Many accounts describe a contraction of horror publishing in the early to mid 1990s, when publishers cut back, some imprints closed and some books were shelved or sold under other labels; accounts differ on timing and causes.",
     ],
     intent: ["A writer may place a project in one tradition on purpose, such as the Victorian ghost story, the weird tale, the paperback boom or recent folk horror, and borrow only that strand's habits."],
     q: ["Which strand of horror's history is my project in conversation with: the Gothic, the ghost story, the weird tale, the paperback boom or something newer?"],
@@ -156,7 +156,7 @@ export default [
       "Horror versus thriller: a thriller's threat is human or worldly and can in principle be beaten, with tension in danger and time; horror often rests on the supernatural, the monstrous or the unknowable and aims at dread. Psychological thrillers sit between them.",
       "Horror versus fantasy: fantasy builds an imagined world with wonder and magic that often serves the hero; horror uses the impossible to threaten, and dark fantasy is the overlap.",
       "Horror versus science fiction: science fiction explains strangeness through science and speculation, while horror aims at fear; science-fiction horror sets dread in laboratories and research stations, as in Frankenstein or Campbell's Who Goes There? (1938).",
-      "Horror versus weird fiction: weird fiction aims at awe and unease before a universe larger than ordinary life, and may not frighten at all; cosmic horror is the part of weird fiction that does.",
+      "Horror versus weird fiction: weird fiction aims at awe and unease before a universe larger than ordinary life, and may not frighten at all; cosmic horror is where the two overlap.",
       "Horror versus the ghost story: the ghost story is a form within supernatural horror, tied to a haunting and often restrained; horror also includes monsters, killers and psychological dread.",
     ],
     watch: [
@@ -178,7 +178,7 @@ export default [
     conv: [
       "Gothic and Romantic roots: Horace Walpole's The Castle of Otranto (1764), Matthew Lewis's The Monk (1796), Mary Shelley's Frankenstein (1818) and John Polidori's The Vampyre (1819).",
       "Nineteenth-century tales: Edgar Allan Poe's The Fall of the House of Usher (1839) and The Tell-Tale Heart (1843), Le Fanu's Carmilla (1872), Stevenson's Jekyll and Hyde (1886), Stoker's Dracula (1897) and Henry James's The Turn of the Screw (1898).",
-      "Ghost and weird fiction: Arthur Machen's The Great God Pan (1894), M. R. James's Ghost Stories of an Antiquary (1904), Algernon Blackwood's The Willows (1907) and H. P. Lovecraft's The Call of Cthulhu (1928).",
+      "Ghost and weird fiction: Arthur Machen's The Great God Pan (book, 1894), M. R. James's Ghost Stories of an Antiquary (1904), Algernon Blackwood's The Willows (1907) and H. P. Lovecraft's The Call of Cthulhu (1928).",
       "Mid-century: Richard Matheson's I Am Legend (1954), Shirley Jackson's The Haunting of Hill House (1959) and Robert Bloch's Psycho (1959).",
       "The popular boom: Ira Levin's Rosemary's Baby (1967), William Peter Blatty's The Exorcist (1971), and Stephen King's Carrie (1974), 'Salem's Lot (1975) and The Shining (1977), with Anne Rice's Interview with the Vampire (1976) and Peter Straub's Ghost Story (1979).",
       "Quiet and extreme strands: Robert Aickman's Dark Entries (1964) and Susan Hill's The Woman in Black (1983) on the quiet side, Clive Barker's Books of Blood (1984) on the extreme side.",

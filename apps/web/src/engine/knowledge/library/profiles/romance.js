@@ -18,7 +18,7 @@ export default [
       "Kathleen Woodiwiss's The Flame and the Flower (1972) is widely credited with launching the single-title historical paperback boom of the 1970s and early 1980s. Romance Writers of America was founded in 1980, and Nora Roberts published her first book in 1981.",
       "From the 1990s the genre diversified: paranormal romance, romantic suspense and inspirational romance grew, Diana Gabaldon's Outlander (1991) crossed romance with historical fiction and fantasy, and Julia Quinn's Bridgerton novels (from 2000) gave the Regency a new wave of readers.",
       "In the 2010s e-books and self-publishing let authors reach readers directly and release series and novellas quickly. E. L. James's Fifty Shades of Grey (2011), which began as fan fiction, brought new attention to erotic romance.",
-      "Recent years have widened who is written and published (LGBTQ+, disabled, neurodivergent, Black, Asian and Latinx leads), revived the romantic comedy (The Hating Game, 2016; Beach Read, 2020) and let online reader communities and romantasy drive sales.",
+      "Recent years have widened who is written and published (LGBTQ+, disabled, neurodivergent, Black, Asian and Latinx leads), helped revive the romantic comedy (The Hating Game, 2016; Beach Read, 2020) and let online reader communities and romantasy shape sales.",
     ],
     watch: [
       "Where romance \"begins\" depends on the definition: some start with Richardson and Austen, some with Mills & Boon and Harlequin, and some with the medieval romances that gave the word its first meaning.",
@@ -242,7 +242,7 @@ export default [
     conv: [
       "HEA: happily ever after, an ending in which the couple is together, committed and secure; the genre's classic promise.",
       "HFN: happy for now, an ending in which the couple is together and hopeful, but without a lifelong commitment on the page; common in contemporary romance and in series.",
-      "Meet-cute: the charming or comic first encounter of the leads, a term that came from Hollywood screenwriting.",
+      "Meet-cute: the charming or comic first encounter of the leads, a term long associated with Hollywood screenwriting.",
       "Black moment: the point near the end at which the relationship seems lost, forcing both leads to face what has stood in their way.",
       "Heat level: how much intimacy appears on the page, from sweet or closed-door (off the page) to open-door and explicit; there is no universal scale, so publishers and readers describe it in their own words.",
       "Slow burn: a relationship built gradually, with the first kiss or confession held back so that tension carries the story.",

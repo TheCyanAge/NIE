@@ -176,7 +176,7 @@ export default [
     summary: "The thriller canon runs from Childers and Buchan through Ambler, Fleming and le Carré to Forsyth, Clancy, Harris and Flynn; these are the books other thriller writers measure themselves against.",
     conv: [
       "Early spy and chase fiction: Erskine Childers's The Riddle of the Sands (1903), Joseph Conrad's The Secret Agent (1907) and John Buchan's The Thirty-Nine Steps (1915).",
-      "Between the wars: Eric Ambler's The Mask of Dimitrios (1939) and Geoffrey Household's Rogue Male (1939), and Graham Greene's novels that he labelled entertainments.",
+      "Between the wars: Eric Ambler's The Mask of Dimitrios (1939) and Geoffrey Household's Rogue Male (1939), and, from the 1930s on, Graham Greene's novels that he labelled entertainments.",
       "Cold War and spy fiction: Ian Fleming's Casino Royale (1953), Len Deighton's The Ipcress File (1962) and John le Carré's The Spy Who Came in from the Cold (1963) and Tinker Tailor Soldier Spy (1974).",
       "The bestseller era: Frederick Forsyth's The Day of the Jackal (1971), Ken Follett's Eye of the Needle (1978), Robert Ludlum's The Bourne Identity (1980) and Tom Clancy's The Hunt for Red October (1984).",
       "Psychological and serial-killer thrillers: Patricia Highsmith's Strangers on a Train (1950) and The Talented Mr. Ripley (1955), and Thomas Harris's The Silence of the Lambs (1988).",
