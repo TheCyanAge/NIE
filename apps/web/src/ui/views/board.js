@@ -187,6 +187,10 @@ export function mountBoard(app, { onDevelop, onChange = null, onAsk = null }) {
 
   /** What the project's mind holds, counted from what is really there, and the writer's way to look through it and remove from it. Only this project's. */
   function renderHolds() {
+    // (The list is open or closed as the writer left it: read that from the list on the page now. The `toggle` event that also records it arrives a moment after the click, and a
+    // re-render in that moment — the next chat message — would otherwise close a list the writer had just opened. A slower machine hit exactly that.)
+    const live = holds.querySelector('#holds-details');
+    if (live) holdsOpen = live.open;
     const d = describeMind(app.project);
     const said = d.items.filter((i) => i.source === 'said');
     const shown = d.items.slice(0, HOLDS_SHOWN);
