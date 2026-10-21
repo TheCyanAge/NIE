@@ -101,7 +101,7 @@ export default [
       "Consequence: most readers expect the central question to be answered and the act to carry a cost, though not always a tidy justice; noir readers expect the cost to fall on the protagonist.",
       "The level of violence, language and sex is the promise of the strand: cozy readers expect little on the page, while procedural, noir and psychological readers expect more directness.",
       "Series and recurring characters are a strength: readers return for a detective, a team and a setting, so a series lead needs a life that can carry many books; standalones are also common, especially in psychological and domestic suspense.",
-      "Length: adult crime novels commonly run about 65,000 to 100,000 words, with cozies toward the lower end and procedurals, noir and legal crime often longer; short stories have their own magazine and anthology markets.",
+      "Length: adult crime novels commonly run about 65,000 to 90,000 words, with cozies toward the lower end and procedurals, noir and legal crime often longer, up to about 100,000; short stories have their own magazine and anthology markets.",
       "Shelving varies by country and shop: crime, mystery and thriller are often shelved together, while some publishers and prizes separate them, and in the UK 'crime' is a common umbrella where US shops more often say 'mystery' and 'thriller'.",
       "What disappoints: an unfair or coincidental solution, a passive investigator, violence used for shock with no weight, a twist the book has not earned and loose ends that were promised and dropped.",
     ],
@@ -241,7 +241,7 @@ export default [
     conv: [
       "Whodunit, howdunit and whydunit: stories that centre on who committed the crime, how it was done, or why.",
       "Noir: a mood and moral world of fatalism, compromise and doom; the word is French for 'black' and was used by France's Série noire imprint (1945) and, from 1946, by French critics for American crime films.",
-      "Hardboiled: a tough, unsentimental style and viewpoint, first of American pulp detectives of the 1920s and 1930s, with a clipped voice and a violent world.",
+      "Hardboiled: a tough, unsentimental style and viewpoint, first associated with American pulp detective fiction of the 1920s and 1930s, with a clipped voice and a violent world.",
       "Private eye (PI), gumshoe and shamus: names for a private investigator or detective, the last two being early twentieth-century American slang.",
       "Procedural: a story built on the routine work of an institution, most often the police, but also courts, laboratories and newsrooms.",
       "Red herring: a false lead that draws attention away from the true answer.",

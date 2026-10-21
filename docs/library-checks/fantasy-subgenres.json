@@ -1,0 +1,199 @@
+{
+  "method": {
+    "searchUsed": true,
+    "note": "Fresh pass that replaces an earlier no-search report. WebSearch worked (standard mode, about 50 queries); WebFetch could not resolve en.wikipedia.org (getaddrinfo ENOTFOUND), so all web evidence is from search-result summaries. Titles, authors and years in works and conv text were checked against search where a result was returned; items the search did not return are listed under remainingDoubts and rest on the writer's own web confirmation, the library's existing records, or solid recall. Library cross-checks: node scripts/library-hub.mjs was run for epic-fantasy, urban-fantasy, dark-fantasy, genre-spec-grimdark, low-fantasy, high-fantasy and sword-and-sorcery; the Dying Earth and Flintlock fantasy records and profiles/fantasy.js were read. No contradiction found. All three files print OK from scripts/library-profile-check.mjs --staging.",
+    "sourcesUsed": [
+      "Borderland/Bordertown editors: Wikipedia Borderland (novel series), Encyclopedia.com Windling entry, A Green Man Review (Bordertown guide)",
+      "Dragons of Autumn Twilight Nov 1984 tied to module Dragons of Despair: Wikipedia Dragons of Autumn Twilight",
+      "Gardens of the Moon 1 April 1999 Bantam UK, ten-novel Malazan Book of the Fallen: Wikipedia",
+      "D&D boxed set 1974 TSR: Wikipedia Dungeons & Dragons (1974)",
+      "Belgariad Pawn of Prophecy 1982: Wikipedia The Belgariad",
+      "Dragonbone Chair 1988: Wikipedia Memory, Sorrow, and Thorn",
+      "Tigana 1990 and plot: Kirkus Reviews",
+      "Worm Ouroboros 1922 (Cape): sf-encyclopedia; Well at the World's End, Kelmscott, March 1896: V&A and Metropolitan Museum records",
+      "Caxton printed Le Morte d'Arthur 31 July 1485: Morgan Library and other library notes",
+      "Assassin's Apprentice 1995, Name of the Wind March 2007: Wikipedia",
+      "Sanderson's First Law wording: brandonsanderson.com",
+      "Tolkien secondary world, On Fairy-Stories: commentary sources",
+      "Grace of Kings (Chu-Han contention) and Poppy War (Second Sino-Japanese War): WBUR, Wikipedia, Georgetown",
+      "Jordan died 16 Sept 2007, A Memory of Light 8 Jan 2013 book fourteen: publisher listings",
+      "Mistborn 2006, Way of Kings 2010: Wikipedia, Goodreads",
+      "Storm Front April 2000, Dead Until Dark 1 May 2001, Moon Called 2006, Magic Bites 2007, City of Bones 27 March 2007, Tithe Oct 2002, Un Lun Dun early 2007, City We Became 2020, Neverwhere 1996, American Gods 2001, Buffy March 1997: Wikipedia and library catalogues",
+      "Dead Witch Walking first-person Rachel Morgan: Wikipedia Hollows (series)",
+      "John Silence 1908, Carnacki 1913: Wikipedia and EBSCO",
+      "Seelie/Unseelie: Wikipedia Seelie; folklore review of Morgan Daimler's Fairy Courts",
+      "Vampire: The Masquerade 1991: Wikipedia",
+      "Dying Earth named after Vance 1950 book: SF Encyclopedia, Wikipedia",
+      "Sabriel 1995, Gideon the Ninth Sept 2019, Dark Souls Sept/Oct 2011, Titus Groan 1946 and Gormenghast 1950 (no overt fantasy elements), Gunslinger 1982 fix-up of 1978-81 magazine stories, Black Company May 1984 (Tor), Elric first story June 1961 as an antithesis to Conan: Wikipedia, Kirkus, BSFA",
+      "Dark fantasy term: Encyclopedia of Fantasy (1997) entry as summarised in secondary sources (usage varied remarkably; coinage credited variously to Charles L. Grant and Karl Edward Wagner)",
+      "Grimdark from the Warhammer 40,000 tagline: Wikipedia, Know Your Meme, Book Riot",
+      "Radcliffe terror and horror essay 1826: scholarly summaries"
+    ]
+  },
+  "files": {
+    "epic-fantasy.js": {
+      "claimsChecked": 58,
+      "confirmed": 52,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history, first bullet (Beowulf, sagas, Malory)",
+          "was": "Malory's Le Morte d'Arthur (printed in 1485). Tolkien, a scholar of Old English, drew on this material for the scale and sorrow of his own work.",
+          "now": "Malory's Le Morte d'Arthur (printed by Caxton in 1485). Tolkien, a scholar of Old English, drew most on Beowulf and the northern legends for the scale and sorrow of his own work.",
+          "why": "1485 and Caxton confirmed (31 July 1485). 'This material' implied Tolkien drew heavily on Malory and Arthurian legend, which is not a safe claim; narrowed to the sources he is known to have drawn on."
+        },
+        {
+          "where": "history, 1977 bullet (Shannara and Lord Foul's Bane)",
+          "was": "their sales helped persuade publishers that fantasy could carry long series.",
+          "now": "their success is often credited with showing publishers a market for long fantasy series.",
+          "why": "Interpretive causal claim about publishers' reasoning; reworded as a commonly held view. Both 1977 dates confirmed (Lord Foul's Bane, Oct 1977)."
+        },
+        {
+          "where": "history, 1990s bullet (A Game of Thrones)",
+          "was": "George R. R. Martin's A Game of Thrones (1996) made epic fantasy morally and politically harder-edged.",
+          "now": "George R. R. Martin's A Game of Thrones (1996) is widely seen as giving epic fantasy a harder edge.",
+          "why": "Interpretive; now attributed to common critical opinion. Also shortened to stay inside the 300-character limit."
+        },
+        {
+          "where": "history, last bullet (non-European epics)",
+          "was": "From the mid-2010s more epics were set in worlds not modelled on medieval Europe: N. K. Jemisin's The Fifth Season (2015), Ken Liu's The Grace of Kings (2015) and R. F. Kuang's The Poppy War (2018) draw on other histories, politics and ways of telling a large story.",
+          "now": "In the 2010s epics set in worlds not modelled on medieval Europe drew wide attention: N. K. Jemisin's The Fifth Season (2015), Ken Liu's The Grace of Kings (2015) and R. F. Kuang's The Poppy War (2018); Liu and Kuang both draw on Chinese history.",
+          "why": "The loose grouping of The Fifth Season with 'other histories' is gone: only Liu (Chu-Han contention) and Kuang (Second Sino-Japanese War) are claimed to draw on Chinese history, and both are confirmed. 'From the mid-2010s more epics' was a trend claim; now a modest statement about attention."
+        },
+        {
+          "where": "subgenres, 'Epic of ruin and renewal'",
+          "was": "is a leading example.",
+          "now": "is a well-known example.",
+          "why": "The category is a descriptive grouping, not an established term (and the watch point says so); 'leading' overstated it."
+        },
+        {
+          "where": "canon, 1970s and 1980s bullet",
+          "was": "... built the long-series market.",
+          "now": "... helped build the long-series market.",
+          "why": "Several books shared the credit; a single causal claim softened."
+        }
+      ],
+      "removed": [],
+      "flaggedItemVerdicts": [
+        "D&D 1974: confirmed (TSR boxed set, 1974). Le Morte d'Arthur 1485: confirmed (Caxton, 31 July 1485).",
+        "Gardens of the Moon 1999 and ten books: confirmed (1 April 1999, Bantam UK; ten novels, ending with The Crippled God, 2011).",
+        "Name of the Wind 2007 (27 March, DAW): confirmed. Assassin's Apprentice 1995: confirmed. Mistborn 2006 and Way of Kings 2010: confirmed. Blade Itself 2006: search returned nothing; kept on library cross-check and recall.",
+        "Grace of Kings and Poppy War drawing on Chinese history: confirmed; the Jemisin grouping removed (see softened).",
+        "Sanderson's first law: paraphrase matches his published wording (the author's ability to solve conflict with magic is proportional to how well the reader understands it).",
+        "'Secondary world' from Tolkien's On Fairy-Stories: confirmed (Secondary World and Primary World, Secondary Belief).",
+        "Architect and gardener: Martin uses and popularises the pair (2013 Wheeler Centre talk and many interviews); no first use found, and the text claims only that he made the terms well known.",
+        "Debut word count 100,000 to 120,000: sources broadly agree on that as the safe range, with an editor arguing for up to about 150,000; text is hedged and set to varies.",
+        "Dragonlance: Dragons of Autumn Twilight Nov 1984, written from the module Dragons of Despair; 'companions to game adventures' is fair.",
+        "Eddings 1982, Dragonbone Chair 1988 (25 Oct 1988), Tigana 1990 (Sept 1990) and its premise (a conquered province erased from memory): confirmed.",
+        "Wheel of Time: Jordan died 16 Sept 2007; A Memory of Light, 8 Jan 2013, fourteenth main novel: confirmed.",
+        "Morris 1896 (Kelmscott, March 1896) and Eddison 1922 (Cape): confirmed."
+      ],
+      "remainingDoubts": [
+        "The Sword of Shannara/Lord Foul's Bane credit for the long-series market is a common view, but no source for it was retrieved; it is now worded as 'often credited'.",
+        "Tolkien drawing most on Beowulf and northern legends is from solid knowledge, not a retrieved source.",
+        "'The Eye of the World builds its plot on such a prophecy' (the Dragon Reborn) and the Lord of the Rings ending remain from recall.",
+        "Peter Jackson's films 2001 to 2003, The Hobbit 1937 and Lord Dunsany (no title or date given) are from recall.",
+        "Several subgenre names (Grim epic, System-driven epic, Epic of ruin and renewal) are descriptive groupings; the watch point already says so. 'Flintlock epic' matches the library's flintlock fantasy record but names no works.",
+        "Whether the Encyclopedia of Fantasy and Cambridge Companion cover every point was not checked; they are listed as general references only."
+      ]
+    },
+    "urban-fantasy.js": {
+      "claimsChecked": 52,
+      "confirmed": 50,
+      "corrected": [
+        {
+          "where": "history, 1980s bullet",
+          "was": "the Bordertown shared-world stories edited by Terri Windling (from 1986)",
+          "now": "the Bordertown shared-world anthologies, edited by Terri Windling and Mark Alan Arnold at first (from 1986)",
+          "why": "Borderland (1986) and Bordertown (1986) were co-edited by Windling and Mark Alan Arnold; Life on the Border (1991) is credited to Windling alone. The year was already right."
+        },
+        {
+          "where": "canon, 1980s founders bullet",
+          "was": "the Bordertown anthologies edited by Terri Windling",
+          "now": "the Bordertown anthologies, edited by Terri Windling (with Mark Alan Arnold at first)",
+          "why": "Same correction as in history."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "flaggedItemVerdicts": [
+        "Storm Front (April 2000), Dead Until Dark (1 May 2001), Moon Called (2006), Magic Bites (2007): confirmed by search. Dead Witch Walking 2004: first book of the Hollows confirmed (HarperTorch/Eos 2004), Rachel Morgan narrated in first person.",
+        "'Many in first person': confirmed for the Hollows; the others are first-person from recall, so 'many' stays hedged.",
+        "Un Lun Dun 2007 (UK Macmillan, US Del Rey, early 2007), City of Bones (27 March 2007), Tithe (Oct 2002): confirmed.",
+        "The City We Became 2020: five boroughs each embodied by a person (plus the city itself): confirmed.",
+        "Neverwhere 1996 (BBC series and the novelisation both 1996), American Gods 2001, Buffy television series (premiere 10 March 1997): confirmed.",
+        "Blackwood John Silence 1908 and Hodgson Carnacki collection 1913 (stories in magazines 1910 to 1912): confirmed. Machen's 1890s London tales: The Great God Pan 1894 (first version 1890) and The Inmost Light 1894; kept without titles.",
+        "Seelie and Unseelie: search supports 'Scots folklore terms'; the Seelie are not reliably benign and the good-versus-evil split is a later popular simplification. The text already says 'relatively benign (though touchy)' and 'widely borrowed by modern writers'.",
+        "Masquerade and Vampire: The Masquerade (White Wolf, 1991): confirmed.",
+        "Debut word count 80,000 to 100,000: sources range from 80,000-90,000 to 90,000-110,000 and are mostly old forum posts; text is hedged and set to varies.",
+        "'The 1980s are often named as the start of the modern form': conventional view, confidence contested; the older wider sense of the term is explained in the first watch point.",
+        "Unknown (1939 to 1943) and Conjure Wife (April 1943): writer's own web confirmation accepted."
+      ],
+      "remainingDoubts": [
+        "Dead Until Dark, Moon Called and Magic Bites being first-person is from recall (search results did not state it).",
+        "Kim Harrison's Hollows as a public-supernatural world and Dead Until Dark's open vampires are well known but were not stated in the search summaries.",
+        "Charles de Lint's Newford (a fictional Canadian city) as mythic urban fantasy and Holly Black's Tithe and Cassandra Clare's City of Bones as young adult examples are from recall for the classification, not the dates.",
+        "The 'lighter or cozy urban fantasy' branch names no works and rests on common usage.",
+        "Machen's London tales of the 1890s: kept general; no specific title is claimed.",
+        "Genius loci and glamour definitions are from recall."
+      ]
+    },
+    "dark-fantasy.js": {
+      "claimsChecked": 55,
+      "confirmed": 50,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history, first Weird Tales bullet",
+          "was": "The pulp magazine Weird Tales (founded 1923)",
+          "now": "The pulp magazine Weird Tales (first issued in 1923)",
+          "why": "Sources agree the first issue was March 1923 but one gave 1922 for the founding; 'first issued' is the defensible wording."
+        },
+        {
+          "where": "history, 1990s bullet",
+          "was": "By the end of the twentieth century the name dark fantasy was in common use for fantasy marked by horror.",
+          "now": "By the 1990s the name dark fantasy was in use for fantasy marked by horror, though it was applied loosely.",
+          "why": "No source gave a decade; the Encyclopedia of Fantasy (1997) already discusses the term and says usage varied remarkably, so 'in use by the 1990s, applied loosely' is supported and 'common use' is not. The coinage is credited variously (Charles L. Grant, Karl Edward Wagner) and the profile makes no coinage claim."
+        },
+        {
+          "where": "canon, 1960s and 1970s bullet (Thomas Covenant)",
+          "was": "Stephen R. Donaldson's Chronicles of Thomas Covenant (from 1977).",
+          "now": "Stephen R. Donaldson's Chronicles of Thomas Covenant (from 1977), an epic fantasy with a bitter, flawed antihero.",
+          "why": "Sources call the series epic or high fantasy with an antihero and none called it dark fantasy; the entry now says what is certain and lets the watch point (many of these books also count as epic fantasy) carry the overlap."
+        },
+        {
+          "where": "compare, Gothic horror bullet (Gormenghast)",
+          "was": "dark fantasy takes that mood into a magical or invented world, as Gormenghast does.",
+          "now": "dark fantasy takes that mood into an invented, and often magical, world; Gormenghast does so with an invented realm.",
+          "why": "Confirmed that the first Gormenghast books contain no overt fantastic elements; only the invented-world part applies to it."
+        },
+        {
+          "where": "terms, 'Terror and horror'",
+          "was": "a distinction often traced to the novelist Ann Radcliffe, between suspense and the unseen (terror) and the sight of something revolting (horror)",
+          "now": "a distinction often traced to the novelist Ann Radcliffe and commonly glossed as dread of what is suspected but unseen (terror) against the shock of something plainly revolting (horror)",
+          "why": "Radcliffe's 1826 essay says terror expands the soul and horror contracts it; the 'unseen versus seen' wording is a later critical gloss (for example Varma's 'awful apprehension and sickening realization'), so the text now says so."
+        }
+      ],
+      "removed": [],
+      "flaggedItemVerdicts": [
+        "Dark Souls 2011 (22 Sept Japan, Oct 2011 West): confirmed. HBO Game of Thrones 2011 to 2019: from recall, not searched.",
+        "Weird Tales first issue March 1923; Conan's first story The Phoenix on the Sword, Dec 1932; Jirel 'Black God's Kiss' Oct 1934 (writer-confirmed); Zothique tales were 1930s Weird Tales stories, no year stated in the text.",
+        "Gunslinger 1982 as a book: confirmed as a fix-up of five F&SF stories from 1978 to 1981 (Donald M. Grant, 1982).",
+        "Gideon the Ninth: 10 Sept 2019; the Canaan House setting, necromancers and murder-puzzle plot confirmed. Sabriel 1995 (HarperCollins Australia): confirmed, necromancer's daughter and the Land of the Dead.",
+        "Elric: first story The Dreaming City, Science Fantasy no. 47, June 1961, with Stormbringer; sources describe Elric as a deliberate antithesis to Conan, matching Moorcock's stated aim. Elric of Melnibone 1972 agrees with the library's record.",
+        "The Black Company: Tor, May 1984, mercenary company serving the Lady's empire: confirmed.",
+        "Titus Groan 1946 and Gormenghast 1950: confirmed.",
+        "Dying Earth named after Vance's 1950 book and overlapping with science fiction: confirmed (SF Encyclopedia) and agrees with the library's Dying Earth record, which is filed under science fiction. The profile still does not file The Night Land under Dying Earth.",
+        "Grimdark traced to a wargame tagline: Warhammer 40,000 tagline confirmed; no tagline wording and no date are given in the text. The word reached fantasy talk around 2008.",
+        "Noblebright and 'morally grey' are informal labels; no coinage is claimed.",
+        "Lord Foul's Bane in epic fantasy (1977): confirmed; see softened for the canon wording."
+      ],
+      "remainingDoubts": [
+        "Whether Donaldson's Covenant books are counted as dark fantasy by anyone was not confirmed; the text now makes no such claim beyond the contested-overlap watch point.",
+        "HBO's Game of Thrones 2011 to 2019, the 'noblebright' gloss, and the content-warning and cruelty-as-shortcut points (current practice, varies, asOf 2025) are from recall or common practice, not sources.",
+        "The Gunslinger is dated by the 1982 book; the first story ran in 1978 (the text's canon bullet gives 1982 only, which is accurate for the book).",
+        "Mark Lawrence's Prince of Thorns 2011, Barker's Weaveworld and Imajica, and The Last Wish 1993/English 2007 rest on the writer's own web confirmation."
+      ]
+    }
+  }
+}

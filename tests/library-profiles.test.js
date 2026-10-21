@@ -81,11 +81,14 @@ test('profiles: a profile answers only for the subject the question names (the s
     for (const f of Object.values(PROFILE_FACETS)) {
       const q = f.ask(subject);
       const a = answerFromLibrary(q, { limit: 3 });
-      // only a profile whose subject the question names may be among the answers
+      // only a profile whose subject the question names may be an ANSWER; a profile may be listed as "related" when the question names part of its subject ("Fantasy" and "Dark fantasy: subgenres")
+      const nameWords = (parent) => [parent?.name, ...(parent?.aka ?? [])].filter(Boolean).flatMap((n) => n.replace(/\s*\(.*?\)\s*/g, ' ').split(/[:;]/)[0].toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3 && !['fiction', 'poetry', 'literature', 'writing'].includes(w)));
       for (const e of [...a.entries, ...a.related.slice(0, 1)].filter((x) => x.kind === 'profile')) {
         const parent = getEntry(e.parent);
         const names = [parent?.name, ...(parent?.aka ?? [])].filter(Boolean).map((n) => n.replace(/\s*\(.*?\)\s*/g, ' ').split(/[:;]/)[0].trim().toLowerCase());
-        if (!names.some((n) => q.toLowerCase().includes(n))) wrong.push(`${q} -> ${e.id}`);
+        const named = names.some((n) => q.toLowerCase().includes(n));
+        const partly = nameWords(parent).some((w) => q.toLowerCase().includes(w));
+        if (!named && !(partly && !a.entries.includes(e))) wrong.push(`${q} -> ${e.id}`);
       }
     }
   }

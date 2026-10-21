@@ -1,0 +1,141 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch worked; WebFetch could not resolve hosts. The per-turn web search budget (shared by all agents) ran out partway through, so about half of the planned searches were not run. Claims not searched were kept only where I am certain from solid knowledge or where they agree with the library's own work records (checked locally with grep); the rest are listed under remainingDoubts. The library's work records were themselves only spot-checked, so agreement with them is corroboration, not proof.",
+  "files": {
+    "comics-and-graphic-novels.js": {
+      "claimsChecked": 76,
+      "confirmed": 71,
+      "confirmedBySearch": [
+        "Max und Moritz (1865) as the model for The Katzenjammer Kids (1897): Dirks was asked to develop a strip based on Busch's story; 'often named as an influence' is safe",
+        "Famous Funnies: July 1934 start of the monthly series; historians call it the first true American comic book; dating of earlier 1934 issues disagrees by source",
+        "Richard Kyle and the 1964 date for 'graphic novel' (Capa-Alpha, November 1964 in most sources)",
+        "Wertham's Seduction of the Innocent (April 1954), the Senate subcommittee hearings (April and June 1954), the Comics Magazine Association of America (September 1954)",
+        "Maus: first volume 1986, second 1991, Pulitzer special citation 1992",
+        "Mort Walker, Lexicon of Comicana, 1980; Walker's 1964 grawlix article; Walker's 1975 credit of the grawlix terms to Charles D. Rice"
+      ],
+      "confirmedByKnowledgeOrLibrary": "Hogarth 1732, Toepffer Jabot 1833, Yellow Kid 1895, Little Nemo 1905, Action Comics 1938, Tintin 1929, New Treasure Island 1947, Astro Boy 1952, Zap 1968, A Contract with God 1978, Watchmen 1986, Understanding Comics 1993, Krazy Kat 1913, Asterix 1959, Peanuts 1950, Raw 1980, Love and Rockets 1981, The Dark Knight Returns 1986, Persepolis 2000, Jimmy Corrigan 2000, Blankets 2003, American Born Chinese 2006, Fun Home 2006, Smile 2010, March 2013. Most agree with library/works/comics-graphic-novels-manga-games-and-digital.js.",
+      "corrected": [
+        {
+          "where": "history / conv 9 (Maus)",
+          "was": "Art Spiegelman's Maus (book form 1986; a special Pulitzer Prize citation in 1992)",
+          "now": "Art Spiegelman's Maus (first book volume 1986; a special Pulitzer Prize citation in 1992)",
+          "why": "1986 is the first volume only; the second volume came in 1991, so 'book form 1986' implied the whole work."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history / conv 5 (Famous Funnies)",
+          "was": "Famous Funnies (1934) is widely called the first American comic book",
+          "now": "Famous Funnies (1934) is often called the first true American comic book, though promotional giveaways of reprinted strips came earlier",
+          "why": "Historians' phrase is 'first true' comic book; Eastern Color's 1933 Funnies on Parade giveaway of reprinted strips preceded it, so a bare 'first' overstates."
+        },
+        {
+          "where": "terms / conv 6 (emanata and grawlix)",
+          "was": "Mort Walker's Lexicon of Comicana (1980) popularised both words.",
+          "now": "Mort Walker's Lexicon of Comicana (1980) helped popularise both words.",
+          "why": "Walker's 1964 article introduced 'grawlix' before the book, and he later credited the idea to Charles D. Rice; no source found for who coined 'emanata'. 'Helped popularise' claims no coinage."
+        },
+        {
+          "where": "canon / conv 7 (Understanding Comics)",
+          "was": "Scott McCloud's Understanding Comics (1993) is the standard study of how comics work",
+          "now": "Scott McCloud's Understanding Comics (1993) is a widely read study of how comics work",
+          "why": "'The standard study' is a judgement stated as fact."
+        },
+        {
+          "where": "canon / conv 7 (Jimmy Corrigan)",
+          "was": "Chris Ware's Jimmy Corrigan, the Smartest Kid on Earth (2000) shows how far layout can carry feeling.",
+          "now": "Chris Ware's Jimmy Corrigan, the Smartest Kid on Earth (2000) is often praised for how far its layout carries feeling.",
+          "why": "An evaluative claim about a work, now attributed to critical opinion."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Hogarth as an ancestor of comics and Toepffer as 'a father of the modern comic' are historians' conventions; the text hedges both.",
+        "Famous Funnies: sources disagree on which 1934 issue was first sold on newsstands (February, May and July are all given). The text avoids dating it beyond 1934.",
+        "Kyle: sources differ on the essay title and issue. The text says only 'a 1964 fan essay'.",
+        "Grawlix and emanata: a coiner is not established for emanata, and Walker credited Rice for grawlix in 1975. The text now claims only 'helped popularise'; the tropes record says Walker 'catalogued and jokingly named' marks, which does not claim coinage.",
+        "Maus Pulitzer: some sources say the special citation was for the second volume only. The text says only 'a special Pulitzer Prize citation in 1992'.",
+        "Not searched, from solid knowledge: Watchmen as 'largely nine-panel pages', McCloud's simple-face argument, 'about 20 to 22 story pages' for a monthly (hedged with 'roughly' and 'practice differs'), the Marvel method description, 1930s Hergé start in Belgium."
+      ]
+    },
+    "manga.js": {
+      "claimsChecked": 90,
+      "confirmed": 89,
+      "confirmedBySearch": [
+        "Hokusai Manga: first volume 1814 (Nagoya, Eirakuya), fifteen volumes, last posthumous in 1878; earlier uses of the word manga exist, so 'an early use' is right",
+        "Kitazawa Rakuten's Tokyo Puck 1905 and his role in giving the word its modern meaning; Imaizumi Ippyo used the word earlier, so 'widely credited with popularising' is right",
+        "Weekly Shonen Magazine and Weekly Shonen Sunday both first issued 17 March 1959",
+        "Shonen Jump launched 1968 (exact date differs by source) and became weekly in 1969"
+      ],
+      "confirmedByKnowledgeOrLibrary": "Library work records agree on: Ashita no Joe 1968 (Asao Takamori and Tetsuya Chiba), A Drifting Life 2008, Heart of Thomas 1974, Nausicaa 1982, Berserk 1989, Monster 1994, Uzumaki 1998, Fullmetal Alchemist 2001, Death Note 2003, Attack on Titan 2009, Ghost in the Shell 1989, Akira 1982, Dragon Ball 1984, Sailor Moon 1991, One Piece 1997, Lone Wolf and Cub 1970, Rose of Versailles 1972, Barefoot Gen 1973, Onward Towards Our Noble Deaths 1973, Sazae-san 1946, New Treasure Island 1947 with Shichima Sakai, Astro Boy 1952, Phoenix 1954. From knowledge: Norakuro 1931, Comiket first held 1975 and twice yearly, Astro Boy television series 1963, gekiga proposed 1957 and Garo 1964 (confirmed by the earlier pass), Schodt's Dreamland Japan 1996 and Gravett's Manga: Sixty Years of Japanese Comics 2004 (titles only are cited).",
+      "corrected": [
+        {
+          "where": "subgenres / conv 9 (boys' love and yuri)",
+          "was": "Boys' love (BL) and yuri: romance genres about male couples, largely written by and for women, and about women; both have their own magazines and sections in shops.",
+          "now": "Boys' love (BL) and yuri: BL is romance about male couples, largely written by and for women, and yuri is romance about women; both have their own magazines and sections in shops.",
+          "why": "The original could be read as saying BL is about women. Meaning is now unambiguous; no new claim added."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Year 24 Group: membership is loosely defined. The text names Hagio and Takemiya as the group and Ikeda as a 'contemporary', which is the safest wording; the library's shojo entry lists Ikeda as a member.",
+        "Shonen Jump's 1968 launch date varies by source (July or August cover dates). The text gives only the year, and the 1969 switch to weekly is supported.",
+        "Not searched and not checkable against the library: 'weekly shonen chapters often around twenty pages' (hedged), 'weekly magazines widely reported to use reader surveys', print magazine sales falling since the 1990s (no figures given), English editions 'usually' keeping right-to-left reading, teen and older teen age ratings, example titles by audience category, and Comiket's 1975 start.",
+        "BL being 'largely written by and for women' is a common generalisation and is hedged with 'largely'."
+      ]
+    },
+    "webcomic.js": {
+      "claimsChecked": 67,
+      "confirmed": 62,
+      "confirmedBySearch": [
+        "Naver Webtoon 2004 and Daum's earlier commercial service in 2003 (Harvard Digital Innovation case study and Wikipedia agree)",
+        "Noblesse started on Naver Webtoon in December 2007 (Son Jeho writing, Lee Kwangsu art); Tower of God by SIU started 2010",
+        "Lore Olympus launched March 2018 on Webtoon Canvas and became the platform's most-read series"
+      ],
+      "confirmedByKnowledgeOrLibrary": "Doctor Fun 1993, Sluggy Freelance 1997, User Friendly 1997, Megatokyo 2000, Keenspot 2000, Modern Tales 2002, Naver Webtoon 2004, Heartstopper 2016 and True Beauty 2018 were confirmed by the earlier pass's searches and were not re-searched. Penny Arcade 1998, Dinosaur Comics 2003, Questionable Content 2003, Order of the Stick 2003, xkcd 2005, Hark! A Vagrant 2007, Homestuck 2009, Kickstarter 2009, Patreon 2013, Nimona online 2012 and in book form 2015, Reinventing Comics 2000 and How to Make Webcomics 2008 (Kurtz, Straub, Kellett, Guigar) are from solid knowledge; the library's own webcomic entry agrees on Penny Arcade, xkcd, Hark! A Vagrant and Homestuck.",
+      "corrected": [
+        {
+          "where": "history / conv 1 (early online services)",
+          "was": "Some creators shared comics on early online services in the 1980s and 1990s, before the web;",
+          "now": "Some creators shared comics on early online services in the 1980s and early 1990s, before the web;",
+          "why": "The web spread from the early 1990s, and conv 2 starts there, so 'and 1990s, before the web' was inconsistent."
+        },
+        {
+          "where": "history / conv 8 (webtoon origin)",
+          "was": "the vertical-scroll webtoon, begun on Korea's Naver Webtoon in 2004, spread worldwide",
+          "now": "the vertical-scroll webtoon, which grew out of South Korean web portals (Daum from 2003, Naver Webtoon from 2004), spread worldwide",
+          "why": "Daum launched a commercial webtoon service in 2003, before Naver, and no source isolates Naver as the origin of vertical scrolling."
+        },
+        {
+          "where": "craft / conv 7 (Flash)",
+          "was": "as when browsers stopped supporting Flash after Adobe ended its support at the end of 2020.",
+          "now": "as when Adobe ended its support for Flash at the end of 2020 and browsers followed by dropping it.",
+          "why": "Order of events: Adobe's end-of-support date was 31 December 2020 and browsers removed Flash after it; the original blurred this."
+        },
+        {
+          "where": "terms / conv 10 (hover text)",
+          "was": "it is also called title text or alt text.",
+          "now": "it is also called title text, or loosely alt text.",
+          "why": "The hover caption is the HTML title attribute; calling it alt text is common usage but technically loose."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history / conv 7 (crowdfunding)",
+          "was": "and many webcomic creators were prominent early users.",
+          "now": "and many webcomic creators have used both.",
+          "why": "'Prominent early users' could not be verified; 'have used both' is safe and true."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Heartstopper's print year is deliberately left out because sources differ between 2018 and 2019.",
+        "The vertical-scroll format's exact origin is not settled in the sources I found; the text says only that it grew out of South Korean portals.",
+        "Keenspot's launch month differs by source (February or March 2000); the text gives only the year.",
+        "Not searched: Penny Arcade 1998, Questionable Content 2003, Order of the Stick 2003, xkcd 2005, Kickstarter 2009 and Patreon 2013 dates (all from solid knowledge).",
+        "Market statements (free to read, paid early access on some platforms, burnout as a common reason webcomics stop, 'story shapes often seen' in webtoons) are general practice as of 2025 with no figures, and are hedged as observations."
+      ]
+    }
+  }
+}

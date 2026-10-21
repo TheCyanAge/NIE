@@ -239,7 +239,7 @@ export default [
     conv: [
       "Interiority: the representation of a character's thoughts, perceptions and feelings, which literary fiction often makes its main subject.",
       "Free indirect discourse (free indirect style): narration that takes on a character's thoughts and diction without quotation marks or tags such as 'she thought'.",
-      "Stream of consciousness: a technique that renders the flow of a mind as it moves; the phrase comes from the psychologist William James and was later applied to modernist fiction.",
+      "Stream of consciousness: a technique that renders the flow of a mind as it moves; the phrase was popularised by the psychologist William James and was later applied to modernist fiction.",
       "Unreliable narrator: a teller whose account the reader learns to doubt, through bias, self-deception or limited knowledge.",
       "Epiphany: in fiction, a moment of sudden insight, often small and quiet; a term associated with Joyce.",
       "Subtext: meaning carried under what characters say, through what they avoid, imply or contradict.",

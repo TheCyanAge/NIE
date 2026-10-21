@@ -325,8 +325,11 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
       const mention = subjectMention(d.subjectCores, qset);
       score *= (facets.size ? (facets.has(d.k.topic) ? 1.6 : 0.4) : 0.4) * (mention === 1 ? 1 : mention > 0 ? 0.6 : 0.1);
     }
-    if (score >= minScore) scored.push({ entry: d.k, score, headCoverage: isExact || nameHas ? 1 : head / idfTotal, coverage: isExact || nameHas ? 1 : any / idfTotal, exact: isExact || !!nameHas });
+    if (score >= minScore) scored.push({ entry: d.k, score, headCoverage: isExact || nameHas ? 1 : head / idfTotal, coverage: isExact || nameHas ? 1 : any / idfTotal, exact: isExact || !!nameHas, mention: d.k.kind === 'profile' ? subjectMention(d.subjectCores, qset) : null });
   }
+  // A profile that names only part of its subject ("Dark fantasy" for a question about "fantasy") gives way to the profile of the same facet that names the whole of it.
+  const whole = new Set(scored.filter((x) => x.mention === 1).map((x) => x.entry.topic));
+  for (const x of scored) if (x.mention !== null && x.mention < 1 && whole.has(x.entry.topic)) x.score *= 0.35;
   scored.sort((a, b2) => b2.score - a.score);
   // Coverage that counts: one name, alias or keyword phrase (plus the guide and topic) must hold most of the question, not
   // several different keywords that each hold a piece of it ("capital" in one, "France" in another).

@@ -160,3 +160,40 @@ Held back after its first check (which searched nothing); checked again on its o
 - Eliot's 'escape from personality' is kept as paraphrase of 'Tradition and the Individual Talent' (1919); the essay and date are confirmed, the exact line was not returned by search.
 - WebFetch could not resolve hosts, so verification used WebSearch summaries (mostly encyclopedia, library and dealer pages) plus prior knowledge. Woolf's death date, Mann 1924, the Kafka posthumous novels, In Our Time 1925, Cane 1923 and Faulkner 1929 were confirmed from knowledge, not from a returned search hit.
 - The inclusion of Fitzgerald's The Great Gatsby and Hemingway in the modernist canon is a classification that critics argue over, not a factual claim.
+
+## Later batches
+
+| Batch | Subjects | Claims checked | Corrected | Softened | Removed | Searched |
+| --- | --- | --- | --- | --- | --- | --- |
+| Comics, manga and webcomics | comics-and-graphic-novels, manga, webcomic | 233 | 6 | 5 | 0 | yes |
+| Fantasy subgenres | epic-fantasy, urban-fantasy, dark-fantasy | 165 | 2 | 11 | 0 | yes |
+
+What the checkers could not confirm:
+
+### Comics, manga and webcomics
+
+- The shared web search budget ran out partway through (WebFetch could not resolve hosts either), so some claims were not searched. I kept them only where I am certain or where they agree with the library's own work records, which were themselves only spot-checked. The unsearched claims include Comiket 1975, Norakuro 1931, and the Penny Arcade, Questionable Content, Order of the Stick, xkcd, Kickstarter and Patreon dates.
+- Famous Funnies: sources disagree on which 1934 issue was first on newsstands. The text now says 'often called the first true American comic book' and notes the earlier giveaways.
+- Grawlix and emanata: Walker's own 1975 book credits Charles D. Rice for the grawlix terms, and I found no coiner for emanata. The text claims only 'helped popularise'.
+- Kyle and 'graphic novel': sources differ on the essay title and issue. The text says only 'a 1964 fan essay'.
+- Maus Pulitzer: some sources say the special citation was for the second volume only. The text says only 'a special Pulitzer Prize citation in 1992'.
+- Year 24 Group membership (Ikeda) is loosely defined. Shonen Jump's 1968 launch date varies by source, so only the year is given.
+- The origin of the vertical-scroll webtoon format is not settled. The text now says it grew out of South Korean portals (Daum from 2003, Naver Webtoon from 2004). Heartstopper's print year is left out on purpose.
+
+### Fantasy subgenres
+
+- epic-fantasy: the Shannara/Lord Foul's Bane 'often credited' market claim has no retrieved source; Tolkien drawing most on Beowulf and northern legends, the Eye of the World prophecy and Lord Dunsany rest on recall; Abercrombie's The Blade Itself 2006 was not returned by search (kept on library cross-check and recall)
+- urban-fantasy: first-person narration for Dead Until Dark, Moon Called and Magic Bites is from recall (only the Hollows was confirmed); de Lint's Newford, the Tithe and City of Bones YA classification and the cozy branch (no named works) are from recall
+- dark-fantasy: no source calls Donaldson's Covenant books dark fantasy, so the text now says only 'an epic fantasy with a bitter, flawed antihero'; HBO Game of Thrones 2011-2019 and the content-warning and cruelty-as-shortcut points were not searched
+- WebFetch could not resolve en.wikipedia.org, so all web evidence comes from search-result summaries, not full pages
+- Seelie/Unseelie, the Radcliffe terror-and-horror gloss and the 'dark fantasy' term are hedged in the text because sources show the framing is a later simplification or the usage varies
+
+
+## Second pass on two more batches
+
+The same restarted run also checked two more batches a second time with a fresh checker; its edits (about 9 changed lines in 4 files, all softenings or accuracy notes, for example "Chekhov is the master of this" became "Chekhov is a famous example" and a note that Socialist Realism was formalised at the 1934 Writers' Congress) are installed.
+
+| Batch | Claims checked | Corrected | Softened | Removed |
+| --- | --- | --- | --- | --- |
+| Historical, literary and crime fiction (second pass) | 179 | 2 | 1 | 0 |
+| Romanticism, realism and modernism (second pass) | 330 | 2 | 4 | 0 |

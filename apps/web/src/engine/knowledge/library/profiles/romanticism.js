@@ -76,7 +76,7 @@ export default [
       "Longing for the infinite: German Sehnsucht and Novalis's blue flower, the quest that never arrives, and the melancholy of a world that falls short of what feeling promises.",
       "The folk and the national past: ballads, legends, fairy tales, ruins and the Middle Ages recover a living tradition, and often support a national identity or a criticism of the modern age.",
       "Revolution, liberty and the individual against society: political hope and disillusion, the outlaw, injustice done to the poor and to children (as in Blake's chimney sweepers), and, on the other side, nostalgia and reaction.",
-      "The double, the uncanny and the irrational: dreams, madness, doubles and automata, especially in German tales such as Hoffmann's The Sandman and Chamisso's Peter Schlemihl, and in Frankenstein, where the creature mirrors its maker.",
+      "The double, the uncanny and the irrational: dreams, madness, doubles and automata, especially in German tales such as Hoffmann's The Sandman, with its lifelike automaton, and Chamisso's Peter Schlemihl, whose hero sells his shadow, and in Frankenstein, where the creature mirrors its maker.",
       "The far away and the exotic: Eastern tales, Greek independence (Byron died in Greece in 1824), Alpine and Italian travel, and the foreign as a place where feeling is freer.",
     ],
     watch: [
@@ -127,7 +127,7 @@ export default [
       "Many poems follow a pattern of scene, thought and return: the speaker looks at a landscape, the mind moves out into memory or argument, and the poem comes back to the scene changed, as in Coleridge's conversation poems and Wordsworth's Tintern Abbey.",
       "Symbol is preferred to allegory: an image such as the skylark, the nightingale or the urn carries feeling and thought without being a code, and Coleridge argued that a symbol shares in the reality it stands for.",
       "Forms are borrowed and reshaped: blank verse for meditation, the ballad for story, the sonnet and ode for concentration, the Spenserian stanza in Childe Harold and The Eve of St. Agnes, and ottava rima for the comic digressions of Don Juan.",
-      "The fragment and the unfinished are chosen on purpose: Kubla Khan, Keats's Hyperion and Novalis's unfinished novel stand for a vision that cannot be completed.",
+      "The fragment and the unfinished gain a value of their own: Kubla Khan was published as a fragment, Keats left Hyperion unfinished and Novalis left his novel incomplete, and critics often read such breaks as signs of a vision that cannot be completed.",
       "Romantic irony and the visible author: Friedrich Schlegel's idea that a work should keep stepping back from itself shows in Byron's digressions in Don Juan and in narrators who comment on their own story.",
       "Frames and layered narration: Frankenstein nests Walton's letters, Victor's tale and the creature's account, and Scott and Hoffmann use invented editors, found papers and storytellers to create distance and doubt.",
       "The historical novel's method: real events and figures at the edges, often a fictional and fairly ordinary hero caught between two sides, and period detail of dress, speech and landscape to make a past age feel lived in.",
@@ -176,7 +176,7 @@ export default [
     conv: [
       "Forerunners (mid-eighteenth century to the 1780s): Rousseau's Julie (1761) and Confessions, Macpherson's Ossian poems, Burke's essay on the sublime and Goethe's Werther prepared the taste for feeling, solitude and the past.",
       "Early British Romanticism: Blake's Songs of Innocence and of Experience, Wordsworth and Coleridge's Lyrical Ballads, Wordsworth's The Prelude and Coleridge's Biographia Literaria (1817).",
-      "Second-generation British writers: Byron (Childe Harold, Don Juan), Percy Shelley (Prometheus Unbound, Adonais) and Keats (the odes of 1819), with Scott's novels and Mary Shelley's Frankenstein.",
+      "Second-generation British poets: Byron (Childe Harold, Don Juan), Percy Shelley (Prometheus Unbound, Adonais) and Keats (the odes of 1819), with Scott's novels and Mary Shelley's Frankenstein appearing in the same years.",
       "Women writers read widely in the period, among them Charlotte Smith, Joanna Baillie, Anna Barbauld, Felicia Hemans and Mary Shelley; recent anthologies restore them to the picture.",
       "German Romanticism: Novalis (Hymns to the Night, Heinrich von Ofterdingen), the Schlegels, Tieck, Hoffmann's tales, Eichendorff's lyrics, the Grimms' tales and the folk songs of Des Knaben Wunderhorn.",
       "France, Russia, Poland and Italy: Lamartine's Méditations poétiques (1820), Hugo's Hernani and Notre-Dame de Paris, George Sand, Pushkin's Eugene Onegin, Lermontov's A Hero of Our Time (1840), Mickiewicz's Pan Tadeusz (1834) and Manzoni's The Betrothed.",
