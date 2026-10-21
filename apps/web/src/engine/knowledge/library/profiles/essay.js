@@ -100,7 +100,7 @@ export default [
       "Specifics: examples, scenes, facts and quotations, not generalities, with sources credited and factual claims accurate as in any nonfiction.",
       "Earned authority: a reason to trust the writer on this topic (experience, research or reasoning), made visible on the page.",
       "Length varies by outlet: magazine and journal essays commonly run about 1,500 to 6,000 words, with longer pieces at some outlets, and an essay collection commonly runs about 50,000 to 80,000 words.",
-      "Places essays appear: magazines, literary journals, online outlets and newsletters, then often a book; a debut essay collection can be harder to sell than a memoir or narrative book, and practice differs between houses and countries.",
+      "Places essays appear: magazines, literary journals, online outlets and newsletters, then often a book; a collection usually needs a unifying subject, method or voice, and practice differs between houses and countries.",
       "Academic readers expect something different: a clear thesis, signposted structure and argument supported by cited evidence in the style of the discipline.",
     ],
     watch: [
@@ -238,7 +238,7 @@ export default [
       "Essai: Montaigne's word, French for a trial or attempt, from which 'essay' comes; the essay is an attempt to think something through and not a finished verdict.",
       "Thesis: the central claim that an argued essay sets out to support; exploratory essays may not state one outright.",
       "Persona: the voice or character an essayist adopts, as in Charles Lamb's 'Elia'; it is built on the page and is not the whole person.",
-      "Zuihitsu: a Japanese term often glossed as 'following the brush' for loose, miscellaneous prose of notes and reflections, the nearest Japanese tradition to the essay.",
+      "Zuihitsu: a Japanese term often glossed as 'following the brush' for loose, miscellaneous prose of notes and reflections, the Japanese tradition most often compared with the essay.",
       "Periodical essay: a short essay written for a regular magazine or paper, as in The Spectator.",
       "Belles-lettres: an older term for literary writing valued for its style, including essays.",
       "Polemic: writing that argues forcefully against a position, a person or an institution.",

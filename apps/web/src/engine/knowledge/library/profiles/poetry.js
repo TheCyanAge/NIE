@@ -99,7 +99,7 @@ export default [
       "They look for a particular, concrete image or situation rather than a general statement of feeling; much of the pleasure lies in an exact, surprising detail.",
       "They will accept difficulty if the poem rewards re-reading, but obscurity that rests on private information the reader cannot reach usually reads as closed.",
       "Poems are usually met first in literary magazines and online journals and then in a first collection; poets commonly send a small set of poems at a time, and journals differ on simultaneous submissions.",
-      "A chapbook is a short collection, often about 20 to 40 pages, and a full-length collection often starts around 48 pages and runs to 80 or 100; presses and contests set their own limits.",
+      "A chapbook is a short collection, often roughly 15 to 40 pages, and a full-length collection often runs from about 40 or 50 pages up to 80 or 100; presses and contests set their own limits.",
       "Poetry books generally sell in far smaller numbers than fiction, and readings, prizes, anthologies and teaching matter a great deal to visibility; since the 2010s short, accessible poems shared on social media have reached a wider audience, though some critics dispute their quality.",
       "Readers of translated poetry weigh the translator: the same poem exists in several versions, and they usually expect to know whose version they are reading.",
       "What most often disappoints is cliché, sentiment that tells the reader what to feel, abstraction with nothing to see, and rhyme that bends the sense.",
@@ -176,7 +176,7 @@ export default [
     summary: "The poetry canon runs from Homer and Sappho through Dante, Shakespeare and Milton to Whitman, Baudelaire, Eliot, Rilke and Plath, and across the Chinese, Persian, Arabic and other traditions; these are the poems later poets answer.",
     conv: [
       "Ancient world: Homer's Iliad and Odyssey, Sappho and the other Greek lyric poets, the Hebrew Psalms, and the Latin poets Virgil, Horace and Ovid.",
-      "Classical Asia and Persia: the Chinese Book of Songs, the Tang poets Li Bai and Du Fu, the Persian poets Rumi and Hafez, and the Japanese haiku master Matsuo Bashō.",
+      "Asia and Persia before the modern era: the Chinese Book of Songs, the Tang poets Li Bai and Du Fu, the Persian poets Rumi and Hafez, and the Japanese haiku master Matsuo Bashō.",
       "Medieval to early modern Europe: Dante's Divine Comedy, Petrarch's love poems, Chaucer, Shakespeare's Sonnets, John Donne and Milton's Paradise Lost.",
       "Romantic and nineteenth century: Wordsworth, Coleridge, Keats, Shelley and Byron; Walt Whitman's Leaves of Grass, Emily Dickinson (almost all unpublished in her lifetime; her first book appeared in 1890), Baudelaire and Rimbaud.",
       "Modernist and early twentieth century: T. S. Eliot's The Waste Land, Ezra Pound, W. B. Yeats, Rainer Maria Rilke's Duino Elegies, Anna Akhmatova, Pablo Neruda, Federico García Lorca and Langston Hughes.",
@@ -247,7 +247,7 @@ export default [
       "Slant rhyme: a near rhyme, where the vowels or the consonants of two words match but not both; also called half rhyme or near rhyme.",
       "Volta: the turn in a poem, from the Italian word for turn, most associated with the sonnet.",
       "Persona: a speaker who is not the poet; the 'I' of the poem may be a mask.",
-      "Ars poetica: a poem about the art of poetry; the Latin name comes from Horace's verse letter on the subject.",
+      "Ars poetica: a poem about the art of poetry; the Latin name is the traditional title of Horace's verse letter on the subject.",
     ],
     watch: [
       "Critics use some of these terms in different ways, 'lyric' and 'free verse' among them; check how a source defines a word before borrowing it.",

@@ -17,7 +17,7 @@ export default [
       "Nineteenth century: the Victorian 'life and letters' favoured long, reverent, document-heavy volumes, often by relatives or friends; Elizabeth Gaskell's Life of Charlotte Brontë (1857) is a notable early life of a woman writer by a fellow novelist who knew her.",
       "Twentieth century: Sigmund Freud's study of Leonardo da Vinci (1910) is an early and much-discussed example of psychoanalytic biography.",
       "Lytton Strachey's Eminent Victorians (1918) broke with Victorian reverence through brevity, irony and selection, and Virginia Woolf's essay 'The New Biography' (1927) discussed what it meant to treat a life as an art.",
-      "Mid and late twentieth century: Richard Ellmann's James Joyce (1959) and Robert Caro's The Power Broker (1974) raised the standard for research, trade biography grew into a large category, and later biographers widened the cast of subjects from statesmen to women, workers and colonised peoples.",
+      "Later twentieth century: Richard Ellmann's James Joyce (1959) and Robert Caro's The Power Broker (1974) are often credited with raising research standards, trade biography became a large category, and later biographers widened their subjects from statesmen to women, workers and colonised peoples.",
       "In recent decades digitised archives, the biographer's own role (Janet Malcolm's The Silent Woman, 1994, studies the biographers of Sylvia Plath) and debates over privacy and imagination have made the form more self-aware.",
     ],
     watch: [
@@ -172,7 +172,7 @@ export default [
     name: 'Biography: landmark authors and works',
     summary: "The biography canon runs from Plutarch and Vasari through Boswell and Gaskell to Strachey, Ellmann, Caro and Hermione Lee; these are the books later biographers measure themselves against.",
     conv: [
-      "Antiquity: Plutarch's Parallel Lives (about 100 CE) and Suetonius's Lives of the Caesars (about 121 CE) are the two ancient models, one a study of character in pairs and the other a set of imperial lives, each arranged by theme as well as time.",
+      "Antiquity: Plutarch's Parallel Lives (about 100 CE) and Suetonius's Lives of the Caesars (about 121 CE) are the two ancient models, one a study of character in pairs and the other twelve imperial lives in rough chronological order, each organised partly by topic.",
       "Medieval and Renaissance: lives of saints, Einhard's Life of Charlemagne, and Vasari's Lives of the Most Excellent Painters, Sculptors and Architects (1550) for the artist's life.",
       "Eighteenth century: Samuel Johnson's Lives of the Poets (1779 to 1781) and James Boswell's Life of Samuel Johnson (1791), which set the modern habit of building a life from conversation, letters and observation.",
       "Nineteenth century: Elizabeth Gaskell's Life of Charlotte Brontë (1857), alongside the long Victorian lives of statesmen and churchmen.",

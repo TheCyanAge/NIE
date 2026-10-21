@@ -18,7 +18,7 @@ export default [
       "After the war the form reached a wider public: Orwell's Nineteen Eighty-Four (1949), Bradbury's The Martian Chronicles (1950), Asimov's Foundation (1951) and the first Hugo Awards (1953), with Stanisław Lem's Solaris (1961) showing a strong Eastern European strand.",
       "The New Wave of the 1960s and 1970s, around Michael Moorcock's magazine New Worlds (which he edited from 1964) and Harlan Ellison's anthology Dangerous Visions (1967), pushed toward literary experiment, while Herbert's Dune (1965) and Le Guin's The Left Hand of Darkness (1969) won wide readerships.",
       "The 1980s brought cyberpunk, led by William Gibson's Neuromancer (1984), and a revival of large-scale space opera, including Iain M. Banks's Culture novels from 1987; film and television (Star Trek from 1966, Star Wars from 1977) widened the audience throughout.",
-      "From the 1990s the field widened in voice and subject: Octavia E. Butler's Parable books, climate fiction, Afrofuturism, and writers such as Ted Chiang and Liu Cixin, whose The Three-Body Problem (2008; English translation 2014) won the 2015 Hugo Award for Best Novel.",
+      "From the 1990s the field widened in voice and subject: Octavia E. Butler's Parable books, climate fiction, Afrofuturism, and writers such as Ted Chiang and Liu Cixin, whose The Three-Body Problem (book edition 2008; English translation 2014) won the 2015 Hugo Award for Best Novel.",
     ],
     watch: [
       "\"The first science fiction\" depends on the definition: Lucian, Kepler, Shelley, Verne and Wells are all argued for, and earlier isolated uses of the phrase \"science fiction\" exist, so a coinage date is easy to overstate.",

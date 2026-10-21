@@ -18,7 +18,7 @@ export default [
       "In the twentieth century memoir spread across war, exile and atrocity (Graves's Goodbye to All That, 1929; Wiesel's Night, first published in Yiddish in 1956), and from the late 1960s Maya Angelou (1969) and Maxine Hong Kingston (1976) helped make childhood and identity central subjects.",
       "The 1990s are often described as a memoir boom in English-language publishing, with Mary Karr's The Liars' Club (1995) and Frank McCourt's Angela's Ashes (1996) among its best-known successes.",
       "From the 2000s, blogs, self-publishing and social media widened who writes memoir, and public disputes over invented or embellished details in some bestsellers sharpened the argument about how far a memoirist may reshape events.",
-      "Annie Ernaux, whose books draw closely on her own life, won the Nobel Prize in Literature in 2022, which many took as a sign of how far writing drawn from an author's own life now sits within the literary mainstream.",
+      "Annie Ernaux, whose books draw closely on her own life, won the Nobel Prize in Literature in 2022, which some read as a sign of how far writing drawn from an author's own life now sits within the literary mainstream.",
     ],
     watch: [
       "Where memoir 'begins' depends on the definition used: some critics start with Augustine, others treat modern autobiography as an eighteenth-century development, and the line between memoir and autobiography is drawn differently by different critics and publishers.",
@@ -174,11 +174,11 @@ export default [
     conv: [
       "Foundations: Augustine's Confessions (about 400 CE) and Rousseau's Confessions (1782) are the two usual ancestors, the first a spiritual examination and the second a candid secular self-portrait.",
       "Testimony from enslavement, 1789 to 1845: Olaudah Equiano's Interesting Narrative (1789) and Frederick Douglass's Narrative (1845), where a personal life is told to move a public.",
-      "Early and mid twentieth century: Robert Graves's Goodbye to All That (1929), Vera Brittain's Testament of Youth (1933), Richard Wright's Black Boy (1945) and Vladimir Nabokov's Speak, Memory (1951), each shaping what a war, childhood or memory memoir can be.",
+      "Early and mid twentieth century: Robert Graves's Goodbye to All That (1929), Vera Brittain's Testament of Youth (1933), Richard Wright's Black Boy (1945) and Vladimir Nabokov's Speak, Memory (1951; Conclusive Evidence in the US), each shaping what a war, childhood or memory memoir can be.",
       "Witness and identity, 1950s to 1980s: Elie Wiesel's Night (1956, in Yiddish), Maya Angelou's I Know Why the Caged Bird Sings (1969), Maxine Hong Kingston's The Woman Warrior (1976), Wole Soyinka's Aké (1981) and Richard Rodriguez's Hunger of Memory (1982).",
       "The boom years, 1990s and 2000s: Jung Chang's Wild Swans (1991), Mary Karr's The Liars' Club (1995), Frank McCourt's Angela's Ashes (1996), Jeannette Walls's The Glass Castle (2005) and Joan Didion's The Year of Magical Thinking (2005).",
       "Recent decades: Tara Westover's Educated (2018), Michelle Obama's Becoming (2018), Terese Marie Mailhot's Heart Berries (2018) and Annie Ernaux's The Years (2008, in French) show how varied in form and subject memoir has become.",
-      "Reference reading: Vivian Gornick's The Situation and the Story and William Zinsser's collection Inventing the Truth are widely used by writers; Ben Yagoda's Memoir: A History traces the form.",
+      "Reference reading: Vivian Gornick's The Situation and the Story and the collection Inventing the Truth, edited by William Zinsser, are widely used by writers; Ben Yagoda's Memoir: A History traces the form.",
     ],
     watch: [
       "Lists like this reflect what English-language critics and publishers have kept in print; memoir traditions exist in every literary culture, and the canon keeps being widened.",
@@ -236,7 +236,7 @@ export default [
     conv: [
       "Life writing: the umbrella term for autobiography, memoir, biography, diaries, letters and other accounts of lives.",
       "Narrating self and experiencing self: the writer now, who tells the story, and the younger self, who lives it; the gap between them is where reflection happens.",
-      "Autobiographical pact: the French critic Philippe Lejeune's term for the implied agreement that author, narrator and protagonist are the same person and the reader may take the book as true.",
+      "Autobiographical pact: the French critic Philippe Lejeune's term for the implied agreement, signalled by one name on the cover, that author, narrator and protagonist are the same person; readers usually take such a book as a true account.",
       "Situation and story: Vivian Gornick's pair of terms for the events a piece of personal writing deals with and the insight the writer brings to them.",
       "Reconstructed dialogue: speech rendered from memory or others' recollection, not from a recording, and usually flagged in an author's note.",
       "Composite character: a figure built from more than one real person, or a real person with changed identifying details, used to protect privacy or compress the cast; best disclosed.",

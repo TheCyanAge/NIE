@@ -16,7 +16,7 @@ export default [
       "E. R. Eddison (The Worm Ouroboros, 1922) and Lord Dunsany (The King of Elfland's Daughter, 1924) carried the invented world into the twentieth century in an ornate, archaic style.",
       "In the United States the pulp magazine Weird Tales (founded 1923) gave fantasy a popular home, and Robert E. Howard's Conan stories, from 1932, set the pattern for sword and sorcery.",
       "J. R. R. Tolkien's The Hobbit (1937) and The Lord of the Rings (1954 to 1955), with C. S. Lewis's Narnia books (1950 to 1956), made fantasy a major form of popular fiction and shaped the picture of a world with its own history, languages and map.",
-      "Paperback editions in the mid-1960s brought Tolkien a mass readership, and the Ballantine Adult Fantasy series (about 1969 to 1974) reissued older fantasy under that label; Ursula K. Le Guin's A Wizard of Earthsea followed in 1968.",
+      "Paperback editions in the mid-1960s brought Tolkien a mass readership; Ursula K. Le Guin's A Wizard of Earthsea appeared in 1968, and the Ballantine Adult Fantasy series (about 1969 to 1974) reissued older fantasy under that label.",
       "The 1980s and 1990s were the era of long series: Terry Pratchett's Discworld (from 1983), Robert Jordan's The Wheel of Time (from 1990), George R. R. Martin's A Song of Ice and Fire (from 1996) and J. K. Rowling's Harry Potter (from 1997).",
       "Film and television (Peter Jackson's Lord of the Rings films, 2001 to 2003; the HBO series Game of Thrones, 2011 to 2019) widened the audience, while writers such as N. K. Jemisin, Nnedi Okorafor and Ken Liu drew on histories and settings far beyond medieval Europe.",
     ],
@@ -127,7 +127,7 @@ export default [
     conv: [
       "Structure often follows a journey or a war: a call to leave the known place, trials and allies, a lowest point, a confrontation and a return changed. Joseph Campbell's monomyth is a popular model, though critics warn against treating it as a rule.",
       "Worldbuilding works best when it comes through the viewpoint character's needs: what they eat, owe, fear and believe. A custom is revealed when it causes trouble in a scene, not in a block of explanation.",
-      "Decide what magic can do, what it costs, who can use it and how it fails before writing scenes that rely on it. Brandon Sanderson's widely quoted first law says magic may solve a problem only as far as the reader understands it.",
+      "Decide what magic can do, what it costs, who can use it and how it fails before writing scenes that rely on it. Brandon Sanderson's widely quoted first law holds that how far magic can be used to solve a problem should depend on how well the reader understands it.",
       "Hard magic follows stated rules and solves problems; soft magic stays mysterious and creates awe and risk. Neither is better, and many books mix them.",
       "Point of view is often close third person, single or rotating among a few characters; first person is common in urban fantasy and in books for younger readers. Rotating viewpoints show a large cast and wide geography.",
       "J. R. R. Tolkien's essay On Fairy-Stories (a lecture in 1939, printed in 1947) argues that an invented world must hold together so that readers can believe in it while reading; it is a much-cited statement of why rules and detail matter.",

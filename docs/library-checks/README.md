@@ -197,3 +197,22 @@ The same restarted run also checked two more batches a second time with a fresh 
 | --- | --- | --- | --- | --- |
 | Historical, literary and crime fiction (second pass) | 179 | 2 | 1 | 0 |
 | Romanticism, realism and modernism (second pass) | 330 | 2 | 4 | 0 |
+
+## Repeated passes (what actually happened)
+
+Resuming the workflow after usage limits and a container restart re-ran the fact-checkers for batches that were already checked (an error in how I resumed it, not a plan), so the first eight batches were checked two to four times by fresh checkers.
+Each pass's numbers are below (claims checked / corrected / softened / removed). Each later pass made only small edits (softening a claim to "often credited", adding a note that a date differs by country, naming a source more exactly), and those edits are installed.
+The exception is the stage and screen batch (screenplay, stage play, tragedy): there a writer was re-run as well, so its later pass checked a different draft; the installed text is the first draft with its first pass (255 / 12 / 19 / 0), and the second draft was not installed.
+
+| Batch | Passes (claims / corrected / softened / removed) |
+| --- | --- |
+| The three biggest fiction genres | 231/15/12/0, 246/3/5/0, 263/2/2/0 |
+| Mystery, thriller and horror | 220/5/7/1, 220/4/3/0, 228/5/8/0 |
+| Children's literature, picture books and young adult | 278/4/8/1, 236/1/7/0, 246/1/2/0 |
+| Poetry and its two oldest modes | 231/3/2/0, 231/2/2/0, 230/1/3/0 |
+| Memoir, biography and the essay | 188/4/12/0, 210/4/3/1 |
+| Writing for the stage and the screen | 255/12/19/0 (installed), 251/8/12/0 (a re-written draft, not installed) |
+| Historical, literary and crime fiction | 228/9/12/0, 179/2/1/0, 179/5/9/1 |
+| Romanticism, realism and modernism | 317/11/5/2, 330/2/4/0, 338/1/2/0 (plus a separate 112/3/4/0 re-check of Modernism) |
+
+A claim that survives several independent checks is not thereby proven: the checkers share the same limits (search summaries rather than full pages, recall for well-known dates).

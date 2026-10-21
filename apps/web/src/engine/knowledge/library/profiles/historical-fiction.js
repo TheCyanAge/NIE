@@ -10,14 +10,14 @@ export default [
     name: 'Historical fiction: history and origins',
     summary: "Historical fiction in the modern sense is usually dated to Walter Scott's Waverley (1814), though stories about the past are far older, and each age since has remade the form to ask its own questions of the past.",
     conv: [
-      "Stories about the past are very old: epic, chronicle and history plays such as Shakespeare's of the 1590s all dramatise earlier ages, but they did not usually try to recreate how a past period looked and felt to the people living in it.",
+      "Stories about the past are very old: epic, chronicle and history plays such as Shakespeare's, mostly written in the 1590s, all take earlier ages as their subject, but they did not usually try to recreate how a past period looked and felt to the people living in it.",
       "Some earlier novels were already set in the past, such as Sophia Lee's The Recess (1783 to 1785), set in Elizabeth I's reign; the modern form is nevertheless credited to Walter Scott's Waverley (1814), set during the Jacobite rising of 1745.",
       "Scott's later novels, including Ivanhoe (1819), made the historical novel an international fashion, taken up by Cooper (The Last of the Mohicans, 1826), Manzoni (I promessi sposi, 1827), Victor Hugo (Notre-Dame de Paris, 1831) and Alexandre Dumas (The Three Musketeers, 1844).",
       "Novelists of the 1850s and 1860s used the past to think about their own society: Dickens's A Tale of Two Cities (1859) on the French Revolution, George Eliot's Romola (1863) on Renaissance Florence and Tolstoy's War and Peace (1869) on Russia in the Napoleonic wars.",
       "Between the world wars Sigrid Undset's Kristin Lavransdatter (1920 to 1922) and Robert Graves's I, Claudius (1934) wrote the past with psychological and scholarly depth, while Margaret Mitchell's Gone with the Wind (1936) became a vast popular success.",
       "After the Second World War Marguerite Yourcenar's Memoirs of Hadrian (1951) and Mary Renault's The King Must Die (1958) wrote antiquity from the inside, and long popular series began, among them Dorothy Dunnett's Lymond novels (from 1961) and Patrick O'Brian's Aubrey and Maturin books (from 1969).",
       "In the later twentieth century the form turned self-aware: Linda Hutcheon's A Poetics of Postmodernism (1988) named one kind historiographic metafiction, and Pat Barker (Regeneration, 1991) and Margaret Atwood (Alias Grace, 1996) worked with documents, doubt and gaps in the record.",
-      "Hilary Mantel's Wolf Hall (2009), told in close present-tense third person around Thomas Cromwell, won the Booker Prize and renewed interest in the form; the Walter Scott Prize for Historical Fiction began in 2010 and Wolf Hall was its first winner.",
+      "Hilary Mantel's Wolf Hall (2009), told in close present-tense third person around Thomas Cromwell, won the Booker Prize and helped renew interest in the form; the Walter Scott Prize for Historical Fiction was first awarded in 2010, and Wolf Hall was its first winner.",
     ],
     watch: [
       "\"The first historical novel\" depends on the definition; Waverley is the convention, not a hard fact, and earlier novels set in the past are sometimes argued for.",
@@ -40,7 +40,7 @@ export default [
     conv: [
       "By period: ancient-world, medieval, Tudor, Georgian and Victorian, and the two world wars each have their own readers, research habits and expectations, and the period often decides how a book is shelved and described.",
       "The historical epic or saga: a wide cast and a long span, often across generations or around a great event, as in Tolstoy's War and Peace or Ken Follett's The Pillars of the Earth (1989).",
-      "The invented witness among real events: a fictional protagonist lives through documented events while real figures appear at the edges, the pattern Scott established and still the most common.",
+      "The invented witness among real events: a fictional protagonist lives through documented events while real figures appear at the edges, the pattern Scott established and still very common.",
       "The biographical novel: a real person is the protagonist and documented facts are the frame, with invented private scenes and inner life, as in Mantel's Wolf Hall around Thomas Cromwell.",
       "Military and nautical historical fiction: campaigns, regiments and ships carry the action, with close attention to equipment, tactics and daily routine, as in Patrick O'Brian's Master and Commander (1969).",
       "Historical mystery and crime: an investigator works in a past period whose law, belief and technology shape the case, as in Ellis Peters's Cadfael novels, Lindsey Davis's Falco books and C. J. Sansom's Shardlake series.",

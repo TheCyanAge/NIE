@@ -11,14 +11,14 @@ export default [
     summary: "The thriller is a loose label for fast, dangerous fiction, so its origins are argued over. It took recognisable shape in the early twentieth century with the spy and chase novel and has since split into many strands.",
     conv: [
       "Roots are argued over: Gothic novels, Victorian sensation fiction such as Wilkie Collins's The Woman in White (serialised 1859 to 1860) and the pursuit plots of adventure romance all fed the thriller.",
-      "Before the First World War, invasion-scare stories such as George Chesney's The Battle of Dorking (1871) and Erskine Childers's The Riddle of the Sands (1903) turned national fear into suspense; Conrad's The Secret Agent (1907) gave the spy a literary treatment.",
+      "Before the First World War, invasion-scare stories such as George Chesney's The Battle of Dorking (1871) and Erskine Childers's The Riddle of the Sands (1903) turned national fear into suspense; Conrad's The Secret Agent (1907) gave anarchists and an embassy's agent a literary treatment.",
       "John Buchan's The Thirty-Nine Steps (1915) helped set the pattern of the ordinary man on the run from enemies and police; Buchan called this kind of tale a shocker, one of the period's names for a sensational, fast story.",
       "Between the wars, Sapper's Bulldog Drummond (1920) offered the clubland adventurer, while Eric Ambler's The Mask of Dimitrios and Geoffrey Household's Rogue Male (both 1939) put amateurs, not professional agents, into political danger.",
       "Alfred Hitchcock's films, from The 39 Steps (1935) to North by Northwest (1959), helped make the wrong-man chase and the staged suspense scene a model for both screen and page.",
       "In the Cold War, Ian Fleming's Casino Royale (1953) launched James Bond, and Len Deighton's The Ipcress File (1962) and John le Carré's The Spy Who Came in from the Cold (1963) answered with a grey, bureaucratic picture of espionage.",
-      "In the 1970s Frederick Forsyth's The Day of the Jackal (1971) showed that documentary-style detail could carry a bestseller, and American films such as The Parallax View (1974) and Three Days of the Condor (1975) caught the era's distrust of institutions.",
+      "In the 1970s Frederick Forsyth's The Day of the Jackal (1971) built a bestseller on documentary-style detail, and American films such as The Parallax View (1974) and Three Days of the Condor (1975) are often read as catching the era's distrust of institutions.",
       "The 1980s and 1990s brought labelled strands and big sales: Ludlum's The Bourne Identity (1980), Clancy's The Hunt for Red October (1984), Turow's Presumed Innocent (1987), Harris's The Silence of the Lambs (1988) and Grisham's The Firm (1991).",
-      "Since 2000, Dan Brown's The Da Vinci Code (2003) revived the conspiracy-puzzle thriller, Stieg Larsson's The Girl with the Dragon Tattoo (2005) helped carry Scandinavian crime to a worldwide audience, and Gillian Flynn's Gone Girl (2012) fed a wave of psychological and domestic suspense.",
+      "Since 2000, Dan Brown's The Da Vinci Code (2003) sold in huge numbers as a conspiracy-puzzle thriller, Stieg Larsson's The Girl with the Dragon Tattoo (2005) helped carry Scandinavian crime worldwide, and Gillian Flynn's Gone Girl (2012) fed a wave of psychological and domestic suspense.",
     ],
     watch: [
       "\"The first thriller\" has no agreed answer, because the word covers many kinds of fiction; the dates here mark when strands became recognisable, not a single origin.",
@@ -247,7 +247,7 @@ export default [
       "Reversal or twist: a turn that changes what the characters or the reader believed about the situation.",
       "Tradecraft: the practical methods of espionage, such as surveillance, covers and handling agents, used as texture in spy thrillers.",
       "High concept: a premise that can be stated in a sentence and promises an obvious, strong story, a term used in publishing and film.",
-      "Page-turner: a trade and reader term for a book whose pace and chapter endings make it hard to put down; thriller and suspense are often used interchangeably, though some shops use suspense for slower dread.",
+      "Page-turner: a trade and reader term for a book whose pace and chapter endings make it hard to put down; thriller and suspense are often used interchangeably, though usage varies.",
     ],
     watch: [
       "Several of these terms are used loosely in shops and reviews; thriller, suspense and crime in particular mean different things to different publishers.",

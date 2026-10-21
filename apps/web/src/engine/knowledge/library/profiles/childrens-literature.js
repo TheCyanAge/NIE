@@ -12,7 +12,7 @@ export default [
     conv: [
       "Before the eighteenth century most children met stories aloud (folk tales, fables, rhymes) or through lesson books and religious texts; Comenius's illustrated Orbis Pictus (1658) is often cited as an early picture-led book made for children's learning.",
       "Charles Perrault published his fairy-tale collection in France in 1697, and John Newbery's A Little Pretty Pocket-Book (1744) is often taken as the marker for a London publisher making a business of books meant to amuse as well as instruct children.",
-      "In the nineteenth century growing literacy and a new idea of childhood as a stage of its own widened the market: the Grimms' collection began appearing in 1812, Andersen's first fairy tales in 1835, and Edward Lear's A Book of Nonsense in 1846.",
+      "In the nineteenth century growing literacy and changing ideas about childhood widened the market: the Grimms' collection began appearing in 1812, Andersen's first fairy tales in 1835, and Edward Lear's A Book of Nonsense in 1846.",
       "Lewis Carroll's Alice's Adventures in Wonderland (1865) is often seen as a turning point, because it puts delight and invention ahead of the improving lesson that had dominated many earlier books.",
       "The period from the 1860s to around the First World War is often called a golden age: Little Women (1868), Treasure Island (1883), The Jungle Book (1894), The Wonderful Wizard of Oz (1900), Peter Rabbit (1902), The Wind in the Willows and Anne of Green Gables (both 1908), The Secret Garden (1911).",
       "Institutions followed: the Newbery Medal in the United States was first awarded in 1922 and the Caldecott Medal for picture-book illustration in 1938, and children's departments in publishing houses, libraries and bookshops helped make children's publishing a field of its own.",
@@ -42,7 +42,7 @@ export default [
     conv: [
       "By format and age: board books and picture books for the youngest, early readers and early chapter books for children learning to read alone, middle grade for roughly eight to twelve, and young adult beyond that.",
       "Picture books: short illustrated books read aloud, in which pictures carry part of the story; concept books (alphabet, counting) and novelty books with flaps or textures sit beside them.",
-      "Fantasy and fairy-tale fiction: portal worlds, magic schools, talking animals and invented lands, the largest imaginative strand since Alice and Oz.",
+      "Fantasy and fairy-tale fiction: portal worlds, magic schools, talking animals and invented lands, a major imaginative strand since Alice and Oz.",
       "Realistic fiction: family, school, friendship, illness, loss and belonging, set in the real world without fantasy devices.",
       "Adventure, mystery and school stories: plotted books driven by a quest, a puzzle or a boarding-school year, often in series.",
       "Animal stories come in two broad kinds: those where animals talk and act like people (Charlotte's Web), and realistic animal stories where the animal behaves as a real animal does.",
@@ -179,7 +179,7 @@ export default [
     summary: "The children's canon runs from Perrault, the Grimms and Andersen through Carroll, Potter, Grahame and Milne to Lindgren, White, Sendak and Rowling; these are the books other writers answer, borrow from and are compared with.",
     conv: [
       "Tale sources: Charles Perrault (1697), the Brothers Grimm (from 1812) and Hans Christian Andersen (from 1835), whose collected or authored tales still shape fantasy and picture books.",
-      "Victorian and Edwardian classics: Carroll's Alice (1865), Alcott's Little Women (1868), Stevenson's Treasure Island (1883), Kipling's The Jungle Book (1894), Baum's The Wonderful Wizard of Oz (1900) and Barrie's Peter and Wendy (1911).",
+      "Classics of the later nineteenth and early twentieth centuries: Carroll's Alice (1865), Alcott's Little Women (1868), Stevenson's Treasure Island (1883), Kipling's The Jungle Book (1894), Baum's The Wonderful Wizard of Oz (1900) and Barrie's Peter and Wendy (1911).",
       "Animal and nursery classics: Beatrix Potter's Peter Rabbit (1902, after a private printing in 1901), Kenneth Grahame's The Wind in the Willows (1908) and A. A. Milne's Winnie-the-Pooh (1926).",
       "Between the wars: Erich Kästner's Emil and the Detectives (1929), Arthur Ransome's Swallows and Amazons (1930) and J. R. R. Tolkien's The Hobbit (1937), written for children before it was read by everyone.",
       "Mid-century: Astrid Lindgren's Pippi Longstocking (1945), C. S. Lewis's Narnia from 1950, E. B. White's Charlotte's Web (1952), Madeleine L'Engle's A Wrinkle in Time (1962), Sendak's Where the Wild Things Are (1963) and Roald Dahl's Charlie and the Chocolate Factory (1964).",
