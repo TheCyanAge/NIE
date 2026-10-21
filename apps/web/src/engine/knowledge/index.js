@@ -204,6 +204,8 @@ function build() {
     d.subjectCores = names
       .map((n) => new Set(tokens(String(n).replace(/\([^)]*\)/g, ' ').split(/[:;]|, or | or, /i)[0]).filter((t) => t.length > 1 && !STOPWORDS.has(t))))
       .filter((c) => c.size);
+    // The ways a writer would ask for this profile (its keyword phrases) also name the subject: "romantic poetry techniques" names Romanticism though "romantic" is not "romanticism".
+    d.subjectKw = (d.k.keywords ?? []).map((kw) => new Set(tokens(kw).filter((t) => t.length > 1 && !STOPWORDS.has(t)))).filter((ks) => ks.size >= 2);
   }
   const df = new Map();
   for (const d of docs) {
@@ -219,10 +221,12 @@ const WEIGHTS = { name: 4, kw: 3, body: 1 };
 // Words that are in the name of many subjects ("Gothic fiction", "Science fiction", "Lyric poetry"): naming only one of these does not name the subject.
 const GENERIC_NAME_WORDS = new Set(['fiction', 'literature', 'poetry', 'poem', 'writing', 'novel', 'story', 'stories', 'narrative', 'genre', 'form', 'book', 'drama', 'theatre', 'theater', 'play', 'film', 'television', 'comic', 'comics', 'nonfiction', 'literary', 'writer', 'tradition', 'movement', 'style'].map((w) => stem(w)));
 /** How fully a question names a profile's subject: 1 = every word of its name (or of an alias), 0.5 = its distinctive words but not all of them, 0 = it does not name it. */
-function subjectMention(cores, queryTokens) {
+function subjectMention(cores, queryTokens, kwSets = []) {
+  if (kwSets.some((ks) => [...ks].every((t) => queryTokens.has(t)))) return 1;
   let best = 0;
   for (const core of cores ?? []) {
-    const hit = [...core].filter((t) => queryTokens.has(t));
+    // (a long query word that begins a core word counts: "romantic" for "romanticism")
+    const hit = [...core].filter((t) => queryTokens.has(t) || (t.length >= 8 && [...queryTokens].some((qt) => qt.length >= 6 && t.startsWith(qt))));
     if (hit.length === core.size) return 1;
     if (hit.some((t) => !GENERIC_NAME_WORDS.has(t))) best = 0.5;
   }
@@ -322,10 +326,10 @@ export function searchScored(query, { kinds = null, limit = 6, minScore = 1.2 } 
     // A profile (one facet of a genre or form) competes only when its facet is what the question asks for AND the question names its subject; otherwise the subject's own entry answers.
     // (Without the second condition, "what are the subgenres of fantasy?" was answered with the subgenres of Gothic fiction.)
     if (d.k.kind === 'profile') {
-      const mention = subjectMention(d.subjectCores, qset);
+      const mention = subjectMention(d.subjectCores, qset, d.subjectKw);
       score *= (facets.size ? (facets.has(d.k.topic) ? 1.6 : 0.4) : 0.4) * (mention === 1 ? 1 : mention > 0 ? 0.6 : 0.1);
     }
-    if (score >= minScore) scored.push({ entry: d.k, score, headCoverage: isExact || nameHas ? 1 : head / idfTotal, coverage: isExact || nameHas ? 1 : any / idfTotal, exact: isExact || !!nameHas, mention: d.k.kind === 'profile' ? subjectMention(d.subjectCores, qset) : null });
+    if (score >= minScore) scored.push({ entry: d.k, score, headCoverage: isExact || nameHas ? 1 : head / idfTotal, coverage: isExact || nameHas ? 1 : any / idfTotal, exact: isExact || !!nameHas, mention: d.k.kind === 'profile' ? subjectMention(d.subjectCores, qset, d.subjectKw) : null });
   }
   // A profile that names only part of its subject ("Dark fantasy" for a question about "fantasy") gives way to the profile of the same facet that names the whole of it.
   const whole = new Set(scored.filter((x) => x.mention === 1).map((x) => x.entry.topic));

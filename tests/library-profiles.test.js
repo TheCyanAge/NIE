@@ -75,7 +75,7 @@ test('profiles: counted honestly in the library stats', () => {
 });
 
 test('profiles: a profile answers only for the subject the question names (the subgenres of fantasy were once answered with those of Gothic fiction)', () => {
-  const subjects = ['Fantasy', 'Romance', 'Science fiction', 'the sonnet', 'Quantum basketweaving', 'Epic poetry', 'Comics'];
+  const subjects = ['Fantasy', 'Romance', 'Science fiction', 'the sonnet', 'Quantum basketweaving', 'Epic poetry', 'Limericks'];
   const wrong = [];
   for (const subject of subjects) {
     for (const f of Object.values(PROFILE_FACETS)) {
