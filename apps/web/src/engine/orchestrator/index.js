@@ -561,6 +561,9 @@ export class Orchestrator {
     let ownProject = false;
     const libraryCandidate = text.length > LONG_MESSAGE_CHARS || aboutText || follow || BARE_REPLY.test(text) ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
     if (libraryCandidate) {
+      // The full library loads in the background after the app starts; a question that may be for it waits a moment for it (once) instead of being answered from the core notes alone
+      // or with "my full library is still loading".
+      if (!libraryStatus().loaded && !libraryStatus().error) await Promise.race([loadLibrary(), new Promise((resolve) => setTimeout(resolve, 8000))]);
       // Naming a character or role ('the detective', 'Samantha', 'he') or "my story" means the writer is talking about their story, not asking the
       // library. Even when the model read it as a general question, that stays a veto for anything but a strong match: a 3B model misreads
       // some questions about the writer's own project, and answering those from the library (or saying the library has nothing) would be wrong.

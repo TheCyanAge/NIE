@@ -216,3 +216,54 @@ The exception is the stage and screen batch (screenplay, stage play, tragedy): t
 | Romanticism, realism and modernism | 317/11/5/2, 330/2/4/0, 338/1/2/0 (plus a separate 112/3/4/0 re-check of Modernism) |
 
 A claim that survives several independent checks is not thereby proven: the checkers share the same limits (search summaries rather than full pages, recall for well-known dates).
+
+## Later batches
+
+| Batch | Subjects | Claims checked | Corrected | Softened | Removed | Searched |
+| --- | --- | --- | --- | --- | --- | --- |
+| Narrative nonfiction, true crime and popular science | narrative-nonfiction, true-crime, popular-science | 178 | 5 | 8 | 4 | yes |
+| The best-known forms: sonnet, haiku, free verse | sonnet, haiku, free-verse | 270 | 6 | 14 | 2 | yes |
+| Science fiction subgenres and dystopia | space-opera, cyberpunk, dystopian-fiction | 224 | 5 | 13 | 2 | yes |
+| Russian, French and German literature | russian-literature, french-literature, german-literature | 312 | 10 | 5 | 1 | yes |
+
+What the checkers could not confirm:
+
+### Narrative nonfiction, true crime and popular science
+
+- narrative-nonfiction: the origin of the label 'creative nonfiction' is disputed. The text now says only that the name was spreading by the 1990s, and the history record stays contested.
+- All three files: the 70,000 to 100,000 word figure and the sold-on-proposal practice are market impressions. Sources quote 50,000 to 100,000 words. The figure matches the library's own nonfiction-length entry and is now hedged as quoted advice, with the records marked varies.
+- narrative-nonfiction: Herr's Dispatches is listed as a trade classic, but Herr later said parts of it were composite or invented. The profile makes no accuracy claim about it.
+- true-crime: 'the distinction from MO is debated'. Douglas's MO versus signature distinction is confirmed, but search found no peer-reviewed critique to cite.
+- true-crime: 'skew female' rests on the Vicary and Fraley (2010) finding about readers plus industry podcast data. It is already hedged in the text as a general impression.
+- true-crime: the 1970s and 1980s boom rests on secondary accounts (publishers expanded their lists; Helter Skelter and Ann Rule sold very well), with no sales data found.
+- true-crime: 'broadsides from the sixteenth century on' is firmly documented for murder pamphlets and ballads of about 1570 to 1620, less so for broadsides as such.
+- true-crime: the December 2015 date for Making a Murderer was not search-confirmed (the text gives the year only). The Meaning of Treason is left at 'late 1940s' because sources give 1947 and 1949.
+- true-crime: the legal statements (defamation and public records vary by country; 'alleged' does not remove risk) are general media-law points, not checked against any jurisdiction.
+- popular-science: Darwin's wide readership and Huxley's 1860s working-men lectures are well-known but had no dedicated source. Only the 1868 Norwich lecture was confirmed.
+- popular-science: 'heard as the claim' for the selfish gene and the God particle is a statement about reception, not a dated fact. The standard analogies (rubber sheet, cat in a box, cell as a city) and the embargo and deficit-model definitions are unsourced.
+
+### The best-known forms: sonnet, haiku, free verse
+
+- Direct page fetches (WebFetch and curl) were blocked here, so verification rests on WebSearch summaries of encyclopedias, catalogues and publisher pages, not on reading primary texts.
+- free-verse.js: Hartman's Free Verse: An Essay on Prosody is dated 1980 in catalogues and 1981 in Princeton's Legacy reissue listing; the year was removed from the text.
+- free-verse.js: Lowell's Life Studies (1959), Rankine's Citizen (2014), Sandburg's Chicago Poems (1916), Williams's Spring and All (1923) and Levertov's organic form returned no search results. They rest on my own solid knowledge, as does the Clifton/Oliver/Gluck 'mainly free verse' note.
+- free-verse.js: the 1886 vers libre priority dispute (Kahn, Laforgue, Rimbaud) is real and unsettled; the text and a watch line already say so.
+- sonnet.js: the Sicilian sestet rhymes differ by source (CDCDCD or CDECDE), as the text says. Giacomo da Lentini's invention of the sonnet is traditional only. The 'comic' half of the caudate sonnet claim was not separately sourced, and Berryman's rhyme schemes were not checked.
+- haiku.js: Teimon and Danrin 'popular among townspeople' is supported in outline but not in those exact words. The toriawase, ichibutsu jitate and ginko glosses are standard terms from my own knowledge. English-language practice claims are generalisations, flagged 'varies'.
+
+### Science fiction subgenres and dystopia
+
+- Web search ran out partway: the per-turn search budget was used up after the first batches. Verified by search: Tucker and Le Zombie 1941, Planet Stories 1939, Foundation 1942 and 1951, Gundam classification, Mirrorshades contents, Bethke's Amazing Stories publication, Stars My Destination 1956, Shockwave Rider 1975, Cyberpunk RPG 1988, Neuromancer vocabulary (ICE, console cowboy, matrix, zaibatsu), Wetware 1988, Waste Tide, Jeter and steampunk. The rest was checked against the library's own records and solid recall, with anything unconfirmed softened or removed.
+- Not searched, from solid recall: Count Zero and Mona Lisa Overdrive dates, Virtual Light 1993, the Akira and Ghost in the Shell film dates, Blade Runner 2049 and Cyberpunk 2077 dates, The Circle 2013, The Memory Police dates, V for Vendetta 1982 to 1989, Brazil 1985, Zamyatin's We 'written around 1920', The Iron Heel as an oligarchic tyranny, Mass Effect 2007, the Hitchhiker's radio and novel years, and Bujold's 1986 start.
+- Characterisations rather than facts, left hedged: The Expanse as tense and Chambers as gentle, solarpunk as a hopeful reply, whether Star Wars, Foundation, Dune or Gundam count as space opera, and where The Hunger Games and The Handmaid's Tale sit between dystopia and post-apocalyptic fiction.
+- Bethke's story writing date (1980 or 1982) was dropped because sources disagree. The date Dozois's label took hold was not checked, so none is given.
+
+### Russian, French and German literature
+
+- Search was only partly usable. Five WebSearch queries returned results: Zamyatin's We, Platonov's Foundation Pit, The Master and Margarita publication history, Heyse's falcon theory, and Jean Paul's Doppelganger. A sixth was refused because the session's search budget was used up, and WebFetch could not resolve any host. Most other dates, titles and attributions were checked from prior knowledge only.
+- Weltschmerz 'credited to Jean Paul' (Selina, 1827) could not be confirmed by search. The text is hedged as 'credited'.
+- Song of Roland 'around 1100' is the composition date. The Oxford manuscript is later, and the text does not say so. Doubrovsky's 1977 coinage of autofiction was not re-searched.
+- Mother Courage is listed as 1941 (the library's year and the Zurich premiere year). The canon text now says it was written in 1939. The first printing may be later.
+- The works year for The Master and Margarita is 1966 to match the library. The text gives the real span: written 1928 to 1940, printed cut in 1966 to 1967.
+- The compare facets in all three files are interpretive generalisations. Their confidence is correctly 'contested'. The readers facets are market practice, set to 'varies' with asOf 2025.
+

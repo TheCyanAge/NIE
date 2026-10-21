@@ -1,0 +1,184 @@
+{
+  "searchUsed": true,
+  "searchNote": "Web search worked for the first batches (Tucker/Le Zombie, Planet Stories, Foundation 1942/1951, Gundam classification, Mirrorshades contents, Bethke publication, Stars My Destination, Shockwave Rider, Cyberpunk RPG 1988, Neuromancer vocabulary, Wetware, Waste Tide, Jeter/steampunk). The shared per-turn search budget then ran out, so the remaining claims were checked against the library's own records and solid knowledge, and anything not confirmed was softened or removed rather than left as fact.",
+  "files": {
+    "space-opera.js": {
+      "claimsChecked": 64,
+      "confirmed": 57,
+      "corrected": [
+        {
+          "where": "history, last point (Since 2010)",
+          "was": "Arkady Martine's A Memory Called Empire (2019) looked at empire from the edge.",
+          "now": "Arkady Martine's A Memory Called Empire (2019) followed an ambassador from a small station into an empire's capital.",
+          "why": "'From the edge' was a characterisation; the novel is set in the imperial capital with an outsider ambassador, so the plain description is safer."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, Foundation point",
+          "was": "they are often counted with space opera, though they are talky and political rather than swashbuckling",
+          "now": "they are sometimes counted with space opera, though they are closer to political history than to swashbuckling",
+          "why": "Whether Foundation is space opera is a judgement; 'often' overstated it. 1942 start and 1951 Gnome Press book confirmed by search."
+        },
+        {
+          "where": "history, Star Trek/Star Wars point",
+          "was": "Japanese animation built its own tradition, with Mobile Suit Gundam (1979).",
+          "now": "Japanese animation built its own space-war stories, with Mobile Suit Gundam (1979).",
+          "why": "Gundam is usually classed as military science fiction (the original series is also tagged space opera); the 1979 date is confirmed, so the text now describes it rather than labelling the genre."
+        },
+        {
+          "where": "subgenres, shared-universe and media point",
+          "was": "such as Mass Effect (2007) and Mobile Suit Gundam (1979).",
+          "now": "such as Mass Effect (2007) and the Gundam franchise (from 1979).",
+          "why": "The franchise, not one series, is what builds a shared setting across many stories."
+        },
+        {
+          "where": "subgenres, galactic-empire point",
+          "was": "Ancillary Justice and A Memory Called Empire look at empire from inside and from its edge.",
+          "now": "Ancillary Justice and A Memory Called Empire look at empire through a former instrument of it and through an outsider.",
+          "why": "'Its edge' was a loose characterisation; the new wording follows the two narrators."
+        },
+        {
+          "where": "readers, length and series point",
+          "was": "100,000 words or more is common in the genre; trilogies and longer series are normal",
+          "now": "books of 100,000 words or more are often seen in the genre; trilogies and longer series are common",
+          "why": "Market generalisation; facet is already confidence 'varies' with asOf and a watch note."
+        },
+        {
+          "where": "canon, mid-century galactic empires point",
+          "was": "Dune (1965), a political epic across an empire that is often placed with space opera and planetary romance.",
+          "now": "Dune (1965), a political epic; both are sometimes placed with space opera, and Dune also with planetary romance.",
+          "why": "Placing Foundation and Dune in space opera is a judgement, so 'often' became 'sometimes' and the hedge now covers both books."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Bujold's Vorkosigan books 'from 1986' (Shards of Honor), Banks's Consider Phlebas as the first Culture novel, and E. E. Smith's Lensman 'from the 1930s' rest on solid recall but were not searched (search budget ran out).",
+        "The Hitchhiker's Guide dates (radio 1978, novel 1979), Mass Effect 2007 and Becky Chambers 2014 (self-published; a trade edition followed in 2015) are from recall; the library holds 1979 and 2014 for the last two works.",
+        "The Expanse as 'tense and political', Chambers as 'gentle' and Bujold as 'comedy of manners' are descriptive characterisations, not measurable facts.",
+        "Calling Star Wars both space opera and science fantasy, and Gundam/Mass Effect space opera at all, depends on the critic; the text is hedged and the compare facet is marked contested."
+      ]
+    },
+    "cyberpunk.js": {
+      "claimsChecked": 88,
+      "confirmed": 82,
+      "corrected": [
+        {
+          "where": "canon, Beyond the English-speaking world point",
+          "was": "Waste Tide (2013), written in Chinese, takes the style to electronic waste and class in China.",
+          "now": "Waste Tide (2013), written in Chinese, brings the style to an electronic-waste recycling island off China's southern coast.",
+          "why": "Search confirmed the 2013 Chinese original and a setting on an e-waste recycling island; 'class' was an unverified gloss."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, Gibson and Blade Runner point",
+          "was": "Blade Runner ... gave the style its look of crowded, rain-wet streets under corporate towers.",
+          "now": "Blade Runner ... is often credited with giving the style its look of crowded, rain-wet streets under corporate towers.",
+          "why": "A critical commonplace, not a measurable fact."
+        },
+        {
+          "where": "compare, cyberpunk versus dystopian fiction",
+          "was": "the mood cynical rather than didactic, and protagonists survive at the margins instead of overturning the system",
+          "now": "the mood cynical rather than didactic, and protagonists often survive at the margins instead of overturning it",
+          "why": "Critical generalisation; 'often' keeps it defensible (facet is already confidence 'varies')."
+        },
+        {
+          "where": "canon, watch",
+          "was": "the early canon was drawn mainly from American male writers",
+          "now": "the early canon was drawn mainly from American writers",
+          "why": "Pat Cadigan and others complicate a gender generalisation; the nationality point is safe."
+        }
+      ],
+      "removed": [
+        {
+          "where": "history, Bethke point",
+          "was": "Bruce Bethke's short story Cyberpunk, written in 1980 and published in Amazing Stories in 1983",
+          "now": "Bruce Bethke's short story Cyberpunk, published in Amazing Stories in 1983",
+          "why": "Publication (Amazing Stories, November 1983) is confirmed; sources differ on the writing date (one says 1980, Bethke himself speaks of selling it in 1982), so the writing date was dropped."
+        },
+        {
+          "where": "history, Snow Crash and post-cyberpunk point",
+          "was": "by the mid-1990s writers and critics spoke of post-cyberpunk",
+          "now": "later writers and critics spoke of post-cyberpunk, citing Stephenson's The Diamond Age (1995) and Gibson's Pattern Recognition (2003)",
+          "why": "The date at which the label arose was not confirmed; the library's post-cyberpunk entry supports the two example works, not the timing."
+        }
+      ],
+      "remainingDoubts": [
+        "Count Zero (1986), Mona Lisa Overdrive (1988), Virtual Light (1993), the Akira film (1988), the Ghost in the Shell film (1995), Blade Runner 2049 (2017) and Cyberpunk 2077 (2020) are from solid recall but were not searched (search budget ran out).",
+        "Gardner Dozois 'helped make it the label' in the mid-1980s is confirmed in general terms (he popularised the term); the exact article date was not checked, so none is given.",
+        "Cheap Truth 1983 to 1986 and the Neuromancer awards were confirmed by the writer's earlier checks, not re-searched here.",
+        "'Solarpunk is often framed as a hopeful reply', the 'techno-orientalism' attribution and Gibson's 'later books rotate several viewpoints' are general characterisations from recall.",
+        "Jeter's steampunk coinage (Locus, April 1987) is confirmed, but the SF Encyclopedia hedges with 'almost certain', so the text says 'generally credited'."
+      ]
+    },
+    "dystopian-fiction.js": {
+      "claimsChecked": 72,
+      "confirmed": 65,
+      "corrected": [
+        {
+          "where": "history, Battle Royale point",
+          "was": "in Japan Koushun Takami's Battle Royale (1999) did similar work for older teenagers.",
+          "now": "in Japan Koushun Takami's Battle Royale (1999) sent a class of schoolchildren into a state-run death game.",
+          "why": "The book is an adult novel with teenage characters, not a young adult title, so 'for older teenagers' misdescribed the audience; the premise is the safe description."
+        },
+        {
+          "where": "history, mid-century point",
+          "was": "Cold War fears of the state, the bomb and mass media shaped Player Piano, Fahrenheit 451 and The Space Merchants",
+          "now": "Postwar worries about automation, mass media and advertising run through Player Piano, Fahrenheit 451 and The Space Merchants",
+          "why": "The attribution to 'the bomb' and the Cold War did not fit these three books; automation, media and advertising is what they are about. Dates and authors are from the library."
+        },
+        {
+          "where": "canon, third reworking point",
+          "was": "Reworked and critical dystopia: Atwood's The Handmaid's Tale and Oryx and Crake, Butler's Parable of the Sower, Le Guin's Omelas",
+          "now": "Reworking the form: (same works)",
+          "why": "The heading implied Atwood and Le Guin are critical dystopias in Moylan's sense; the writer's own check found only Butler, Piercy and Robinson named as the main examples."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, utopian writing point",
+          "was": "dystopian fiction grew partly as a reply to that confidence in planning and technology",
+          "now": "some later dystopian fiction can be read as a reply to that confidence in planning and technology",
+          "why": "An interpretation, now phrased as one."
+        },
+        {
+          "where": "canon, reference reading point",
+          "was": "Claeys's Dystopia: A Natural History and The Cambridge Companion to Utopian Literature are standard overviews",
+          "now": "... and the Cambridge Companion to Utopian Literature, which he edited, are useful overviews",
+          "why": "Both titles and Claeys's roles (author, editor) are confirmed; 'standard' is a judgement."
+        },
+        {
+          "where": "compare, dystopian versus post-apocalyptic",
+          "was": "Some books, such as The Hunger Games and The Handmaid's Tale, build a regime on a catastrophe and belong to both.",
+          "now": "Books like The Hunger Games and The Handmaid's Tale build a regime on a catastrophe and sit between the two.",
+          "why": "Where these books belong is a reading, so the text no longer assigns them to both genres outright."
+        },
+        {
+          "where": "terms, ambiguous utopia",
+          "was": "a model for the critical utopia",
+          "now": "critics often cite it as a critical utopia",
+          "why": "Attributes the classification to critics instead of asserting it."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Zamyatin's We 'written around 1920' is from recall (the 1924 English publication and late-1980s Soviet publication were confirmed by the writer's check).",
+        "Jack London's The Iron Heel as an 'oligarchic tyranny', Dave Eggers's The Circle (2013), Ogawa's The Memory Police (Japanese 1994, English 2019), V for Vendetta (1982 to 1989) and Brazil (1985) are from solid recall but were not searched (search budget ran out).",
+        "Bentham proposing 'cacotopia' in the early nineteenth century (1818 by the writer's check) and Moylan's 'critical dystopia' around 2000 are stated approximately on purpose.",
+        "Mill's 1868 use is confirmed; the watch note correctly says only that the word was in use by 1868 because an isolated earlier use has been reported.",
+        "Details of the Green Wall, the Two Minutes Hate, soma, O'Brien, Mustapha Mond, Captain Beatty and the Handmaid's Tale closing notes are from direct knowledge of the books, not searched."
+      ]
+    }
+  },
+  "lint": {
+    "space-opera.js": "OK (9 records, lint clean, every facet found)",
+    "cyberpunk.js": "OK (9 records, lint clean, every facet found)",
+    "dystopian-fiction.js": "OK (9 records, lint clean, every facet found)"
+  },
+  "otherChecks": [
+    "Facets match the README meaning for a genre (history, subgenres, tropes, readers, craft, compare, canon, pitfalls, terms).",
+    "No sample prose, dialogue or pasteable line in any record; no example field; no URLs, page or section numbers; no quote over 14 words; no exclamation marks.",
+    "No contradiction with the library entries space-opera, genre-spec-new-space-opera, genre-spec-space-western, cyberpunk, post-cyberpunk or dystopian (work years agree: Skylark 1928, Consider Phlebas 1987, Hyperion 1989, A Fire Upon the Deep 1992, Leviathan Wakes 2011, Ancillary Justice 2013; Burning Chrome 1986 as a collection and 1982 as the story; Hitchhiker's novel 1979)."
+  ]
+}

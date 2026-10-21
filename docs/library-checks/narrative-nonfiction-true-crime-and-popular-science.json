@@ -1,0 +1,216 @@
+{
+  "subject": "Narrative nonfiction, true crime and popular science (narrative-nonfiction, genre-age-true-crime, genre-age-popular-science) - independent second pass",
+  "searchUsed": true,
+  "method": "Read each staging file and the README Profiles section in full; ran node scripts/library-hub.mjs for narrative-nonfiction, genre-age-true-crime and genre-age-popular-science (works lists agree; the 'has its own entry' pointers to narrative history, narrative science and medicine, technology writing, popular mathematics, popular psychology and justice and wrongful-conviction writing all exist). Compared work years and the market length figure with the library's own work records and its nonfiction-length entry. Listed dates, title/author/year triples, firsts and coinages, numbers and term meanings per file and checked them with about 45 WebSearch queries (encyclopedias, library and bookseller catalogue records, publisher, museum and institutional pages, scholarly articles). WebFetch was not used. Every item the writer flagged was checked first. Where search returned nothing for a claim, it is listed under remainingDoubts and was judged against settled knowledge and the library's records. No primary source was consulted. Claim counts are approximate counts of discrete checkable claims.",
+  "files": {
+    "narrative-nonfiction.js": {
+      "claimsChecked": 52,
+      "confirmed": 49,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "profile-narrative-nonfiction-history, conv 6 (creative nonfiction)",
+          "was": "through the 1990s the name \"creative nonfiction\" spread in universities and literary magazines",
+          "now": "by the 1990s the name \"creative nonfiction\" was spreading in universities and literary magazines",
+          "why": "Sources agree the Creative Nonfiction magazine was founded by Lee Gutkind in the early 1990s (1993 or 1991 depending on source) but disagree on who first used the term and when; it appears sparingly in print from the 1940s. 'By the 1990s ... was spreading' states only what the sources support and does not imply a start date."
+        },
+        {
+          "where": "profile-narrative-nonfiction-readers, conv 5 (length)",
+          "was": "narrative and popular nonfiction books commonly run about 70,000 to 100,000 words plus notes; shorter books are an accepted and growing format",
+          "now": "narrative and popular nonfiction books are often quoted at about 70,000 to 100,000 words plus notes, though advice varies by publisher and subject; shorter books are an accepted format",
+          "why": "Searches found the range quoted from about 60,000 to 100,000 words depending on the source (60,000-80,000 and 70,000-90,000 are both common). The figure matches the library's own nonfiction-length entry, so it is kept, but hedged as a quoted figure. 'Growing' was unsupported."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-narrative-nonfiction-readers, conv 5",
+          "was": "the qualifier 'growing' on the short-book format",
+          "now": "(removed)",
+          "why": "No source seen supports a trend claim."
+        }
+      ],
+      "confirmed_items": [
+        "Carlyle, The French Revolution: A History, 1837 (Fraser, three volumes)",
+        "Orwell, The Road to Wigan Pier, 1937; Agee and Evans, Let Us Now Praise Famous Men, 1941 (Houghton Mifflin; grew from a 1936 Fortune assignment)",
+        "Hersey, Hiroshima: whole New Yorker issue of 31 August 1946, six survivors, Knopf book edition the same year (under two months later)",
+        "In Cold Blood: four-part New Yorker serial September-October 1965, book January 1966, 'nonfiction novel', and later challenges to its accuracy (2013 KBI file reporting; the graveyard ending acknowledged as invented)",
+        "The New Journalism, Wolfe and E. W. Johnson, Harper & Row, 1973, with Didion, Talese, Mailer, Thompson and Herr among the contributors",
+        "Wolfe's devices: scene-by-scene construction listed first, then dialogue, third-person point of view, status details",
+        "Herr, Dispatches 1977; Wolfe, The Right Stuff 1979; Krakauer, Into Thin Air 1997 and Junger, The Perfect Storm 1997; Hillenbrand, Seabiscuit 2001 (Random House); Larson 2003; Serial October 2014",
+        "Bissinger 1990 (Addison-Wesley); Orlean 1998 (Random House); LeBlanc 2003 (Scribner); Boo 2012 (Random House, National Book Award); Lewis, Moneyball 2003 (Norton)",
+        "Wolfe, Electric Kool-Aid Acid Test 1968 (FSG); Mailer, The Armies of the Night 1968; Didion, Slouching Towards Bethlehem 1968 (FSG, 10 May); Skloot and Mukherjee 2010 (Scribner, 16 November)",
+        "Telling True Stories: A Nonfiction Writers' Guide from the Nieman Foundation at Harvard University, edited by Mark Kramer and Wendy Call, Plume, 2007"
+      ],
+      "remainingDoubts": [
+        "The origin of the label 'creative nonfiction' is disputed (Gutkind, earlier uses, a claim for David Madden); the text only says the name was spreading by the 1990s, and the history record stays marked contested.",
+        "Length and sale-on-proposal practice are market impressions; sources quote anything from 50,000-60,000 to 100,000 words. The record is marked varies with asOf 2025.",
+        "Dispatches is listed as a trade classic of Vietnam writing; Herr later said parts were composites or invented. The profile makes no claim that every scene is verified, but a writer reading it alongside the sourcing advice may want that nuance.",
+        "Wolfe's three other devices and the nut graf definition are standard usage and were not checked against a primary text."
+      ]
+    },
+    "true-crime.js": {
+      "claimsChecked": 64,
+      "confirmed": 57,
+      "corrected": [
+        {
+          "where": "profile-true-crime-history, conv 3 (Roughead and Pearson)",
+          "was": "lawyers and journalists such as William Roughead in Scotland and Edmund Pearson in the United States wrote essays on famous trials",
+          "now": "writers such as William Roughead, a Scottish lawyer, and Edmund Pearson, an American librarian and author, wrote essays on famous trials",
+          "why": "Roughead was an Edinburgh solicitor (Writer to the Signet) who wrote on trials; Pearson (1880-1937) worked at the New York Public Library from 1914 to 1927 and wrote book columns and crime studies. He was a librarian and author, not a lawyer or a journalist."
+        },
+        {
+          "where": "profile-true-crime-canon, conv 7 (Keefe)",
+          "was": "Say Nothing (2018), which follows a disappearance in Northern Ireland through interviews and records",
+          "now": "Say Nothing (2018), which follows a 1972 abduction and killing in Northern Ireland through interviews and records",
+          "why": "The book is about the 1972 abduction and murder of Jean McConville (remains found in 2003). 'Disappearance' alone understates it and could read as a missing-person case."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-true-crime-history, conv 8 (podcasts and streaming)",
+          "was": "From 2014 the genre moved to audio and screen: ... drew very large audiences, and Michelle McNamara's I'll Be Gone in the Dark (2018) rode the same interest",
+          "now": "From 2014 the genre reached very large new audiences on audio and screen: ... ; Michelle McNamara's I'll Be Gone in the Dark appeared in 2018, after her death",
+          "why": "True crime was already on film and television before 2014 (the same record cites The Thin Blue Line, 1988), so 'moved' overstated it. 'Rode the same interest' was an unsourced causal claim; the publication year and posthumous status (McNamara died in 2016) are the checked facts. Dates kept: Serial 3 October 2014, The Jinx February 2015, Making a Murderer 2015, My Favorite Murder January 2016."
+        },
+        {
+          "where": "profile-true-crime-readers, conv 6 (length)",
+          "was": "book-length true crime usually sits in the range of other general nonfiction, around 70,000 to 100,000 words",
+          "now": "book-length true crime is often quoted in the range of other general nonfiction, around 70,000 to 100,000 words, though advice varies",
+          "why": "Search found a 70,000-100,000 range quoted for narrative nonfiction including true crime, but only from non-authoritative guides, and general nonfiction guidance varies widely."
+        },
+        {
+          "where": "profile-true-crime-readers, conv 7 (shelving)",
+          "was": "bookshops usually give true crime its own section",
+          "now": "bookshops often give true crime its own section",
+          "why": "Market impression; nothing found to support 'usually'."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-true-crime-history, conv 6 (1970s and 1980s)",
+          "was": "true crime became a major bestselling category, especially in paperback",
+          "now": "publishers expanded their true crime lists and the category became a major seller",
+          "why": "Sources support Helter Skelter as the best-selling true crime title and publishers expanding true crime acquisitions in the late 1970s and 1980s (Murley, The Rise of True Crime). 'Especially in paperback' was not confirmed and is removed."
+        },
+        {
+          "where": "profile-true-crime-canon, summary",
+          "was": "through Capote and Mailer through the paperback bestsellers of the 1970s and 1980s",
+          "now": "through Capote, Mailer and the bestsellers of the 1970s and 1980s",
+          "why": "Same unconfirmed 'paperback' claim removed; the double 'through' also read as a mistake."
+        }
+      ],
+      "confirmed_items": [
+        "Pitaval's Causes celebres et interessantes: first volumes 1734, run 1734 to about 1743 (volume counts differ), so 'from the 1730s' is safe",
+        "Newgate Calendar: five-volume edition about 1773-74, later editions in 1818 and the 1820s, so 'eighteenth and nineteenth centuries' holds",
+        "English murder pamphlets (surviving from about 1570) and murder ballads (printed from 1558 on) are documented in sixteenth-century England",
+        "Red Barn killing 1827 and trial 1828 (Maria Marten, William Corder), ballads and melodrama; De Quincey's essay in Blackwood's, February 1827, a satire",
+        "True Detective Mysteries launched by Macfadden in 1924; Pearson, Studies in Murder 1924; Roughead, Twelve Scots Trials 1913",
+        "West: reportage on the Joyce and Amery treason trials (The Meaning of Treason, 1947 in the US and 1949 in the UK, so 'late 1940s') and Nuremberg (A Train of Powder, 1955)",
+        "In Cold Blood: Clutter murders in Holcomb, Kansas, November 1959; Helter Skelter 1974; The Executioner's Song 1979; The Stranger Beside Me 1980 (Rule knew Bundy); Fatal Vision 1983",
+        "The Thin Blue Line 1988; Randall Dale Adams's conviction overturned in 1989 and the film generally credited as the catalyst; Midnight in the Garden of Good and Evil 1994",
+        "Serial (3 October 2014), The Jinx (8 February 2015), My Favorite Murder (first episode 13 January 2016)",
+        "Wambaugh, The Onion Field 1973; Malcolm, The Journalist and the Murderer (New Yorker 1989, book 1990, about McGinniss and MacDonald); Summerscale 2008 (Road Hill House, 1860); Grann 2017; Keefe 2018; Carreyrou 2018; McNamara 2018",
+        "Douglas's modus operandi versus signature distinction (method versus emotional need); Golden State Killer arrest April 2018 through investigative genetic genealogy"
+      ],
+      "remainingDoubts": [
+        "'The distinction from MO is debated': Douglas's distinction is confirmed, but searches found no peer-reviewed critique of the signature concept to cite. It is widely questioned in crime-linkage research, and the text only says it is debated.",
+        "'Skew female': Vicary and Fraley (2010) report that women prefer true crime reading; podcast survey figures are industry data. The text already calls this a general impression, not a rule.",
+        "The 1970s and 1980s boom rests on secondary accounts (publishers expanding acquisitions, Helter Skelter and Ann Rule's sales); no sales data were found.",
+        "'Broadsides ... from the sixteenth century on': murder pamphlets and ballads of the 1570s to 1620s are documented; broadsides specifically are better documented for the eighteenth and nineteenth centuries.",
+        "Making a Murderer: the December 2015 date was not confirmed by search; the text states the year only.",
+        "The date of The Meaning of Treason is left as 'late 1940s' because sources give 1947, 1949 and a 1945 magazine origin.",
+        "Bad Blood is classified as fraud true crime shading into investigative journalism, a classification judgment. The legal statements (defamation and public records vary by country, 'alleged' does not remove risk) are general media-law points, not checked against any jurisdiction.",
+        "Length and sale-on-proposal figures are market impressions (record marked varies, asAt 2025)."
+      ]
+    },
+    "popular-science.js": {
+      "claimsChecked": 62,
+      "confirmed": 55,
+      "corrected": [
+        {
+          "where": "profile-popular-science-history, conv 3 (Christmas Lectures)",
+          "was": "the Royal Institution's Christmas Lectures for young people began in 1825 with Faraday as their best-known lecturer",
+          "now": "the Royal Institution's Christmas Lectures for young people began in 1825 and Faraday became their best-known lecturer",
+          "why": "The Royal Institution's own history says the first series (December 1825) was given by John Millington, and Faraday's first series came in 1827 (nineteen series in all). The old wording could be read as Faraday lecturing in 1825. Credit for the idea is disputed, so the text does not name a founder."
+        },
+        {
+          "where": "profile-popular-science-terms, conv 4 (two cultures)",
+          "was": "C. P. Snow's 1959 phrase for the divide between literary intellectuals and scientists",
+          "now": "C. P. Snow's phrase, made famous by his 1959 lecture, for the divide between literary intellectuals and scientists",
+          "why": "Snow used the phrase in a New Statesman article of 6 October 1956; the Rede Lecture of 7 May 1959 (published the same year as The Two Cultures and the Scientific Revolution) made it famous. Calling it a '1959 phrase' misdated its origin."
+        },
+        {
+          "where": "profile-popular-science-history, summary",
+          "was": "grew with Victorian lectures and magazines",
+          "now": "grew with nineteenth-century lectures and magazines",
+          "why": "Two of the three magazines and lectures named (Scientific American, 1845, and Popular Science Monthly, 1872) are American, so 'Victorian' was wrong for part of what it summarised."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-popular-science-readers, conv 6 (length)",
+          "was": "trade popular science commonly runs about 70,000 to 100,000 words, and short, essay-length books are an accepted and growing format",
+          "now": "trade popular science is often quoted at about 70,000 to 100,000 words, though advice varies by publisher and subject, and short, essay-length books are an accepted format",
+          "why": "Searches found popular nonfiction quoted anywhere from about 50,000 to 90,000 words. The figure matches the library's nonfiction-length entry, so it is kept but hedged. 'Growing' was unsupported."
+        },
+        {
+          "where": "profile-popular-science-terms, conv 2 (public understanding of science)",
+          "was": "later critics said it assumed a passive public",
+          "now": "later critics said the approach treated the public as passive recipients",
+          "why": "Whether the 1985 Royal Society report itself embodies the deficit model is disputed (some commentators find no explicit endorsement in its text); the critique is of the movement and its approach. The new wording removes the ambiguous 'it'."
+        },
+        {
+          "where": "profile-popular-science-history, conv 5 (relativity and quantum books)",
+          "was": "relativity and quantum theory produced widely read books by scientists: Einstein's own short book ..., Eddington's ... (1928) and Jeans's ... (1930)",
+          "now": "relativity and quantum theory brought popular books by scientists: Einstein's own short book ..., Eddington's ... (1928) and Jeans's ... (1930)",
+          "why": "Dates are confirmed (Einstein German 1916, English 1920; Eddington 1928, from the 1927 Gifford Lectures; Jeans 1930). Sales evidence is uneven: Jeans's book was by far the most successful, Eddington's sold modestly in its first year, and one historian judged Einstein's weaker as a seller. 'Widely read' was a judgement the sources do not settle."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-popular-science-readers, conv 6",
+          "was": "the qualifier 'growing' on the short-book format",
+          "now": "(removed)",
+          "why": "No source seen supports a trend claim."
+        }
+      ],
+      "confirmed_items": [
+        "Galileo, Dialogue Concerning the Two Chief World Systems (1632) in Italian; Fontenelle, Entretiens sur la pluralite des mondes (1686), six evenings between a philosopher and a marquise",
+        "Algarotti, Il Newtonianismo per le dame (1737), a dialogue between a chevalier and a marchioness modelled on Fontenelle",
+        "Marcet, Conversations on Chemistry, first published anonymously (1805 or 1806, so 'early 1800s'), read by Faraday as a bookbinder's apprentice",
+        "Royal Institution Christmas Lectures began in 1825; Faraday gave nineteen series from 1827; Humboldt's Cosmos volume 1 in 1845 (Cotta); Scientific American first issue 28 August 1845; Popular Science Monthly founded May 1872 by Youmans",
+        "Huxley's lecture 'On a Piece of Chalk' to the working men of Norwich, 1868 (his 1860s lectures to working men are well documented)",
+        "Einstein's German popular book 1916; Eddington 1928; Jeans 1930; de Kruif, Microbe Hunters 1926 (Harcourt, Brace); Gamow 1947 (Viking)",
+        "Carson 1962; Watson 1968; Bronowski, The Ascent of Man 1973 (BBC series and book); Dawkins 1976; Sagan, Cosmos 1980 (book and PBS series); Sacks 1985; Hawking 1988",
+        "Royal Society 1985 report The Public Understanding of Science (the Bodmer report), and the later deficit-model critique",
+        "Sobel 1995; Diamond 1997; Greene, The Elegant Universe 1999 (Norton); Bryson 2003; Rovelli, Sette brevi lezioni di fisica (Adelphi, 2014), English Seven Brief Lessons on Physics",
+        "Faraday, The Chemical History of a Candle, book form 1861 edited by William Crookes from the Christmas lectures of 1860-61",
+        "Sagan's cosmic calendar, first in The Dragons of Eden (1977) and used in Cosmos (1980)",
+        "Snow's Rede Lecture, Cambridge, 7 May 1959, published as The Two Cultures and the Scientific Revolution the same year",
+        "'God particle' is the title of Lederman's 1993 book with Dick Teresi (the origin of the title is disputed and the text does not state it)"
+      ],
+      "remainingDoubts": [
+        "Darwin's Origin reaching a wide general readership and Huxley's 1860s lectures to working men are well-known facts but were not confirmed by a dedicated source; the 1868 Norwich lecture was.",
+        "The label examples ('selfish' gene, 'God particle') being 'heard as the claim' is a statement about reception, not a dated fact; the text does not say who named what.",
+        "Length and sale-on-proposal figures are market impressions (record marked varies, asAt 2025); sources range from 50,000 to 100,000 words.",
+        "The rubber-sheet, cat-in-a-box, lift and cell-as-a-city images are standard illustrations and were not sourced; embargo practice and the deficit-model wording are standard definitions.",
+        "The problems replicating studies 'in some fields, notably psychology' is a general, well-known statement with no specific study cited."
+      ]
+    }
+  },
+  "lint": {
+    "narrative-nonfiction.js": "OK (9 records, lint clean, every facet found)",
+    "true-crime.js": "OK (9 records, lint clean, every facet found)",
+    "popular-science.js": "OK (9 records, lint clean, every facet found)"
+  },
+  "otherChecks": [
+    "Each facet means what the README says for a genre or form (history, subgenres, tropes, readers, craft, compare, canon, pitfalls, terms); every file has 9 records with at least 5 conv points each.",
+    "No sample prose, dialogue or pasteable line in any record; no example field; no exclamation marks, URLs, section or page numbers (pattern scan clean); longest conv point is 297 characters; no quote over 14 words.",
+    "Nothing contradicts the library's entries for narrative-nonfiction, genre-age-true-crime or genre-age-popular-science (work years agree; the library's nonfiction-length figure of 70,000 to 100,000 words is matched, now hedged as quoted advice)."
+  ],
+  "filesTouched": [
+    "/tmp/claude-0/-home-user-NIE/d87ef263-de19-53a3-b5f0-c63deb534a30/scratchpad/staging/narrative-nonfiction.js",
+    "/tmp/claude-0/-home-user-NIE/d87ef263-de19-53a3-b5f0-c63deb534a30/scratchpad/staging/true-crime.js",
+    "/tmp/claude-0/-home-user-NIE/d87ef263-de19-53a3-b5f0-c63deb534a30/scratchpad/staging/popular-science.js"
+  ]
+}

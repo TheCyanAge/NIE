@@ -1,0 +1,156 @@
+{
+  "subject": "Russian, French and German literature",
+  "searchUsed": true,
+  "method": "Every file was read in full against the README Profiles standard and the library entries trad-eur-russian, trad-eur-french and trad-eur-german (node scripts/library-hub.mjs). Five WebSearch queries returned results (Zamyatin's We, Platonov's Foundation Pit, The Master and Margarita publication history, Heyse's falcon theory, Jean Paul and the word Doppelganger); a sixth was refused because the session's web search budget was used up, and WebFetch could not resolve any host in this environment. Everything else (the large majority of dates, titles, authors and coinage claims) was checked against solid prior knowledge only, and anything that could not be held to that standard was softened or removed. Search evidence is result summaries, not primary texts. Lint: node scripts/library-profile-check.mjs --staging prints OK for all three files after the edits.",
+  "files": {
+    "russian-literature.js": {
+      "claimsChecked": 108,
+      "confirmed": 102,
+      "corrected": [
+        {
+          "where": "profile-russian-literature-canon, conv 'Soviet prose', Platonov",
+          "was": "Platonov's The Foundation Pit (written 1930)",
+          "now": "Platonov's The Foundation Pit (written 1929 to 1930)",
+          "why": "Search results give the writing period as December 1929 to April 1930, so a single year 1930 was imprecise."
+        },
+        {
+          "where": "profile-russian-literature-history, conv on the Thaw and Nobel Prizes",
+          "was": "Pasternak (1958), Solzhenitsyn (1970) and Brodsky (1987) were awarded Nobel Prizes",
+          "now": "Pasternak (1958, though he was forced to decline it), Solzhenitsyn (1970) and Brodsky (1987) were awarded Nobel Prizes",
+          "why": "The prize was awarded to Pasternak in 1958 but he declined it under Soviet pressure; stating only that it was awarded invited the reading that he received it. The added clause is a standard, uncontested fact."
+        },
+        {
+          "where": "profile-russian-literature-subgenres, conv 'Dystopia and science fiction'",
+          "was": "Zamyatin's We (1924)",
+          "now": "Zamyatin's We (first printed in English in 1924)",
+          "why": "Search results confirm the first printing in any language was the English translation by Gregory Zilboorg (Dutton, New York, 1924); the first complete Russian text came out in New York in 1952 and a partial one in a Prague emigre magazine in 1927. The works year 1924 (which agrees with the library) is kept, and the text now says what it stands for. The library's own prose elsewhere says 'written in the early 1920s', which is consistent."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-russian-literature-canon, conv 'Origins and the eighteenth century'",
+          "was": "the Life of Archpriest Avvakum (c. 1672)",
+          "now": "the Life of Archpriest Avvakum (written in the 1670s)",
+          "why": "Avvakum wrote the Life in prison in the 1670s (usually given as about 1672 to 1675); a single c. 1672 pinned it more tightly than I could confirm in this session."
+        },
+        {
+          "where": "profile-russian-literature-compare, conv on Polish literature",
+          "was": "its Romantic poets, such as Mickiewicz, treated poetry as a stand-in for a lost state, while Russia's nineteenth-century fame rests on prose.",
+          "now": "its Romantic poets, such as Mickiewicz, often treated poetry as a stand-in for a lost state, while the fame of Russian writing abroad rests mostly on its nineteenth-century prose.",
+          "why": "Both halves are interpretive generalisations. 'Often' and 'abroad ... mostly' keep them defensible (Pushkin and Silver Age poetry are central inside Russia); the facet stays contested."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-russian-literature-canon, conv 'Soviet prose'",
+          "was": "Gorky's Mother (1906) is cited as a Socialist Realist model",
+          "now": "Gorky's Mother is cited as a Socialist Realist model",
+          "why": "Removed the year. Mother appeared first in English in 1906 and in Russian in 1907, so a bare 1906 is not the date of a Russian first publication, and the conv string needed room (300-character limit) for the Platonov correction. The 'cited as a model' claim is standard and kept."
+        }
+      ],
+      "remainingDoubts": [
+        "The works year for The Master and Margarita is 1966 to match the library; the text gives the real story (written 1928 to 1940, printed cut in 1966 to 1967). Search results confirm Moskva (November 1966 and January 1967), the uncut Paris book in 1967 and Moscow in 1973.",
+        "Tale of Igor's Campaign: 'usually dated to the late twelfth century', manuscript found in the 1790s and burned in 1812, authenticity questioned by a minority. Standard account, kept hedged; not re-searched here.",
+        "Aesopian language 'associated with Saltykov-Shchedrin' and poshlost 'made known in English' by Nabokov's 1944 book: the wording is already hedged; the writer's earlier web check was not repeated because the search budget ran out.",
+        "Shklovsky 'drew on Tolstoy' is true but vague (Tolstoy supplies many of his examples); left as written.",
+        "Sholokhov's Quiet Don is dated 1928 to 1940 by publication span; the long-running authorship dispute is not mentioned and not claimed either way.",
+        "The compare facet is interpretive generalisation throughout; confidence 'contested' is right."
+      ]
+    },
+    "french-literature.js": {
+      "claimsChecked": 104,
+      "confirmed": 100,
+      "corrected": [
+        {
+          "where": "profile-french-literature-tropes, conv 'Memory and time'",
+          "was": "a later turn to personal and collective memory in the books of Modiano and Ernaux, which return to the Occupation years, class and family.",
+          "now": "a later turn to personal and collective memory, as in Modiano's books on the Occupation years and Ernaux's on class and family.",
+          "why": "The old wording attributed all three subjects to both living authors. The Occupation years belong to Modiano's books and class and family to Ernaux's; the new wording is bibliographic and keeps within README rule 7 (no characterisation of living people beyond bibliographic facts)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-french-literature-history, first conv",
+          "was": "The oldest French texts date from the ninth century (the Oaths of Strasbourg, 842) ... Occitan troubadour and northern trouvere lyric",
+          "now": "The earliest surviving texts in French date from the ninth century (the Oaths of Strasbourg, 842) ... Occitan troubadour and trouvere lyric",
+          "why": "The Oaths are the earliest surviving text in a Romance vernacular, and the Sequence of Saint Eulalia is usually cited as the first literary text; 'earliest surviving texts in French' is the defensible form. The word 'northern' was dropped only to stay under the 300-character limit (a trouvere is a northern poet by definition)."
+        },
+        {
+          "where": "profile-french-literature-craft, conv on Flaubert",
+          "was": "... shaped the modern novel.",
+          "now": "... are often seen as a model for later novelists.",
+          "why": "Flaubert did not invent free indirect style and 'shaped the modern novel' is an interpretive claim; the softened form states the common view without asserting causation."
+        },
+        {
+          "where": "profile-french-literature-pitfalls, conv 'Misconception: it is cold'",
+          "was": "the tradition includes strong sensuousness in Colette and Rimbaud and warm comedy in Molière",
+          "now": "the tradition also includes sensuous writing in Colette and Rimbaud and warm comedy in Molière",
+          "why": "Dropped the intensifier 'strong'; the point (the tradition is not only cold) stands without a quality judgement."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Song of Roland 'usually dated around 1100' is the standard composition date; the Oxford manuscript is later (mid twelfth century). The text does not mention the manuscript; this was not re-searched.",
+        "Doubrovsky as the coiner of autofiction in 1977 (Fils) is the standard attribution; not re-searched in this session.",
+        "Crusca 1583 and the Academie francaise 1635 are the institutions' own founding dates (the Crusca had informal beginnings in the 1570s); De l'Allemagne is dated 1813 (London printing; Paris 1814), as the writer flagged.",
+        "Market practice (several hundred rentree novels, trade paperback first then pocket editions, hardback-first uncommon) is general and varies by year and house; confidence is 'varies' with asOf 2025.",
+        "Kourouma 'bending French toward the rhythms of Malinke speech' is a widely repeated critical description rather than a datable fact; the compare facet is interpretive and 'contested'.",
+        "Tartuffe (1664) is the date of its first performance; the play was banned and reworked and printed in 1669."
+      ]
+    },
+    "german-literature.js": {
+      "claimsChecked": 100,
+      "confirmed": 94,
+      "corrected": [
+        {
+          "where": "profile-german-literature-history, watch",
+          "was": "Kafka (Prague), Celan (Czernowitz) and Joseph Roth (Brody) wrote in German outside Germany.",
+          "now": "Kafka (Prague), Celan (born in Czernowitz) and Joseph Roth (born in Brody) came from German-speaking communities outside Germany.",
+          "why": "Roth worked for years in Berlin and Celan lived in Paris, so 'wrote in German outside Germany' was inexact; the birthplaces and communities are the true, checkable point."
+        },
+        {
+          "where": "profile-german-literature-craft, conv on the Novelle",
+          "was": "in Paul Heyse's so-called falcon theory, a concrete object or image that recurs and gives the story its shape",
+          "now": "in what is called Paul Heyse's falcon theory (from his 1871 anthology introduction), a distinctive concrete feature that sets the story apart, like the falcon in Boccaccio",
+          "why": "Search results show the idea comes from Heyse's introduction to the Deutscher Novellenschatz (1871) and says the falcon is the one specific thing that distinguishes the story from others, a clear silhouette; nothing in it requires the object to 'recur', which is a later symbol-based reading. The name 'falcon theory' is later reception."
+        },
+        {
+          "where": "profile-german-literature-history, conv on the eighteenth century",
+          "was": "Enlightenment writers such as Lessing (Nathan the Wise, 1779) gave way to Sturm und Drang and Goethe's Werther (1774)",
+          "now": "Enlightenment writers such as Lessing (Emilia Galotti, 1772) gave way to Sturm und Drang and Goethe's Werther (1774)",
+          "why": "The 1779 date sat before a 1774 work in a sentence about what came first. Emilia Galotti (1772) fits the sequence; Nathan the Wise (1779) stays in the canon facet."
+        },
+        {
+          "where": "profile-german-literature-terms, conv 'Sturm und Drang'",
+          "was": "the 1770s movement of passion, genius and rebellion associated with the young Goethe, Schiller and Lenz",
+          "now": "the movement of the 1770s and early 1780s, with its cult of passion, genius and rebellion, associated with the young Goethe, Schiller and Lenz",
+          "why": "Schiller's The Robbers dates from 1781, outside 'the 1770s'."
+        },
+        {
+          "where": "profile-german-literature-compare, conv on Danish literature",
+          "was": "followed the Grimms' first collection (1812) by two decades",
+          "now": "followed the Grimms' first collection (1812) by more than two decades",
+          "why": "1812 to 1835 is twenty-three years."
+        },
+        {
+          "where": "profile-german-literature-canon, conv 'Exile and postwar'",
+          "was": "Anna Seghers and Mann in exile, then Boll, ...",
+          "now": "Anna Seghers, Mann and Brecht in exile (Brecht's Mother Courage, written 1939, first staged in 1941), then Boll, ...",
+          "why": "The works year 1941 for Mother Courage follows the library and is the Zurich premiere year, not the year of writing. The text now says so, which matches the library hub entry that lists Brecht among the exiles."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Weltschmerz 'credited to Jean Paul' (Selina, 1827) is the usual attribution and is hedged in the text, but my search returned nothing on it and WebFetch was unavailable, so it rests on prior knowledge.",
+        "Doppelganger 'credited to Jean Paul in the 1790s' was confirmed by search: first recorded use is in Siebenkas (1796), where he glosses the word himself.",
+        "Mother Courage 1941 in the works list is the premiere year and the library's year; the first printing may be later. The text no longer implies it was written then.",
+        "Simplicissimus 1668 follows the library (some editions carry 1669 on the title page); Weimar Classicism 1786 to 1805 and Poetic Realism 1848 to 1890 are conventional period boundaries that follow the library.",
+        "Struwwelpeter is dated 1845 (first edition); the book carried a different title page at first and took the name Struwwelpeter in later editions. Not re-searched.",
+        "Market remarks (German Book Prize since 2005, Krimi and fantasy with large readerships, the spelling reform of 1996 later revised) are general and the readers facet is 'varies' with asOf 2025.",
+        "The compare facet (Russian versus German treatment of ideas, Yiddish, Danish, Dutch) is interpretive; confidence 'contested' is right."
+      ]
+    }
+  },
+  "lint": "node scripts/library-profile-check.mjs --staging <file> prints OK for russian-literature.js, french-literature.js and german-literature.js (9 records each, lint clean, every facet found)."
+}

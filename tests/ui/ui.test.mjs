@@ -484,7 +484,8 @@ test('with the model ready, meaning-based rules are judged by sentence number an
 });
 
 test('a real llama-server-style HTTP model: status goes starting → ready by itself, then it answers', async () => {
-  const fake = await startFakeLlama({ FAKE_LLAMA_REPLY: 'I can help with that. Who is he?' });
+  // (the fake server takes a while to become ready so that the 'starting' state is there to be seen however fast the machine is)
+  const fake = await startFakeLlama({ FAKE_LLAMA_REPLY: 'I can help with that. Who is he?', FAKE_LLAMA_LOAD_MS: '2500' });
   try {
     await run({ query: `?llama=${encodeURIComponent(fake.url)}` }, async ({ page }) => {
       assert.match(await page.textContent('#ai-banner'), /Offline NIE is starting/);

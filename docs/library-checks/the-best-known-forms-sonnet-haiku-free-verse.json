@@ -1,0 +1,193 @@
+{
+  "subject": "The best-known forms: sonnet, haiku, free verse",
+  "searchUsed": true,
+  "method": "WebSearch for every title, author, year, 'first' and naming claim; the writer's flagged items checked first. Direct page fetches (WebFetch and curl) were blocked in this environment, so evidence is search-result summaries of encyclopedias, library catalogues, publisher and university pages, not full primary texts. Items sources could not settle were softened or removed.",
+  "files": {
+    "sonnet.js": {
+      "claimsChecked": 96,
+      "confirmed": 90,
+      "corrected": [
+        {
+          "where": "profile-sonnet-subgenres, conv 'Terza rima sonnet'",
+          "was": "four tercets chained by rhyme (ABA BCB CDC DED) and a closing couplet, EE; Frost's Acquainted with the Night is a well-known example, and each section of Shelley's Ode to the West Wind has this shape.",
+          "now": "four tercets chained by rhyme (ABA BCB CDC DED) and a closing couplet, EE, as in each section of Shelley's Ode to the West Wind; Frost's Acquainted with the Night is a well-known variant that brings its first rhyme back near the end.",
+          "why": "Shelley's five 14-line sections do rhyme ABA BCB CDC DED EE. Frost's poem does not: its scheme is ABA BCB CDC DAD AA (the fourth tercet and couplet return to the first rhyme, and the last line repeats the first), so it was wrongly given as an example of the exact EE shape."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-sonnet-history, Canzoniere point",
+          "was": "a book of 366 poems of which most are sonnets about Laura",
+          "now": "a book of 366 poems, most of them sonnets, centred on his love for Laura",
+          "why": "366 poems and 317 sonnets confirmed (29 canzoni, 9 sestinas, 7 ballate, 4 madrigals). The sequence is organised around Laura in life and after death, but not every poem is about her."
+        },
+        {
+          "where": "profile-sonnet-history, sixteenth-century spread point (Surrey) and a new watch line",
+          "was": "the Earl of Surrey, who shaped the English pattern of three quatrains and a couplet; both appeared in Tottel's Miscellany (1557)",
+          "now": "the Earl of Surrey, usually credited with the English pattern of three quatrains and a couplet; both were printed in Tottel's Miscellany (1557). Watch line added: the sonnets in Tottel use many different rhyme schemes, so the Shakespearean pattern was worked out gradually, not fixed at once.",
+          "why": "Tottel's Miscellany (1557) and Wyatt/Surrey confirmed. W. R. Parker's count of 54 sonnets in Tottel with 14 rhyme patterns, and Wyatt's own use of final couplets, make 'Surrey shaped the pattern' an oversimplification, so it is now an attribution with a caveat."
+        },
+        {
+          "where": "profile-sonnet-history, Charlotte Smith point",
+          "was": "Charlotte Smith's Elegiac Sonnets (1784) helped begin a revival",
+          "now": "Charlotte Smith's Elegiac Sonnets (1784) are widely credited with starting a revival, though scholars debate how sudden it was",
+          "why": "1784 and the 'widely credited' view confirmed (Ferber, Coleridge 1796, Wikipedia). Recent scholarship (B. Roberts) argues the revival was already under way, so the credit is now stated as a debated attribution."
+        },
+        {
+          "where": "profile-sonnet-subgenres, 'Modern and contemporary sonnets'",
+          "was": "fourteen lines with slant rhyme, no rhyme or a loose meter, usually keeping a turn, as in Berryman's Sonnets and Terrance Hayes's American Sonnets for My Past and Future Assassin",
+          "now": "fourteen lines that often use slant rhyme, no rhyme or a loose meter and usually keep some kind of turn; Terrance Hayes's American Sonnets for My Past and Future Assassin is a well-known recent example",
+          "why": "Hayes (2018, Penguin, 70 poems under one title) confirmed. I could not confirm that Berryman's Sonnets use slant or no rhyme, so he is no longer given as an example of that description."
+        },
+        {
+          "where": "profile-sonnet-history, twentieth and twenty-first century point",
+          "was": "poets from Frost and Claude McKay to Rilke ... Berryman (1967), Seamus Heaney ... and Terrance Hayes (2018) kept fourteen lines and a turn while loosening rhyme, meter and subject",
+          "now": "... kept fourteen lines, some holding to old patterns and others loosening rhyme, meter and subject",
+          "why": "Every date in the sentence is confirmed (Rilke written 1922, published 1923; Berryman written 1947, published 1967; Field Work, Faber, 1979; Hayes 2018). The blanket 'loosening' did not fit Frost and McKay, who mostly kept traditional patterns, so the sentence now says some did and some did not."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Sicilian sestet rhymes: sources give CDCDCD or CDECDE; the text already says sources differ.",
+        "Giacomo da Lentini: catalogue dates run about 1210 to 1260 and his poems survive only in Tuscanised copies. 'First half of the thirteenth century' is his period at Frederick II's court, and the invention is stated as traditional in both the text and a watch line.",
+        "Caudate sonnet 'comic or satirical': sources say mostly satire (Berni, Burchiello, Milton's On the New Forcers of Conscience); the 'comic' half rests on Burchiello and Berni's burlesque use and was not separately sourced.",
+        "Berryman's Sonnets: the general 'loosening' described for the whole group was not checked against his rhyme schemes poem by poem.",
+        "Several well-known facts came from my own solid knowledge, and searches returned nothing on them: Milton's sonnets on blindness and Piedmont, Wordsworth's London 1802, Ozymandias as a political sonnet, Owen and Millay as sonnet writers, Hopkins's late sonnets, Sonnet 130 as parody (confirmed), Keats first published 1 December 1816 (confirmed).",
+        "Evidence is from search summaries, not from reading primary pages (direct fetches were blocked)."
+      ]
+    },
+    "haiku.js": {
+      "claimsChecked": 90,
+      "confirmed": 82,
+      "corrected": [
+        {
+          "where": "profile-haiku-canon, works list: Sarumino",
+          "was": "author: Matsuo Bashō and his school",
+          "now": "author: Bashō school (edited by Mukai Kyorai and Nozawa Bonchō)",
+          "why": "Sarumino (1691) is an anthology of the Bashō school compiled by Kyorai and Bonchō under Bashō's supervision, not a work by Bashō alone. The year 1691 is confirmed."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-haiku-history, Buson and Issa point",
+          "was": "Kobayashi Issa, in the early nineteenth",
+          "now": "Kobayashi Issa, in the decades around 1800",
+          "why": "Issa lived 1763 to 1828 and wrote across the turn of the century; 'early nineteenth' placed him too late. Buson 'later eighteenth century' (1716 to 1784, painter as well as poet) is confirmed."
+        },
+        {
+          "where": "profile-haiku-history, Shiki point, and the first watch line",
+          "was": "gave it the name haiku / because Shiki named the stand-alone poem",
+          "now": "made haiku the name for it / because Shiki made haiku the name of the stand-alone poem",
+          "why": "Sources say Shiki renamed the stand-alone hokku 'haiku' in the late 1800s, but the word existed earlier as a short form of haikai no ku, so 'gave it the name' overstates. The 1890s dating and the separation from linked verse are confirmed."
+        },
+        {
+          "where": "profile-haiku-history, Hototogisu point",
+          "was": "the magazine Hototogisu (founded 1897, led by Takahama Kyoshi from 1898) held to the 5-7-5 count and the season word",
+          "now": "the traditional wing, centred on the magazine Hototogisu (founded 1897, led by Takahama Kyoshi from 1898), kept the 5-7-5 count and season word",
+          "why": "1897 in Matsuyama and Kyoshi's takeover in 1898 (move to Tokyo) are confirmed; the magazine was founded in Shiki's lifetime, so it is now described as the base of the traditional wing after him."
+        },
+        {
+          "where": "profile-haiku-history, English-language institutions point",
+          "was": "the Haiku Society of America was founded in 1968, journals and anthologies followed",
+          "now": "the Haiku Society of America was founded in 1968, and journals and anthologies grew alongside it",
+          "why": "HSA 1968 (Henderson and Kanterman, New York) and van den Heuvel's Haiku Anthology 1974 (Doubleday) are confirmed. 'Followed' implied that journals came after the society; I could not confirm the order, and English-language haiku journals were already appearing in the 1960s."
+        },
+        {
+          "where": "profile-haiku-subgenres, gendai haiku point",
+          "was": "Japanese work since the mid twentieth century",
+          "now": "Japanese work mainly since the mid twentieth century",
+          "why": "The postwar gendai haiku movement fits, but Japanese usage of the term varies and some writers date it earlier."
+        },
+        {
+          "where": "profile-haiku-tropes, impermanence point",
+          "was": "sabi ... and mono no aware ... colour much classical haiku",
+          "now": "... are often used to describe the mood of classical haiku",
+          "why": "The glosses are right, but mono no aware is an older court-literature term, so 'colour much classical haiku' claimed too much."
+        },
+        {
+          "where": "profile-haiku-craft, cut point",
+          "was": "the cut usually falls after the first or second line",
+          "now": "the cut often falls after the first or second line",
+          "why": "Sources describe the cut as able to fall at the end of any of the three phrases; 'usually' was stronger than the evidence."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Teimon and Danrin 'made haikai a popular pastime among townspeople': Teitoku popularised haikai and Danrin turned to ordinary townspeople, but I found no single source saying it in these words. The outline is supported, and I kept the text as it is.",
+        "Toriawase versus ichibutsu jitate, ginko and the kireji examples (ya, kana, keri) are standard terms from my own knowledge; the search results did not define toriawase or ichibutsu jitate directly.",
+        "Haibun and haiga 'roots in the Edo period' is supported only loosely (Buson is known for both); the phrase 'roots in' is deliberately vague.",
+        "English-language practice claims (short-long-short, titles uncommon, editors preferring unfixed counts, one-line haiku welcomed by some journals) are generalisations, flagged 'varies', and rest on essays and journal norms, not on a survey.",
+        "'In Japan it remains a popular pastime with newspaper columns and group meetings' is widely known and not contradicted, but I did not find a source with the same wording.",
+        "Evidence is from search summaries, not from reading primary pages (direct fetches were blocked)."
+      ]
+    },
+    "free-verse.js": {
+      "claimsChecked": 84,
+      "confirmed": 76,
+      "corrected": [
+        {
+          "where": "profile-free-verse-craft, Eliot point",
+          "was": "T. S. Eliot argued in 1917 that no verse is free for the poet who wants to do the work well, and suggested a faint trace of metre behind good free verse",
+          "now": "T. S. Eliot argued in 1917 that good free verse is anything but free, and that the ghost of some simple metre should lurk behind even the freest verse",
+          "why": "The line about no vers being libre for the man who wants to do a good job comes from Eliot's 1928 introduction to Pound's Selected Poems, not the 1917 essay. The 1917 essay (New Statesman, 3 March 1917) says the good vers libre is anything but free and that the ghost of some simple metre should lurk behind the freest verse; the text now paraphrases only that."
+        },
+        {
+          "where": "profile-free-verse-compare, blank verse point",
+          "was": "unrhymed iambic pentameter with a fixed ten-syllable line ... both are unrhymed",
+          "now": "unrhymed iambic pentameter, a regular five-beat line ... both are usually unrhymed",
+          "why": "Blank verse is defined by five beats, and lines with an extra unstressed syllable are normal, so 'fixed ten-syllable' was wrong. Free verse is not always unrhymed, as the library's own free verse entry says."
+        },
+        {
+          "where": "profile-free-verse-terms, 'Variable foot'",
+          "was": "Williams's name for a measure in which a stepped line counts as a single unit",
+          "now": "Williams's name for a flexible unit of measure, tied to his stepped three-part line, used to defend a free verse that is not formless; critics disagree on what the unit is",
+          "why": "Poetry Foundation and other sources say the variable foot has been read as a unit of time, stress, syntax or typography, and one account treats each of the three steps, not the whole line, as the foot. A single flat gloss was not defensible."
+        },
+        {
+          "where": "profile-free-verse-subgenres, 'The variable foot and the triadic line'",
+          "was": "Williams's stepped three-part line of mid century, in which each stepped part is treated as a measured unit",
+          "now": "Williams's stepped three-part line of mid century, which he linked to his idea of a flexible measure; critics read the unit as one of time, stress or phrase",
+          "why": "Same reason as the terms facet. The mid-century dating is consistent with The Desert Music (1954) and The Descent."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-free-verse-history, 'later twentieth century' point",
+          "was": "free verse was the usual mode of most poetry published in English",
+          "now": "free verse was, by many accounts, the dominant mode of literary poetry in English",
+          "why": "Gioia and other sources support the dominance of free verse in training and in magazines, but nothing I found measures its share of all published poetry. The New Formalism dating (late 1970s and 1980s) is confirmed."
+        },
+        {
+          "where": "profile-free-verse-history, China's New Poetry point",
+          "was": "moved from classical forms to vernacular, often unrhymed verse",
+          "now": "moved from classical forms to vernacular verse free of the old fixed patterns",
+          "why": "Hu Shih's January 1917 reform essay in New Youth, the poems in the February issue, and A Book of Experiments (1920) are confirmed. I found no source for 'often unrhymed'."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-free-verse-history, first watch line",
+          "was": "some critics find free-verse lines in the Bible, in Milton or in Blake",
+          "now": "some critics find free-verse lines in the Bible or in Blake",
+          "why": "I could not source Milton as a claimed antecedent; the Bible (King James 1611) and Blake's 1790s prophetic books are the antecedents the profile itself relies on."
+        },
+        {
+          "where": "profile-free-verse-canon, 'Reading about the form' point",
+          "was": "Charles O. Hartman's Free Verse: An Essay on Prosody (1980)",
+          "now": "Charles O. Hartman's book Free Verse: An Essay on Prosody (title only)",
+          "why": "Library catalogues give c1980 but Princeton's own Legacy Library listing says 1981. The year is not needed, and the title remains in refs."
+        }
+      ],
+      "remainingDoubts": [
+        "Hartman's book: 1980 (catalogue copyright) against 1981 (Princeton Legacy reissue). The year is out of the text.",
+        "Vers libre priority in 1886 is genuinely disputed (Kahn claimed the term; Rimbaud's Marine was printed in La Vogue on 29 May 1886, before Laforgue's first free-verse poem). The text already says sources differ.",
+        "Goethe's free-rhythm hymns 'of the 1770s' and Heine's North Sea cycles 'of the 1820s' (1825 to 1827): the period is right, but the search results did not date each Goethe poem.",
+        "Lowell's Life Studies (1959), Rankine's Citizen (2014), Sandburg's Chicago Poems (1916), Williams's Spring and All (1923) and Levertov's organic form: searches returned nothing, so these rest on my own solid knowledge. Lunch Poems (City Lights, 1964), Diving into the Wreck (1973), Night Sky with Exit Wounds (2016) and Projective Verse (1950) are confirmed.",
+        "Marianne Moore's syllabic verse is 'often met as free verse': Poetry Foundation calls her work mostly syllabic, so the hedged wording stays.",
+        "'Clifton, Oliver and Gluck worked mainly in free verse' is a broad statement from my own knowledge; it is harmless but not individually sourced.",
+        "Evidence is from search summaries, not from reading primary pages (direct fetches were blocked)."
+      ]
+    }
+  },
+  "lint": "node scripts/library-profile-check.mjs --staging printed OK for sonnet.js, haiku.js and free-verse.js (9 records each, lint clean, every facet found). Each conv point is 60 to 300 characters; no facet has fewer than 5 conv points."
+}
