@@ -315,3 +315,53 @@ What the checkers could not confirm:
 - Several characterisations are unsourced, though hedged: cozy readers' preferences, noir tropes, and the descriptive procedural branches (cold-case, historical, village). The police-procedural subgenres facet is now marked 'varies'.
 - 'Cabot Cove syndrome' is framed as informal usage because only blog and fan-site sources were found.
 
+## Later batches
+
+| Batch | Subjects | Claims checked | Corrected | Softened | Removed | Searched |
+| --- | --- | --- | --- | --- | --- | --- |
+| Interactive fiction, visual novels and game narrative | interactive-fiction, visual-novel, video-game-narrative | 134 | 11 | 6 | 0 | yes |
+| Travel writing, nature writing and self-help | travel-writing, nature-writing, self-help | 220 | 5 | 15 | 0 | yes |
+| Narrative, spoken word and the ballad | narrative-poetry, spoken-word-poetry, ballad | 286 | 5 | 10 | 0 | yes |
+| Romance subgenres (only historical-romance installed: its checker's search budget ran out before the other two, which are held back) | historical-romance, romantic-comedy (held back), paranormal-romance (held back) | 128 | 7 | 16 | 3 | yes |
+
+What the checkers could not confirm:
+
+### Interactive fiction, visual novels and game narrative
+
+- Zork works year is 1977 only because the library's work-scr-zork records it; sources say the game was written 1977 to 1979 and reached home computers in 1980. The text now says so, but the library-wide year is a development year, not a first-publication year.
+- WebFetch could not resolve any host (DNS), so all checks used WebSearch summaries of encyclopedia, IFWiki, publisher and press pages. The Walking Dead is confirmed only at the year level (2012).
+- Who coined 'interactive fiction' is disputed (one source credits Robert Lafore's 1979 company). The file only says Infocom used the phrase, which is true.
+- The 'time cave' term rests on one author's vocabulary (Sam Kabo Ashwell) and is now hedged, not double-sourced.
+- Whether Leaf's Shizuku and Kizuato coined or only popularised 'visual novel' differs by source, so the text says 'often credited with popularising'. The Chunsoft 'sound novel' trademark appears in only one wiki source; the file makes no legal claim.
+- Hades' reactive dialogue was confirmed from reviews, not a developer interview. No source was found for a GDC Game Narrative Summit by that name, so the text no longer implies one.
+- No market-share figure was found for adult versus all-ages visual novels in the early Japanese PC market, so that claim is hedged to 'many'.
+
+### Travel writing, nature writing and self-help
+
+- Gilbert White's Selborne: title page says 1789 but one source says it was issued in December 1788; the text now says 'dated 1789 on its title page' and the works year stays 1789.
+- Thomas Harris's I'm OK, You're OK: library catalogues say 1969, Wikipedia says 1967; softened to 'late 1960s'.
+- Napoleon Hill as New Thought is a classification (bibliographies list him there, not every scholar does); text stays hedged as 'often placed in its line'.
+- Marco Polo (written 1298-1299) and Ibn Battuta (finished 1355 or 1356) are deliberately approximate; sources differ by a year or two.
+- Origin of 'new nature writing' and 'toxic positivity' as phrases was not found; neither is claimed beyond being a label or a critics' term.
+- Length ranges (70,000 to 100,000 words for travel and nature, 40,000 to 80,000 for self-help) are author-services rules of thumb, not industry data; the readers facets are set to varies with asOf.
+
+### Narrative, spoken word and the ballad
+
+- The web search budget ran out after about 25 queries and WebFetch could not reach Wikipedia, so the remaining claims rest on prior knowledge plus the library's own entries (ballade, romance, corrido, ballad meter agree). Mostly modern works and their years: Hesse 1997, Creech 2001, Woodson 2014, Carson 1998, Oswald 2011, Masefield 1911, Noyes 1906, Frost 1914, Seth 1986, Walcott 1990, Kae Tempest 2016, Patricia Smith 2008 and Sarah Kay's 2011 talk.
+- Also not searched: the ballad-collecting dates (Child 1882 to 1898 and 305 ballads, Sharp 1916 to 1918, Library of Congress recordings of the 1930s, Anthology 1952), Cave 1996, Lorca 1928, Kipling, Wilde, Keats, the Beggar's Opera and the ballad etymology.
+- Aurora Leigh is dated 1856 although the title page reads 1857. Herder's Volkslieder second part (1779) is from memory. Gilgamesh and Homer dates are kept general.
+- Slam time, scoring and judge rules are common practice only and are marked varies. Nuyorican founders and exact date, The Last Poets lineup, and the Marc Smith Get Me High to Green Mill sequence are described loosely because sources differ.
+- The Gest of Robyn Hode printing date is now 'the decades around 1500', since editions are dated from the 1490s to about 1510. Ballad origins stay contested.
+
+### Romance subgenres
+
+- Search was only possible for historical-romance.js: the shared web search budget ran out before romantic-comedy.js and paranormal-romance.js, and WebFetch could not resolve any host. Those two files were checked against the library's own records, the writer's confirmations and solid prior knowledge, with anything weaker corrected, softened or removed.
+- historical-romance.js, confirmed by search: Flowers from the Storm 1992, Lord of Scoundrels 1995, Whitney My Love 1985, The Wolf and the Dove 1974, A Knight in Shining Armor 1989, The Flame and the Flower 1972 as the first original paperback romance, Regency Buck 1935 as Heyer's first Regency-set novel, Indigo 1996, An Extraordinary Union 2017, Starz Outlander 2014, Bridgerton 2020, the 1753 Marriage Act and Gretna Green, the Married Women's Property Acts, special licence, ton, wallpaper historical, Ramsdell and Radway. Not reached by search, but they match library records and solid knowledge: The Duke and I 2000, Devil in Winter 2006, Sweet Savage Love 1974, Outlander 1991, The Grand Sophy 1950.
+- romantic-comedy.js: no film year was web-checked (1934, 1938, 1940, 1959, 1977, 1989, 1990, 1994, 1998, 1999, 2009), nor Jenny Han 2014, The Love Hypothesis 2021, the New Comedy dates, or the Ephron screenplay credit. The 'anti-romcom' label for Annie Hall and the informal term 'meet-ugly' could not be sourced and are now hedged. Dropping either point would still leave the facet with at least 5 points.
+- paranormal-romance.js: Villeneuve 1740, Beaumont in 'the 1750s', Dark Shadows 1966 to 1971 with Barnabas introduced in 1967, Silhouette Shadows 1993 to 1996, Dark Prince 1999, True Blood 2008 to 2014, the Twilight films 2008 to 2012 and the Psy-Changeling description rest on the writer's earlier checks, library records and prior knowledge, not a search in this pass.
+- General-practice and market-trend statements (word counts of 70,000 to 100,000, shelving, Regency market share, streaming shift, reader-attitude trends) are unsourced and hedged, with confidence 'varies' and asOf where they sit.
+
+
+## Re-checks of two batches whose first checkers had no web search
+
+Interactive fiction, visual novels and game narrative (first check 234 claims / 2 corrected / 17 softened / 2 removed, from recall only; second check with search: 134 / 11 / 6 / 0) and travel writing, nature writing and self-help (first check 192 / 5 / 11 / 0 from recall only; second check with search 220 / 5 / 15 / 0) were held back after their first check and installed after the second. The second check of the interactive fiction batch corrected eleven claims the first one had left, which is the reason files checked from recall alone are held back.

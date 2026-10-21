@@ -1,0 +1,204 @@
+{
+  "subject": "Interactive fiction, visual novels and game narrative",
+  "method": "Second-pass check, this time WITH web search (the earlier pass was recall only). WebSearch worked and was used for every title, author, year and 'first/coined' claim. WebFetch could not resolve any host (DNS failure), so checking relied on WebSearch result summaries of encyclopedia, IFWiki, IF Tech Foundation, publisher, library-catalogue and press pages; where those summaries disagreed or were thin, the claim was softened or kept at year granularity. The three parent library entries (interactive-narrative, genre-world-visual-novel, genre-world-narrative-video-games) and form-prose-parser-interactive-fiction were read with library-hub.mjs; nothing contradicts them. No sample prose, dialogue or pasteable line appears in any file; kw are phrases a writer would type; no quote exceeds 14 words.",
+  "searchUsed": true,
+  "lintOk": true,
+  "files": {
+    "interactive-fiction.js": {
+      "claimsChecked": 38,
+      "confirmed": 32,
+      "corrected": [
+        {
+          "where": "history conv 2 (Zork and Infocom)",
+          "was": "Zork was begun at MIT in the late 1970s; Infocom, founded in 1979 by members of that group, brought it to home computers from 1980",
+          "now": "Zork was written at MIT between 1977 and 1979; Infocom, founded in 1979 by a group from MIT that included three of its authors, put it on home computers from 1980",
+          "why": "Sources date the original writing 1977 to 1979; Infocom's founders were a wider group of MIT alumni and staff including three of the four Zork authors, not simply 'that group'; the first home-computer release was licensed through Personal Software before Infocom took it back in 1981, so the neutral 'put it on home computers' is used. The 'used the phrase interactive fiction' claim is true and kept (no coinage claim is made; one source credits the phrase to Robert Lafore's 1979 company)."
+        },
+        {
+          "where": "canon conv 1 (Origins)",
+          "was": "Zork from MIT, which Infocom brought to home computers from 1980",
+          "now": "Zork, written at MIT between 1977 and 1979 and released for home computers from 1980",
+          "why": "Same sourcing as above; also makes the library-required works year of 1977 (work-scr-zork) read as the start of development, not a first-publication claim."
+        },
+        {
+          "where": "canon conv 7 and works[] (80 Days)",
+          "was": "80 Days ... with writing by Meg Jayanth; works author 'Meg Jayanth (writer), inkle'",
+          "now": "written by Meg Jayanth and Jon Ingold; works author 'Meg Jayanth and Jon Ingold (writers), inkle'",
+          "why": "inkle's own announcement names Meg Jayanth as author, but Wikipedia credits both Jayanth and Jon Ingold as writers and a retrospective says the two wrote most of the very large text together; naming only Jayanth under-credited a co-writer."
+        },
+        {
+          "where": "terms: Time cave",
+          "was": "a structure in which each choice leads down a separate path that never rejoins, named for the first Choose Your Own Adventure book",
+          "now": "a heavily branching structure in which choices lead down largely separate paths that rarely or never rejoin; early Choose Your Own Adventure books such as The Cave of Time are standard examples",
+          "why": "The term comes from Sam Kabo Ashwell's pattern vocabulary, which gives The Cave of Time as an example and says there is little or no re-merging; no source found says the name was taken from that book, and 'never rejoins' was too absolute."
+        },
+        {
+          "where": "readers conv 4 (IFComp judging)",
+          "was": "the long-running annual competition asks judges to give each entry about two hours",
+          "now": "asks judges to base their rating on no more than the first two hours of each entry",
+          "why": "IFWiki and the IF Technology Foundation describe the rule as judging on at most two hours of play (and the 1995 rule as games winnable in under two hours), not 'about two hours'."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history summary (Twine)",
+          "was": "widened with free tools such as Twine in the 2010s",
+          "now": "widened with free tools such as Twine, released in 2009 and widely used from the 2010s",
+          "why": "Twine was first released in 2009 (Chris Klimas); its wide use, e.g. Howling Dogs in 2012, came in the 2010s. The summary now agrees with the history points."
+        }
+      ],
+      "removed": [],
+      "restored": [
+        {
+          "where": "canon conv 5 (amateur parser games)",
+          "was": "Andrew Plotkin's Spider and Web (year dropped by the earlier recall-only pass)",
+          "now": "Andrew Plotkin's Spider and Web (1998) and Emily Short's Galatea (2000)",
+          "why": "Spider and Web is a 1998 Inform game by Andrew Plotkin (IFWiki, Wikipedia, XYZZY Awards 1998); Galatea 2000 confirmed. Both years are now sourced."
+        }
+      ],
+      "confirmedClaims": [
+        "Colossal Cave Adventure: Will Crowther wrote it in the 1975-76 academic year, Don Woods at Stanford extended it (about 1977); 'mid-1970s' and the library's 'c. 1976' hold",
+        "Zork authors Marc Blank, Tim Anderson, Bruce Daniels, Dave Lebling; Zork I reached TRS-80 in 1980; Infocom founded 1979",
+        "Edward Packard, The Cave of Time, Bantam, 1979, first book under the Choose Your Own Adventure name",
+        "The Warlock of Firetop Mountain, Steve Jackson and Ian Livingstone, 1982, first Fighting Fantasy gamebook, with dice and skill/stamina/luck scores",
+        "The Hitchhiker's Guide to the Galaxy game, Infocom, 1984, Douglas Adams with Steve Meretzky",
+        "Michael Joyce, afternoon, a story: shown at the 1987 ACM Hypertext conference, Storyspace, published by Eastgate (1990)",
+        "Inform 1993 (Graham Nelson); Inform 7 2006; Inform produces Z-machine files; Z-machine is the Infocom virtual machine",
+        "Interactive Fiction Competition began in 1995 (organised by Kevin Wilson)",
+        "Photopia (Adam Cadre, 1998) won the 1998 competition",
+        "Galatea (Emily Short, 2000); Facade (Mateas and Stern, 2005; typed conversation with Grace and Trip)",
+        "Twine 2009 (Chris Klimas); Howling Dogs (Porpentine, 2012); Depression Quest (Zoe Quinn, released 14 February 2013); 80 Days (inkle, 2014)",
+        "Planetfall 1983 and A Mind Forever Voyaging 1985 (Steve Meretzky)",
+        "Nick Montfort, Twisty Little Passages: An Approach to Interactive Fiction, MIT Press, 2003",
+        "Stuart Moulthrop's Victory Garden (Eastgate, 1991) and Shelley Jackson's Patchwork Girl (Eastgate, 1995)",
+        "Fallen London (Failbetter Games) and storylets / quality-based narrative"
+      ],
+      "remainingDoubts": [
+        "works[] year for Zork is 1977 because the library already records work-scr-zork as 1977 and the lint requires agreement. That is when writing began (1977 to 1979); the first home-computer release was 1980. The text now says so; the library entry's year is arguably a development year, not a first-publication year, which is a library-wide question, not this file's.",
+        "Colossal Cave Adventure year 'c. 1976' is the library's value; sources place Crowther's version in 1975-76 and Woods's expansion about 1977, so the approximate form is right.",
+        "Who coined 'interactive fiction' is disputed (one source credits Robert Lafore's 1979 company). The file only says Infocom used the phrase, which is true.",
+        "The 'time cave' definition rests on one author's vocabulary (Ashwell) and the library's reference-style wording; it is now hedged but not independently double-sourced."
+      ]
+    },
+    "visual-novel.js": {
+      "claimsChecked": 40,
+      "confirmed": 36,
+      "corrected": [
+        {
+          "where": "history conv 1 (Portopia)",
+          "was": "Japanese home computers ran text adventures with menus of commands; The Portopia Serial Murder Case (1983), a detective story told this way, is often cited as a forerunner",
+          "now": "Japanese home computers ran adventure games; The Portopia Serial Murder Case (1983), a detective story, is often cited as a forerunner of the visual novel, and its 1985 console version replaced typed commands with a menu",
+          "why": "The 1983 Enix original for the NEC PC-6001 used a typed verb-noun parser; the menu of commands appeared in the 1985 Famicom port (Chunsoft). 'Told this way' was wrong for the 1983 game. Author (Yuji Horii), publisher and year are right."
+        },
+        {
+          "where": "terms: ADV and NVL",
+          "was": "two text layouts, a box at the bottom of the screen under the picture and character image (ADV) or text filling the screen like a page (NVL)",
+          "now": "in engines such as Ren'Py, two text layouts, a box at the bottom of the screen (ADV) or text filling the screen like a page (NVL); in Japanese usage the labels can also separate novel-like games from adventure games with puzzles",
+          "why": "Ren'Py's documentation confirms the layout senses; Japanese usage (NVL = novel game, ADV/AVG = adventure game) is a second sense, so giving only the layout meaning was incomplete."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv 4 (adult market)",
+          "was": "Much of the early Japanese PC market was adult-oriented ... reissued in all-ages editions for consoles",
+          "now": "Many early Japanese PC visual novels were adult games, with all-ages work growing beside them; some titles were later reissued in all-ages editions, including on consoles",
+          "why": "Sources confirm that adult games were common on the PC-98, that consoles restricted adult content and that titles such as Kanon had all-ages editions, but no market-share figure was found, so the 'much of the market' framing was reduced to 'many titles'."
+        },
+        {
+          "where": "history conv 8 (otome games)",
+          "was": "From the late 2000s, ... otome games for women, on consoles and later on phones, widened the audience",
+          "now": "From the late 2000s, ... the growth of otome games for women, which began on consoles in the 1990s and later reached phones, widened the audience beyond the early PC market",
+          "why": "Otome games are generally traced to Koei's Angelique (1994, Super Famicom), so the earlier wording could be read as if they began in the late 2000s."
+        }
+      ],
+      "removed": [],
+      "confirmedClaims": [
+        "Chunsoft: Otogiriso (7 March 1992) and Kamaitachi no Yoru (25 November 1994, script by Takemaru Abiko), both Super Famicom; 'sound novel' is Chunsoft's term; 'Chunsoft' as works author is right",
+        "Leaf: Shizuku (January 1996) and Kizuato (July 1996), To Heart (1997); 'often credited with popularising' the name visual novel is a fair hedge because sources differ on whether Shizuku coined it",
+        "Key: Kanon (June 1999), Air (September 2000), Clannad (April 2004); nakige = games meant to make you cry; utsuge = deliberately bleak",
+        "Type-Moon's Tsukihime first sold at Comiket in December 2000; 07th Expansion's Higurashi first chapter at Comiket on 10 August 2002 (Ryukishi07); Fate/stay night January 2004 (Kinoko Nasu, library author)",
+        "Ren'Py: Tom Rothamel, first public release 24 August 2004, free, built on Python (Pygame)",
+        "Steins;Gate: 5pb. and Nitroplus, Xbox 360, October 2009",
+        "Christine Love, Analogue: A Hate Story (February 2012, Ren'Py); Doki Doki Literature Club (Team Salvato, 22 September 2017, free)",
+        "Capcom's Ace Attorney (Japan, 2001); Danganronpa (Spike, PSP, November 2010) with class-trial play",
+        "Otome games: story-based romance for women with a female protagonist and several male leads; bishojo games: aimed at a male audience; Angelique (Koei, 1994) is generally cited as the first otome game",
+        "Doujin / Comiket self-publication, kinetic novel, sprite, CG, route, common route: standard definitions"
+      ],
+      "remainingDoubts": [
+        "The 'sound novel' trademark by Chunsoft appears in only one wiki source; the file says only that sound novel is Chunsoft's term, which is widely stated, and makes no legal claim.",
+        "Whether Shizuku/Kizuato coined or merely popularised 'visual novel' is stated differently in different sources; the text stays at 'often credited with popularising'.",
+        "Kamaitachi no Yoru is credited to Chunsoft (developer and publisher); its scenario writer, Takemaru Abiko, is not named in the file."
+      ]
+    },
+    "video-game-narrative.js": {
+      "claimsChecked": 56,
+      "confirmed": 49,
+      "corrected": [
+        {
+          "where": "history conv 6 (Dear Esther)",
+          "was": "Dear Esther (a 2008 modification released commercially in 2012)",
+          "now": "Dear Esther (a free 2008 modification, remade and sold in 2012)",
+          "why": "The 2008 version was a free Source-engine mod; the 14 February 2012 release was a remake by the same team (visuals and levels redone), not the same file sold."
+        },
+        {
+          "where": "tropes conv 7 (fourth wall)",
+          "was": "such as remembering earlier playthroughs or touching files, as in Undertale (2015) and Doki Doki Literature Club (2017)",
+          "now": "such as characters remembering earlier playthroughs in Undertale (2015) or the game altering its own files in Doki Doki Literature Club (2017)",
+          "why": "Each feature is now attached to the game that is documented to do it: Undertale's characters recall earlier runs; Doki Doki Literature Club's story involves the player deleting a character file in the game folder. The loose 'as in A and B' could imply Undertale touches files."
+        },
+        {
+          "where": "terms: Walking simulator",
+          "was": "it began as a criticism and is now often used by fans and developers",
+          "now": "it began as a criticism, was taken up by many fans, and is still disliked by some developers",
+          "why": "Wikipedia's account of the term (pejorative from the late 2000s, later adopted by players, still seen negatively by some developers) does not support 'often used by developers'. The new wording also matches the library's genre entry and the readers facet."
+        },
+        {
+          "where": "terms: Ludonarrative dissonance",
+          "was": "the term was used by the designer Clint Hocking in 2007 about BioShock",
+          "now": "the term was coined by the designer Clint Hocking in a 2007 blog post about BioShock",
+          "why": "Several sources (Wikipedia, Inverse, a Pitt games article) say Hocking coined it in an October 2007 blog post about BioShock; 'used' was vaguer than the verified fact."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv 4 (Half-Life)",
+          "was": "kept the player in a first-person view through its whole story, with scripted events ... instead of cutscenes",
+          "now": "kept the player in a first-person view for almost all of its story, with scripted events in the world instead of cutscenes",
+          "why": "Sources say the story is told mostly through scripted sequences 'bar one short cutscene', so 'whole' and 'instead of cutscenes' were absolute; the first-person claim is now 'almost all'."
+        },
+        {
+          "where": "canon conv 2 (Half-Life)",
+          "was": "which told its story without leaving the player's view",
+          "now": "which told its story almost entirely without leaving the player's view",
+          "why": "Same reason."
+        },
+        {
+          "where": "history conv 8 (writers as a discipline)",
+          "was": "writing for games had its own conferences and awards",
+          "now": "writing for games had its own conference sessions and award categories",
+          "why": "Verified: the Writers Guild of America game-writing award (from 2008) and the BAFTA games narrative categories exist, and GDC has a narrative track; no source found for a conference devoted solely to game writing, so 'conferences' was reduced to sessions and categories."
+        }
+      ],
+      "removed": [],
+      "confirmedClaims": [
+        "Colossal Cave Adventure (mid-1970s) and Zork on home computers from 1980; Mystery House (On-Line Systems, 5 May 1980, Roberta and Ken Williams) among the first graphic adventures",
+        "King's Quest (Sierra, May 1984); Maniac Mansion (1987); The Secret of Monkey Island (Lucasfilm Games, 1990; Ron Gilbert, Tim Schafer, Dave Grossman)",
+        "Myst (Cyan, 1993); Final Fantasy VII (Square, January 1997 Japan, September 1997 North America)",
+        "Half-Life (Valve, 1998); Planescape: Torment (Black Isle Studios, 1999, text-heavy)",
+        "Knights of the Old Republic (BioWare, 2003); Mass Effect (BioWare, 2007); BioShock (Irrational Games, Ken Levine, 2007; audio diaries)",
+        "Gone Home (Fullbright, 2013); Firewatch (Campo Santo, 9 February 2016); What Remains of Edith Finch (Giant Sparrow, 2017)",
+        "Telltale's The Walking Dead (2012); Life Is Strange (Dontnod, 2015); Her Story (Sam Barlow, 24 June 2015); Return of the Obra Dinn (Lucas Pope, 18 October 2018); Disco Elysium (ZA/UM, 15 October 2019)",
+        "Papers, Please (Lucas Pope, 2013); Undertale (Toby Fox, 2015); The Witcher 3 (CD Projekt Red, 2015)",
+        "Walking simulator began as a pejorative (late 2000s, notably about Dear Esther) and was later taken up by many players",
+        "Dialogue wheel popularised by Mass Effect; Hades characters respond to the player's deaths and escape attempts",
+        "Janet Murray, Hamlet on the Holodeck (1997); Chris Bateman (ed.), Game Writing: Narrative Skills for Videogames (2006); Heussner, Finley, Hepler and Lemay, The Game Narrative Toolbox (Focal Press, 2015)"
+      ],
+      "remainingDoubts": [
+        "Telltale's The Walking Dead is confirmed at the year level (2012); the exact first-episode date was not confirmed by search and is not stated in the file.",
+        "Hades' reactive dialogue was confirmed from reviews and commentary, not a developer interview; the claim is general and unquestioned in the sources.",
+        "No source was found for a GDC 'Game Narrative Summit' by that name (a GDC game-narrative track was seen), so the text no longer implies one.",
+        "Final Fantasy VII 'cinematic ... to a worldwide audience' and Dwarf Fortress / The Sims as emergent-narrative examples rest on common knowledge, not on a specific source."
+      ]
+    }
+  }
+}

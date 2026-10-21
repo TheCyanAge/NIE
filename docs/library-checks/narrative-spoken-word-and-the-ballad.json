@@ -1,0 +1,162 @@
+{
+  "searchUsed": true,
+  "searchNote": "About 25 web searches ran and then the per-turn search budget was exhausted. WebFetch could not reach Wikipedia (DNS failure). Claims not reached by a search were judged from solid prior knowledge and the library's own entries (node scripts/library-hub.mjs); they are listed under remainingDoubts. Counts below are approximate tallies of the individual checkable claims.",
+  "files": {
+    "narrative-poetry.js": {
+      "claimsChecked": 98,
+      "confirmed": 93,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history, point 6 (Ancient Mariner)",
+          "was": "In the early nineteenth century the verse tale reached a wide public: Coleridge's The Rime of the Ancient Mariner (1798) set the literary ballad, Scott's The Lady of the Lake (1810) and Byron's The Giaour (1813) and The Corsair (1814) found large audiences.",
+          "now": "Around 1800 the verse tale reached a wide public: Coleridge's The Rime of the Ancient Mariner (1798) became a landmark of the literary ballad, and Scott's The Lady of the Lake (1810) and Byron's The Giaour (1813) and The Corsair (1814) found large audiences.",
+          "why": "1798 is not the early nineteenth century, and 'set the literary ballad' implied the Mariner founded the literary ballad, which Percy-inspired German and English writers had already begun."
+        },
+        {
+          "where": "subgenres, mock-epic point",
+          "was": "Pope's The Rape of the Lock (1712)",
+          "now": "Pope's The Rape of the Lock (first version 1712)",
+          "why": "Search confirmed the 1712 text is the two-canto first version; the five-canto poem is 1714 and the form was revised again in 1717."
+        },
+        {
+          "where": "readers, shelving point",
+          "was": "verse novels for young readers are shelved with children's and teen fiction rather than poetry.",
+          "now": "verse novels for young readers are usually sold as children's and teen fiction rather than as poetry, though some libraries shelve them with poetry.",
+          "why": "Shelving varies by shop and library (some classify verse novels with poetry); the flat claim was too strong for a 'varies' record."
+        },
+        {
+          "where": "readers, market point",
+          "was": "The market for book-length narrative poems for adults is small and mostly served by poetry and university presses",
+          "now": "The market for book-length narrative poems for adults is small and sits mainly on the poetry lists of publishers large and small",
+          "why": "Landmark examples in the same file (Seth, Walcott, Carson, Oswald) came from large trade houses, so 'mostly poetry and university presses' could not be defended."
+        },
+        {
+          "where": "readers, reading-aloud point",
+          "was": "many readers meet them as performances or audio",
+          "now": "some readers meet them as performances or audio",
+          "why": "No source for 'many'; 'some' is safe."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Aurora Leigh is dated 1856 (published November 1856; the title page reads 1857). Agrees with the library and is the usual convention.",
+        "Gilgamesh 'over three thousand years' and Homer 'about the eighth century BCE' are the safe general dates; scholars range wider for Homer.",
+        "Not reached by search (judged from prior knowledge): Out of the Dust 1997, Love That Dog 2001, Brown Girl Dreaming 2014, Autobiography of Red 1998, Memorial 2011, The Everlasting Mercy 1911, The Highwayman 1906, North of Boston 1914, The Golden Gate 1986, Omeros 1990, Evangeline 1847, Eugene Onegin 1833, Hunting of the Snark 1876, Belloc 1907, Lays of Ancient Rome 1842, Lay of the Last Minstrel 1805, Giaour 1813, Corsair 1814, Lady of the Lake 1810, Troilus about 1385, Sir Gawain late fourteenth century.",
+        "'From the 1990s the verse novel grew' is a general trend statement rather than a datable fact."
+      ],
+      "searchConfirmed": [
+        "Canterbury Tales: two prose tales (Melibee, Parson's Tale), Sir Thopas in tail-rhyme, rhyme royal for Man of Law and Prioress, most of the rest in couplets",
+        "Metamorphoses completed by 8 CE, in dactylic hexameter",
+        "Hero and Leander published 1598 after Marlowe's death; Venus and Adonis 1593",
+        "Idylls of the King first published 1859 (four idylls)",
+        "Rape of the Lock first appeared May 1712 in two cantos; five cantos 1714"
+      ]
+    },
+    "spoken-word-poetry.js": {
+      "claimsChecked": 92,
+      "confirmed": 88,
+      "corrected": [
+        {
+          "where": "history, first National Poetry Slam point",
+          "was": "in 1990 in San Francisco with a handful of city teams",
+          "now": "in 1990 in San Francisco with teams from only a few cities",
+          "why": "1990, San Francisco and Fort Mason confirmed; accounts give about three teams (Chicago, San Francisco and New York), with disagreement over whether New York sent a team or invited poets. 'A handful' overstated it."
+        },
+        {
+          "where": "tropes, call and response point",
+          "was": "a practice with roots in Black church, jazz and hip-hop traditions.",
+          "now": "a practice with deep roots in African American music and the Black church, and one that jazz and hip-hop carried on.",
+          "why": "Call and response is older than jazz and hip-hop; the earlier wording implied those genres were roots rather than inheritors."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, origin of slam point",
+          "was": "when the poet Marc Kelly Smith's reading series, held at the Green Mill Jazz Club, took on a contest format scored by judges from the audience",
+          "now": "when the poet Marc Kelly Smith's reading series, which became based at the Green Mill Jazz Club, took on a contest format scored by judges from the audience",
+          "why": "Sources put his Chicago series at the Get Me High Lounge from late 1984 and the Green Mill's Uptown Poetry Slam from 25 July 1986; the old wording implied the contest format began at the Green Mill. The new wording avoids the sequence."
+        },
+        {
+          "where": "history, Black Arts point",
+          "was": "The Last Poets (formed in Harlem in 1968)",
+          "now": "The Last Poets (first performing in Harlem in 1968)",
+          "why": "A first public performance in Harlem on 19 May 1968 is well supported, but sources disagree on founders and the better-known lineup came from a 1969 workshop. The existing watch line about changing membership still applies."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Slam scoring and time rules (about three minutes, five judges, zero to ten, high and low dropped, props and music barred) match common Poetry Slam Inc style practice and are flagged as varying by event, which the text already says.",
+        "Nuyorican Poets Cafe: 1973 start in Algarin's apartment confirmed, but sources differ on founders (Algarin alone, or with Pinero and others) and on exact date; the text names only Algarin and no day.",
+        "Not reached by search (prior knowledge): Kae Tempest Let Them Eat Chaos 2016, Patricia Smith Blood Dazzler 2008 (publisher not confirmed, year from memory), Sarah Kay TED talk 2011, Saul Williams, Taylor Mali and Andrea Gibson coming through slams, Vachel Lindsay touring, Jean Binta Breeze and Benjamin Zephaniah as dub poets, Gorman 2021, Welsh eisteddfod as an older contest.",
+        "'From the mid-2000s video sharing' is a loose date for the effect of video sites."
+      ],
+      "searchConfirmed": [
+        "Def Poetry on HBO 2002 to 2007 (premiere January 2002, last airing March 2007)",
+        "Marc Smith series from late 1984; Uptown Poetry Slam at the Green Mill from July 1986; audience judges and 0 to 10 scoring",
+        "Howl first read at the Six Gallery on 7 October 1955; City Lights published Howl and Other Poems in 1956",
+        "Small Talk at 125th and Lenox, 1970, Flying Dutchman",
+        "The Last Poets self-titled album 1970",
+        "Hughes recorded poems with jazz musicians (Mingus and Feather) in 1958; The Weary Blues 1926",
+        "Nuyorican Poets Cafe founded 1973 in Algarin's East Village apartment; slam added by Bob Holman in 1988; Aloud published 1994 by Henry Holt, edited by Algarin and Holman",
+        "Slam (1998), directed by Marc Levin, starring Saul Williams, Sundance Grand Jury Prize and Cannes Camera d'Or",
+        "Words in Your Face by Cristin O'Keefe Aptowicz, about twenty years of New York slam (2008)",
+        "Dread Beat an' Blood, Linton Kwesi Johnson, 1975, Bogle-L'Ouverture; Puerto Rican Obituary, Pedro Pietri, 1973, Monthly Review Press",
+        "Don't Call Us Dead, Danez Smith, 2017, Graywolf"
+      ]
+    },
+    "ballad.js": {
+      "claimsChecked": 96,
+      "confirmed": 90,
+      "corrected": [
+        {
+          "where": "history, Burger point",
+          "was": "Gottfried Bürger's Lenore (1773),",
+          "now": "Gottfried Bürger's Lenore (published 1774),",
+          "why": "Search confirmed Lenore was written in 1773 and first published in 1774 in the Gottinger Musenalmanach; the library convention is first-publication year."
+        },
+        {
+          "where": "history, earliest surviving texts point",
+          "was": "The earliest surviving English ballad texts are from the late Middle Ages: Robin Hood and the Monk survives in a manuscript of about 1450 and A Gest of Robyn Hode was printed around 1500;",
+          "now": "Some English ballad texts survive from the Middle Ages: Robin Hood and the Monk is in a manuscript of about 1450, and A Gest of Robyn Hode survives in editions printed in the decades around 1500;",
+          "why": "Judas (Child 23) is generally dated to the thirteenth century, so these are not the earliest surviving texts; and the Gest's early editions are dated from the 1490s (Pynson fragments) to about 1510 (de Worde, Antwerp), so 'around 1500' was too precise."
+        },
+        {
+          "where": "history, Pepys point",
+          "was": "holds a great many from the later seventeenth century.",
+          "now": "holds a great many, mostly from the seventeenth century.",
+          "why": "The collection holds over 1,800 ballads, mostly of the seventeenth century; volume 1 rests on John Selden's earlier collection, so 'later seventeenth century' was too narrow."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, summary",
+          "was": "known in English from the late Middle Ages",
+          "now": "known in English from the Middle Ages",
+          "why": "Judas is a thirteenth-century text; the broader phrase agrees with the corrected point above."
+        },
+        {
+          "where": "readers, length point",
+          "was": "traditional ballads run from a few stanzas to several dozen,",
+          "now": "traditional ballads usually run from a few stanzas to several dozen,",
+          "why": "General estimate; 'usually' keeps it true given longer outliers."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Ballad origins are disputed (communal composition versus individual and minstrel composers); the history record is correctly set to contested and says so in watch.",
+        "Herder's Volkslieder 1778 to 1779: the first part (1778) was confirmed by search; the second part (1779) is from prior knowledge.",
+        "Not reached by search (prior knowledge): ballad etymology from Old French and Provencal balade, Child 1882 to 1898 and 305 ballads, Cecil Sharp 1916 to 1918, Library of Congress field recordings of the 1930s, Anthology of American Folk Music 1952, Cave's Murder Ballads 1996, Lorca 1928, Kipling 1892, Wilde 1898, Keats 1819 (printed 1820), Beggar's Opera 1728, Danish folk ballads, Charles Causley, rose-and-briar motif, Spanish romance and corrido forms (the last two agree with the library's own romance and corrido entries; ballade agrees with the library's ballade entry; ballad stanza agrees with the library's ballad-meter entry).",
+        "Percy 'known to touch up the texts' is well established but stated flatly.",
+        "Dylan's Hard Rain: recorded December 1962 and released on The Freewheelin' in May 1963; its debt to Lord Randal is widely stated and supported by the sources found."
+      ],
+      "searchConfirmed": [
+        "Robin Hood and the Monk in Cambridge manuscript Ff.5.48, written after 1450",
+        "Lenore written 1773, published 1774; Goethe's Erlkonig 1782; Balladenjahr 1797",
+        "Pepys collection at Magdalene College, Cambridge, over 1,800 ballads, mostly seventeenth century",
+        "Dylan's Hard Rain follows the question-and-answer pattern of Lord Randal (Child 12), on The Freewheelin' (1963)"
+      ]
+    }
+  },
+  "checksAgainstLibrary": "No contradiction found with genre-world-narrative-poetry, genre-world-spoken-word-poetry, genre-world-ballad, form-poem-ballade (three eight-line stanzas and a four-line envoi), form-poem-romance-spanish, form-poem-corrido, or tech-rhet-ballad-meter-common-measure. No sample prose or pasteable line in any file. Lint prints OK for all three files after the edits."
+}

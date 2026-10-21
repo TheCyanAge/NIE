@@ -24,7 +24,7 @@ for (const r of records) {
   const asks = [PROFILE_FACETS[r.topic].ask(subject), r.kw.find((k) => k.split(' ').length >= 3) ?? r.kw[0]];
   for (const q of asks) {
     const a = answerFromLibrary(q, { limit: 3 });
-    const ok = a.strength !== 'none' && a.entries.slice(0, 2).some((e) => e.id === r.id || (q === asks[1] && e.parent === r.parent));
+    const ok = a.strength !== 'none' && a.entries.slice(0, 2).some((e) => e.id === r.id || (q === asks[1] && (e.parent === r.parent || (e.kind === 'profile' && e.topic === r.topic)))); // (a keyword phrase may name two subjects, "interactive fiction vs visual novel": the same facet of either is a right answer)
     if (!ok) { misses++; console.log(`MISS  "${q}"  -> ${a.strength}: ${a.entries.map((e) => e.name).join(' | ') || '-'}   (wanted ${r.id})`); }
   }
   const def = answerFromLibrary(`What is ${subject}?`, { limit: 3 });

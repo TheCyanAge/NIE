@@ -1,0 +1,174 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch worked this time. Each flagged item and every title/author/year pair was searched (encyclopedias, library catalogues, publisher and bookseller records). Where sources disagreed the text was softened or the disagreement stated. Several search summaries covered only part of a multi-item query; those items were re-searched singly or rest on solid recall and are listed under remainingDoubts.",
+  "lint": "node scripts/library-profile-check.mjs --staging prints OK for travel-writing.js, nature-writing.js and self-help.js (9 records each, lint clean, every facet found).",
+  "files": {
+    "travel-writing.js": {
+      "claimsChecked": 80,
+      "confirmed": 76,
+      "corrected": [
+        {
+          "where": "history, watch point 2",
+          "was": "A book's date can lag its journey by years or centuries: Bashō travelled in 1689 and the book appeared in 1702, and Montagu's letters were published after her death.",
+          "now": "A book's date can lag its journey by years or decades: Bashō travelled in 1689 and the book appeared in 1702, and Montagu's letters of 1716 to 1718 were revised later and published in 1763, after her death.",
+          "why": "Neither example is a lag of centuries (13 and 45 years). Sources also say Montagu revised the letters during her life, so 'written 1716 to 1718' alone overstated it."
+        },
+        {
+          "where": "terms, Grand Tour",
+          "was": "made by young men of the European elite, roughly from the seventeenth to the early nineteenth century.",
+          "now": "made by young men of the European elite, above all British, from the seventeenth century until railways and steamships opened travel to far more people.",
+          "why": "Sources put the end at the railway era (from the 1840s, some say the 1870s), not the early nineteenth century; they also tie the Tour mainly to British nobility."
+        }
+      ],
+      "softened": [
+        {
+          "where": "pitfalls, watch",
+          "was": "Humour at the expense of local people is the habit most often criticised in comic travel writing",
+          "now": "Humour at the expense of local people is a habit often criticised in comic travel writing",
+          "why": "A superlative ('most often') cannot be sourced."
+        },
+        {
+          "where": "readers, conv point 3",
+          "was": "readers and reviewers increasingly notice when residents are scenery",
+          "now": "readers and reviewers often notice when residents are scenery",
+          "why": "A trend claim ('increasingly') cannot be sourced."
+        }
+      ],
+      "removed": [],
+      "confirmed_notes": "Confirmed by search: Bird 1879 (John Murray); Kingsley 1897; Montagu written 1716-1718, published 1763 (posthumous, unauthorised); Cook 1841 (text already says only that he began arranging excursions; 'first' is disputed so it is not claimed); Xuanzang's record completed 646 (seventh century); Marco Polo book written 1298-1299 (text says around 1300); Ibn Battuta's rihla dictated to Ibn Juzayy, finished 1355 or 1356 (text says 1350s); Bashō journey 1689, book 1702 posthumous; Sterne 1768; Twain 1869; Stevenson 1879; Lawrence Sea and Sardinia 1921 (New York, Seltzer; UK edition 1923); Fleming 1933; Greene 1936; Byron 1937; Stark 1934; Priestley 1934; West 1941; Durrell 1957; Newby 1958; Thesiger 1959; Steinbeck 1962; Naipaul 1964; Theroux 1975; Chatwin 1977; Leigh Fermor 1977; Matthiessen 1978; Said 1978; Davidson 1980; Fussell 1980; Raban 1981 (Collins); Heat-Moon 1982; Dalrymple 1989; Pratt 1992 (contact zone from her work); Bryson 1995; Cambridge Companion 2002; Stewart 2004 (UK).",
+      "remainingDoubts": [
+        "Kinglake's Eothen 1844: confirmed as 1844 by search, though the journey was 1834-35; the text does not claim the journey date.",
+        "Dates for Marco Polo and Ibn Battuta are deliberately approximate; sources differ by a year or two.",
+        "The revival 'often placed in the mid-1970s and 1980s' is a loose dating and the facet is already set to contested.",
+        "The 70,000 to 100,000 word range is a general trade rule of thumb, worded as 'often given for narrative nonfiction' and consistent with the installed memoir and narrative-nonfiction profiles."
+      ]
+    },
+    "nature-writing.js": {
+      "claimsChecked": 65,
+      "confirmed": 56,
+      "corrected": [
+        {
+          "where": "terms, Pathetic fallacy",
+          "was": "John Ruskin's term for attributing human feelings to nature, a habit nature writers are advised to watch.",
+          "now": "John Ruskin's 1856 term for the false impressions strong feeling gives of nature, now mostly used for attributing human feelings to nature, a habit nature writers are advised to watch.",
+          "why": "Ruskin (Modern Painters vol. 3, 1856) meant the falseness of perception under strong emotion; the 'attributing human feelings' sense is the later, looser usage."
+        },
+        {
+          "where": "terms, Wilderness",
+          "was": "gave it a legal meaning of land where people are visitors",
+          "now": "gave it a legal meaning for protected federal land where people are visitors",
+          "why": "The Act's definition (section 2(c)) applies to designated federal land and says man is a visitor who does not remain."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, conv point 2",
+          "was": "The Natural History of Selborne (1789)",
+          "now": "The Natural History of Selborne (dated 1789 on its title page)",
+          "why": "Sources agree the title page reads 1789 but some report it was issued in late 1788; 'dated 1789 on its title page' is true either way. The works year stays 1789 (standard citation, agrees with the library)."
+        },
+        {
+          "where": "canon, conv point 1",
+          "was": "The Natural History of Selborne (1789)",
+          "now": "The Natural History of Selborne (dated 1789 on its title page)",
+          "why": "Same disagreement over 1788 or 1789."
+        },
+        {
+          "where": "history, conv point 5",
+          "was": "a year spent alone on the outer beach of Cape Cod",
+          "now": "a year spent living on the outer beach of Cape Cod",
+          "why": "'Alone' is not supported by the sources found."
+        },
+        {
+          "where": "subgenres, nature essay and almanac",
+          "was": "the best-known example",
+          "now": "a leading example",
+          "why": "A superlative cannot be sourced."
+        },
+        {
+          "where": "subgenres, advocacy",
+          "was": "Carson's Silent Spring is the model",
+          "now": "Carson's Silent Spring is a landmark",
+          "why": "'The model' is an unsourced claim of priority."
+        },
+        {
+          "where": "canon, conv point 8",
+          "was": "the best-known recent book to join Indigenous knowledge and botany",
+          "now": "a widely read recent book joining Indigenous knowledge and botany",
+          "why": "A superlative cannot be sourced."
+        },
+        {
+          "where": "terms, The sublime",
+          "was": "an eighteenth-century idea of awe at vast, wild or terrifying nature",
+          "now": "an idea of awe at vast, wild or terrifying nature, developed in eighteenth-century aesthetics",
+          "why": "Avoids implying the idea began in the eighteenth century; Burke's treatise (1757) is the usual landmark."
+        }
+      ],
+      "removed": [],
+      "confirmed_notes": "Confirmed by search: Pliny's Natural History (AD 77, first ten books; completed posthumously); Kamo no Chomei Hojoki 1212; Walden 1854 (two years, two months, two days at the pond, compressed into one year); Burroughs Wake-Robin 1871; Muir 1894; Austin 1903 (Houghton Mifflin); Beston 1928; Leopold 1949 (posthumous, land ethic); Carson 1951 and 1962; Baker 1967; Abbey 1968; Mabey 1973 (Collins); Dillard 1974; Lopez 1986; Williams 1991 (Pantheon); Shepherd written 1940s, published 1977; Deakin 1999; Jamie 2005; Macfarlane 2007; Macdonald 2014; Kimmerer 2013; Norton Book of Nature Writing (Finch and Elder, 1990); solastalgia coined by the Australian philosopher Glenn Albrecht (2003, published 2005); pathetic fallacy coined by Ruskin 1856; Wilderness Act 1964 wording; phenology (term coined 1849) and edgelands (named by Marion Shoard, popularised by Farley and Roberts 2011); the 'new nature writing' label was given wide currency by Granta 102 in 2008.",
+      "remainingDoubts": [
+        "Selborne: bibliographic practice is 1789; whether it first appeared in December 1788 is reported by one source and not by others, so the text no longer commits to a publication year.",
+        "'New nature writing': no source found for who first used the phrase; the profile says only that it is a label used since the 2000s and disputed, which Granta 102 (2008) supports.",
+        "The profile's 'from about the turn of the millennium' for the British strand is approximate (Waterlog 1999, Findings 2005, The Wild Places 2007)."
+      ]
+    },
+    "self-help.js": {
+      "claimsChecked": 75,
+      "confirmed": 68,
+      "corrected": [
+        {
+          "where": "readers, conv point 6 (length)",
+          "was": "practical books commonly run about 50,000 to 80,000 words",
+          "now": "practical books commonly run roughly 40,000 to 80,000 words",
+          "why": "Sources give 50,000 to 80,000 for nonfiction in general and about 40,000 to 70,000 for self-help; the widened range covers both."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, conv point 2",
+          "was": "Castiglione's The Book of the Courtier (1528) is the best known",
+          "now": "Castiglione's The Book of the Courtier (1528) is a famous example",
+          "why": "A superlative cannot be sourced. The 1528 date (Aldine press, Venice) stands."
+        },
+        {
+          "where": "history, conv point 7",
+          "was": "Thomas Harris's I'm OK, You're OK (1969)",
+          "now": "Thomas Harris's I'm OK, You're OK (late 1960s)",
+          "why": "Library catalogues give Harper and Row 1969; Wikipedia gives 1967 (copyright dates probably begin in 1967). Softened to the period."
+        },
+        {
+          "where": "canon, conv point 5",
+          "was": "Thomas Harris's I'm OK, You're OK (1969)",
+          "now": "Thomas Harris's I'm OK, You're OK (late 1960s)",
+          "why": "Same disagreement over 1967 or 1969."
+        },
+        {
+          "where": "subgenres, success and positive-thinking",
+          "was": "the most criticised strand for overpromising",
+          "now": "a strand often criticised for overpromising",
+          "why": "A superlative cannot be sourced."
+        },
+        {
+          "where": "readers, conv point 5",
+          "was": "readers increasingly check claims",
+          "now": "readers often check claims",
+          "why": "A trend claim cannot be sourced."
+        },
+        {
+          "where": "terms, Prescriptive nonfiction",
+          "was": "the trade term for books that tell the reader what to do, covering self-help, how-to and business books",
+          "now": "a publishing term for books that tell the reader what to do, covering self-help, how-to and often business books",
+          "why": "The term is common among agents and editors but its exact scope varies."
+        }
+      ],
+      "removed": [],
+      "confirmed_notes": "Confirmed by search: Smiles Self-Help 1859 (John Murray; the book popularised the phrase, sources do not support saying he coined it, and the text says only 'popularised'); Castiglione 1528; Franklin's almanac from 1732; Wattles 1910 (New Thought); Hill 1937 (listed among New Thought authors in a bibliography; text says 'often placed in its line'); New Thought rooted in the nineteenth century (Quimby); Carnegie 1936; Peale 1952; AA Big Book 1939; Beattie 1986; Maltz 1960; Peck 1978; Burns 1980 (Morrow); Jeffers 1987 (Harcourt Brace Jovanovich); Covey 1989; Chicken Soup for the Soul 1993; Johnson 1998; Byrne 2006; Ehrenreich 2009; Allen 2001 (Viking); Gray 1992 (HarperCollins); Tolle 1997 (Namaste Publishing, Vancouver; US edition 1999; agrees with the library); Cameron 1992; Pressfield 2002; Clear 2018; Dweck's Mindset 2006 with the effect-size debate; Maslow's self-actualisation; bibliotherapy defined as reading used to help with personal problems.",
+      "remainingDoubts": [
+        "Hill and New Thought is a classification: bibliographies list him among New Thought authors, but not every scholar does; the text is hedged with 'often placed in its line'.",
+        "Origin of 'toxic positivity' was not found and is not claimed; the text calls it only 'a critics' term'.",
+        "Smiles may not have originated the phrase self-help; the text says he popularised it.",
+        "Length ranges (40,000 to 80,000 words) are author-services rules of thumb, not industry data; the facet is set to varies with asOf."
+      ]
+    }
+  }
+}
