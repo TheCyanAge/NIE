@@ -1,0 +1,201 @@
+{
+  "group": "Mystery and crime subgenres",
+  "searchUsed": true,
+  "searchNote": "Web search was used for most dates, titles, authors and 'first' claims. The shared search budget ran out before a last handful of checks; those items are listed under remainingDoubts and rest on solid prior knowledge or were softened. WebFetch could not reach Wikipedia (DNS), so search summaries were the source.",
+  "lintOk": true,
+  "files": {
+    "cozy-mystery.js": {
+      "claimsChecked": 62,
+      "confirmed": 53,
+      "corrected": [
+        {
+          "where": "profile-cozy-mystery-history, conv (Braun)",
+          "was": "began a long series about a newspaper reporter and his cat",
+          "now": "began a long series about a newspaper journalist and his cat",
+          "why": "Qwilleran is a former crime reporter who takes an arts-beat job at a newspaper in the first book, so 'journalist' is the accurate word; 'reporter' was only from memory."
+        },
+        {
+          "where": "profile-cozy-mystery-history, conv (food and craft strand)",
+          "was": "Food and craft series became a large strand from 1990: Diane Mott Davidson's Catering to Nobody (1990), M. C. Beaton's Agatha Raisin and the Quiche of Death (1992) and Joanne Fluke's Chocolate Chip Cookie Murder (2000), whose series is known for printed recipes.",
+          "now": "Food and craft series became a large strand from around 1990: Diane Mott Davidson's Catering to Nobody (1990) and Joanne Fluke's Chocolate Chip Cookie Murder (2000) are much-cited examples, and both series are known for printed recipes.",
+          "why": "Agatha Raisin is a village cozy whose first book merely has a baking-contest plot, not a food or craft series, and the canon facet already files it under British village crime. Search confirmed recipes are a signature of Davidson's series (catalogue entries list recipes in the first book) and of Fluke's series (catalogue notes and cookbooks). 'From 1990' also softened to 'from around 1990' because food-themed mysteries existed earlier."
+        },
+        {
+          "where": "profile-cozy-mystery-compare, conv (Cozy versus Golden Age)",
+          "was": "the cozy keeps the village and the offstage violence but adds a series amateur, a hobby or trade hook and a warmer, often funnier, tone.",
+          "now": "the cozy keeps the village, the amateur and the offstage violence, and adds a hobby or trade hook for the sleuth and, usually, a lighter, warmer tone.",
+          "why": "The Golden Age already had series amateurs (Miss Marple, Miss Silver and Lord Peter Wimsey among them), so 'adds a series amateur' was false. The remaining contrast is a characterisation and is now hedged with 'usually'."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-cozy-mystery-history, conv (word cozy)",
+          "was": "The word cozy (British spelling cosy) was applied to this kind of book in hindsight, and later became a commercial category; the Golden Age writers themselves did not use it as a genre name.",
+          "now": "The word cozy (British spelling cosy) is a later label, applied in hindsight to this tradition and now used as a commercial category; when it first appeared is unclear.",
+          "why": "Sources agree it is a retrospective label but disagree on when it appeared (a Wordnik trace found 1986 and 1987 as earliest examples; a 1960s claim is unsourced). The unsourced statement about Golden Age usage was dropped."
+        },
+        {
+          "where": "profile-cozy-mystery-history, summary",
+          "was": "with food and craft strands from 1990",
+          "now": "with food and craft strands from around 1990",
+          "why": "Davidson (1990) is a much-cited start, not a strict origin."
+        },
+        {
+          "where": "profile-cozy-mystery-history, conv (2000s and Osman)",
+          "was": "From the 2000s publishers filled the shelves with themed series (...), and ... became a major bestseller that renewed interest in the village-style puzzle.",
+          "now": "Through the 2000s and after, themed series multiplied (...), and ... became a major bestseller that drew fresh attention to the village-style puzzle.",
+          "why": "General market observation with no source; reworded to a milder, defensible statement. 'Renewed interest' became 'drew fresh attention'."
+        },
+        {
+          "where": "profile-cozy-mystery-subgenres, conv (holiday and seasonal cozy)",
+          "was": "and some series publish a seasonal title regularly.",
+          "now": "and many series include holiday-themed books.",
+          "why": "'Regularly' was an unsourced claim about publishing patterns; holiday-themed titles within series are a general, safe observation."
+        },
+        {
+          "where": "profile-cozy-mystery-canon, conv (McCall Smith)",
+          "was": "often read alongside cozies although its cases are not always murders.",
+          "now": "sometimes grouped with cozies for its gentle tone, although many of its cases are not murders.",
+          "why": "Search confirmed 1998, Botswana and early cases (missing husband, con man, wayward daughter, missing boy) and that reviewers call it gentle. 'Often read alongside' was a judgement; now 'sometimes grouped', and 'not always murders' tightened to 'many are not murders', which the cases support."
+        },
+        {
+          "where": "profile-cozy-mystery-terms, conv (Cabot Cove syndrome)",
+          "was": "an informal name for the joke that a small, quiet place suffers an implausible number of murders, after the town in the television series Murder, She Wrote.",
+          "now": "an informal, joking name used by mystery writers and fans for the implausible number of murders in a small, quiet place, after the town in the television series Murder, She Wrote.",
+          "why": "Search found the term used by a mystery author and fan sites (and a BBC Radio 4 tongue-in-cheek count of deaths in the town) but not in an authoritative source, so it is framed as informal usage."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Confirmed by search: Miss Marple December 1927 and The Murder at the Vicarage 1930; Grey Mask 1928 and Miss Silver as a retired governess turned detective; Cat Who 1966 (Qwilleran a former crime reporter); Murder, She Wrote 1984 to 1996; Badger's Drift 1987 and Midsomer Murders broadcast 23 March 1997; Malice Domestic first convention April 1989 in Silver Spring, Maryland, with the traditional-mystery description and the Agatha Awards honouring Christie; Davidson 1990; Beaton 1992; No. 1 Ladies' Detective Agency 1998.",
+        "Not re-searched because the search budget ran out; stated from solid prior knowledge: St Mary Mead and Chipping Cleghorn as the villages in The Murder at the Vicarage and A Murder Is Announced; Chocolate Chip Cookie Murder 2000; The Thursday Murder Club 2020 set in a retirement village and a major bestseller; the 1966-68 trio of Cat Who books and The Cat Who Saw Red in 1986.",
+        "The first Hannah Swensen book is described in library catalogues as 'with recipes', but the exact recipe count was not checked; the text only says the series is known for printed recipes.",
+        "The 'readers' facet generalisations (illustrated covers and punning titles, online retailers treating cozy as its own category, harm to animals disappointing readers) are market observations not tied to a citable source. Length 60,000 to 80,000 words agrees with the library's own mkt-len-mystery-crime entry.",
+        "Where and when the label 'cozy' first appeared is unsettled in the sources; the text now says so."
+      ]
+    },
+    "noir.js": {
+      "claimsChecked": 80,
+      "confirmed": 72,
+      "corrected": [
+        {
+          "where": "profile-noir-history, conv (Serie noire)",
+          "was": "publishing translated American crime fiction",
+          "now": "publishing translated crime fiction, mainly American and British",
+          "why": "Sources describe the Serie noire's bulk as Anglo-American, naming British author Peter Cheyney beside Horace McCoy."
+        },
+        {
+          "where": "profile-noir-terms, conv (femme fatale)",
+          "was": "Femme fatale: French for deadly woman;",
+          "now": "Femme fatale: French for fatal woman;",
+          "why": "'Fatale' renders as 'fatal' (also 'fateful'); 'fatal woman' is the literal gloss."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-noir-history, conv (1940s writers)",
+          "was": "wrote crime and suspense novels of obsession and entrapment in which ordinary people are caught by fate or by a dangerous other.",
+          "now": "wrote crime and suspense novels of obsession and menace, often seen through people trapped by circumstance or by a dangerous other.",
+          "why": "'Entrapment' and 'ordinary people' fit Woolrich but not Laura or In a Lonely Place (whose narrator is a killer, as search confirmed); reworded to a defensible description."
+        },
+        {
+          "where": "profile-noir-history, conv (film noir cycle)",
+          "was": "Panorama du film noir americain (1955) is often called the first book on it.",
+          "now": "Panorama du film noir americain (1955) was an early book-length study of it.",
+          "why": "Search confirmed the 1955 date and authors and its standing as a reference, but a source for the 'first book' wording was not found in this round."
+        },
+        {
+          "where": "profile-noir-history, conv (Hard Case Crime)",
+          "was": "Reissue programmes and new imprints, among them Hard Case Crime (from 2004), brought forgotten paperback writers back into print and published new work in the old pulp style.",
+          "now": "Reprint programmes and new imprints, among them Hard Case Crime (from 2004), brought forgotten paperback writers back into print; Hard Case also published new work in the old pulp style.",
+          "why": "Search confirmed Hard Case Crime began in 2004 (Charles Ardai and Max Phillips) and mixed a reissue of a neglected pulp novel with newly written books in the old style; the sentence is now clearly about Hard Case for the new-work claim and general for the rest."
+        },
+        {
+          "where": "profile-noir-history, conv (since the 1990s)",
+          "was": "and domestic noir after Gillian Flynn's Gone Girl (2012).",
+          "now": "and the domestic noir wave of the 2010s, linked with Gillian Flynn's Gone Girl (2012).",
+          "why": "Matches the library's own crime-fiction profile ('helped make domestic noir a bestselling mode') without claiming a strict cause."
+        },
+        {
+          "where": "profile-noir-compare, conv (tartan noir)",
+          "was": "but its protagonist is usually a police detective in a series and place, class and politics drive it;",
+          "now": "but its protagonist is often a police detective in a series, and place, class and politics drive it;",
+          "why": "Generalisation: Denise Mina's Garnethill is not a police novel. 'Usually' became 'often'."
+        },
+        {
+          "where": "profile-noir-terms, conv (roman noir)",
+          "was": "in French, the older name for the Gothic novel and also the current term for noir-style crime novels.",
+          "now": "in French, an older name for the Gothic novel, now also used for noir-style crime novels.",
+          "why": "The two senses were supported by the earlier check; wording made less absolute ('an older name', 'also used')."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Confirmed by search: Black Mask founded April 1920 and Hammett's Red Harvest and The Maltese Falcon serialised there; Nino Frank's article of 28 August 1946 in L'Ecran francais; Serie noire founded 1945 by Marcel Duhamel (one French source says 1944; 1945 is the standard date); Panorama du film noir americain published 1955; Gold Medal begun 1950 as Fawcett's paperback-original line; Pop. 1280 as a Gold Medal book; The Killer Inside Me (1952, Lion Books, Lou Ford a deputy sheriff; one library catalogue wrongly names Fawcett); Mosley 1990 set in 1948; Winter's Bone 2006; Queenpin 2007; In a Lonely Place 1947; Sin City debut April 1991; Blacksad November 2000; The Plotters Korean 2010; Hard Case Crime 2004.",
+        "Not confirmed by search (results returned nothing relevant or the budget ended), kept from solid prior knowledge: The Asphalt Jungle 1949; Total Kheops 1995; Laura 1943; The Bride Wore Black 1940; Mildred Pierce 1941; They Shoot Horses, Don't They? 1935; Down There 1956; March Violets 1989; the L.A. Quartet dates 1987 to 1992. The Blank Wall is given as 1947 only; TCM and AFI describe it as a Ladies' Home Journal story of that year while other sources call it a novel, and the text avoids the format label.",
+        "Woolrich as a specialist in the wrong-man and entrapment story, Out of the Past as a 'past that returns' plot, and Laura as a case of obsession are critical characterisations from memory and not sourced.",
+        "'The label was applied by French publishers and critics, not by the first American writers' is the accepted account but was not checked writer by writer.",
+        "The 'Since the 1990s' sentence is deliberately loose: tartan noir and Nordic noir have roots in the 1980s and early 1990s.",
+        "Domestic noir as 'usually shelved as psychological suspense' follows the library's own classification of the genre under psychological thriller; it is not independently sourced."
+      ]
+    },
+    "police-procedural.js": {
+      "claimsChecked": 78,
+      "confirmed": 70,
+      "corrected": [
+        {
+          "where": "profile-police-procedural-subgenres, confidence",
+          "was": "established",
+          "now": "varies",
+          "why": "The branches (cold-case, historical, village and regional, serial-killer and profiler) are descriptive categories that overlap and are not fixed by any authority; 'varies' matches how the cozy and noir subgenre facets are set."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-police-procedural-history, conv (McBain)",
+          "was": "the 87th Precinct series, 55 novels about a squad in the fictional city of Isola.",
+          "now": "the 87th Precinct series, more than fifty novels about a squad in the fictional city of Isola.",
+          "why": "Search confirmed 1956 to 2005, Isola and the final novel Fiddlers, but counts range from 'fifty-plus' to 55."
+        },
+        {
+          "where": "profile-police-procedural-history, conv (Z-Cars and Hill Street Blues)",
+          "was": "brought a rougher, ensemble view of policing",
+          "now": "are often cited for a grittier, ensemble view of policing",
+          "why": "A characterisation; now attributed to common critical remark. Z-Cars (BBC) premiere 2 January 1962 confirmed."
+        },
+        {
+          "where": "profile-police-procedural-history, conv (late 1980s and 1990s)",
+          "was": "Patricia Cornwell's Postmortem (1990) began a forensic wave.",
+          "now": "Patricia Cornwell's Postmortem (1990) helped start a forensic wave.",
+          "why": "Postmortem is often credited with launching the modern forensic thriller, but only by publisher copy; 'helped start' is defensible. Also shortened 'renewed the form with' to 'renewed the form:' to keep the line within the 300-character limit."
+        },
+        {
+          "where": "profile-police-procedural-subgenres, conv (serial-killer and profiler)",
+          "was": "the form borders on the thriller, as in Thomas Harris's Red Dragon (1981).",
+          "now": "the form borders on the thriller, and Thomas Harris's Red Dragon (1981), usually called a thriller, is a much-cited hunt for a serial killer.",
+          "why": "Red Dragon is usually classed as a thriller, not a procedural, so it is no longer offered as a procedural example."
+        },
+        {
+          "where": "profile-police-procedural-terms, conv (precinct and CID)",
+          "was": "precinct is the American term for a police district and its station, and CID, the Criminal Investigation Department, is the British detective branch.",
+          "now": "precinct is a term used in some American cities for a police district and its station, and CID, the Criminal Investigation Department, is the detective branch of British forces.",
+          "why": "American usage varies (district, division, station, precinct), so 'the American term' overstated."
+        },
+        {
+          "where": "profile-police-procedural-terms, conv (canvass)",
+          "was": "the British phrase is house-to-house.",
+          "now": "in Britain the usual phrase is house-to-house.",
+          "why": "British forces also use 'canvass' and 'door-to-door'; the claim is now about the usual phrase."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Confirmed by search: Dragnet radio 1949 (premiere 3 June 1949) and television December 1951 (sources give 14 or 16 December for the first broadcast); The Cask 1920 with its unbreakable-alibi plot, detective Inspector Burnley (the text does not name French); V as in Victim 1945 described as launching the police procedural by library and encyclopedia sources; Last Seen Wearing 1952 about a missing freshman; Gideon's Day 1955 (J. J. Marric, a day in the life of Gideon); Cop Hater 1956; the ten Martin Beck novels 1965 to 1975 with the social-critical aim; The New Centurions 1971 (a serving LAPD officer, sergeant at the time; left in 1974); Z-Cars 1962; From Doon with Death 1964; Last Bus to Woodstock 1975; Knots and Crosses 1987; Faceless Killers 1991; The Black Echo 1992; Postmortem 1990; 'murder book' as an LAPD homicide file structure from the early 1980s; the CSI effect as debated (raised expectations of forensic evidence found, effect on verdicts weak).",
+        "Not confirmed by search (results returned nothing relevant or the budget ended), kept from solid prior knowledge: Hill Street Blues 1981 to 1987, Law & Order 1990 and Prime Suspect 1991; The Wire 2002 to 2008; Bleak House (1853) and The Moonstone (1868); In the Woods (2007) centred on the detective's own past; clearance-rate wording (reworded earlier after an FBI-definition check).",
+        "Maigret: 'from the early 1930s' is deliberately loose because sources date Pietr-le-Letton to 1930 (serial), 1931 (usual book date) or 1932 (one site); 'commissaire' is the standard French rank but English sources vary on his post in the first novel.",
+        "The first-procedural claim stays hedged: the text says 'often called' and the watch note says it is argued over.",
+        "'Cold-case', 'historical' and 'village and regional' procedural are descriptive categories without a source; the facet is now marked 'varies'."
+      ]
+    }
+  }
+}

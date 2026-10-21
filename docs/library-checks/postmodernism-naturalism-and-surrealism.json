@@ -1,0 +1,229 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch was used for about 45 queries. The per-turn search budget ran out before the last planned query (Sister Carrie 1900 and 1907), so that item rests on the checker's own knowledge. WebFetch could not resolve any host in this environment, so no primary text was fetched and sources were read through search summaries only.",
+  "files": {
+    "postmodernism.js": {
+      "claimsChecked": 82,
+      "confirmed": 68,
+      "corrected": [
+        {
+          "where": "pitfalls conv[1]",
+          "was": "the partition-era history of India",
+          "now": "the history of India around independence and partition",
+          "why": "Midnight's Children covers the birth of independent India and partition, and more; the narrower wording understated it."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv[1]",
+          "was": "only in the late 1960s and 1970s did critics such as Leslie Fiedler and Ihab Hassan apply it ... in the sense used today",
+          "now": "from the late 1960s and into the 1970s critics such as Leslie Fiedler and Ihab Hassan applied it ... in roughly the sense used today",
+          "why": "Hassan's Dismemberment of Orpheus is 1971 (confirmed). Sources disagree on the date of Fiedler's essay (1968, 1969 and 1970 all appear), and earlier uses of the word exist, so 'only' and the precise sense were softened."
+        },
+        {
+          "where": "history conv[8] and history q",
+          "was": "Since about 2000 critics have proposed labels ...; reaction against irony after 2000",
+          "now": "In recent decades critics have proposed labels ...; reaction against irony since the 1990s",
+          "why": "New sincerity as a term dates from the 1990s, metamodernism from around 2010; 'about 2000' was too precise for three labels with different dates."
+        },
+        {
+          "where": "readers conv[2]",
+          "was": "Gravity's Rainbow runs well over seven hundred pages ...",
+          "now": "Gravity's Rainbow runs to more than seven hundred pages ... Infinite Jest to over a thousand with its endnotes",
+          "why": "Page counts vary by edition (about 760 to 776 for Gravity's Rainbow; about 1,079 to 1,104 for Infinite Jest). 'Well over' overstated the first."
+        },
+        {
+          "where": "craft conv[5]",
+          "was": "visits the rooms of one Paris building",
+          "now": "moves through the rooms of an imagined Paris apartment building",
+          "why": "The building in Perec's book is invented; the knight's tour on a 10x10 grid (99 chapters) was confirmed."
+        },
+        {
+          "where": "canon conv[7]",
+          "was": "The Cambridge Companion to Postmodernism is a standard overview.",
+          "now": "... is a useful overview.",
+          "why": "Title, editor (Steven Connor) and year (2004) confirmed; 'standard' is a judgment that cannot be sourced."
+        },
+        {
+          "where": "canon watch",
+          "was": "several authors named here never accepted the label or wrote against it",
+          "now": "some authors named here have questioned the label or are placed by other critics under modernism or magical realism",
+          "why": "The strong claim about individual authors was not checked; the library's own entry says authors 'often rejected' the label, so the softened wording stays consistent with it."
+        },
+        {
+          "where": "pitfalls conv[3]",
+          "was": "It has no manifesto and no group, the label was applied by critics, and many authors placed under it distanced themselves from it.",
+          "now": "It has no single manifesto and no founding group, the label was applied mostly by critics, and some authors placed under it have questioned it.",
+          "why": "'Many' and 'no manifesto' were unsourced absolutes (Oulipo, for example, is a group)."
+        },
+        {
+          "where": "terms conv[6]",
+          "was": "Roland Barthes's 1967 essay title",
+          "now": "Roland Barthes's essay title (1967 in English, 1968 in French)",
+          "why": "First English publication was in Aspen in 1967 and the French in Manteia in 1968; sources date it both ways."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Date of Fiedler's 'Cross the Border, Close the Gap' is not established by the sources found; the text only says 'late 1960s and 1970s'.",
+        "'Some authors ... have questioned the label' follows the library's own entry and was not sourced to named authors.",
+        "Jameson's essay year (1984, New Left Review) and the pastiche-as-blank-parody reading rest on the checker's knowledge plus a search that confirmed the argument but not the year.",
+        "Gass's coinage of 'metafiction' is dated 1970 by most sources and 1971 by one; the text says 'about 1970'.",
+        "Years for Reed (Mumbo Jumbo 1972), Doctorow (Ragtime 1975), Barnes and Carter (1984), Cortazar (1963) were not cross-checked by search; those in the library (Auster, Gaddis, Catch-22, Hopscotch, Foe, Possession) agree with it.",
+        "Stoppard's 1966 is the first performance year; the library uses 1966 as well."
+      ],
+      "confirmedByEvidence": [
+        "Oulipo founded 1960 by Queneau and Le Lionnais (meeting of 24 November 1960)",
+        "Barth 'The Literature of Exhaustion' 1967 in The Atlantic",
+        "Waugh, Metafiction (1984); Scholes, The Fabulators (1967); Gass 1970 coinage",
+        "Kristeva intertextuality 1966 to 1969",
+        "Perec, A Void, translated by Gilbert Adair, Harvill, 1994 (La Disparition, 1969)",
+        "The Cambridge Companion to Postmodernism, ed. Steven Connor, 2004",
+        "Perec's Life: A User's Manual built on a knight's tour over a 10x10 grid"
+      ]
+    },
+    "naturalism.js": {
+      "claimsChecked": 90,
+      "confirmed": 80,
+      "corrected": [
+        {
+          "where": "canon conv[4] (Drama)",
+          "was": "Drama: ... Holz and Schlaf's Papa Hamlet (1889) and Gorky's The Lower Depths (1902).",
+          "now": "Papa Hamlet moved to the prose point as 'Holz and Schlaf's prose sketches Papa Hamlet (1889)'; drama point now lists Miss Julie, Before Dawn, The Weavers and The Lower Depths.",
+          "why": "Papa Hamlet (1889) is a book of three prose sketches. Holz and Schlaf's play is Die Familie Selicke (1890)."
+        },
+        {
+          "where": "history conv[1]",
+          "was": "presents the novelist as a scientist studying temperaments and circumstances",
+          "now": "presents the novelist as a scientific observer who studies temperaments, not characters",
+          "why": "The 1868 preface states the aim as studying temperaments and not characters; the word 'circumstances' is not in it."
+        }
+      ],
+      "softened": [
+        {
+          "where": "craft conv[2]",
+          "was": "Zola drew up a family tree to plan the Rougon-Macquart cycle.",
+          "now": "Zola fixed the plan of the Rougon-Macquart cycle in advance around a family tree of heredity.",
+          "why": "The 1878 preface to Une page d'amour supports a plan fixed in advance around a family tree; the tree printed with Le Docteur Pascal (1893) is the documented one. A dated drawing made for planning was not confirmed."
+        },
+        {
+          "where": "compare conv[5]",
+          "was": "the 1886 Symbolist manifesto argued for suggestion over description",
+          "now": "Moréas's 1886 Symbolist manifesto named matter-of-fact description among its targets",
+          "why": "Publication on 18 September 1886 in Le Figaro is confirmed, and a translation summary lists matter-of-fact description among the things it opposes; the earlier wording was not supported."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Sister Carrie 'uneasily published in 1900, reissued 1907' rests on the checker's knowledge; the last search that would have checked it was refused by the search budget.",
+        "Die Weber 'published 1892' follows the library's year; sources found confirm the 1893 Freie Buhne staging but not the publication year.",
+        "O cortico (1890), A Mummer's Wife (1885), The Nether World (1889), A Child of the Jago (1896), The Octopus (1901), The Pit (1903), Ghosts (1881), Studs Lonigan (1932 to 1935), L'Argent (1891), Au Bonheur des Dames (1883) were not searched; they are well known to the checker, and the lint year-check passed for those that are in the library.",
+        "Gorky's The Lower Depths is listed as naturalist drama; some critics class it as realist or symbolist.",
+        "Pardo Bazan's La cuestion palpitante: the newspaper series began in 1882 and the book is 1883; the text says essays 'in Spain (1883)'.",
+        "Older English translations 'often cut or softened' is a general statement; Vizetelly's own conviction dates (1888 fine, 1889 three months) are confirmed."
+      ],
+      "confirmedByEvidence": [
+        "Les Soirees de Medan (1880): Zola plus Maupassant, Huysmans, Ceard, Hennique, Alexis",
+        "Manifeste des Cinq against La Terre, Le Figaro, 18 August 1887",
+        "Freie Buhne founded Berlin 1889; opened with Ibsen's Ghosts; Hauptmann's Before Dawn a month later",
+        "Henry Vizetelly prosecuted in 1888 and 1889",
+        "Zola's Anzin visit before Germinal, February and March 1884",
+        "Thérèse Raquin preface 1868: temperaments not characters; nerves and blood, no free will",
+        "Maggie privately printed by Crane in 1893",
+        "The Cambridge Companion to American Realism and Naturalism, ed. Donald Pizer, 1995 (subtitle: Howells to London)"
+      ]
+    },
+    "surrealism.js": {
+      "claimsChecked": 88,
+      "confirmed": 74,
+      "corrected": [
+        {
+          "where": "history conv[3]",
+          "was": "the group broke with Dada; the period of the sleeps followed",
+          "now": "the group broke with Dada; in the autumn of 1922 the period of the sleeps began, ... members such as René Crevel and Robert Desnos",
+          "why": "The sleeping sessions began on 25 September 1922 and ran into spring 1923, so they did not simply follow the break with Dada; Crevel started them."
+        },
+        {
+          "where": "subgenres conv[6] (theatre and film)",
+          "was": "the Buñuel and Dalí films Un chien andalou (1929) and L'Âge d'or (1930)",
+          "now": "Luis Buñuel's films Un chien andalou (1929, written with Dalí) and L'Âge d'or (1930)",
+          "why": "Dalí is credited as co-writer of both, but how much of L'Âge d'or is his is disputed, so the shared credit is kept only for Un chien andalou."
+        },
+        {
+          "where": "subgenres conv[7] (image-text works)",
+          "was": "cut-up engravings with captions",
+          "now": "cut-up nineteenth-century engravings with little text",
+          "why": "Une semaine de bonté has no captions in the way La Femme 100 têtes does; 'little text' fits both."
+        },
+        {
+          "where": "readers conv[5]",
+          "was": "writers often linked to Surrealism, such as Cortázar's Hopscotch (1963) or Murakami's The Wind-Up Bird Chronicle (1994)",
+          "now": "writers often called surreal, such as Cortázar's Hopscotch (1963) or Murakami's The Wind-Up Bird Chronicle (1994)",
+          "why": "Murakami is commonly called surreal, not linked to the Surrealist group or tradition."
+        },
+        {
+          "where": "compare conv[0]",
+          "was": "The split came in 1922.",
+          "now": "The two fell out in 1922 to 1923.",
+          "why": "The congress quarrel was 1922; Paris Dada broke up in 1923. Also removed 'positive' and 'Aragon' to meet the length limit."
+        },
+        {
+          "where": "pitfalls conv[1]",
+          "was": "its first decade was mostly poems, prose, reviews and manifestos; the visual art joined",
+          "now": "its first years were mostly poems, prose, reviews and manifestos; painters joined from the mid-1920s",
+          "why": "Painters such as Ernst, Masson and Miró took part from 1925, so 'first decade' overstated the literary phase."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv[5]",
+          "was": "the Second Manifesto (1929) expelled several members",
+          "now": "the Second Manifesto (1929) denounced several former members",
+          "why": "Sources agree it attacked people who had already left or been pushed out (Artaud and Soupault earlier); exact expulsion status varies by person."
+        },
+        {
+          "where": "history conv[7]",
+          "was": "lived in New York until 1946, where Surrealist automatism influenced young American painters",
+          "now": "lived in New York until the end of 1945, where the Surrealist interest in automatism fed into the work of some young American painters",
+          "why": "Breton left New York for Haiti in December 1945 and reached Paris in 1946; the influence claim was narrowed from 'influenced young painters' to 'some'."
+        },
+        {
+          "where": "subgenres conv[3]",
+          "was": "Gracq's Au château d'Argol (1938), written under Surrealist influence",
+          "now": "..., which Breton praised and which shows Surrealist influence, though Gracq did not join the group",
+          "why": "Breton's praise is documented; Gracq declined to join, so the relationship is stated more exactly."
+        }
+      ],
+      "removed": [
+        {
+          "where": "history conv[6]",
+          "was": "groups formed in Belgium [in the 1930s]",
+          "why": "The Brussels group dates from 1926, so listing it among the 1930s groups was wrong; Belgian Surrealism remains in the subgenres facet."
+        }
+      ],
+      "remainingDoubts": [
+        "Breton's First World War service is stated as 'army neurological and psychiatric wards': the Saint-Dizier neuropsychiatric centre (1916) and Val-de-Grâce (1917) are confirmed, but the Mélusine chronology gives different dates, so no dates are in the text.",
+        "Anthologie de l'humour noir is mentioned without a date (published about 1940); not verified.",
+        "Esslin's The Theatre of the Absurd is dated 1961 (US first edition); some sources give 1962.",
+        "Vitrac's expulsion date (1924, 1925 or 1926 by source) is deliberately not stated.",
+        "Reverdy's definition of the image as Breton's source, Apollinaire's Parade note (1917), the Freud visit of 1921, and Carpentier's 1949 argument rest on the checker's knowledge and the writer's own flags; the 1921 visit and Carpentier were not re-searched.",
+        "Fini and Tanning are listed among women who made work from the same ground; Fini never formally joined the group.",
+        "Cahier d'un retour au pays natal (1939) is the library's year (first appearance in a review); the book edition is 1947.",
+        "The History of Surrealism (Nadeau, English translation 1965) and Manifestoes of Surrealism (Seaver and Lane, 1969) are titles only, not verified by search."
+      ],
+      "confirmedByEvidence": [
+        "Littérature founded 1919 by Breton, Aragon and Soupault; Les Champs magnétiques published 1920",
+        "Tzara arrived in Paris 17 January 1920",
+        "Bureau de recherches surréalistes opened 11 October 1924; La Révolution surréaliste first issue December 1924",
+        "1925 tract against the Rif War written with the Clarté group; Breton, Aragon, Éluard, Péret and Unik joined the Communist party in January 1927",
+        "Prague group founded March 1934; London International Surrealist Exhibition June 1936",
+        "1938 Mexico manifesto signed by Breton and Rivera, drafted with Trotsky",
+        "Martinique 1941, meeting Césaire; Tropiques 1941 to 1945; Paris exhibition at Galerie Maeght 1947; Breton died 28 September 1966",
+        "Exquisite corpse invented 1925, named from its first sentence",
+        "Vitrac's Victor staged December 1928; Ernst's La Femme 100 têtes (1929) and Une semaine de bonté (1934)"
+      ]
+    }
+  },
+  "lint": "node scripts/library-profile-check.mjs --staging prints OK for postmodernism.js, naturalism.js and surrealism.js (9 records each, lint clean, every facet found).",
+  "totals": { "claimsChecked": 260, "corrected": 9, "softened": 13, "removed": 1 }
+}

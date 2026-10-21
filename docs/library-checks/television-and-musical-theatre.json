@@ -1,0 +1,265 @@
+{
+  "searchUsed": true,
+  "searchNotes": "WebSearch worked; WebFetch and direct curl were blocked (DNS failure / proxy 403), so every check below came from WebSearch result summaries or from solid prior knowledge. Items marked 'memory only' in remainingDoubts were not located by a search in this pass.",
+  "files": {
+    "television-drama.js": {
+      "claimsChecked": 70,
+      "confirmed": 57,
+      "corrected": [
+        {
+          "where": "history, conv 2 (live anthology plays)",
+          "was": "Live anthology plays (Kraft Television Theatre, Playhouse 90) ... Chayefsky (Marty, 1953) and Serling (Patterns, 1955) made their names there.",
+          "now": "... on series such as Kraft Television Theatre, The Philco Television Playhouse and Playhouse 90 ... Marty (1953) and Patterns (1955) are among the best known.",
+          "why": "Marty was broadcast live on The Philco Television Playhouse (24 May 1953), not on Kraft or Playhouse 90; Patterns was on Kraft Television Theatre (12 January 1955). 'There' wrongly tied both to the two named series."
+        },
+        {
+          "where": "terms, conv 8 (monster of the week)",
+          "was": "in genre series the latter [a standalone episode] is sometimes called a monster of the week",
+          "now": "in fantasy and science-fiction series a standalone episode about a new threat is sometimes called a monster of the week",
+          "why": "The phrase means a standalone episode built on a new creature or threat, used in fantasy, horror and science-fiction series; it is not a general name for any standalone episode of a 'genre series'."
+        },
+        {
+          "where": "history, confidence",
+          "was": "established",
+          "now": "contested",
+          "why": "README says disputed origins are contested. Sources split on the start of the modern/prestige era (Hill Street Blues 1981, Oz 1997, The Sopranos 1999); the watch note already says so. 24 of the existing history profiles use contested."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, conv 3 (Cathy Come Home)",
+          "was": "a drama about homelessness that set off a national debate",
+          "now": "a drama about homelessness that prompted wide public debate",
+          "why": "Sources agree on a flood of calls to the BBC, discussion in Parliament and a boost to Shelter; 'set off a national debate' claimed more than they say."
+        },
+        {
+          "where": "history, conv 6 (ER)",
+          "was": "ER (1994) made fast ensemble drama a network staple",
+          "now": "ER (1994) was a fast-moving ensemble hospital drama that became a network hit",
+          "why": "The original was a causal claim about the whole network schedule that no source backs; the new wording states what is certain."
+        },
+        {
+          "where": "history, conv 7 (The Sopranos)",
+          "was": "usually taken as the start of the prestige era",
+          "now": "often taken as the start of the prestige era",
+          "why": "Search sources call it the most common answer for the 'current golden age' but also name Hill Street Blues and Oz as starting points, so 'usually' overstated."
+        },
+        {
+          "where": "subgenres, conv 7 (political drama)",
+          "was": "from the idealism of The West Wing to the cynicism of House of Cards, Borgen or Succession",
+          "now": "from the idealism of The West Wing to the cynicism of House of Cards or Succession, and the coalition politics of Borgen",
+          "why": "Calling Borgen cynical is a characterisation not borne out by the series; it is better described by its subject."
+        },
+        {
+          "where": "readers, conv 4 (episode length)",
+          "was": "a US network hour has commonly meant about 42 to 44 minutes of story",
+          "now": "a US network hour has commonly meant roughly 40 to 45 minutes of story",
+          "why": "Sources give figures from under 42 to 45 minutes depending on year and network; the old range was too narrow."
+        },
+        {
+          "where": "readers, conv 5 (season length)",
+          "was": "cable and streaming seasons are often 6 to 13 episodes and British series are often 6 to 8",
+          "now": "cable and streaming seasons are often shorter, commonly 6 to 13 episodes, and British series are often shorter again, commonly about six",
+          "why": "Many well-known British dramas run six episodes; '6 to 8' implied a firmer range than practice supports. Left hedged and confidence stays 'varies'."
+        },
+        {
+          "where": "compare, conv 6 (serial novels)",
+          "was": "were written by one author and shaped by readers' response",
+          "now": "were usually written by one author and sometimes shaped by readers' response",
+          "why": "Both statements are generalisations with exceptions (collaboration, fixed manuscripts); hedged."
+        },
+        {
+          "where": "canon, conv 1 (live-drama era)",
+          "was": "are the roots of television as a writer's medium",
+          "now": "are often named as roots of television as a writer's medium",
+          "why": "An evaluative claim; attributed to common critical opinion instead of stated as fact."
+        }
+      ],
+      "removed": [
+        {
+          "where": "readers, conv 4 (episode length)",
+          "was": "cable and streaming episodes often run 50 to 60 minutes or more",
+          "now": "cable and streaming episodes often run longer and are not tied to a slot",
+          "why": "No source located for the specific 50 to 60 minute range; the general point (premium cable and streaming run longer) is supported."
+        },
+        {
+          "where": "craft, conv 5 (writers' room)",
+          "was": "British and European series are more often written by one writer or a small team",
+          "now": "British series are more often written by one writer or a small team",
+          "why": "'European' is too broad a generalisation (several continental series use rooms); only the British claim is safe."
+        }
+      ],
+      "remainingDoubts": [
+        "Memory only (searches did not return them, but each is well known): Gunsmoke September 1955 and Perry Mason 1957 (CBS 1957-1966 was supported), Hill Street Blues 1981 / St. Elsewhere 1982, Twin Peaks 1990, The X-Files 1993, ER 1994, The Wire 2002, Mad Men 2007, Breaking Bad 2008, The West Wing 1999, Deadwood 2004, Happy Valley 2014, Succession 2018, Borgen 2010 (Adam Price), Squid Game 2021, The Singing Detective 1986, Prime Suspect 1991 (La Plante), Upstairs, Downstairs 1971, House of Cards full-season release 2013, and the Difficult Men / Revolution Was Televised years (2013 / 2012; a search confirmed Penguin Press and Touchstone publishers and the order of years).",
+        "Season-count claims (22 or more on US networks; 6 to 13 on cable and streaming; about six in Britain) were not located in a source. They are hedged ('traditionally', 'often', 'commonly') and the facet is 'varies' with a watch note.",
+        "Facet names keep the 'Television drama: ...' form the writer asked for; the profile check passes."
+      ],
+      "notes": "Also reordered canon conv 4 to run in date order and replaced the odd kw 'tv drama a story b story' with 'a story and b story in tv writing'. No sample prose or pasteable lines; no contradiction with genre-world-tv-drama-series (works and years match)."
+    },
+    "sitcom.js": {
+      "claimsChecked": 68,
+      "confirmed": 60,
+      "corrected": [
+        {
+          "where": "history, conv 8 (single-camera, 2001 onward)",
+          "was": "the single-camera mockumentary style of the British The Office, its American remake (2005), Arrested Development (2003) and 30 Rock (2006) dropped the laugh track",
+          "now": "From 2001 single-camera comedy without a laugh track became prominent, from the British mockumentary The Office and its American remake (2005) to Arrested Development (2003) and 30 Rock (2006)",
+          "why": "30 Rock is not a mockumentary and Arrested Development only borrows a documentary look; only The Office (UK and US) is strictly one. The sentence now says 'single-camera without a laugh track' and reserves 'mockumentary' for The Office."
+        },
+        {
+          "where": "history, confidence",
+          "was": "established",
+          "now": "contested",
+          "why": "README: disputed origins are contested. The facet answers 'what was the first sitcom', which depends on whether radio counts (Guinness lists Pinwright's Progress 1946-47 as first television sitcom and Mary Kay and Johnny 1947 as first US network sitcom; Band Waggon is called the first comedy designed for radio); the watch note already says so."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, conv 2 (television began)",
+          "was": "Britain's Pinwright's Progress (1946) and America's Mary Kay and Johnny (1947); they were broadcast live",
+          "now": "... (1947), each often named as its country's first; they were broadcast live ...",
+          "why": "Dates, live broadcast and the 'first' labels are confirmed by search (Pinwright's Progress BBC 1946-47, live from Alexandra Palace; Mary Kay and Johnny, DuMont 18 November 1947, live); the 'first' status is a convention, so it is now attributed as one."
+        },
+        {
+          "where": "history, conv 3 (I Love Lucy)",
+          "was": "I Love Lucy (CBS, 1951) set the American multi-camera method",
+          "now": "I Love Lucy (CBS, 1951) popularised the American multi-camera method",
+          "why": "Three cameras filming before an audience on film is the well-known Lucy method, but 'set' implies it invented multi-camera sitcom."
+        },
+        {
+          "where": "subgenres, conv 2 (single-camera)",
+          "was": "in many locations with no studio audience",
+          "now": "in many locations, usually with no studio audience",
+          "why": "Single-camera shows are usually made without an audience, and some (for example M*A*S*H) added a laugh track."
+        },
+        {
+          "where": "terms, conv 3 (single-camera)",
+          "was": "without a studio audience or laugh track",
+          "now": "usually without a studio audience or laugh track",
+          "why": "Same reason; M*A*S*H is a single-camera show with a laugh track."
+        },
+        {
+          "where": "compare, conv 3 (screwball)",
+          "was": "a screwball film ends in one pairing",
+          "now": "a screwball film usually ends in one pairing",
+          "why": "Generalisation about a film genre; hedged."
+        },
+        {
+          "where": "compare, conv 4 (comedy of manners)",
+          "was": "a comedy of manners is a stage comedy",
+          "now": "a comedy of manners is a comedy, most often for the stage",
+          "why": "The term is also applied to novels (for example Austen); 'stage comedy' was too narrow."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Confirmed by search: The Goldbergs radio 1929 (NBC, November 1929), Fibber McGee and Molly April 1935, Band Waggon 1938 (BBC), Pinwright's Progress 1946, Mary Kay and Johnny 1947, Hancock's Half Hour on television July 1956 (radio 1954), Steptoe and Son 1962 (pilot 5 January 1962, series June 1962), Till Death Us Do Part (pilot 22 July 1965, series 1966), The Dick Van Dyke Show 1961 (Carl Reiner), Yes Minister 1980, The Thick of It 2005, Only Fools and Horses 1981 (Sullivan), Blackadder 1983 (Curtis and Atkinson), The Larry Sanders Show 1992.",
+        "Memory only: I Love Lucy's three-camera film method details, Dad's Army 1968 (Perry and Croft), The Mary Tyler Moore Show 1970 (Brooks and Burns), All in the Family 1971 (Lear), M*A*S*H 1972 (Gelbart), Fawlty Towers 1975 and 1979 with twelve episodes, Cheers 1982 (Charles, Charles, Burrows), The Golden Girls 1985 (Susan Harris), Seinfeld 1989, Friends 1994 (Crane and Kauffman), Frasier 1993, The Simpsons 1989, Arrested Development 2003, The Office US 2005, 30 Rock 2006, The Big Bang Theory 2007, Parks and Recreation 2009, Schitt's Creek 2015, Fleabag and Atlanta 2016, Ted Lasso 2020, Abbott Elementary 2021, The Honeymooners 1955.",
+        "US half-hour 'roughly 20 to 22 minutes of story' and 'US network seasons have commonly run from 13 to 24' were not located in a source; both are hedged and the facet is 'varies'.",
+        "Works list years match the library entry genre-world-sitcom (I Love Lucy 1951, Fawlty Towers 1975, Cheers 1982, Seinfeld 1989); only the order of Cheers creators differs, which does not matter."
+      ],
+      "notes": "No sample prose or pasteable lines. kw are phrases a writer would type."
+    },
+    "musical-theatre.js": {
+      "claimsChecked": 78,
+      "confirmed": 64,
+      "corrected": [
+        {
+          "where": "history, conv 1 (forerunners)",
+          "was": "the comic operas and operettas of Offenbach in Paris and of Gilbert and Sullivan in London from the 1870s",
+          "now": "Offenbach's operettas in Paris from the 1850s, Gilbert and Sullivan in London from the 1870s",
+          "why": "'From the 1870s' wrongly dated Offenbach, whose Bouffes-Parisiens operettas began in 1855 and whose Orpheus in the Underworld was 1858; search confirmed. The 1870s date applies to Gilbert and Sullivan only (Trial by Jury 1875)."
+        },
+        {
+          "where": "history, conv 8 (1970s and 1980s spectacle)",
+          "was": "sung-through spectacle, much of it produced in London",
+          "now": "spectacle musicals with mostly sung scores, many from London",
+          "why": "The writer flagged this as loose. Jesus Christ Superstar opened on Broadway (1971, album 1970); Les Misérables began in Paris (1980) and was in English in London in 1985; The Phantom of the Opera has some spoken lines. 'Mostly sung' and 'many from London' are true of all five."
+        },
+        {
+          "where": "history, conv 9 (Disney)",
+          "was": "Beauty and the Beast (1994) and The Lion King (1997) began a wave of film adaptations",
+          "now": "... helped start a wave of stage versions of films",
+          "why": "'Film adaptations' read as films made from stage shows (the opposite direction), and film-based stage musicals existed before 1994, so 'began' overclaimed. Dates confirmed (Palace Theatre 18 April 1994; New Amsterdam Theater 13 November 1997)."
+        },
+        {
+          "where": "canon, conv 2 (early American musicals)",
+          "was": "Early American musicals: Show Boat (1927), Lady, Be Good (1924), Anything Goes (1934) and Kiss Me, Kate (1948), and Porgy and Bess (1935)",
+          "now": "American musicals from the 1920s to the 1940s: Lady, Be Good (1924), Show Boat (1927), Anything Goes (1934) and Kiss Me, Kate (1948), and George Gershwin's Porgy and Bess (1935), which he called a folk opera",
+          "why": "Porgy and Bess was called a folk opera by its composer and was not a musical in the ordinary sense; 1948 is not 'early'; the list was out of date order."
+        },
+        {
+          "where": "canon, conv 6 (rock, pop and spectacle)",
+          "was": "... and, in the United States, A Chorus Line (1975) and Rent",
+          "now": "... and, in the United States, Rent (1996). New conv: Ensemble landmark: A Chorus Line (1975), conceived and directed by Michael Bennett, with music by Marvin Hamlisch and lyrics by Edward Kleban, about a line of dancers at an audition.",
+          "why": "A Chorus Line is not a rock, pop or spectacle show; it is moved to its own point with its credits instead of being mis-grouped. This is a relocation of an existing mention, not a new topic."
+        },
+        {
+          "where": "history, confidence",
+          "was": "established",
+          "now": "contested",
+          "why": "README: disputed origins are contested. The facet answers 'what was the first musical', which depends on definition (The Black Crook, operettas and ballad operas are all argued for); the watch note already says so."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, conv 1 (forerunners)",
+          "was": "they gave songs, comedy and spectacle but seldom one unified story",
+          "now": "they gave songs, comedy and spectacle but seldom wove songs into the story as tightly as later musicals",
+          "why": "Gilbert and Sullivan operettas have coherent plots, so 'seldom one unified story' was wrong as stated; the real contrast is integration of songs."
+        },
+        {
+          "where": "history, conv 5 (Oklahoma)",
+          "was": "Oklahoma (1943...) made the integrated model the norm",
+          "now": "Oklahoma (1943...) is often seen as the show that set the integrated model",
+          "why": "Scholarship cited in search treats Show Boat as the first step and Oklahoma as the fuller realisation, with integration a gradual shift (the watch note says so); 'made the norm' was too strong."
+        },
+        {
+          "where": "history, conv 6 (golden age)",
+          "was": "The 1950s and early 1960s were a golden age of the book musical ... Fiddler on the Roof (1964)",
+          "now": "The 1950s and the first half of the 1960s are often called a golden age of the book musical",
+          "why": "1964 is mid-1960s, and 'golden age' is a label rather than a fact."
+        },
+        {
+          "where": "history, conv 9 (Rent)",
+          "was": "Rent (1996) renewed rock",
+          "now": "Rent (1996) brought rock back",
+          "why": "Same claim in plainer, less causal wording."
+        },
+        {
+          "where": "tropes, conv 6 (dream ballet)",
+          "was": "a convention that Oklahoma made famous",
+          "now": "a convention that Oklahoma helped make famous",
+          "why": "Search notes dream ballets existed before 1943; Oklahoma's importance is that dance advanced the story."
+        },
+        {
+          "where": "canon, conv 7 (twenty-first-century landmarks)",
+          "was": "Next to Normal (2008), Fun Home (2013)",
+          "now": "Next to Normal (2008, Off-Broadway), Fun Home (2013, Off-Broadway)",
+          "why": "Search confirmed the 2008 and 2013 premieres were Off-Broadway (Second Stage, February 2008; Public Theater, October 2013); Broadway came in 2009 and 2015. The years also match the library's own work entries."
+        },
+        {
+          "where": "canon, conv 1 (forerunners)",
+          "was": "are the comic-opera ancestors the early musical drew on",
+          "now": "are the ballad-opera and comic-opera ancestors the early musical drew on",
+          "why": "The Beggar's Opera is a ballad opera, not a comic opera."
+        },
+        {
+          "where": "terms, conv 5 (eleven o'clock number)",
+          "was": "the name comes from the old evening schedule",
+          "now": "the name comes from the time of night such a song once fell in a performance",
+          "why": "Search confirms the explanation (musicals began around 8:30 and the late song came near 11) but sources differ on details; the new wording avoids the vague 'schedule' and any start time."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Confirmed by search: Offenbach 1855/1858 and Trial by Jury 1875; Shuffle Along (1921, Blake and Sissle, book by Miller and Lyles); Show Boat as the usual first step towards integration and Oklahoma as the fuller realisation; Hair Off-Broadway October 1967; Les Misérables Paris 1980 and English 1985 (Barbican); Jesus Christ Superstar album 1970 and Broadway 1971; Evita West End June 1978; Cats 1981; Beauty and the Beast 1994; The Lion King 1997; Next to Normal and Fun Home premieres; the eleven o'clock number explanation; The Cambridge Companion to the Musical (ed. Everett and Laird, 2002, later editions) and Finishing the Hat (Knopf 2010, lyrics 1954-1981).",
+        "Memory only: The Black Crook 1866, Ziegfeld Follies 1907, Edwardian musical comedy and Cohan, Carousel 1945, South Pacific 1949, The King and I 1951, Guys and Dolls 1950, My Fair Lady 1956, West Side Story 1957 and Robbins, Gypsy and The Sound of Music 1959, Fiddler 1964, Cabaret 1966, Company 1970, Follies 1971, A Chorus Line 1975 and its credits, Sweeney Todd 1979, Sunday in the Park with George 1984, Into the Woods 1987, The Phantom of the Opera 1986, Rent 1996, Mamma Mia 1999, Jersey Boys 2005, The Producers 2001, Wicked 2003, Hamilton 2015, Hadestown on Broadway 2019 (Anais Mitchell), The Pirates of Penzance 1879, The Mikado 1885, HMS Pinafore 1878, Lady, Be Good 1924, Anything Goes 1934, Porgy and Bess 1935, Kiss Me, Kate 1948, and the work credits in the canon list.",
+        "Company (1970) as 'an early concept musical' is a common but debated label (earlier shows are also named); 'early' is deliberately mild. Hamilton as 'almost wholly sung' is general usage, not a count.",
+        "Running-time claim (about two to two and a half hours with an interval) is a common norm, hedged and in a 'varies' facet."
+      ],
+      "notes": "No sample prose or pasteable lines; no exclamation marks (Oklahoma is written without its mark). Works list matches the library's work entries for Show Boat, West Side Story, Company, Hamilton and the hub entry genre-world-musical-theatre."
+    }
+  },
+  "profileCheck": "node scripts/library-profile-check.mjs --staging prints OK for television-drama.js, sitcom.js and musical-theatre.js after the edits (9 records each, lint clean, every facet found)."
+}

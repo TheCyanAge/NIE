@@ -1,0 +1,202 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch worked (standard mode); WebFetch could not reach en.wikipedia.org (ENOTFOUND), so all checks went through search summaries. Many results were secondary (Goodreads shelves, library catalogues, retailer pages, Wikipedia summaries). Where a search returned nothing useful for a title or year, the item is listed under remainingDoubts as confirmed from solid prior knowledge only, not from a source seen in this run.",
+  "files": {
+    "middle-grade-fiction.js": {
+      "claimsChecked": 58,
+      "confirmed": 53,
+      "corrected": [
+        {
+          "where": "readers, conv 3 (length)",
+          "was": "fantasy and adventure running longer, sometimes 60,000 to 75,000 or more",
+          "now": "fantasy and adventure running longer, sometimes reaching 70,000 or more",
+          "why": "The library's own market entry (mkt-len-middle-grade) says 'sometimes reaching 70,000 or more'; no source found supports a 60,000 to 75,000 band, and web sources for middle-grade length vary widely (roughly 20,000 to 65,000 for the category). Now consistent with the library and still hedged."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, summary",
+          "was": "the name is a modern bookselling and library label",
+          "now": "the name is a bookselling and library label",
+          "why": "No source dates the label, so 'modern' implied an era that was not established."
+        },
+        {
+          "where": "history, conv 7",
+          "was": "graphic novels became a large part of the middle-grade market",
+          "now": "graphic novels became a growing part of the middle-grade market",
+          "why": "'Large part' reads as a market-share claim that was not sourced; 'growing' is the defensible general statement. Smile (Graphix, February 2010) confirmed."
+        },
+        {
+          "where": "terms, conv 7 (Voice)",
+          "was": "editors often say it is the first thing they look for in middle grade",
+          "now": "editors often say it is one of the first things they look for in middle grade",
+          "why": "A superlative with no basis; softened to a general trade remark."
+        }
+      ],
+      "removed": [
+        {
+          "where": "history, watch 1",
+          "was": "usually explained as coming from American school grades",
+          "now": "(clause deleted; the point that it is a bookselling and library label, not a literary period, stays)",
+          "why": "The writer flagged this as the least certain claim. Search found no documented origin of the phrase; one trade article called it an American term tied to the elementary/middle/high school system, but it presents this as plausible, not established. Nothing is said about the origin now."
+        }
+      ],
+      "confirmedBySearch": [
+        "Jerry Craft's New Kid won the 2020 Newbery Medal (announced 27 January 2020) and was the first graphic novel to win it; it also won the Coretta Scott King Author Award",
+        "Newbery Medal first awarded in 1922 (to Hendrik Willem van Loon's The Story of Mankind), by the American Library Association",
+        "We Need Diverse Books: hashtag spring 2014, organisation formed 2014",
+        "A Wrinkle in Time won the Newbery Medal in 1963",
+        "Raina Telgemeier's Smile, Graphix/Scholastic, February 2010",
+        "Thanhha Lai's Inside Out & Back Again: 2011 National Book Award, Newbery Honor 2012 (the file only dates the book 2011)",
+        "Kwame Alexander's The Crossover, Houghton Mifflin Harcourt 2014, novel in verse, Newbery Medal 2015",
+        "Harry Potter and the Philosopher's Stone, Bloomsbury, June 1997; US edition retitled Sorcerer's Stone, Scholastic, 1998",
+        "Island of the Blue Dolphins 1960; Wimpy Kid print edition April 2007 (online from 2004); The One and Only Ivan 2012; The Girl Who Drank the Moon 2016; Walk Two Moons 1994; Bridge to Terabithia 1977; Because of Winn-Dixie 2000",
+        "Carnegie Medal: UK children's book award given every year since 1936",
+        "Lexile is a measure of text difficulty from word and sentence features, not content or maturity",
+        "The Oxford Encyclopedia of Children's Literature exists (ed. Jack Zipes, Oxford University Press, 2006)"
+      ],
+      "remainingDoubts": [
+        "Years for Little Women, Treasure Island, Anne of Green Gables, The Secret Garden, The Hobbit, Narnia, Charlotte's Web, Harriet the Spy (1964), Mixed-Up Files (1967), Are You There God (1970), The Westing Game, Hatchet, Number the Stars, Bud, Not Buddy, Holes, The Giver, Coraline, The Graveyard Book, When You Reach Me, Wonder, The Lightning Thief rest on solid prior knowledge; searches for them returned nothing useful or returned Newbery award years rather than publication years. The lint also cross-checks the canon works against the library.",
+        "Word-count ranges (30,000 to 55,000; fantasy reaching 70,000 or more) are trade norms from agent blogs and forums that vary a lot, and now match the library's market entry; they are hedged as rough and publisher-dependent.",
+        "Age bands (eight to twelve; lower eight to ten; upper ten to thirteen; tween nine to twelve; picture book usually 32 pages) are trade conventions and carry 'varies'.",
+        "'Graphic novels a growing part of the market' and 'Harry Potter showed how large the audience could be' are general, unsourced statements."
+      ]
+    },
+    "ya-fantasy.js": {
+      "claimsChecked": 50,
+      "confirmed": 43,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history, conv 5",
+          "was": "Eragon (self-published 2002 and reissued by Knopf in 2003)",
+          "now": "Eragon (first self-published by his family, then reissued by Knopf in 2003)",
+          "why": "Sources disagree on the year of self-publication (2001 in several bios and one Wikipedia passage, 2002 in the infobox and others). Knopf's edition in 2003 (August) is consistent across sources."
+        },
+        {
+          "where": "canon, conv 5",
+          "was": "Christopher Paolini's Eragon (2002)",
+          "now": "Christopher Paolini's Eragon (Knopf edition, 2003)",
+          "why": "Same dispute; the Knopf year is the safe one and the label says which edition is meant."
+        },
+        {
+          "where": "history, conv 7",
+          "was": "Secondary-world fantasy with heroines, courts and heists dominated the 2010s",
+          "now": "Secondary-world fantasy with heroines, courts and heists was a leading strand of the 2010s",
+          "why": "'Dominated' is an unsourced market-share claim; 'a leading strand' is defensible."
+        },
+        {
+          "where": "history, conv 9",
+          "was": "romance-led fantasy (romantasy) and social-media recommendation, notably BookTok, have driven sales",
+          "now": "... have helped drive sales",
+          "why": "Publishers Weekly/BookScan reporting shows BookTok's effect on sales but commentators note other causes (the pandemic reading boom, industry trends); causation is not settled. Date 'since about 2020' is supported (BookTok backlist surges from late 2020)."
+        },
+        {
+          "where": "readers, conv 2",
+          "was": "adults read young adult fantasy in large numbers",
+          "now": "many adults also read young adult fantasy",
+          "why": "The well-known Bowker study (2012) found 55 percent of buyers of YA books were 18 or older, but it covers YA overall, not fantasy, and buyers are not readers. Softened to a general statement."
+        },
+        {
+          "where": "readers, conv 3",
+          "was": "a single volume of about seventy to a hundred thousand words is typical",
+          "now": "a single volume of about seventy to a hundred thousand words is a common range",
+          "why": "Web guidance clusters at about 70,000 to 90,000 with up to 100,000 for fantasy; the library's market entry says fantasy often reaches 100,000 or more. 'Common range' is safer than 'typical'."
+        },
+        {
+          "where": "terms, conv 8 (Romantasy)",
+          "was": "a label that became common in the early 2020s",
+          "now": "a label that spread widely in the 2020s",
+          "why": "The writer flagged this as the least certain date-like claim. Sources say the word was in circulation earlier but became widely recognised around 2023 (Fourth Wing, BookTok). 'Spread widely in the 2020s' is accurate without pinning a year."
+        }
+      ],
+      "removed": [],
+      "confirmedBySearch": [
+        "Garth Nix's Sabriel first published 1995 by HarperCollins in Australia (US edition 1996 per most sources)",
+        "Robin McKinley's Beauty 1978 and The Blue Sword 1982",
+        "Lloyd Alexander's The Book of Three 1964",
+        "Susan Cooper's The Dark Is Rising 1973 (Chatto & Windus; Atheneum/McElderry US)",
+        "Tamora Pierce's Alanna: The First Adventure 1983",
+        "Kristin Cashore's Graceling, 1 October 2008",
+        "Sarah J. Maas's Throne of Glass 2012; Leigh Bardugo's Shadow and Bone 2012 and Six of Crows 2015; Maggie Stiefvater's The Raven Boys 2012; Laini Taylor's Daughter of Smoke & Bone 2011; Sabaa Tahir's An Ember in the Ashes (28 April 2015); Victoria Aveyard's Red Queen 2015; Holly Black's The Cruel Prince 2018 (Goodreads year listings; secondary)",
+        "Harry Potter 1997 (UK) and 1998 (US, retitled Sorcerer's Stone)",
+        "Knopf's Eragon edition August 2003",
+        "The Cambridge Companion to Fantasy Literature exists (ed. Edward James and Farah Mendlesohn, Cambridge University Press, 2012)",
+        "Romantasy widely recognised from 2023 and BookTok's role in popularising it; BookTok sales effects reported by Publishers Weekly from 2020 and 2021",
+        "New adult as a label for about eighteen to twenty-five agrees with the library's genre-age-new-adult entry"
+      ],
+      "remainingDoubts": [
+        "Years for Tolkien (1937; 1954 to 1955), Narnia (from 1950), A Wizard of Earthsea (1968), Howl's Moving Castle (1986), Twilight (2005), City of Bones (2007) and Children of Blood and Bone (2018) rest on solid prior knowledge; search returned nothing usable for them. A Wizard of Earthsea, Sabriel, Graceling, Six of Crows and Children of Blood and Bone are also cross-checked by the lint against the library.",
+        "Exact US publication year of The Golden Compass (1996) is deliberately not stated; the file says only that Northern Lights was published in the US under another title.",
+        "'Harry Potter is often credited with widening the audience for young people's fantasy' is a widely repeated general statement with no single source.",
+        "'West African traditions behind Children of Blood and Bone' and the late-2010s 'non-European traditions' claim are general and were not individually sourced.",
+        "Age bands (children's fantasy about ten to thirteen; new adult about eighteen to twenty-five; teen protagonist about fifteen to eighteen) are trade conventions and carry 'varies'."
+      ]
+    },
+    "ya-contemporary.js": {
+      "claimsChecked": 50,
+      "confirmed": 47,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history, summary",
+          "was": "descends from the first novels written about and for teenagers in the 1940s",
+          "now": "descends from novels about and for teenagers that began to appear in the 1940s",
+          "why": "A flat 'first' claim. Seventeenth Summer (1942) is often called the first modern YA novel, but scholars do not agree and it was published as an adult book; the history facet is already marked contested."
+        },
+        {
+          "where": "history, conv 8",
+          "was": "social media such as BookTok has shaped what teenagers and adults read",
+          "now": "social media such as BookTok has helped shape what teenagers and adults read",
+          "why": "Causation is not settled; coverage shows BookTok-linked backlist surges from late 2020 but also notes other causes."
+        }
+      ],
+      "removed": [
+        {
+          "where": "terms, conv 9 (Closed door and open door)",
+          "was": "both appear in YA, with closed door far more usual",
+          "now": "both appear in YA, and practice differs by publisher and by book",
+          "why": "'Far more usual' is a frequency claim that could not be verified; the sentence now says only what is certain."
+        }
+      ],
+      "confirmedBySearch": [
+        "Maureen Daly's Seventeenth Summer, 1942, Dodd, Mead; often called the first modern YA novel, originally published for adults, scholars not unanimous",
+        "S. E. Hinton's The Outsiders published 1967 while she was still a high school student",
+        "Paul Zindel's The Pigman 1968",
+        "John Donovan's I'll Get There. It Better Be Worth the Trip., Harper & Row 1969; sources commonly call it one of the first YA novels with a gay theme (the file does not claim a first)",
+        "Walter Dean Myers's Fallen Angels 1988; Monster 1999 (first Printz Award winner, awarded 2000 for 1999 publications)",
+        "Chris Crutcher's Staying Fat for Sarah Byrnes 1993 (Greenwillow)",
+        "Melina Marchetta's Looking for Alibrandi, Penguin Australia, 5 October 1992",
+        "Sweet Valley High: first three books published by Bantam in fall 1983",
+        "Meg Cabot's The Princess Diaries, HarperCollins 2000 (exact month varies by source)",
+        "Karen M. McManus's One of Us Is Lying 2017; Becky Albertalli's Simon vs. the Homo Sapiens Agenda 2015; Elizabeth Acevedo's The Poet X 2018 (novel in verse, Harlem teenager Xiomara, slam poetry)",
+        "ALA's most-challenged list for 2010 to 2019 includes The Absolutely True Diary of a Part-Time Indian (1st), Looking for Alaska (4th), The Perks of Being a Wallflower (14th) and The Hate U Give (30th); this supports the 'among those most often challenged' claim",
+        "OwnVoices: coined as a hashtag by Corinne Duyvis in September 2015 for books by authors who share a marginalised protagonist's identity; We Need Diverse Books stopped using it in 2021 (supports 'its use is debated')",
+        "Michael L. Printz Award first given in 2000 (YALSA/ALA); Margaret A. Edwards Award established 1988, administered by YALSA; Carnegie Medal given every year since 1936",
+        "Michael Cart's Young Adult Literature: From Romance to Realism exists (ALA/Neal-Schuman; earlier editions from 2010, origins in a 1996 book)",
+        "We Need Diverse Books begun 2014",
+        "Printz, Edwards and Carnegie are real awards used as reading lists",
+        "Lexile, sensitivity reader, content note and verse novel terms match trade usage"
+      ],
+      "remainingDoubts": [
+        "Years for The Catcher in the Rye (1951), The Chocolate War (1974), Forever... (1975), Speak (1999), The Perks of Being a Wallflower (1999), Looking for Alaska (2005), The Absolutely True Diary (2007), The Fault in Our Stars (2012), Aristotle and Dante (2012), Eleanor & Park (2013) and The Hate U Give (2017) rest on solid prior knowledge; search returned nothing usable for most of them. The canon works (Outsiders, Forever..., Speak, Alaska, Absolutely True Diary, Aristotle and Dante, Hate U Give, Poet X) are cross-checked by the lint against the library.",
+        "'Manic pixie dream girl' is used as a critical label with no attribution (it is generally credited to a film critic in 2007, from memory only; the file makes no coinage claim, so none is needed).",
+        "The challenge claim names 'race, sexuality and gender' as themes; the 2010 to 2019 list clearly supports race and sexuality (and sexual content), while gender-themed titles are more prominent in later years' lists. The claim is hedged ('several', 'among those') and was left as written.",
+        "Age bands (readers about twelve to eighteen; protagonists about fifteen to eighteen; new adult about eighteen to twenty-five; realistic middle grade about ten to thirteen) are trade conventions marked 'varies'. The library's YA entries use 'fifteen to eighteen' (genre entry) and 'fourteen to eighteen' (YA profile), so the library itself is not uniform.",
+        "Word-count range of fifty to ninety thousand matches the library's market entry for YA."
+      ]
+    }
+  },
+  "totals": {
+    "claimsChecked": 158,
+    "corrected": 1,
+    "softened": 12,
+    "removed": 2
+  },
+  "lint": "node scripts/library-profile-check.mjs --staging prints OK for all three files (9 records each, lint clean, every facet found)",
+  "ruleChecks": {
+    "noSampleProse": "No file contains sample prose, dialogue or a pasteable line; facets are descriptive, dated or questions.",
+    "noExclamationOrUrls": "Confirmed by grep: no exclamation marks and no URLs in any file.",
+    "libraryConsistency": "Checked against genre-age-upper-middle-grade, genre-age-lower-middle-grade, genre-age-ya-fantasy, genre-age-ya-contemporary, genre-age-new-adult and the market length entries for middle grade and young adult; no contradictions remain."
+  }
+}

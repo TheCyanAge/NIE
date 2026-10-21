@@ -267,3 +267,51 @@ What the checkers could not confirm:
 - The works year for The Master and Margarita is 1966 to match the library. The text gives the real span: written 1928 to 1940, printed cut in 1966 to 1967.
 - The compare facets in all three files are interpretive generalisations. Their confidence is correctly 'contested'. The readers facets are market practice, set to 'varies' with asOf 2025.
 
+## Later batches
+
+| Batch | Subjects | Claims checked | Corrected | Softened | Removed | Searched |
+| --- | --- | --- | --- | --- | --- | --- |
+| Middle grade and the biggest YA subtypes | middle-grade-fiction, ya-fantasy, ya-contemporary | 158 | 1 | 12 | 2 | yes |
+| Television and musical theatre | television-drama, sitcom, musical-theatre | 216 | 11 | 22 | 2 | yes |
+| Postmodernism, naturalism and surrealism | postmodernism, naturalism, surrealism | 260 | 9 | 13 | 1 | yes |
+| Mystery and crime subgenres | cozy-mystery, noir, police-procedural | 220 | 6 | 18 | 0 | yes |
+
+What the checkers could not confirm:
+
+### Middle grade and the biggest YA subtypes
+
+- WebFetch could not reach Wikipedia, so checks went through WebSearch summaries, many of them secondary (Goodreads shelves, library catalogues, retailer pages).
+- Several title years rest on solid prior knowledge only, because searches returned nothing usable or returned Newbery award years instead of publication years. These include Little Women, Treasure Island, Anne of Green Gables, The Secret Garden, The Hobbit, Narnia, Charlotte's Web, Hatchet, The Westing Game, Number the Stars, Bud, Not Buddy, Holes, The Giver, Coraline, The Graveyard Book, When You Reach Me, Wonder, A Wizard of Earthsea, Howl's Moving Castle, Twilight, City of Bones, Children of Blood and Bone, The Catcher in the Rye, The Chocolate War, Forever..., Speak, Perks of Being a Wallflower, Looking for Alaska, The Absolutely True Diary, The Fault in Our Stars, Aristotle and Dante, Eleanor & Park and The Hate U Give. The lint also cross-checks the canon works against the library.
+- The year Eragon was first self-published is disputed (2001 or 2002 across sources), so the files now give only the Knopf year, 2003.
+- Word-count ranges and age bands come from trade convention and agent blogs and forums that vary a lot. They are hedged, marked 'varies', and now match the library's own market entries. The library itself is not uniform on the lower YA protagonist age (fifteen versus fourteen).
+- General statements with no single source were kept in softened form: Harry Potter widened the audience for young people's fantasy, graphic novels are a growing part of the middle-grade market, and the non-European-tradition fantasy trend of the late 2010s.
+- The challenge claim in ya-contemporary names race, sexuality and gender. The ALA 2010 to 2019 list clearly supports race and sexuality, while gender-themed titles are more prominent in later years. The claim is hedged and was left as written.
+
+### Television and musical theatre
+
+- WebSearch worked, but WebFetch and direct curl were blocked, so every check came from search summaries or solid prior knowledge. Many dates and credits were not located by a search and rest on memory: Gunsmoke and Perry Mason, the 1980s to 2020s TV drama launches, Seinfeld, Friends, Cheers, The Golden Girls, the 1940s to 1960s Broadway shows, The Black Crook and the Ziegfeld Follies, and Mamma Mia and Jersey Boys.
+- The season-count claims (22 or more on US networks; 6 to 13 on cable and streaming; about six in Britain), the 20 to 22 minute US half-hour, and the 13 to 24 episode US sitcom season were not found in a source. They stay hedged, in facets marked varies.
+- Company (1970) as 'an early concept musical' and Hamilton as 'almost wholly sung' are common labels that informed people could dispute. Both are worded mildly.
+- The history facets of all three files are now marked contested (they were established), because the 'first' or 'start' of each form is disputed. The facet names keep the 'Television drama: ...' form.
+
+### Postmodernism, naturalism and surrealism
+
+- The per-turn web search budget ran out before the Sister Carrie check (Doubleday 1900, reissued 1907), so that claim rests on the checker's own knowledge. WebFetch could not resolve any host here, so sources were read only through search summaries.
+- Fiedler's 'Cross the Border, Close the Gap': sources give 1968, 1969 and 1970, so the text says only 'late 1960s and 1970s'. Hassan's 1971 book is confirmed.
+- 'Some authors placed under the label have questioned it' follows the library's own entry and is not sourced to named authors.
+- Die Weber 'published 1892' follows the library's year. Search confirmed the 1893 Freie Buhne staging but not the 1892 publication.
+- Surrealism: Breton's war service is confirmed (Saint-Dizier neuropsychiatric centre 1916, Val-de-Grace 1917), but sources differ on dates, so none are given. The Anthologie de l'humour noir date is not stated. Vitrac's expulsion date is deliberately not stated.
+- Surrealism: the Nadeau and Seaver and Lane reference titles and Reverdy's image as Breton's source rest on the checker's knowledge and were not searched.
+- Gorky's The Lower Depths is classed as naturalist drama, and some critics class it as realist or symbolist.
+
+### Mystery and crime subgenres
+
+- The shared web-search budget ran out before the last few checks. These rest on solid prior knowledge, not a fresh source: St Mary Mead and Chipping Cleghorn; The Thursday Murder Club (retirement village, major bestseller); Chocolate Chip Cookie Murder 2000; The Asphalt Jungle 1949; Total Kheops 1995; Hill Street Blues, Law & Order and Prime Suspect dates; The Wire 2002 to 2008; In the Woods centred on the detective's own past.
+- WebFetch could not reach Wikipedia (DNS failure), so checks used search summaries only.
+- The origin of the word cozy is unsettled in the sources. The text now says so instead of claiming Golden Age writers never used it.
+- Maigret is dated 'from the early 1930s' on purpose, since sources give 1930 (serial), 1931 or 1932 (book).
+- Dragnet's television start is given as 1951, but sources split between 14 and 16 December 1951.
+- The Killer Inside Me is attributed to Lion Books (dealer listings and a review agree); one library catalogue says Fawcett.
+- Several characterisations are unsourced, though hedged: cozy readers' preferences, noir tropes, and the descriptive procedural branches (cold-case, historical, village). The police-procedural subgenres facet is now marked 'varies'.
+- 'Cabot Cove syndrome' is framed as informal usage because only blog and fan-site sources were found.
+
