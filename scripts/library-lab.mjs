@@ -99,6 +99,11 @@ async function runSession(session) {
     ungroundedSentences: turns.reduce((a, t) => a + (t.ungrounded?.length ?? 0), 0),
     meanSec: Number((mean(turns.map((t) => t.ms)) / 1000).toFixed(1)),
   };
+  // The audit block: the full replies and, once per conversation, the library's own records on the subject in focus, so that a reader (or a judge that is not the model being measured)
+  // can check each claim against the records. The groundNames count above re-runs the orchestrator's own check on a reply it has already cleaned, so it cannot be anything but zero.
+  const subjectRecords = recordsText(project);
+  console.log(`AUDIT-RECORDS ${JSON.stringify({ session: session.id, subject: project.conversation.library?.subject?.name ?? null, records: subjectRecords })}`);
+  turns.forEach((t, i) => console.log(`AUDIT-REPLY ${JSON.stringify({ session: session.id, turn: i + 1, route: t.route, follow: t.follow, say: t.say, reply: t.reply })}`));
   console.log(`\n--- ${session.id}: ${JSON.stringify(m)}`);
   turns.forEach((t, i) => console.log(`  ${String(i + 1).padStart(2)}. [${sec(t.ms)} ${t.route} ${t.intent} read ${t.read ?? '-'} follow ${t.follow ?? '-'}${t.followOk ? '' : ' MISREAD'}${t.mentionsOk === false ? ' NOT-MENTIONED' : ''}${t.notLibrary === false ? ' HIJACKED' : ''}${t.ungrounded?.length ? ` UNGROUNDED ${JSON.stringify(t.ungrounded.map((x) => [...x.names, ...x.numbers]))}` : ''}] YOU: ${oneLine(t.say, 110)}\n       NIE: ${oneLine(t.reply, 520)}`));
   return { metrics: m, turns };
