@@ -1,7 +1,7 @@
 import { detectIntent, extractPremiseCues, updateWorkingPremise } from '../intent/intent.js';
 import { interpretProfile } from '../profile/interpret.js';
 import { answerFromLibrary, forProfile, libraryStatus, loadLibrary, search } from '../knowledge/index.js';
-import { afterRest, chipsFor, noteAnswer, resolveFollowUp } from '../knowledge/thread.js';
+import { MAX_AGE, afterRest, chipsFor, noteAnswer, resolveFollowUp } from '../knowledge/thread.js';
 import { emptyThread } from '../knowledge/thread-state.js';
 import { appendMessage } from '../project/memory.js';
 import { addToBoard, boardToChat, emptyBrainstorm, ideaId } from '../project/board.js';
@@ -126,6 +126,8 @@ const recordText = (e) => [e.name, ...(e.aka ?? []), e.summary, ...(e.convention
  * sentences"). Only such a question is answered by the library's own text; anything else goes to the model, which is shown the same records and the whole message.
  */
 const NOT_A_DIRECT_ASK = /\b(?:my|mine|our|i|i'm|i'd|i've|i'll|should|would|could|briefly|short(?:ly)?|summar\w*|nutshell|tl;?dr|simple terms|eli5|bullets?|in (?:one|two|three|four|a few|\d+)(?: or (?:two|three|four))? (?:short )?(?:sentences?|lines?|words?|paragraphs?)|and (?:how|why|would|could|should|can))\b/i;
+const FACTUAL_QUESTION = /^\s*(?:and\s+)?(?:what|who|which|when|where|how)\b[^?]*\b(?:is|are|was|were|does|do|did)\b/i;
+const ASKS_FOR_A_THING = /\b(?:some|any|good|best|better|ideas?|suggest\w*|examples?|give|help|make|write|improve|avoid|use|can|could|might)\b/i;
 const WORK_ASK = /\b(?:who wrote|wrote|written by|author|published|publication|when was)\b/i;
 function directLibraryAsk(text) {
   const t = String(text ?? '').trim();
@@ -441,6 +443,26 @@ export class Orchestrator {
     return intent.reading;
   }
 
+  /**
+   * While a conversation about the library is open, a short factual question that names something the library holds ("what are the tropes of romance?") is a library question,
+   * whatever label the model gave it. Measured on the real model, the label of exactly this kind of message flips between "craft" and "ideas" with the smallest change to the
+   * prompt or to what came before it (a near-tie for a 3B model), and "ideas" turns a reference question into story cards that credit the writer with a castle they never described.
+   * Narrow on purpose: the model read it as ideas, develop, unclear or chat; a library answer was given in the last few messages; it is one short factual question (no "my", no "some",
+   * "best", "ideas", "should", no request about the shape of the answer); and the library has a strong answer that the question names, other than a single work.
+   * The change is recorded (`understood.overruled`), as the guard against a wrong write/edit label is.
+   */
+  #stillALibraryQuestion({ project, intent, reading, text }) {
+    if (reading?.by !== 'model' || !['ideas', 'develop', 'unclear', 'chat'].includes(reading.task)) return false;
+    const thread = project.conversation.library;
+    if (!thread?.subject || this.#turnOf(project) - thread.turn > MAX_AGE) return false;
+    if (!FACTUAL_QUESTION.test(text) || ASKS_FOR_A_THING.test(text) || !directLibraryAsk(text)) return false;
+    const a = answerFromLibrary(text);
+    if (a.strength !== 'strong' || !a.nameHit || a.entries[0]?.kind === 'work') return false;
+    intent.type = 'craft-question';
+    intent.reading = { ...intent.reading, task: 'craft', overruled: reading.task };
+    return true;
+  }
+
   retrieve(project, text) {
     const declared = forProfile(project.profile);
     const wp = project.conversation.workingPremise;
@@ -516,7 +538,8 @@ export class Orchestrator {
 
     // What is the writer asking? The language model reads the message when one is running; the rules read it otherwise.
     // The model only returns a label, so it cannot write anything; a "write"/"edit" label gets the same fixed decline.
-    const reading = await this.#read({ intent, text: paste ? paste.ask || text.slice(0, 450) : text, history: history.slice(0, -1), signal, button: Boolean(lensOpt) }); // a tapped quick-action already says what it is
+    let reading = await this.#read({ intent, text: paste ? paste.ask || text.slice(0, 450) : text, history: history.slice(0, -1), signal, button: Boolean(lensOpt) }); // a tapped quick-action already says what it is
+    if (!paste && !lensOpt && this.#stillALibraryQuestion({ project, intent, reading, text: askText })) reading = intent.reading;
     userMsg.intent = intent.type;
     if (declines()) return decline();
     if (intent.type === 'about-nie') return this.#about({ project, intent, text: askText, onToken });

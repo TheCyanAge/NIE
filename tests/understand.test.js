@@ -191,14 +191,12 @@ test('a general question the rules cannot place is sent to the library by the mo
   assert.match(prompt, /built-in library/);
 });
 
-test('the reading prompt shows a general question about a genre as craft and a request for tropes for the writer\'s own story as ideas (measured: a library card before it pushed the first toward ideas)', async () => {
+test('the reading prompt shows an earlier library card as it is, and its examples are the ones measured (more examples about tropes pulled general questions toward "ideas")', async () => {
   const { UNDERSTAND_SYSTEM, buildUnderstandMessages } = await import('../apps/web/src/engine/orchestrator/understand.js');
-  assert.match(UNDERSTAND_SYSTEM, /"What are the tropes of romance\?" -> \{"task":"craft"/);
-  assert.match(UNDERSTAND_SYSTEM, /"What are some tropes I could use in my heist story\?" -> \{"task":"ideas"/);
-  // an earlier reply of NIE's, library card or not, is shown as it is (the model read the card best that way: a one-line summary of it did worse on the real model)
+  assert.doesNotMatch(UNDERSTAND_SYSTEM, /tropes/i, 'on the real model, examples with the word "tropes" made "what are the tropes of romance?" read as a request for ideas');
   const history = [{ role: 'user', content: 'What is gothic fiction?' }, { role: 'assistant', content: "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres", library: { subject: 'Gothic fiction' } }];
   const user = buildUnderstandMessages({ text: 'what are the tropes of romance?', history })[1].content;
-  assert.match(user, /NIE: From NIE's built-in library:/);
+  assert.match(user, /NIE: From NIE's built-in library:/, 'the card is shown as it is (a one-line summary of it did worse on the real model)');
 });
 
 test('a question about the writer\'s own story is not sent to the library even if it sounds general', async () => {

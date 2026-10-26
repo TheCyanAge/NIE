@@ -429,6 +429,34 @@ test('a comparison says when the library holds no note on how the two differ; a 
   assert.ok(!/Departing from it can be legitimate: .*Romantic tradition/.test(romanticism.reply), 'a movement is not a rule to depart from');
 });
 
+test('while a conversation about the library is open, a short factual question that names something the library holds stays a library question, whatever label the model gave it; requests for ideas and talk about the writer\'s story do not', async () => {
+  // (the opening question is read as a general question, and the ones after it as ideas, which is what the real model did)
+  const readAs = (task) => ({ reading: (text) => ({ task: /^what is gothic fiction/i.test(text) ? 'craft' : task, topic: '' }) });
+  // the library conversation is open
+  for (const q of ['what are the tropes of romance?', 'what are the subgenres of fantasy?', 'who are the key authors of noir?', 'what is the history of the sonnet?']) {
+    const { o, calls } = withModel(() => 'MODEL TEXT', readAs('ideas'));
+    const project = projectWith();
+    await say(o, project, 'What is gothic fiction?');
+    assert.ok(project.conversation.library.subject, 'a library conversation is open');
+    calls.length = 0;
+    const r = await say(o, project, q);
+    assert.equal(r.intent.type, 'library-question', q);
+    assert.equal(r.route, 'builtin', q);
+    assert.equal(calls.length, 0, `${q}: no model wrote the answer`);
+    assert.equal(r.understood.task, 'craft', q);
+    assert.equal(r.understood.overruled, 'ideas', `${q}: the change of label is recorded`);
+  }
+  // not a library question: a request for things, the writer's own story, or no library conversation open
+  for (const [q, open] of [['what are some tropes I could use in my gothic romance?', true], ['give me some twists for my heist story', true], ['what are the best tropes for romance?', true], ['what are the tropes of my story?', true], ['what are the tropes of romance?', false]]) {
+    const { o } = withModel(() => 'It could go like this.', readAs('ideas'));
+    const project = projectWith();
+    if (open) await say(o, project, 'What is gothic fiction?');
+    const r = await say(o, project, q);
+    assert.notEqual(r.understood?.overruled, 'ideas', q);
+    assert.notEqual(r.intent.type, 'library-question', `${q} (library conversation open: ${open})`);
+  }
+});
+
 test('a question that uses a word from the writer\'s own recent story messages is about the story, not a library question the library cannot answer', async () => {
   const o = noModel();
   const project = projectWith();

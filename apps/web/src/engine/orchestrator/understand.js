@@ -47,9 +47,6 @@ Examples:
 "Is my ending too predictable?" -> {"task":"feedback","topic":"ending"}
 "Does my voice stay consistent across the chapters?" -> {"task":"feedback","topic":"voice"}
 "What's a villanelle?" -> {"task":"craft","topic":"villanelle"}
-"What are the tropes of romance?" -> {"task":"craft","topic":"romance tropes"}
-"Who are the key authors of noir?" -> {"task":"craft","topic":"noir authors"}
-"What are some tropes I could use in my heist story?" -> {"task":"ideas","topic":"heist tropes"}
 "Can I start a sentence with And?" -> {"task":"craft","topic":"starting a sentence with And"}
 "My novel is a slow-burn mystery on a fishing island. The narrator is a retired ferry captain." -> {"task":"tell","topic":"mystery novel"}
 "just finished chapter nine, took me three weeks" -> {"task":"tell","topic":""}
