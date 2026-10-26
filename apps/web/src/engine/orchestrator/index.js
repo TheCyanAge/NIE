@@ -11,7 +11,7 @@ import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_EDIT_AGAIN, DECLINE_
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
 import { avoidBlock, isFiller, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
 import { isReaction, replyContext } from './replyto.js';
-import { feelingNote, holdSmallTalk, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
+import { feelingNote, holdSmallTalk, isLowMood, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
 import { makeOverview, projectNotesCache, readThrough, sectionKey } from '../reading/notes.js';
@@ -47,6 +47,11 @@ const FROM_NOTHING = [
   "You don't have to know yet. Here are a few starting points to react to; take whichever pulls at you, even if it's only to say no to it.",
   "Nobody knows what they're writing before they start. These are only things to push against.",
   "No pressure to have it figured out. A few sparks to react to, and we'll go from whatever catches.",
+];
+const LOW_LEADS = [
+  "That's a frustrating place to be, and every writer lands there. Let's make it smaller.",
+  'Stuck is miserable. We can take it one small piece at a time.',
+  "That's a hard spot. You don't have to solve all of it today.",
 ];
 const pickLine = (list, seed) => list[parseInt(fnv1a(String(seed)), 16) % list.length];
 const REFLECT_RETRY_NOTES = {
@@ -92,7 +97,7 @@ export function withoutQuestionLists(text) {
  * twist, "the second twist you mentioned"), the sentence puts NIE's idea in the writer's mouth and goes. Measured on the real model: "The second twist you mentioned ... a hidden artifact with mind-control powers".
  */
 const CREDITS_WRITER = /\b(?:you(?:'ve| have)?\s+(?:also\s+)?(?:said|mentioned|noted|told me|described|listed|suggested|wrote|brought up)|what you(?:'re| are) saying|as you(?:'ve| have)?\s+(?:said|mentioned|noted|told me|described))\b/i;
-function withoutFillerAndCredit(out, writerTexts) {
+function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxSentences = 0 } = {}) {
   const parts = splitSentencesLite(out);
   if (parts.length < 2) return out;
   const known = new Set(writerTexts.flatMap((t) => stemList(String(t ?? ''))));
@@ -100,13 +105,18 @@ function withoutFillerAndCredit(out, writerTexts) {
     const mine = [...new Set(stemList(x))];
     return !mine.length || mine.filter((m) => known.has(m)).length / mine.length >= 0.6;
   };
-  const kept = parts.filter((x) => !isFiller(x) && !(CREDITS_WRITER.test(x) && !own(x)));
+  const isQ = (x) => /\?["')\]]*\s*$/.test(x);
+  // NIE saying again what it said in its last few replies (measured: "What if Marta's biggest wish is to heal ..." three turns running), or asking the writer back the very question they just asked
+  const again = (x) => words(x).length >= 5 && recent.some((r) => similarity(x, r) >= 0.7);
+  const echo = (x) => isQ(x) && said && similarity(x, said) >= 0.6;
+  let kept = parts.filter((x) => !isFiller(x) && !(CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
+  if (maxSentences && kept.length > maxSentences) kept = kept.slice(0, maxSentences); // (a reply to a short reaction is short)
   const joined = kept.join(' ').trim();
   return kept.length < parts.length && words(joined).length >= 6 ? joined : out;
 }
-export function holdToPlan(text, plan, agentTurn, said = '', writerTexts = []) {
+export function holdToPlan(text, plan, agentTurn, said = '', writerTexts = [], { recent = [], maxSentences = 0 } = {}) {
   let out = agentTurn.enforce(text);
-  out = withoutFillerAndCredit(out, [said, ...writerTexts]);
+  out = withoutFillerAndCredit(out, [said, ...writerTexts], { said, recent, maxSentences });
   if (plan?.act === 'ask' && said) {
     // A model often opens by saying the writer's own sentence back to them; before a question that is only an echo, so it goes and the question stands.
     const sentences = splitSentencesLite(out);
@@ -386,8 +396,8 @@ export class Orchestrator {
     const d = describeMind(project);
     const pick = d.items.filter((i) => ['said', 'kept', 'character', 'theme', 'premise', 'rule', 'deliberate', 'sheet'].includes(i.source) && !i.by).slice(0, 8);
     return [
+      pick.length ? `Here is what I have so far, in your own words:\n${pick.map((i) => `• ${clip(i.text, 140)} (${i.where})`).join('\n')}` : '',
       d.summary,
-      pick.length ? `A few of them, in your words:\n${pick.map((i) => `• ${clip(i.text, 140)} (${i.where})`).join('\n')}` : '',
       'All of it is listed under "Everything NIE holds" next to the chat, where you can look through it and remove what you like. It belongs to this project only: no other project can see it.',
     ].filter(Boolean).join('\n\n');
   }
@@ -520,6 +530,12 @@ export class Orchestrator {
     // "yes", "yeah exactly", "no, I don't like that direction" right after NIE spoke are replies to it. A small model reads them as "I could not tell what is being asked" (and the answer becomes a
     // question back), as small talk, or as something told; they are a conversation about what NIE just said. Recorded as overruled, like the other guards on a reading.
     const last = history.at(-1);
+    if (last?.role === 'assistant' && last.agent?.act === 'chat' && words(text).length <= 6 && ['unclear', 'tell', 'develop', 'chat'].includes(intent.reading.task) && (isReaction(text, last) || /^\s*(?:yeah|yep|yes|ok(?:ay)?|sure|true|mm+|hm+|maybe|i guess|kind of|sort of|not really|no|nope)\b/i.test(text))) {
+      // (after a hello, a thanks or "how are you?", "yeah" is still small talk: measured on the real model, it was taken for a comment on a story that did not exist)
+      intent.reading = { ...intent.reading, overruled: intent.reading.task === 'chat' ? undefined : intent.reading.task, task: 'chat' };
+      intent.type = 'greeting';
+      return intent.reading;
+    }
     if (['unclear', 'tell', 'chat'].includes(intent.reading.task) && last?.role === 'assistant' && isReaction(text, last)) {
       intent.reading = { ...intent.reading, overruled: intent.reading.task, task: 'develop' };
       intent.type = 'discuss';
@@ -770,8 +786,8 @@ export class Orchestrator {
     const stated = detectKind(askText);
     if (stated && (isIdeaAsk || develop || intent.type === 'start-from-zero' || /\b(?:i'?m|i am|i want to|i'?d like to|i need to|let'?s)\s+(?:be\s+)?(?:writing|write|working on|draft)/i.test(askText))) bs.detectedKind = stated;
 
-    if (fromNothing && !note) note = pickLine(FROM_NOTHING, askText);
-    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note: [agentTurn?.note, note].filter(Boolean).join('\n\n'), reading, recalled, onToken, onProgress, signal });
+    const opening = fromNothing ? pickLine(FROM_NOTHING, askText) : ''; // (said to the writer; never put in the prompt, where the model took it for content)
+    if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, opening, note: [agentTurn?.note, note].filter(Boolean).join('\n\n'), reading, recalled, onToken, onProgress, signal });
 
     // ── Conversation (not an idea request) ───────────────────────────────────
     const interp = interpretProfile(project.profile, { text: project.storyText });
@@ -838,6 +854,7 @@ export class Orchestrator {
       extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, noAsk || aboutText || lib || libMiss ? '' : feelingNote(askText), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const writerWords = past.filter((m) => m.role === 'user').slice(-12).map((m) => String(m.content ?? '').slice(0, 1200)); // (what the writer really said, for "you mentioned")
+    const holdOpts = { recent: past.filter((m) => m.role === 'assistant').slice(-3).flatMap((m) => splitSentencesLite(String(m.content ?? ''))), maxSentences: replyTo ? 4 : 0 };
     const turnTokens = aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700;
     // An answer to a direct question the library answers well is the library's own text, put together by code, and no model is asked to retell it: measured on the real model (an audit
     // of 33 replies against the records they were built from), a 3B model that retold the notes got something wrong or credited the writer with something they never said in 13 of
@@ -861,12 +878,14 @@ export class Orchestrator {
     let ungrounded = '';
     if (res.text) {
       const guarded = got.polished.guarded;
-      reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn, askText, writerWords) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn, askText, writerWords, holdOpts) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      // A writer who says they are stuck or tired is met by a person before a question (the model rarely does it, and its comment, which rests on nothing they said, is cut).
+      if (brief && isLowMood(askText) && splitSentencesLite(reply)[0] && /\?["')\]]*\s*$/.test(splitSentencesLite(reply)[0])) reply = `${pickLine(LOW_LEADS, askText)} ${reply}`;
       // Every sentence the model gave stated something of its own about the story as if it were so, and none was a suggestion: ask once more, saying exactly that, before the canned acknowledgement stands in.
       if (brief && plan?.act === 'reflect' && agentTurn.ack && reply === agentTurn.ack && res.route !== 'builtin') {
         const again = await this.#askClean({ composeArgs: { ...composeArgs, extra: [composeArgs.extra, REFLECT_RETRY_NOTES[splitSentencesLite(guarded.text).some((x) => !/\?["')\]]*\s*$/.test(x)) ? 'invented' : 'question']].filter(Boolean).join('\n\n') }, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.7, maxTokens: turnTokens, steered: true });
         if (again.asked.res.text) {
-          const second = holdToPlan(finishedSentences(again.polished.guarded.text, turnTokens), plan, agentTurn, askText, writerWords);
+          const second = holdToPlan(finishedSentences(again.polished.guarded.text, turnTokens), plan, agentTurn, askText, writerWords, holdOpts);
           if (second && second !== agentTurn.ack) reply = second;
         }
       }
@@ -1130,7 +1149,7 @@ export class Orchestrator {
   }
 
   /** Idea requests and "develop this idea": the model when it is running, otherwise the built-in idea library. */
-  async #ideas({ project, intent, text, kind, lens, develop, note, reading, recalled = null, onToken, onProgress, signal }) {
+  async #ideas({ project, intent, text, kind, lens, develop, opening = '', note, reading, recalled = null, onToken, onProgress, signal }) {
     const bs = project.brainstorm;
     const history = project.conversation.messages;
     const past = history.slice(0, -1);
@@ -1164,10 +1183,10 @@ export class Orchestrator {
       if (!(guarded.removed && words(guarded.remaining).length < 8)) {
         const parsed = develop ? { ideas: [] } : parseIdeas(guarded.remaining);
         const ideas = toCards(parsed.ideas);
-        const reply = guarded.text;
+        const reply = ideas.length || !opening ? guarded.text : `${opening}\n\n${guarded.text}`;
         if (ideas.length) markShown(project, ideas);
         bs.lastLens = lens;
-        const lead = [note, parsed.lead].filter(Boolean).join('\n\n');
+        const lead = [opening, note, parsed.lead].filter(Boolean).join('\n\n');
         const cut = shortenedNote(asked.trimmed);
         return this.#finish(project, intent, cut ? `${reply}\n\n${cut}` : reply, res.route, false, { ideas, lead: ideas.length ? lead : '', tail: [ideas.length ? parsed.tail : '', cut].filter(Boolean).join('\n\n'), kind, lens, ...(asked.read ? { read: summarizeRead(asked.read), looked: lookedAt(asked.read, res.route) } : {}), ...(recalled ? { recalled: recalledRecord(recalled) } : {}), ...varietyRecord(null, got) });
       }
@@ -1193,6 +1212,10 @@ export class Orchestrator {
     if (note) {
       composed.lead = `${note} ${composed.lead}`;
       composed.text = `${note} ${composed.text}`;
+    }
+    if (opening) {
+      composed.lead = `${opening} ${composed.lead}`;
+      composed.text = `${opening} ${composed.text}`;
     }
     if (honesty) {
       composed.lead = `${honesty}\n\n${composed.lead}`;

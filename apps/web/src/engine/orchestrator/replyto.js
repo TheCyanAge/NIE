@@ -96,5 +96,6 @@ export function replyContext({ text, past }) {
   const lines = [`Their message is a reply to what you said last:\n"""\n${clip(lastText, LAST_CHARS)}\n"""`];
   if (item) lines.push(`They mean number ${item.n} of your list: "${clip(item.text, 220)}". Work with that one.`);
   else lines.push(BEFORE.test(text) && kind === 'follow' ? STANCE.follow : STANCE[kind]);
+  lines.push('Keep it to three or four sentences.');
   return lines.join('\n');
 }

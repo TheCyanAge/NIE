@@ -26,7 +26,7 @@ const BACK = /\b(?:back again|i'?m back|im back|back for more|hello again|hi aga
 // Remarks about the message itself (its tone, what it "signals") instead of an answer to it.
 const COMMENTARY = /\b(?:tone|signals?|indicates?|conveys?|implies|at the end|right from the start|your (?:message|greeting|opening)|this message|the message)\b/i;
 // NIE saying the writer's project is its own ("I'm writing a mystery set on a night train").
-const OWNS_THE_PROJECT = /^\s*(?:i'?m|i am|i was|i have been|i've been)\s+(?:writing|working on|building|making)\b|\bmy (?:story|novel|book|script|poem|premise|protagonist)\b/i;
+const OWNS_THE_PROJECT = /^\s*(?:i'?m|i am|i was|i have been|i've been)\s+(?:writing|working on|building|making)\b|\bmy (?:story|novel|book|script|poem|premise|protagonist)\b|^\s*(?:got it[.,]?\s+)?you(?:'re| are| have been|'ve been)\s+(?:writing|crafting|working on|building|making|telling|developing|exploring)\b/i;
 const FEELING_LOW = /\b(?:tired|exhausted|drained|burnt? ?out|stuck|blocked|stressed|overwhelmed|discouraged|frustrated|can'?t (?:write|think|do this)|no motivation|don'?t know where to (?:start|begin)|not sure where to start)\b/i;
 
 /** @returns {'back'|'thanks'|'bye'|'how-are-you'|'greeting'|'low'|'ack'} */
@@ -75,7 +75,7 @@ export function smallTalkNote({ text, project }) {
   const pick = left.length
     ? ` What they were working on, in their own words (you MAY mention it in a few words if it fits, you need not): ${left.map((l) => `"${l}"`).join('; ')}.`
     : ' They have not told you what they are working on yet, so do not mention any story or project.';
-  return `This is small talk, so answer like a person on the other end, in one or two short sentences (under 40 words).${' '}${HOW[kind]}${pick} Do not give ideas, lists, advice or craft notes, do not quote or describe anything they did not say, do not mention things from earlier unless it is in their own words above, and do not announce what you are about to do. At most one short question.`;
+  return `This is small talk, so answer like a person on the other end, in one or two short sentences (under 40 words).${' '}${HOW[kind]}${pick} Do not give ideas, lists, advice or craft notes, never restate or summarise their project (at most name it in a few words), do not quote or describe anything they did not say, do not mention things from earlier unless it is in their own words above, and do not announce what you are about to do. At most one short question.`;
 }
 
 const hash = (...p) => parseInt(fnv1a(p.join('|')), 16);

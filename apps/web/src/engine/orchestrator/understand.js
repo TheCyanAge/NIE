@@ -140,6 +140,8 @@ const ADDRESSED = /\b(?:you|your|yours|yourself|nie|u)\b|\bthis\s+(?:app|tool|pr
 /** Is the message put TO NIE (a question or a "you")? A model that reads "My novel is about…" as a question about NIE is not believed. */
 export const looksAddressedToNie = (text) => ADDRESSED.test(String(text ?? ''));
 
+const GIVE_ME_THINGS = /\b(?:give|show|offer)\s+me\s+(?:a\s+|some\s+|several\s+|three\s+|3\s+|more\s+|other\s+|different\s+|fresh\s+|new\s+|another\s+)*(?:few\s+)?(?:\w+\s+)?(?:directions?|options?|angles?|ideas?|twists?|possibilities|approaches|alternatives|suggestions|sparks?)\b/i;
+
 /**
  * Let the model's reading decide the intent. Where it agrees with the rules the rules' richer detail is kept (their direction-change
  * cue, a "what if"…); where it disagrees the model wins. The rules' own guess stays on `reading.rules` for the record.
@@ -154,6 +156,10 @@ export function applyReading(intent, reading, text) {
     // wrong and contradicted NIE. When the rules recognise a question about NIE, the model's other reading is not believed.
     overruled = task;
     task = 'about-nie';
+  } else if (['develop', 'tell', 'unclear', 'chat'].includes(task) && GIVE_ME_THINGS.test(text)) {
+    // "give me a few directions" is a request for ideas whatever a small model calls it (measured on the real model: it was read as a conversation and answered with a plot skeleton under headings)
+    overruled = task;
+    task = 'ideas';
   } else if (intent.type === 'start-from-zero' && ['write', 'tell', 'unclear', 'develop', 'chat'].includes(task) && wc <= 30) {
     // The rules heard a writer with nothing to go on yet ("I want to write something but I don't know what", "where do I even start"). The model reads that as "write" (then "tell") and the
     // answer becomes a question about the form of a piece that does not exist. It is a request for somewhere to begin, and is read as one (recorded as overruled).

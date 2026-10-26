@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { Orchestrator, holdToPlan } from '../apps/web/src/engine/orchestrator/index.js';
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { DECLINE_WRITE, DECLINE_WRITE_AGAIN } from '../apps/web/src/engine/orchestrator/builtin.js';
+import { holdSmallTalk } from '../apps/web/src/engine/orchestrator/smalltalk.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
 import { modelWithReading, projectWith } from './helpers.js';
 
@@ -132,4 +133,56 @@ test('filler such as "Sounds intriguing." is not kept as an answer, and a hello 
   assert.equal(holdSmallTalk("You're welcome. Sounds intriguing. How does the train's atmosphere influence the passengers' interactions?", { project, text: 'thanks!', past }), "You're welcome.");
   assert.equal(holdSmallTalk("I'm writing a mystery set on a night train. The conductor vanishes between two stations.", { project, text: 'hey, back again', past }), '');
   assert.equal(holdSmallTalk('Welcome back. Want to pick up the night train?', { project, text: 'hey, back again', past }), 'Welcome back. Want to pick up the night train?');
+});
+
+// ── round three, from the second judge ────────────────────────────────────────
+
+test('"give me a few directions" is a request for ideas whatever a small model calls it', async () => {
+  const { o } = setup({ reading: task('develop'), reply: '1. The translator is the only one who hears the edit.\n\n2. The speech is true and the lie is hers.\n\n3. Her interpreter booth is bugged.' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'give me a few directions' });
+  assert.equal(r.understood.task, 'ideas');
+  assert.equal(r.understood.overruled, 'develop');
+  assert.equal(r.ideas.length, 3);
+});
+
+test('the human line for a writer with nothing yet is said to them and is not put in the model\'s prompt', async () => {
+  const { o, calls } = setup({ reading: task('write'), reply: '1. A town where the clocks disagree.\n\n2. A letter that arrives forty years late.\n\n3. Two siblings who inherit a lie.' });
+  const r = await o.brainstorm({ project: projectWith(), message: "I want to write something but I don't know what yet" });
+  assert.match(r.lead, /pressure|know yet|Nobody knows/);
+  assert.doesNotMatch(calls.at(-1).messages.at(-1).content, /pressure to have it figured out|You don't have to know yet|Nobody knows what they're writing/);
+});
+
+test('after small talk, "yeah" is still small talk, not a comment on a story that does not exist', async () => {
+  const { o, calls } = setup({ reading: task('unclear'), reply: 'Fair enough. Take your time.' });
+  const project = projectWith();
+  const first = await o.brainstorm({ project, message: "I'm so tired today and I can't focus" });
+  assert.equal(first.agent?.act, 'chat');
+  const before = calls.length;
+  const r = await o.brainstorm({ project, message: 'yeah' });
+  assert.equal(r.agent?.act, 'chat');
+  assert.equal(r.understood.task, 'chat');
+  assert.match(calls.at(-1).messages.at(-1).content, /small talk/);
+  assert.ok(calls.length > before);
+});
+
+test('a hello is not answered with a recap of the project, and a reaction is answered in a few sentences without repeating what NIE already said', () => {
+  const project = projectWith();
+  const past = [{ role: 'user', content: "I'm writing a mystery set on a night train. The conductor vanishes between two stations." }];
+  assert.equal(holdSmallTalk('Got it. You\'re writing a mystery set on a night train where the conductor vanishes between two stations.', { project, text: 'ok cool', past }), '');
+  assert.equal(holdSmallTalk("Glad to be back. You're crafting a mystery aboard a night train, with the conductor's disappearance at its heart.", { project, text: 'hey, back again', past }), 'Glad to be back.');
+  const agentTurn = { enforce: (t) => t, grounded: () => true, ack: 'Noted.' };
+  const recent = ["What if Marta's biggest wish is to heal from the mistake that cost her her license, but she struggles to express it?"];
+  const out = holdToPlan("What if Marta's biggest wish is to heal from the mistake that cost her her license, but she struggles to admit it? Maybe the only person she would tell is the patient she lost. You could let a letter go unsent.", { act: 'reflect', reason: 'gap' }, agentTurn, "she'd never admit it though", ["Marta, a retired surgeon who lost her license after a mistake"], { recent });
+  assert.doesNotMatch(out, /biggest wish/);
+  assert.match(out, /Maybe the only person she would tell/);
+  const long = holdToPlan('One. Two is here now. Three comes after that. Four arrives next. Five follows it. Six ends everything.', { act: 'serve', reason: 'question' }, agentTurn, 'yes', [], { maxSentences: 4 });
+  assert.equal(long.split(/(?<=\.)\s/).length, 4);
+});
+
+test('a writer who says they are stuck is met by a person before the question', async () => {
+  const { o } = setup({ reading: task('develop'), reply: 'Which came first for you: a person you could not stop thinking about, or a situation you wanted to see play out?' });
+  const r = await o.brainstorm({ project: projectWith(), message: "I'm completely stuck on my story and I don't know where to go with it" });
+  assert.match(r.reply, /^(?:That's a frustrating place|Stuck is miserable|That's a hard spot)/);
+  assert.match(r.reply, /\?$/, 'and then one question');
+  assert.equal((r.reply.match(/\?/g) ?? []).length, 1);
 });
