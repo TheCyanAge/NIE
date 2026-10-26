@@ -191,6 +191,21 @@ test('a general question the rules cannot place is sent to the library by the mo
   assert.match(prompt, /built-in library/);
 });
 
+test('the reading prompt shows NIE\'s earlier library card as one neutral line, not the card\'s text (it pulled the next general question toward "ideas")', async () => {
+  const { buildUnderstandMessages } = await import('../apps/web/src/engine/orchestrator/understand.js');
+  const history = [
+    { role: 'user', content: 'What is gothic fiction?' },
+    { role: 'assistant', content: "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion.", library: { subject: 'Gothic fiction' } },
+  ];
+  const user = buildUnderstandMessages({ text: 'what are the tropes of romance?', history })[1].content;
+  assert.match(user, /NIE: \(answered a reference question from its library, about Gothic fiction\)/);
+  assert.doesNotMatch(user, /ruined castles|built-in library:/);
+  assert.match(user, /Writer: What is gothic fiction\?/);
+  // an ordinary reply of NIE's is shown as before
+  const plain = buildUnderstandMessages({ text: 'ok', history: [{ role: 'assistant', content: 'What does she want most?' }] })[1].content;
+  assert.match(plain, /NIE: What does she want most\?/);
+});
+
 test('a question about the writer\'s own story is not sent to the library even if it sounds general', async () => {
   const { o, calls } = setup({ reading: read('craft', 'villain'), reply: 'What does he want?' });
   const r = await o.brainstorm({ project: projectWith(), message: 'What is the best way to reveal my villain in chapter two?' });

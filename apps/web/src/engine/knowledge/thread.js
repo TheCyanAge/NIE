@@ -184,18 +184,22 @@ export function resolveFollowUp(text, thread, { turn = 0, model = false } = {}) 
     const after = t.split(COMPARE_CUE).pop().replace(/^\s*(?:from|with|to|than|and|between|the)\s+/i, '');
     const other = lookupName(after.match(/^\s*(?:(?:the|a|an)\s+)?(.+?)\s*[?.!]*$/i)?.[1], subject.id, subject.kind);
     if (other) {
-      // The profile's compare facet has one point per neighbour, written "Subject versus Neighbour: ..."; the point for this neighbour is shown as it is.
-      const names = [other.name, ...(other.aka ?? [])].map(keyOf);
-      const point = (profiles.get('compare')?.conventions ?? []).find((c) => {
-        const head = c.split(':')[0];
-        const neighbour = head.split(/\s+(?:versus|vs\.?)\s+/i)[1];
-        return neighbour ? names.includes(keyOf(neighbour)) : false;
-      });
+      // The profile's compare facet has one point per neighbour, written "Subject versus Neighbour: ..."; the point for this neighbour is shown as it is. (Looked for in the other
+      // subject's profile too: it may hold the point that the first lacks.)
+      const pointIn = (profile, who) => {
+        const keys = [who.name, ...(who.aka ?? [])].map(keyOf);
+        return (profile?.conventions ?? []).find((c) => {
+          const neighbour = c.split(':')[0].split(/\s+(?:versus|vs\.?)\s+/i)[1];
+          return neighbour ? keys.includes(keyOf(neighbour)) : false;
+        });
+      };
+      const point = pointIn(profiles.get('compare'), other);
+      const reverse = point ? null : pointIn(profilesOf(other.id).get('compare'), base);
       return {
         kind: 'compare',
         entries: [base, other],
         lead: `${subject.name} and ${other.name}, side by side:`,
-        after: point ? `On how they differ, my profile of ${subject.name} says: ${point}` : '',
+        after: point ? `On how they differ, my profile of ${subject.name} says: ${point}` : reverse ? `On how they differ, my profile of ${other.name} says: ${reverse}` : `I don't hold a separate note on how ${subject.name} and ${other.name} differ, so this is what each is, side by side.`,
         compact: true,
         other,
       };

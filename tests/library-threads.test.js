@@ -414,6 +414,21 @@ test('with an online model the answer is not composed by code: the online model 
   assert.match(r.reply, /repeats two refrain lines/);
 });
 
+test('a comparison says when the library holds no note on how the two differ; a book that shares the subject\'s name is not a second card; a movement is not "departed from"', async () => {
+  const o = noModel();
+  const project = projectWith();
+  await say(o, project, 'What is cyberpunk?');
+  const r = await say(o, project, 'how is it different from space opera?');
+  assert.equal(r.library.follow, 'compare');
+  assert.match(r.reply, /Cyberpunk and Space opera, side by side/);
+  assert.match(r.reply, /On how they differ, my profile of (?:Cyberpunk|Space opera) says:|I don't hold a separate note on how Cyberpunk and Space opera differ/, 'it either quotes a note or says there is none');
+  const haiku = await say(noModel(), projectWith(), 'What is haiku?');
+  assert.ok(!/Notable works/.test(haiku.reply), 'the book "Haiku" is not shown as a second card under the form');
+  assert.match(haiku.reply, /\*\*Haiku\*\*  ·  Forms/);
+  const romanticism = await say(noModel(), projectWith(), 'What is Romanticism?');
+  assert.ok(!/Departing from it can be legitimate: .*Romantic tradition/.test(romanticism.reply), 'a movement is not a rule to depart from');
+});
+
 test('a question that uses a word from the writer\'s own recent story messages is about the story, not a library question the library cannot answer', async () => {
   const o = noModel();
   const project = projectWith();

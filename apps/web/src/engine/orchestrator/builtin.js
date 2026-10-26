@@ -238,6 +238,8 @@ export function conversationalSummary(report) {
 
 // ── Answers from the offline library ────────────────────────────────────────
 
+/** The line that introduces when a writer may depart from a convention. A movement or a tradition is not a rule to depart from: what is said there is simply worth keeping in mind. */
+const departLabel = (e) => (e.kind === 'movement' || e.kind === 'tradition' ? 'Keep in mind:' : 'Departing from it can be legitimate:');
 const workLine = (w) => `${w.title} (${w.author}${w.year ? `, ${w.year}` : ''})`;
 
 /** One entry rendered as a short, sourced answer. Reference only: it says when a writer may depart from it. */
@@ -251,7 +253,7 @@ function renderEntry(e, { compact = false } = {}) {
   if (e.watchFor[0]) lines.push(`Watch for: ${e.watchFor[0]}`);
   if (e.confidence === 'varies') lines.push('This varies by publisher, house style or region, so check the guide your project follows.');
   if (e.confidence === 'contested') lines.push('Informed writers and editors disagree about this one.');
-  if (e.deliberateWhen[0]) lines.push(`Departing from it can be legitimate: ${e.deliberateWhen[0].replace(/\.$/, '')}.`);
+  if (e.deliberateWhen[0]) lines.push(`${departLabel(e)} ${e.deliberateWhen[0].replace(/\.$/, '')}.`);
   if (e.works?.length) lines.push(`Works to look at: ${e.works.slice(0, 4).map(workLine).join('; ')}.`);
   if (e.refs?.length) lines.push(`Read more: ${e.refs.slice(0, 2).join('; ')}.`);
   return lines.join('\n\n');
@@ -264,7 +266,7 @@ function renderRest(e, from) {
   if (rest.length) lines.push(rest.map((c) => `- ${c}`).join('\n'));
   // (what the overview already said is not said again: its first watch-for and first departure, its first four works and its first two readings)
   if (e.watchFor?.length > 1) lines.push(`Watch for: ${e.watchFor.slice(1).join(' ')}`);
-  if (e.deliberateWhen?.length > 1) lines.push(`Departing from it can be legitimate: ${e.deliberateWhen.slice(1).map((d) => d.replace(/\.$/, '')).join('; ')}.`);
+  if (e.deliberateWhen?.length > 1) lines.push(`${departLabel(e)} ${e.deliberateWhen.slice(1).map((d) => d.replace(/\.$/, '')).join('; ')}.`);
   if (e.works?.length > 4) lines.push(`More works to look at: ${e.works.slice(4, 10).map(workLine).join('; ')}.`);
   if (e.refs?.length > 2) lines.push(`Read more: ${e.refs.slice(2, 5).join('; ')}.`);
   return lines.join('\n\n');
@@ -277,8 +279,10 @@ function renderRest(e, from) {
  * @param {{ lead?: string, after?: string, rest?: { from: number }, compact?: boolean }} [thread]  a follow-up in a conversation about the library: its own lead line, a library note to add after the entries, and (rest) show the entry's unseen points instead of its overview
  */
 export function libraryReply(answer, thread = {}) {
-  const body = thread.rest ? renderRest(answer.entries[0], thread.rest.from) : answer.entries.slice(0, 2).map((e) => renderEntry(e, { compact: thread.compact })).join('\n\n---\n\n');
-  const rest = [...answer.entries.slice(2), ...answer.related].slice(0, 4).map((e) => e.name);
+  // (A book that shares the subject's name, "Haiku" by R. H. Blyth under the form, is not a second card for the question: the works to look at are listed on the subject's own card.)
+  const entries = answer.entries[0]?.kind === 'work' ? answer.entries : answer.entries.filter((e) => e.kind !== 'work');
+  const body = thread.rest ? renderRest(entries[0], thread.rest.from) : entries.slice(0, 2).map((e) => renderEntry(e, { compact: thread.compact })).join('\n\n---\n\n');
+  const rest = [...entries.slice(2), ...answer.related].slice(0, 4).map((e) => e.name);
   const tail = [];
   if (rest.length) tail.push(`Related in the library: ${rest.join(', ')}.`);
   const guided = answer.entries.some((e) => e.guide || e.kind === 'rule' || e.kind === 'usage');

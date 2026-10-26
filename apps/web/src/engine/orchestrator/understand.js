@@ -63,7 +63,10 @@ const oneLine = (s, n) => clip(String(s ?? '').replace(/\s+/g, ' ').trim(), n);
 export function buildUnderstandMessages({ text, history = [] }) {
   const recent = history.filter((m) => (m.role === 'user' || m.role === 'assistant') && m.content).slice(-2);
   const parts = [];
-  if (recent.length) parts.push(`Earlier in this chat:\n${recent.map((m) => `${m.role === 'user' ? 'Writer' : 'NIE'}: ${oneLine(m.content, m.role === 'user' ? 160 : 220)}`).join('\n')}`);
+  // (A reply from NIE's reference library is a card of reference text. Shown to the model it pulled the next general question toward "ideas": measured on the real model, "what are the
+  // tropes of romance?" after a card on Gothic fiction was read as a request for ideas and answered with a castle the writer never mentioned. It is shown as one neutral line.)
+  const said = (m) => (m.role === 'user' ? oneLine(m.content, 160) : m.library ? `(answered a reference question from its library${m.library.subject ? `, about ${oneLine(m.library.subject, 60)}` : ''})` : oneLine(m.content, 220));
+  if (recent.length) parts.push(`Earlier in this chat:\n${recent.map((m) => `${m.role === 'user' ? 'Writer' : 'NIE'}: ${said(m)}`).join('\n')}`);
   const t = String(text ?? '').trim();
   const shown = t.length > 600 ? `${t.slice(0, 450).trimEnd()} … ${t.slice(-120).trimStart()}` : t;
   parts.push(`The writer's new message:\n"""\n${shown}\n"""`);
