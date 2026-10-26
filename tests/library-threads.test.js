@@ -322,6 +322,16 @@ test('an answer from the library may only name what the library\'s records name:
   assert.match(r.reply, /left out part of that reply because it named something I couldn't find in my library/);
 });
 
+test('an answer from the library may only state the dates and patterns the records state: a year or a rhyme scheme of the model\'s own has that sentence left out, and says so', async () => {
+  const invented = 'The villanelle has nineteen lines. Its rhyme scheme is typically ABAABCCDDCDEEDCDEE. A poet named in the records printed one in 1606, and the form returned in the 1890s.';
+  const { o } = withModel(() => invented, { reading: () => ({ task: 'craft', topic: '' }) });
+  const project = projectWith();
+  const r = await say(o, project, 'What is a villanelle?');
+  assert.ok(!/ABAABCCDDCDEEDCDEE/.test(r.reply), 'the scheme no record has is gone');
+  assert.match(r.reply, /nineteen lines/, 'what is in the records stays');
+  assert.match(r.reply, /left out part of that reply because it named something I couldn't find in my library/);
+});
+
 test('an answer from the library that names nothing the library holds is replaced by the library\'s own record, with the reason', async () => {
   const { o } = withModel(() => 'Anne Rice and Stephen King shaped it, along with Clive Barker and Poppy Brite.', { reading: () => ({ task: 'craft', topic: '' }) });
   const r = await say(o, projectWith(), 'What is gothic fiction?');

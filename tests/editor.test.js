@@ -689,6 +689,26 @@ test('groundNames: a number stated as a fact about the text must be in the text;
   assert.equal(run('Your draft has 25 sections and 10,374 words.', { sources: [BIBLE, '25 sections, 10,374 words'] }).removed.length, 0, 'measured facts the reply was given are sources too');
 });
 
+test('groundNames with facts: a year, decade, century or rhyme scheme that no source has goes with its sentence; a century or decade is grounded by a year in it', () => {
+  const src = ['The villanelle has nineteen lines. Passerat\'s poem was printed in 1606, after his death. Dylan Thomas wrote one in 1947 and published it in 1951. Nineteenth-century writers fixed the pattern; the sixteenth-century Italian villanella was a part-song. A sonnet may rhyme ABABCDCDEFEFGG. Poems of the 1950s.'];
+  const bad = (s) => groundNames(s, { sources: src, known: ['NIE'], facts: true }).removed.flatMap((r) => r.numbers);
+  assert.deepEqual(bad("Passerat's poem was printed in 1606."), [], 'a year the sources have');
+  assert.deepEqual(bad("Passerat's poem was printed in 1607."), ['1607'], 'a year they do not');
+  assert.deepEqual(bad('It became popular in the 17th century.'), [], 'the 17th century, grounded by 1606');
+  assert.deepEqual(bad('It became popular in the 18th century.'), ['18th century'], 'a century nothing in the sources reaches');
+  assert.deepEqual(bad('Nineteenth-century writers fixed it, and the sixteenth-century villanella was a part-song.'), [], 'centuries in words');
+  assert.deepEqual(bad('It spread in the mid-20th century.'), [], 'grounded by 1947');
+  assert.deepEqual(bad('Poets of the 1950s used it.'), [], 'a decade the sources have');
+  assert.deepEqual(bad('Poets of the 1960s used it.'), ['1960s'], 'a decade they do not');
+  assert.deepEqual(bad('It spread in the 17th and 18th centuries.'), ['18th century'], 'both centuries are judged');
+  assert.deepEqual(bad('The sonnet scheme is ABABCDCDEFEFGG.'), [], 'a scheme the sources have');
+  assert.deepEqual(bad('The villanelle scheme is typically ABAABCCDDCDEEDCDEE.'), ['ABAABCCDDCDEEDCDEE'], 'a scheme they do not');
+  assert.deepEqual(bad('It has five tercets and a final quatrain, nothing counted that the sources lack.'), [], 'numbers in words and ordinary words are not judged here');
+  const r = groundNames('The poem was printed in 1606. It was famous by 1750.', { sources: src, known: [], facts: true });
+  assert.equal(r.text, 'The poem was printed in 1606.', 'only the sentence with the unsupported year goes, and nothing is reworded');
+  assert.equal(groundNames('It was famous by 1750.', { sources: src, known: [] }).removed.length, 0, 'without facts the check is as it was');
+});
+
 test('groundNames: removal keeps lists and paragraphs tidy; an empty result is "" and says so; bad input is harmless', () => {
   const reply = 'Here is what I see:\n\n- Dessa Varnholt keeps the Book.\n- Torvald Henkel keeps the keys.\n- Rurik Sennet passes the brake band.\n\nThat is all.';
   const r = groundNames(reply, { sources: [BIBLE] });

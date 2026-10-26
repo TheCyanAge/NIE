@@ -719,6 +719,7 @@ export class Orchestrator {
           sources: [...retrieved.map(recordText), ...project.conversation.messages.filter((m) => m.role === 'user' || m.library).map((m) => m.content)],
           known: ['NIE', project.title, project.conversation.library?.subject?.name].filter(Boolean),
           sections: null,
+          facts: true, // and the years, centuries and rhyme schemes it states: measured on the real model, a reply gave the villanelle a scheme of its own
         });
         if (g.removed.length) {
           reply = g.text;

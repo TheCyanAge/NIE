@@ -16,6 +16,11 @@ import { removeSpans, sentenceSpans } from './sentences.js';
  *    sources (as digits or in words: "ninety" and "90" are the same number). A section or chapter number is a place, not a fact, and is left alone unless
  *    `sections` (how many sections the text has) says it cannot exist.
  * What the check cannot see: a set-up or a fact made of ordinary words. It stops the inventions that can be counted, nothing more.
+ *
+ * With `facts: true` (an answer from the library) a sentence is also judged on the dates and patterns it states: a year, a decade ("the 1990s"), a century ("the 17th century",
+ * "seventeenth-century") or a run of five or more capitals (a rhyme scheme such as ABABCDCDEFEFGG) that no source has goes with the sentence. A century and a decade are grounded by a
+ * year of that century or decade in a source as well as by the same words; the reply can say "the 17th century" when a record says 1606. It stops an invented date or an invented
+ * scheme; a true date set against the wrong thing (a real year given to the wrong poem) is made of words that are all in the records and gets through.
  */
 
 // ── what the reply may rely on ───────────────────────────────────────────────
@@ -295,6 +300,43 @@ function unknownNumbers(sentence, vs, sections) {
   return [...new Set(out)];
 }
 
+// ── dates and patterns in a library answer ──────────────────────────────────
+
+const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth', 'twenty-first'];
+const ORD = `(?:\\d{1,2}(?:st|nd|rd|th)|${ORDINALS.join('|')})`;
+const CENTURY_RE = new RegExp(`\\b(${ORD}(?:\\s*(?:,|and|or|to|-|–)\\s*${ORD})*)[\\s-]+centur(?:y|ies)\\b`, 'gi');
+const ORD_RE = new RegExp(ORD, 'gi');
+const DECADE_RE = /\b(\d{3})0s\b/g;
+const SCHEME_RE = /\b[A-Z]{5,}\b/g;
+const ordinalValue = (w) => (/^\d/.test(w) ? parseInt(w, 10) : ORDINALS.indexOf(w.toLowerCase()) + 1);
+const centuryOfYear = (y) => Math.floor((y - 1) / 100) + 1;
+
+/** The years, decades, centuries and capital runs a text states. `said` are the centuries it names outright; `centuries` adds those of its years and decades (what a text can ground). */
+function factsIn(text) {
+  const years = new Set(numbersIn(text, { limit: 20000 }).filter((n) => n.digits && Number.isInteger(n.value) && n.value >= 1000 && n.value <= 2100).map((n) => n.value));
+  const decades = new Set([...text.matchAll(DECADE_RE)].map((m) => Number(m[1]) * 10));
+  const said = new Set();
+  for (const m of text.matchAll(CENTURY_RE)) for (const o of m[1].matchAll(ORD_RE)) said.add(ordinalValue(o[0]));
+  const centuries = new Set(said);
+  for (const y of years) centuries.add(centuryOfYear(y));
+  for (const d of decades) centuries.add(centuryOfYear(d));
+  return { years, decades, said, centuries, schemes: new Set(text.match(SCHEME_RE) ?? []) };
+}
+const factsOf = (v) => (v.facts ??= factsIn(v.source));
+const suffix = (n) => (n % 100 >= 11 && n % 100 <= 13 ? 'th' : n % 10 === 1 ? 'st' : n % 10 === 2 ? 'nd' : n % 10 === 3 ? 'rd' : 'th');
+
+/** Dates and patterns the sentence states that no source has (see `facts` above). */
+function unknownFacts(sentence, vs) {
+  const have = vs.filter((v) => !v.trusted).map(factsOf);
+  const mine = factsIn(sentence);
+  const out = [];
+  for (const y of mine.years) if (!have.some((f) => f.years.has(y))) out.push(String(y));
+  for (const d of mine.decades) if (!have.some((f) => f.decades.has(d) || [...f.years].some((y) => y >= d && y < d + 10))) out.push(`${d}s`);
+  for (const c of mine.said) if (!have.some((f) => f.centuries.has(c))) out.push(`${c}${suffix(c)} century`);
+  for (const t of mine.schemes) if (!have.some((f) => f.schemes.has(t))) out.push(t);
+  return [...new Set(out)];
+}
+
 // ── the check ────────────────────────────────────────────────────────────────
 
 /**
@@ -307,14 +349,14 @@ function unknownNumbers(sentence, vs, sections) {
  *   `emptied` is true when nothing is left: the caller says so instead of showing an empty reply.
  */
 export function groundNames(reply, opts) {
-  const { sources = [], known = [], sections = null } = opts && typeof opts === 'object' ? opts : {};
+  const { sources = [], known = [], sections = null, facts = false } = opts && typeof opts === 'object' ? opts : {};
   const src = typeof reply === 'string' ? reply : '';
   const result = { text: src, removed: [], emptied: false };
   if (!src.trim()) return { ...result, text: '' };
   const vs = vocabularies(sources, known);
   const ctx = { memo: new Map(), budget: { left: 4_000_000 } };
   const spans = sentenceSpans(src);
-  const verdicts = spans.map((sp) => ({ sp, names: unknownNames(sp.text, vs, ctx), numbers: unknownNumbers(sp.text, vs, sections) }));
+  const verdicts = spans.map((sp) => ({ sp, names: unknownNames(sp.text, vs, ctx), numbers: [...unknownNumbers(sp.text, vs, sections), ...(facts ? unknownFacts(sp.text, vs) : [])] }));
   // A name the check has just refused comes back in other sentences of the same reply, often at the start of one ("Haldric watches the harbour"), where a capital
   // proves nothing and the first look let it pass: a word that no source has, and that is not ordinary English, goes with the sentences that named it.
   const refused = new Set();
