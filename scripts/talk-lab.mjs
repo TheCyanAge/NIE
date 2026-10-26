@@ -5,7 +5,7 @@
 //
 //   node scripts/talk-lab.mjs --bin apps/desktop/bin --model apps/desktop/models/Qwen2.5-3B-Instruct-Q4_K_M.gguf [options]
 // options:
-//   --sessions a,b   which scripted conversations to run (tests/fixtures/talk-sessions.mjs; default all)     --threads N  model-server threads (default: the app's)
+//   --sessions a,b   which scripted conversations to run (tests/fixtures/talk-sessions.mjs; default: the first eleven; "heldout" = the held-out set; "all")     --threads N  model-server threads (default: the app's)
 //   --out FILE       write every result as JSON
 
 import fs from 'node:fs';
@@ -17,7 +17,7 @@ import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
 import { createProjectData } from '../apps/web/src/engine/project/store.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
-import { TALK_SESSIONS } from '../tests/fixtures/talk-sessions.mjs';
+import { HELD_OUT_SESSIONS, TALK_SESSIONS } from '../tests/fixtures/talk-sessions.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -51,7 +51,9 @@ async function labChat(messages, o = {}) {
 }
 const engine = new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: labChat }, online: null, isOnline: () => false });
 
-const wanted = String(opt('--sessions', TALK_SESSIONS.map((s) => s.id).join(','))).split(',');
+const ALL = [...TALK_SESSIONS, ...HELD_OUT_SESSIONS];
+const asked = String(opt('--sessions', TALK_SESSIONS.map((s) => s.id).join(','))).split(',');
+const wanted = asked.flatMap((id) => (id === 'heldout' ? HELD_OUT_SESSIONS.map((x) => x.id) : id === 'all' ? ALL.map((x) => x.id) : [id]));
 const report = { threads: service.threads, sessions: {} };
 
 async function runSession(session) {
@@ -85,7 +87,7 @@ async function runSession(session) {
 }
 
 try {
-  for (const session of TALK_SESSIONS.filter((s) => wanted.includes(s.id))) report.sessions[session.id] = await runSession(session);
+  for (const session of ALL.filter((s) => wanted.includes(s.id))) report.sessions[session.id] = await runSession(session);
   const ms = Object.values(report.sessions).map((s) => s.metrics);
   const total = ms.reduce((a, m) => a + m.turns, 0);
   console.log(`\n=== ${ms.length} conversations, ${total} replies; mean turn ${mean(ms.map((m) => m.meanSec)).toFixed(1)} s; mean reply ${Math.round(mean(ms.map((m) => m.meanWords)))} words; replies with a question ${ms.reduce((a, m) => a + m.withQuestion, 0)}; replies as idea cards ${ms.reduce((a, m) => a + m.cards, 0)}; composed by code ${ms.reduce((a, m) => a + m.builtin, 0)}`);

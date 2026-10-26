@@ -116,3 +116,93 @@ export const TALK_SESSIONS = [
     ],
   },
 ];
+
+// ── held out ─────────────────────────────────────────────────────────────────
+// Conversations written AFTER the first round of fixes, about other subjects and in other voices, and never used to tune anything: the first set was read by whoever was fixing what it showed, so its
+// results are partly the result of fixing those 45 turns. These are run on the final code to see whether the changes carry over to messages nobody looked at. (`--sessions heldout`.)
+export const HELD_OUT_SESSIONS = [
+  {
+    id: 'ho-poem',
+    about: 'A poem about a grandmother, with a detail, a doubt about form, a request to choose, and a goodbye.',
+    steps: [
+      { say: "i want to write a poem about my grandmother's kitchen", note: 'the idea; a poem' },
+      { say: 'she always hummed while she cooked', note: 'a detail' },
+      { say: "not sure it should rhyme", note: 'a doubt about form' },
+      { say: 'which would you pick?', note: 'asks NIE to choose between rhyming and not' },
+      { say: "ok i'll try it, thanks", note: 'a goodbye' },
+    ],
+  },
+  {
+    id: 'ho-essay',
+    about: 'An essay on letters, an angle, agreement, a request for the opposite view, and a short reaction.',
+    steps: [
+      { say: "I'm writing an essay on why people stopped writing letters", note: 'the idea; an essay' },
+      { say: 'my angle is that it was about patience, not technology', note: 'the writer states an angle' },
+      { say: "that's kind of what I thought", note: 'agreement with NIE\'s last reply' },
+      { say: 'what about the opposite view?', note: 'asks for the counter-argument' },
+      { say: 'good point', note: 'a short reaction' },
+    ],
+  },
+  {
+    id: 'ho-world',
+    about: 'A world where it always rains: statements, a question about it, a bare reaction, and "go on".',
+    steps: [
+      { say: "I'm building a world where it never stops raining", note: 'the idea' },
+      { say: 'people live in tall towers connected by bridges', note: 'a detail' },
+      { say: 'what do they eat?', note: 'a question about the world; NIE may suggest, not decide' },
+      { say: 'interesting', note: 'a bare reaction' },
+      { say: 'go on', note: 'asks NIE to continue' },
+    ],
+  },
+  {
+    id: 'ho-rejection',
+    about: 'A discouraged writer, then back to work on a new idea.',
+    steps: [
+      { say: 'just got another rejection letter', note: 'not about the work: a person responds' },
+      { say: "i dont think i'm any good at this", note: 'discouragement' },
+      { say: "ok. i'll keep going i guess", note: 'a small step back' },
+      { say: 'can we work on the opening of my novel? its about twin sisters who swap lives', note: 'a real request with an idea in it' },
+    ],
+  },
+  {
+    id: 'ho-terse',
+    about: 'A terse writer: one or two words at a time.',
+    steps: [
+      { say: 'hm', note: 'nothing to go on' },
+      { say: 'maybe a ghost story', note: 'a tiny idea' },
+      { say: 'set in a school', note: 'a detail' },
+      { say: 'yeah', note: 'agreeing with whatever NIE said' },
+      { say: 'the janitor knows something', note: 'a detail from the writer' },
+    ],
+  },
+  {
+    id: 'ho-compare',
+    about: 'Two ideas and a request to choose, a why, a combine, and a no.',
+    steps: [
+      { say: 'two ideas: a cat that predicts deaths, or a town where everyone shares one dream. which is better?', note: 'asks NIE for a view between two ideas' },
+      { say: 'why?', note: 'asks for the reasoning behind NIE\'s view' },
+      { say: 'ok combine them', note: 'asks NIE for a way to combine the two' },
+      { say: "no that's too much", note: 'pushback on NIE\'s last answer' },
+    ],
+  },
+  {
+    id: 'ho-switch',
+    about: 'One idea, then a different one, then a question that reaches back to the first.',
+    steps: [
+      { say: 'my novel is about a clockmaker whose clocks run backwards', note: 'the first idea' },
+      { say: 'actually forget that. new idea: a chef who loses her sense of taste', note: 'a new idea replaces it' },
+      { say: 'what should she do first?', note: '"she" is the chef' },
+      { say: 'what was the clockmaker thing again?', note: 'asks NIE to recall the earlier idea' },
+    ],
+  },
+  {
+    id: 'ho-opinion',
+    about: 'Asking NIE\'s opinion about a name, a follow-up, a new character, and a goodbye.',
+    steps: [
+      { say: 'what do you think of the name Elias for a lighthouse keeper?', note: 'asks NIE\'s opinion' },
+      { say: 'is it too common?', note: 'follow-up about the name' },
+      { say: 'ok. and her sister?', note: 'a new character; "her" is not defined yet' },
+      { say: "thanks that's all for today", note: 'a goodbye' },
+    ],
+  },
+];

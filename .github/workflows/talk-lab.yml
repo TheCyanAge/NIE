@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       sessions:
-        description: 'Scripted conversations to run (comma separated: greet-fresh, greet-in-flow, premise-and-replies, twists, stuck, character-callbacks, pushback, tired, write-request, meta, craft-then-story)'
+        description: 'Scripted conversations to run (comma separated: greet-fresh, greet-in-flow, premise-and-replies, twists, stuck, character-callbacks, pushback, tired, write-request, meta, craft-then-story; or heldout = the eight held-out conversations ho-*; or all)'
         type: string
         default: 'greet-fresh,greet-in-flow,premise-and-replies,twists,stuck,character-callbacks,pushback,tired,write-request,meta,craft-then-story'
       threads:
