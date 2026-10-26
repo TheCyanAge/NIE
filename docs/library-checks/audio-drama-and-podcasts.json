@@ -1,0 +1,206 @@
+{
+  "method": "Independent fact-check. WebSearch (standard mode) was used for every item flagged by the writer and for every title/author/year, 'first', 'founded' and 'named after' claim. WebFetch was not usable, so search-result summaries are the only web source (no primary pages were read). Lint: node scripts/library-profile-check.mjs --staging prints OK for all three files after the edits.",
+  "searchUsed": true,
+  "files": {
+    "radio-drama.js": {
+      "claimsChecked": 62,
+      "confirmed": 53,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history conv 3 (Norman Corwin)",
+          "was": "Norman Corwin's On a Note of Triumph (1945) showed the medium's ambition.",
+          "now": "Norman Corwin's On a Note of Triumph (1945) is often cited as showing the medium's ambition.",
+          "why": "Date and CBS broadcast on 8 May 1945 confirmed; the 'ambition' line is a characterisation and is now attributed to common opinion."
+        },
+        {
+          "where": "history conv 4 (War of the Worlds)",
+          "was": "became the best-known radio play ever",
+          "now": "became one of the best-known radio plays ever",
+          "why": "Superlative cannot be verified. October 1938 Mercury Theatre broadcast, Welles/Koch credit and the 'panic smaller than newspapers reported' argument were confirmed (the panic claim is already worded as an argument)."
+        },
+        {
+          "where": "tropes conv 9 (Arthur Dent)",
+          "was": "is the best-known comic case",
+          "now": "is a well-known comic case",
+          "why": "Superlative cannot be verified."
+        },
+        {
+          "where": "tropes conv 7 (Under Milk Wood as chorus)",
+          "was": "Under Milk Wood is the standard example",
+          "now": "Under Milk Wood is a well-known example",
+          "why": "'The standard example' is an opinion, not a checkable fact."
+        },
+        {
+          "where": "canon conv 3 (The Dark Tower)",
+          "was": "Louis MacNeice's verse play The Dark Tower (1946)",
+          "now": "Louis MacNeice's radio play The Dark Tower (1946)",
+          "why": "Year 1946, BBC Home Service and Britten's music confirmed (broadcast date given as 21 or 26 January 1946 by different pages), but I could not be sure the play is wholly in verse, so the genre label was reduced to 'radio play'."
+        },
+        {
+          "where": "subgenres conv 9 (Neues Hörspiel)",
+          "was": "the Neues Hörspiel from the 1960s",
+          "now": "the Neues Hörspiel from the late 1960s",
+          "why": "Kagel's Ein Aufnahmezustand (first part 1969) and Kriwet's Apollo Amerika (1969) are the usual early examples; the movement is described as late-1960s onward. Kagel and Kriwet as Neues Hörspiel figures confirmed."
+        },
+        {
+          "where": "craft conv 8 (speech rate)",
+          "was": "Pace by ear: people speak at roughly 120 to 160 words a minute",
+          "now": "Pace by ear: as a rule of thumb people speak at roughly 120 to 160 words a minute",
+          "why": "Not a sourced figure; now labelled a rule of thumb."
+        },
+        {
+          "where": "readers conv 6",
+          "was": "Where scripted drama is heard on radio today it is mostly on public broadcasters; elsewhere it has moved to on-demand audio,",
+          "now": "Scripted drama on radio today is largely the work of public-service broadcasters in several countries; elsewhere it has moved to on-demand audio,",
+          "why": "General statement from memory, not sourced; made country-specific and less absolute."
+        },
+        {
+          "where": "terms conv 2 (FX and spot effects)",
+          "was": "spot effects are those made live in the studio as the scene is performed, as against effects played from recordings.",
+          "now": "spot effects are individual sounds tied to one action, such as a door or a telephone, traditionally made live in the studio as the scene was performed.",
+          "why": "Search found 'spot effects' used for discrete action-tied sounds; the 'made live' sense is traditional British studio usage but usage varies, so both are stated and the live sense is marked 'traditionally'."
+        }
+      ],
+      "removed": [],
+      "confirmedNotes": [
+        "A Comedy of Danger: Richard Hughes, BBC, 15 January 1924, set in a Welsh coal mine when the lights go out; the 'first play written for radio' label is disputed (record stays contested).",
+        "Zauberei auf dem Sender: Hans Flesch, Frankfurt, 24 October 1924; Rolf Gunold's Spuk (27 January 1925, Breslau) named as a rival candidate in German sources.",
+        "Third Programme opened 29 September 1946; Under Milk Wood first broadcast on it 25 January 1954 (Richard Burton as First Voice); All That Fall 13 January 1957 (Maddy walks to the station to meet blind Dan); A Slight Ache 29 July 1959 on the Third Programme, stage 1961.",
+        "The Archers: pilot week from 29 May 1950 on the Midlands Home Service, national from 1 January 1951, created by Godfrey Baseley; widely described as the world's longest-running drama ('one of' is safe).",
+        "Suspense and Yours Truly, Johnny Dollar both ended on CBS on 30 September 1962; CBS Radio Mystery Theater 6 January 1974 to 31 December 1982.",
+        "Hitchhiker's Guide: BBC Radio 4, first episode 8 March 1978; novel October 1979. Sorry, Wrong Number: Lucille Fletcher, Suspense, 25 May 1943 (one source gives 18 May; year 1943 not in doubt), bedridden woman, telephone.",
+        "Radio Ballads: eight programmes 1958 to 1964 by Ewan MacColl, Peggy Seeger and Charles Parker; The Ballad of John Axon 2 July 1958.",
+        "Günter Eich's Träume: NWDR, broadcast 19 April 1951. Soap opera name from soap-maker sponsors: confirmed. Play for voices as the Under Milk Wood subtitle: confirmed. Sting, atmos, segue definitions consistent with standard usage."
+      ],
+      "remainingDoubts": [
+        "Only search-result summaries were available (WebFetch could not reach hosts); no primary pages (BBC Genome, CBS logs) were read.",
+        "The Dark Tower: exact broadcast day (21 or 26 January 1946) differs between pages; the text gives only the year, and whether it is wholly verse was not settled.",
+        "Whether the Radio Ballads are best described as 'documentary-drama' (canon conv 6) is a characterisation.",
+        "Spot effects usage differs between British studio practice and general sound-design usage; the glossary line now allows both.",
+        "Speech-rate figure, slot lengths (15/30/45/60 minutes), and the 'public broadcasters' statement remain general practice, not sourced statistics."
+      ]
+    },
+    "fiction-podcast.js": {
+      "claimsChecked": 58,
+      "confirmed": 49,
+      "corrected": [
+        {
+          "where": "history conv 2 (start of podcasting)",
+          "was": "Podcasting began in 2004, when audio downloads by subscription and the name podcast appeared,",
+          "now": "Podcasting took shape in the early 2000s and got its name in 2004,",
+          "why": "Search sources place the technical groundwork (RSS enclosures, audio-by-feed experiments) in 2000 to 2003, the name in early 2004, and mainstream adoption in 2005 with iTunes 4.9 (28 June 2005); no source dates 'the beginning' to 2004 alone. No coiner is named."
+        },
+        {
+          "where": "canon conv 1 (label for Alice Isn't Dead)",
+          "was": "Mock broadcast: Welcome to Night Vale (2012) ..., and Alice Isn't Dead (2016), Fink's horror serial ... from the Night Vale Presents label.",
+          "now": "Mock broadcast and the Night Vale Presents label: Welcome to Night Vale (2012) ..., and Alice Isn't Dead (2016), Fink's horror serial narrated by a long-haul truck driver.",
+          "why": "Alice Isn't Dead (first episode 8 March 2016, Night Vale Presents, narrated by a long-haul truck driver, Jasika Nicole) is not a mock broadcast; it was filed under that heading only because of the label, so the heading now says so."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv 5 (Serial and Limetown)",
+          "was": "Its documentary manner of a reporter-host, interviews and tape shaped fictions such as Limetown (2015)",
+          "now": "Its documentary manner of a reporter-host, interviews and tape was echoed by fictions such as Limetown (2015)",
+          "why": "A direct causal claim of influence cannot be sourced; 'echoed' is descriptive."
+        },
+        {
+          "where": "subgenres conv 1",
+          "was": "Homecoming (2016) is a polished example.",
+          "now": "Homecoming (2016) is an example.",
+          "why": "'Polished' is an evaluation."
+        },
+        {
+          "where": "canon conv 2 (Wolf 359)",
+          "was": "that moves from comedy toward a darker plot.",
+          "now": "that mixes workplace comedy with a darker plot.",
+          "why": "Characterisation; now matches the subgenres wording. Run confirmed: first episode August 2014, final episode 25 December 2017 (4 seasons)."
+        },
+        {
+          "where": "readers conv 7 (transcripts)",
+          "was": "a growing number of shows publish transcripts,",
+          "now": "some shows publish transcripts,",
+          "why": "Trend claim with no source."
+        },
+        {
+          "where": "readers conv 6 (content notes)",
+          "was": "Content notes are commonly given: producers often state heavy subjects",
+          "now": "Content notes are often given: producers may state heavy subjects",
+          "why": "General-practice claim; softened (the text already says practice varies by show and platform)."
+        }
+      ],
+      "removed": [],
+      "confirmedNotes": [
+        "Big Finish founded 1996, first audio plays late 1998 (Bernice Summerfield), first Doctor Who play (The Sirens of Time) 1999.",
+        "iTunes podcast support: iTunes 4.9, 28 June 2005. Escape Pod: first episode 12 May 2005 (one page lists 16 May), weekly science-fiction short stories.",
+        "Welcome to Night Vale: first episode 15 June 2012, Joseph Fink and Jeffrey Cranor; Night Vale Presents founded 2015 (successor to Commonplace Books).",
+        "Limetown: July/August 2015 (pages give 21, 26, 29 July or 2 August; the text says only 2015), Zack Akers and Skip Bronkie; Facebook Watch series premiered 16 October 2019 and was cancelled January 2020, so the writer's '2019, not 2018' is right.",
+        "Homecoming: Gimlet, November 2016, Eli Horowitz and Micah Bloomberg; Amazon series 2 November 2018; Spotify's purchase of Gimlet reported 6 February 2019.",
+        "The Magnus Archives: 24 March 2016 to 25 March 2021 (one fan page gives 23 March), five seasons, 200 episodes, Jonathan Sims.",
+        "Archive 81: Dan Powell and Marc Sollinger, 2016 start supported by Netflix's own Tudum article and other pages (one page says 2019, treated as an error); Netflix series premiered 14 January 2022.",
+        "Audible's The Sandman: released 15 July 2020, adapted and directed by Dirk Maggs. Podiobook term attributed to Evo Terra of Podiobooks.com (the text does not name a coiner). Foley named for Jack Foley."
+      ],
+      "remainingDoubts": [
+        "Only search-result summaries were available (no primary pages read).",
+        "Archive 81: one search result gave 2019 for the podcast start; the 2016 date is the better-supported one but no primary source settled it.",
+        "Limetown's exact first-episode date varies by source; the text gives only the year.",
+        "'Homecoming told largely through conversations and calls' and 'Alice Isn't Dead ... horror serial' are characterisations from memory plus a quick check.",
+        "Diegetic and binaural glossary lines are standard but were not checked against a published glossary.",
+        "Episode-length, release-rhythm, content-note and transcript statements in the readers facet remain general-practice claims, not sourced statistics."
+      ]
+    },
+    "nonfiction-podcast.js": {
+      "claimsChecked": 52,
+      "confirmed": 47,
+      "corrected": [
+        {
+          "where": "history conv 5 (99% Invisible)",
+          "was": "new producers made shows for download from the start, such as 99% Invisible (2010), a design show that grew from a San Francisco radio project.",
+          "now": "shows such as 99% Invisible (2010), a design show that grew from a short San Francisco radio feature, found their audience by download.",
+          "why": "The original sentence contradicted itself: 99% Invisible began on 3 September 2010 as a short KALW and AIA San Francisco radio feature, so 'made for download from the start' was wrong."
+        },
+        {
+          "where": "canon conv 2 (This American Life)",
+          "was": "This American Life (1995), created by Ira Glass, the template",
+          "now": "This American Life (1995), hosted by Ira Glass, the template",
+          "why": "Reference pages credit Ira Glass and Torey Malatia as creators; 'hosted by' is true without the credit question. The works entry (author Ira Glass) matches the library's own entry and is unchanged."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv 6 (Serial)",
+          "was": "reached an audience far beyond earlier public radio podcasts",
+          "now": "reached a very large audience",
+          "why": "Comparative claim unsourced. Premiere 3 October 2014, Sarah Koenig, This American Life team, one case across a season: confirmed."
+        },
+        {
+          "where": "history conv 7 (S-Town)",
+          "was": "which its makers described as a novel in form.",
+          "now": "which was widely likened to a novel in form.",
+          "why": "Release of all seven chapters on 28 March 2017 confirmed; reviewers and a producer compared it to a novel, but the exact wording attributed to the makers could not be confirmed."
+        },
+        {
+          "where": "canon conv 6 (S-Town)",
+          "was": "which treated a podcast as a literary narrative.",
+          "now": "and often likened to a novel.",
+          "why": "Characterisation made consistent with the history line."
+        }
+      ],
+      "removed": [],
+      "confirmedNotes": [
+        "Murrow's 1940 London reports (live, during the Blitz); Studs Terkel's WFMT programme 1952 to 1997 (earlier name The Wax Museum per WFMT; Britannica gives a 1998 end, text uses 1952 to 1997 as WFMT and Wikipedia do).",
+        "NPR: incorporated 1970, broadcasting from 1971 (All Things Considered 3 May 1971; one page dates the first broadcast to April 1971).",
+        "This American Life: first aired 17 November 1995 on WBEZ as Your Radio Playhouse, renamed within months. The Moth: founded 1997 by George Dawes Green in New York. Radiolab: Jad Abumrad, 2002, WNYC; Krulwich co-host from about 2004 to 2005.",
+        "99% Invisible: first episode 3 September 2010, KALW and AIA San Francisco. In the Dark: APM Reports, Madeleine Baran, first episodes 7 September 2016, season one on Jacob Wetterling. Revisionist History: Malcolm Gladwell, June 2016, Panoply, later Pushkin Industries.",
+        "Radio Ballads and The Ballad of John Axon author string confirmed against credits (script MacColl and Parker, music direction Seeger, production Parker)."
+      ],
+      "remainingDoubts": [
+        "Only search-result summaries were available (no primary pages read).",
+        "Studs Terkel end year: 1997 (WFMT, Wikipedia) versus January 1998 (Britannica).",
+        "Radiolab: Krulwich's joining date differs between pages (2002 meeting, co-host from 2004 or 2005); the text says only 'later with'.",
+        "The 'anecdote and reflection' description of public radio storytelling, fairness and right-of-reply expectations, and the glossary definitions (track, actuality, paper edit, room tone) are common usage and general practice, not checked against a glossary."
+      ]
+    }
+  }
+}

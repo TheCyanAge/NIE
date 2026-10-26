@@ -403,3 +403,31 @@ What the second checkers could not confirm:
 - The word-count figures (psychological thriller 70,000 to 100,000, espionage 80,000 to 100,000, cosmic horror 70,000 to 90,000) come from blogs, genre guides and one publisher call, not a standard. Those facets are marked 'varies' and hedged.
 - Smiley's People is dated 1979 (one bookseller listing says 1980). The Cthulhu Mythos label is credited to Derleth in the sources checked; whether Lovecraft used a similar phrase was not examined, so the text says 'most associated with'.
 
+## Further batches (written and checked once, with search)
+
+| Batch | Subjects | Claims checked | Corrected | Softened | Removed | Searched |
+| --- | --- | --- | --- | --- | --- | --- |
+| Comedy, satire and magical realism | comedy, satire, magical-realism | 278 | 6 | 5 | 0 | yes |
+| Audio drama and podcasts | radio-drama, fiction-podcast, nonfiction-podcast | 172 | 4 | 17 | 0 | yes |
+
+### Comedy, satire and magical realism
+
+- Search summaries were the only web source; WebFetch was not used and no primary text was read.
+- Franz Roh: one academic paper says he first used the term in a 1923 essay on Karl Haider; the 1925 book is kept as the usual first use (wording says 'usual') and this was not resolved.
+- Arturo Uslar Pietri: the date of Letras y hombres de Venezuela (1948, sometimes 1947) and the scope he gave realismo magico (Venezuelan short fiction) rest on secondary summaries; the text now says 'usually dated 1948, sometimes 1947' and 'Venezuelan short fiction'. A primary check is still advisable.
+- Several well-known dates returned nothing useful from search and rest on solid own knowledge plus the library's agreeing years: García Márquez Nobel 1982, Tin Drum 1959, Autumn of the Patriarch 1975, Chronicle of a Death Foretold 1981, Beloved 1987, Midnight's Children 1981, Svejk 1921, Animal Farm 1945, Catch-22 1961, Beggar's Opera 1728, SNL 1975, Private Eye 1961.
+- Candide as Menippean satire was not explicitly confirmed by search (Frye links it to Gulliver's anatomy tradition); the hedge 'often put' was kept.
+- Comedy readers facet: shelving of comic novels and 'many are ordinary length or shorter' could not be checked by search; softened and left under confidence 'varies'. Satire shelving and defamation-law statements are likewise general and unchecked.
+- Comedy of humours: Chapman's earlier play means Jonson did not invent the form; the text says only 'associated with'.
+- Whether Murakami, Mo Yan, Grass and Bulgakov count as magical realism is argued by critics; each is hedged and the canon facet is marked contested.
+
+### Audio drama and podcasts
+
+- WebFetch could not reach hosts, so the only web source was WebSearch result summaries; no primary pages (BBC Genome, CBS logs, publisher pages) were read.
+- The Dark Tower: broadcast day is given as 21 or 26 January 1946 by different pages, and I could not confirm it is wholly in verse (relabelled 'radio play'; text gives only 1946).
+- Limetown first-episode date varies by source (21, 26 or 29 July or 2 August 2015); text says only 2015. The Facebook Watch series premiered 16 October 2019, so the writer's '2019' is right.
+- Archive 81: one result gave 2019 for the podcast start; 2016 is better supported (Netflix Tudum and others) but no primary source settled it.
+- Studs Terkel end year is 1997 per WFMT and Wikipedia but January 1998 per Britannica; Krulwich's start on Radiolab differs by page (text says only 'later with').
+- 'Spot effects' usage differs between British studio practice (made live) and general sound-design usage; the glossary line now allows both.
+- The speech-rate figure, slot lengths, episode lengths, content-note and transcript practice, the 'public-service broadcasters' statement, and the glossary definitions (diegetic, binaural, track, actuality, paper edit, room tone, right of reply) are general practice or common usage, not checked against a published glossary or sourced statistics.
+- Characterisations (Homecoming told through conversations and calls, Alice Isn't Dead as horror, Radio Ballads as documentary-drama, S-Town likened to a novel) rest on memory plus a quick search.

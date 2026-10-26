@@ -1,0 +1,129 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch was used for about 40 queries. WebFetch was not used: per the brief it cannot resolve hosts here, so every source was read through search summaries only (encyclopedias, publisher and library pages, university and journal pages, as summarised by the search tool). Several searches returned nothing useful for well-known dates (Beggar's Opera 1728, Animal Farm 1945, Catch-22 1961, Svejk 1921, The Tin Drum 1959, The Autumn of the Patriarch 1975, Chronicle of a Death Foretold 1981, Beloved 1987, Midnight's Children 1981, SNL 1975, Private Eye 1961, Horace's Satires 35 and 30 BCE); those rest on the checker's own solid knowledge and, for the works in the library, on the library's own agreeing year (the profile lint cross-checks it).",
+  "files": {
+    "comedy.js": {
+      "claimsChecked": 82,
+      "confirmed": 78,
+      "corrected": [
+        {
+          "where": "history conv[7]",
+          "was": "Dickens's The Pickwick Papers (1836) to Gogol's The Government Inspector (1836)",
+          "now": "Dickens's The Pickwick Papers (serialised from 1836) to Gogol's The Government Inspector (1836)",
+          "why": "Pickwick began as a monthly serial in 1836 (first part 31 March) and ran to 1837; the Government Inspector was written and premiered in 1836, so only Pickwick needed the clarification."
+        },
+        {
+          "where": "canon conv[6]",
+          "was": "Terry Pratchett's Discworld novels and Douglas Adams's The Hitchhiker's Guide to the Galaxy, from the late 1970s and 1980s",
+          "now": "Terry Pratchett's Discworld novels, which began in 1983, and Douglas Adams's The Hitchhiker's Guide to the Galaxy, a radio series in 1978 and a novel in 1979",
+          "why": "The loose range read as if Discworld began in the late 1970s. The Colour of Magic is 1983 (confirmed); Hitchhiker began on BBC Radio 4 on 8 March 1978 and the novel is 1979 (confirmed, one source gives September rather than October 1979, so only the year is stated)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history summary and history conv[0]",
+          "was": "Comedy as a staged form began in ancient Athens",
+          "now": "Comedy as a staged form is first well documented in ancient Athens (summary: is first documented in ancient Athens)",
+          "why": "A 'began' claim cannot be proved; the Athenian festival plays are the earliest that survive, and the file's own watch line already says so. The wording now matches that caveat."
+        },
+        {
+          "where": "readers conv[6]",
+          "was": "a bookshop humour section is often given to collections, essays and gift books",
+          "now": "a bookshop humour section, where one exists, tends more toward collections, essays and gift books than novels",
+          "why": "Search found only anecdotal support (humour sections holding comic-strip collections and author humour books) and nothing on how prose comic novels are shelved. The comparative, hedged wording is all that is defensible; the facet stays confidence 'varies' with asOf."
+        }
+      ],
+      "removed": [],
+      "confirmed_notes": [
+        "Confirmed by search: Aristotle's Poetics survives mostly as the part on tragedy and epic, with the comedy part lost; Jonson's Every Man in His Humour (1598) and the humours form (Chapman's earlier play means Jonson did not invent it, which the file's 'associated with' wording already allows); Chekhov called The Cherry Orchard a comedy (September 1903 letter) while Stanislavski called it a tragedy; Tristram Shandy vols 1 and 2 December 1759; incongruity (Kant, Schopenhauer), superiority (Hobbes) and relief (Spencer, Freud) theories; Plautus and Terence adapting Greek New Comedy, Menander's New Comedy and Aristophanes' Old Comedy; Government Inspector 1836.",
+        "Confirmed from own knowledge: komos plus aoide derivation (stated as 'usually traced'), Dante's Commedia in the early fourteenth century, commedia dell'arte from the sixteenth century, Molière's Tartuffe 1664, Don Quixote 1605, Tom Jones 1749, Three Men in a Boat 1889, Importance of Being Earnest 1895, Lysistrata c. 411 BCE, Right Ho Jeeves 1934, Lucky Jim 1954, Frye's Anatomy of Criticism as a standard account of comic structure. No sample prose or pasteable line found; the 'q' fields are questions only. Consistent with the library entries comedy, dark-comedy, genre-pop-comic-novel and genre-pop-picaresque-novel."
+      ],
+      "remainingDoubts": [
+        "The readers facet claims about shelving and that many comic novels are of ordinary length or shorter could not be checked by search; they are soft, hedged and the facet is 'varies'.",
+        "Search summaries were the only web source; no primary text was fetched.",
+        "Comedy of humours: Jonson is the usual name, but Chapman's earlier play means the form had a predecessor; the text says 'associated with' only."
+      ]
+    },
+    "satire.js": {
+      "claimsChecked": 92,
+      "confirmed": 87,
+      "corrected": [
+        {
+          "where": "history conv[1]",
+          "was": "Lucilius, Horace's amused Satires of the first century BCE and Juvenal's angrier ones in the early second century CE",
+          "now": "Lucilius in the second century BCE, Horace's amused Satires of the first century BCE and Juvenal's angrier ones in the early second century CE",
+          "why": "Lucilius was left undated and could be read as first century BCE; he is c. 180 to c. 102 BCE (confirmed), so the second century BCE is stated."
+        },
+        {
+          "where": "history conv[6]",
+          "was": "Bulgakov's The Master and Margarita, written under Soviet rule, appeared only in the 1960s",
+          "now": "Bulgakov's The Master and Margarita, written under Soviet rule, was printed only in the 1960s, in cut form (and 'totalitarianism' changed to 'tyranny' to stay within the 300-character limit)",
+          "why": "Bulgakov wrote it 1928 to 1940; it first appeared in Moskva magazine in 1966 and 1967 in a censored, cut version, with the fuller text following abroad in 1967. 'Appeared only in the 1960s' was true but hid that the first printing was cut."
+        },
+        {
+          "where": "canon conv[6]",
+          "was": "critics differ on how far each book is satire as opposed to dark comedy or social realism",
+          "now": "critics differ on how far each book is satire as opposed to dark comedy, horror or social realism",
+          "why": "Reviews of Murata's Earthlings label it surreal horror and dark comedy, not social realism; horror was added so the hedge fits all three books."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv[4]",
+          "was": "are often called the great age of English satire",
+          "now": "are often called, by critical convention, the great age of English satire",
+          "why": "The brief asked that this be marked as convention, not hard fact. The Augustan label itself dates from the period and the phrase is a critical convention (confirmed by reference sources); the text now says so."
+        },
+        {
+          "where": "terms watch",
+          "was": "sarcasm is better thought of as one wounding tone of irony",
+          "now": "sarcasm is usually treated as one sharp, wounding tone of irony, though definitions differ",
+          "why": "This is a common but not universal definition; the original sounded like a ruling."
+        }
+      ],
+      "removed": [],
+      "confirmed_notes": [
+        "Confirmed by search: Menippus of Gadara, a Cynic of the third century BCE, Menippean satire named after him, taken up by Varro (Saturae Menippeae) and Lucian; satura as a medley/full dish with the Greek-satyr derivation rejected from Casaubon on and Quintilian's claim that satire was Rome's own; Lucilius as the founder; Juvenal's Satires composed in the early second century CE; Punch founded 17 July 1841; The Onion founded in Madison in 1988; That Was the Week That Was first broadcast 24 November 1962; Master and Margarita written 1928-1940 and first printed in Moskva 1966-67; Brant 1494 (Basel), Erasmus 1511 (Paris), More 1516; Dead Souls 1842 and Government Inspector 1836 (own knowledge plus search); I Am a Cat from 1905 (serialised in Hototogisu), Ah Q 1921 (first instalment December 1921), Fortress Besieged 1947; The Cambridge Companion to Roman Satire (ed. Kirk Freudenburg, Cambridge University Press, 2005) is a real book with chapters on Lucilius, Horace, Persius, Juvenal and Petronius.",
+        "Confirmed from own knowledge: Private Eye 1961, Saturday Night Live 1975, Rabelais in the 1530s, Don Quixote 1605, Volpone c. 1606, Absalom and Achitophel 1681, Dunciad 1728, Gulliver 1726, Modest Proposal 1729, Candide 1759, Beggar's Opera 1728, Svejk 1921, Animal Farm 1945, Catch-22 1961, Cat's Cradle 1963, White Tiger 2008, The Sellout 2015, the Rape of the Lock as mock-epic, roman a clef meaning 'novel with a key', the Houyhnhnms/Yahoos and Candide's garden. The work years in canon agree with the library entry satire and with the library's Earthlings record. No sample prose or pasteable line found; 'q' fields are questions only."
+      ],
+      "remainingDoubts": [
+        "Gulliver's Travels and Candide are placed under Menippean satire with 'often put'. Frye links both to the anatomy/Menippean tradition (confirmed for Gulliver), but search did not explicitly confirm Candide; the hedge was kept.",
+        "Horace's Satires are dated only as 'first century BCE'; the exact years of the two books were not confirmed by search.",
+        "The shelving practice and the defamation/satire law statements (stated generally only) could not be checked by search and are left soft, with the facet at confidence 'varies'.",
+        "The characterisation of absurdist fiction versus satire is a critical generalisation, not a checkable fact."
+      ]
+    },
+    "magical-realism.js": {
+      "claimsChecked": 104,
+      "confirmed": 102,
+      "corrected": [
+        {
+          "where": "history conv[3]",
+          "was": "In 1948 the Venezuelan writer Arturo Uslar Pietri used the phrase realismo mágico for a strain of Latin American short fiction.",
+          "now": "The Venezuelan writer Arturo Uslar Pietri used the phrase realismo mágico, in his essay collection Letras y hombres de Venezuela (usually dated 1948, sometimes 1947), for a strain of Venezuelan short fiction.",
+          "why": "Sources agree the phrase is in Letras y hombres de Venezuela, an essay collection (not a short-story book), and that he applied it to Venezuelan short fiction (the chapter on the Venezuelan short story), not yet to Latin America as a whole. Most sources give 1948, one gives 1947. The wording now names the book and states the date uncertainty."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv[8]",
+          "was": "the anthology McOndo (1996), edited by Alberto Fuguet and Sergio Gómez, mocked the idea that the continent's fiction must be magical",
+          "now": "the anthology McOndo (1996), edited by Alberto Fuguet and Sergio Gómez, rejected the idea that the continent's fiction must be magical",
+          "why": "Year and editors are confirmed (Grijalbo Mondadori, 1996). Scholars describe the book as a polemical rejection of magical realism's grip on how Latin America is read; 'mocked' put a tone on it that the sources do not state."
+        }
+      ],
+      "removed": [],
+      "confirmed_notes": [
+        "Confirmed by search: Roh's Nach-Expressionismus: Magischer Realismus (1925) about post-Expressionist painting, translated into Spanish in Revista de Occidente in the 1920s; Bontempelli's realismo magico, promoted from 1926 through the journal 900 (with earlier 1920s fables), and the point that influence on Latin America is debated; Flores's 1955 essay (paper first given 28 December 1954) tracing the mode to Borges's Historia universal de la infamia (1935); Carpentier's 1949 prologue arguing the marvellous real lives in Latin American history and landscape against the surrealists' worked-over images; Asturias's Leyendas de Guatemala (1930) and Hombres de maiz (1949, one library gives 1948) drawing on Maya myth and the Popol Vuh; Rabassa's English Hundred Years of Solitude from Harper & Row in 1970; Zamora and Faris, Magical Realism: Theory, History, Community (Duke, 1995); Faris, Ordinary Enchantments: Magical Realism and the Remystification of Narrative (Vanderbilt, 2004) and her irreducible element of magic; Sterling's slipstream in SF Eye no. 5, July 1989; the 2012 Nobel citation for Mo Yan (hallucinatory realism, merging folk tales, history and the contemporary); Okri's The Famished Road won the 1991 Booker Prize; Rulfo's Pedro Paramo (1955), Esquivel 1989, Allende 1982.",
+        "Confirmed from own knowledge: García Márquez's Nobel Prize in 1982 (search did not return it), The Autumn of the Patriarch 1975, Chronicle of a Death Foretold 1981, The Tin Drum 1959, Midnight's Children 1981 (children born in the first hour of Indian independence), Beloved 1987, Todorov's fantastic (hesitation) and marvellous (supernatural accepted), Shklovsky and defamiliarization, the Boom authors listed, Macondo, and art historians' use of 'magic realism' for painting. Work years agree with the library entry magical-realism and the child entries genre-spec-latin-american-fantastic and genre-spec-fabulism, which the compare facet does not contradict. No sample prose or pasteable line found; 'q' fields are questions only."
+      ],
+      "remainingDoubts": [
+        "Roh: one academic paper says he first used the term in a 1923 essay on Karl Haider; the 1925 book is the usual citation and is kept, with 'the usual first use' wording. Not resolved by search.",
+        "Uslar Pietri: the book's date (1947 or 1948) and the exact scope he gave the phrase rest on secondary summaries; the file now says 'usually dated 1948, sometimes 1947' and 'Venezuelan short fiction'. A primary check of the chapter on the Venezuelan short story is still advisable.",
+        "Asturias's Men of Maize: most sources say 1949, one bibliography says 1948; 1949 is used and matches the usual citation.",
+        "Whether Murakami, Mo Yan, Grass and Bulgakov belong with magical realism is argued by critics; the file hedges each ('often discussed', 'sometimes included') and the canon facet is marked 'contested'.",
+        "Search summaries were the only web source; no primary text was fetched."
+      ]
+    }
+  }
+}
