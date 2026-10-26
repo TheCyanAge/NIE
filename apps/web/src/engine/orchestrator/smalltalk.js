@@ -131,3 +131,13 @@ export function holdSmallTalk(reply, { project, text, past = [] } = {}) {
   if (g.removed.length) return '';
   return out;
 }
+
+/**
+ * A writer who says they are stuck, tired or discouraged while talking about their work is not making small talk, but a person would not skip past it either. One human sentence first, then the work.
+ * '' when the message says nothing of the kind.
+ */
+export function feelingNote(text) {
+  const t = String(text ?? '');
+  if (wordCount(t) > 30 || !FEELING_LOW.test(t)) return '';
+  return "They told you how they feel about the work (stuck, tired or discouraged). Begin with one short, human sentence that meets that (not advice, not \"I understand how you feel\"), then go on with what is asked of you below.";
+}

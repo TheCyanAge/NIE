@@ -11,7 +11,7 @@ import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_EDIT_AGAIN, DECLINE_
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
 import { avoidBlock, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
 import { isReaction, replyContext } from './replyto.js';
-import { holdSmallTalk, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
+import { feelingNote, holdSmallTalk, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
 import { makeOverview, projectNotesCache, readThrough, sectionKey } from '../reading/notes.js';
@@ -110,6 +110,16 @@ export function holdToPlan(text, plan, agentTurn, said = '') {
       out = plan.act === 'ask' ? [rest, questions].filter(Boolean).join(' ') : rest;
       if (!out) out = agentTurn.ack || '';
       if (plan.act === 'ask') out = agentTurn.enforce(out);
+    }
+  }
+  if (plan?.act === 'serve' && !/^\s*(?:\d{1,2}[.)]|[-*•])\s/m.test(out)) {
+    // An answer asks at most one thing (the prompt says so; a 3B model still stacks three): all but the last question sentence go.
+    const parts = splitSentencesLite(out);
+    const qs = parts.filter((x) => /\?["')\]]*\s*$/.test(x) && !isSuggestion(x));
+    if (qs.length > 1) {
+      const keep = qs.at(-1);
+      const trimmed = parts.filter((x) => !qs.includes(x) || x === keep).join(' ').trim();
+      if (words(trimmed).length >= 6) out = trimmed;
     }
   }
   if (plan?.act === 'reflect') {
@@ -489,6 +499,13 @@ export class Orchestrator {
     this.#readFailures = 0;
     this.#readWarm = true;
     applyReading(intent, r, text);
+    // "yes", "yeah exactly", "no, I don't like that direction" right after NIE spoke are replies to it. A small model reads them as "I could not tell what is being asked" (and the answer becomes a
+    // question back), as small talk, or as something told; they are a conversation about what NIE just said. Recorded as overruled, like the other guards on a reading.
+    const last = history.at(-1);
+    if (['unclear', 'tell', 'chat'].includes(intent.reading.task) && last?.role === 'assistant' && isReaction(text, last)) {
+      intent.reading = { ...intent.reading, overruled: intent.reading.task, task: 'develop' };
+      intent.type = 'discuss';
+    }
     return intent.reading;
   }
 
@@ -801,7 +818,7 @@ export class Orchestrator {
       history: aboutText ? [] : past,
       retrieved,
       legacy: this.variety === 'legacy',
-      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, noAsk || aboutText || lib || libMiss ? '' : feelingNote(askText), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const turnTokens = aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700;
     // An answer to a direct question the library answers well is the library's own text, put together by code, and no model is asked to retell it: measured on the real model (an audit

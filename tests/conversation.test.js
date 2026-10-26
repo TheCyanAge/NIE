@@ -74,3 +74,27 @@ test('"that\'s cliche" is a reply to NIE: it is not filed as a detail of the ide
   assert.match(prompt, /Who gains if she stays quiet\?/);
   assert.match(r.reply, /What if the translator/);
 });
+
+test('"yeah exactly" after NIE spoke is a conversation about what it said, whatever the small model labelled it', async () => {
+  for (const label of ['unclear', 'tell', 'chat']) {
+    const { o, calls } = setup({ reading: task(label), reply: 'Then the keeper is not the only one who knows. What if the harbour master has been reading her tables for years?' });
+    const project = projectWith();
+    project.conversation.messages.push({ role: 'user', content: 'a lighthouse keeper who forges tide tables' }, { role: 'assistant', content: 'Whoever relies on those tables is trusting her without knowing it.' });
+    const r = await o.brainstorm({ project, message: 'yeah exactly' });
+    assert.equal(r.understood.task, 'develop', label);
+    assert.equal(r.understood.overruled, label);
+    assert.doesNotMatch(calls.at(-1).messages.at(-1).content, /could not tell what the writer is asking/);
+    assert.match(calls.at(-1).messages.at(-1).content, /Whoever relies on those tables/);
+  }
+});
+
+test('an answer asks at most one question, and a message about feeling stuck is met by a person first', async () => {
+  const { o, calls } = setup({ reading: task('develop'), reply: 'That would change what the keeper risks. Who else reads the tables? How would she know? What would she do then?' });
+  const project = projectWith();
+  project.conversation.messages.push({ role: 'user', content: 'a lighthouse keeper who forges tide tables' }, { role: 'assistant', content: 'Whoever relies on those tables is trusting her without knowing it.' });
+  const r = await o.brainstorm({ project, message: 'can you say more about that?' });
+  assert.equal((r.reply.match(/\?/g) ?? []).length, 1, r.reply);
+  const stuck = await o.brainstorm({ project: projectWith(), message: "I'm completely stuck on my story and I don't know where to go with it" });
+  assert.ok(stuck.reply);
+  assert.match(calls.at(-1).messages.at(-1).content, /Begin with one short, human sentence/);
+});
