@@ -64,6 +64,15 @@
   Only the newest long paste is kept in full in the chat (`compactOldPastes`) so a project cannot outgrow its storage. `tests/fixtures/long-text.mjs` makes
   deterministic invented texts with planted facts; `tests/fixtures/story-bible.*` is an invented 10,000-word bible with answer keys; `scripts/notes-lab.mjs`
   (workflow `notes-lab`) measures reading time, note accuracy, old-vs-new answers and variety on the real model.
+- Talking like a person: `orchestrator/smalltalk.js`, `orchestrator/replyto.js` + the agent's reflect turn (docs/ARCHITECTURE.md "Talking like a person"). A hello, thanks, "how are you?", "ok cool", a goodbye or plain tiredness is **small talk**
+  (the rules in `intent.js` read it, or the model's `chat` reading of a short message): it is asked on its own (earlier conversation + one instruction; what the writer was making only as something NIE MAY mention, in their words), with NO library
+  notes, recall, idea sheet or brief, because those made a "hey" get a remark about a "thanks" that was never there. The reply must pass `holdSmallTalk` (short, no list, one question at most, no remark about the message, no names or quotes the writer never
+  used) or NIE's own line, chosen by what the writer said (`smallTalkFallback`), stands. A **short reply to NIE's last message** ("the second one, why would that work?", "yes", "that's cliche", "go back to the first thing you said") is never filed as a detail of
+  the idea or remembered as something told (`isReaction`; the agent answers it as a question), and the turn is told what it replies to, what kind of reply it is, and which numbered idea is meant (the cards the writer SEES, by position: `replyContext`).
+  A turn that does not ask answers what the writer said and may add ONE suggestion NIE says is its own ("What if...", "You could..."; `isSuggestion`): `holdToPlan` keeps it and cuts invented imagery, dialogue and stacked questions sentence by sentence, and uses the
+  canned acknowledgement only when nothing is left (after one more try that says why). Library notes in a story conversation are only techniques, structures, genres, forms and movements that match strongly (`storyNotes`). The labels of a small model that
+  are wrong in a known way are overruled and recorded (`understood.overruled`): "I don't know what to write" read as write/tell becomes ideas; "yes" read as unclear/tell/chat after NIE spoke becomes develop. Measured by `scripts/talk-lab.mjs` (workflow `talk-lab`,
+  conversations in `tests/fixtures/talk-sessions.mjs`) and judged by a reviewer other than the model; the numbers and what they cannot see are in docs/STATUS.md.
 - Sounding different each time: `orchestrator/variety.js` + the brainstorm prompt in `prompt.js`. The prompt forbids praise openers and announcing what it is
   about to do, allows at most one question and says many replies end without one; each turn gets a different reply SHAPE (`shapeFor`, never the last two used),
   an avoid-list (the openers used lately and the questions already asked), NIE's own earlier replies are scrubbed of praise/stock questions in the model's

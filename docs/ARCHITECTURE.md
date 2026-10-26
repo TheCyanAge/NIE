@@ -167,6 +167,28 @@ one question; each turn gets a different reply shape (never the last two used); 
 history, and an avoid-list names the openers used lately and the questions already asked; and every reply is cleaned (`refine` only removes: a praise opener, a stock
 or repeated question) with one retry when it clearly repeats itself. `scripts/notes-lab.mjs --variety` measures it against the earlier wording on the real model.
 
+## Talking like a person
+
+A writer typed "hey" in Brainstorm and NIE answered about a "thanks" that was never there. The cause was several things at once, not one bug: a hello was steered by craft notes found by plain word
+matching, by a brief that told the model to point at "one specific detail" the writer gave (there was none), and by an enforcement step that swapped any comment that added anything for a canned
+acknowledgement. Measured on the real model with `scripts/talk-lab.mjs` (eleven scripted conversations, 45 replies, printed with the message before each) and judged by a reviewer other than the model,
+the same causes showed up everywhere a message only makes sense in the conversation: "yes", "the second one", "that's cliche", "go back to the first thing you said".
+
+- **Small talk** (`orchestrator/smalltalk.js`). Greetings, thanks, "how are you?", "ok cool", goodbyes and plain tiredness are read by the rules (or by the model's `chat` reading of a short message) and answered on their own:
+  the earlier conversation, one instruction chosen by what kind of small talk it is, and, only when the writer has told NIE what they are making, those words offered as something NIE MAY mention. No library notes, no recall, no
+  idea sheet. The reply is checked in code (`holdSmallTalk`: short, no list, one question at most, no remark about the message, no name or quoted word the writer never used); a reply that fails, or no model, gets NIE's own line
+  (`smallTalkFallback`), chosen by what the writer said. Nothing is recorded in the idea sheet or the project's mind.
+- **A reply to NIE** (`orchestrator/replyto.js`). A short message after NIE's reply is told what it replies to (NIE's last words), what kind of reply it looks like (agree, push back, ask why, go back), and for "the second one" /
+  "that last one" / "number 3" which item is meant, settled in code from the cards the writer sees (the screen numbers them by position, whatever numbers the model wrote). Such a reaction is never filed under "Also" and never
+  remembered as something the writer told NIE (`isReaction`; the agent treats it as a question). When the model labels it "unclear", "tell" or "chat" the label is overruled to "develop" and recorded.
+- **Genuine suggestions**. A turn that does not ask answers what the writer said and may add ONE suggestion that NIE says is its own: it begins "What if", "You could", "Maybe" or "One angle" (`isSuggestion`). The model is not allowed to
+  state anything about the story that the writer did not say (that was NIE writing their idea, and is why the instruction used to forbid adding anything at all); a suggestion says it is NIE's, so it may bring new things. `holdToPlan`
+  keeps it and removes, one sentence at a time, anything else that brings imagery of its own, a quoted line of dialogue, and stacked questions; only when nothing is left does the canned acknowledgement stand in, after one more try
+  that says why. Nothing here drafts the writer's text.
+- **Notes**. A library note enters a story conversation only when it is a technique, structure, genre, form or movement that matches strongly and covers the message (`storyNotes`); a message of three words or fewer gets none.
+- **Known wrong readings** of a 3B model are overruled and recorded in `understood.overruled`: a writer with nothing yet ("I want to write something but I don't know what") is read as ideas and given a human line and a few sparks; someone
+  doing something ("a girl who can hear the dead") is a story, so NIE does not open with "what are you making: a story, a poem, an article...?".
+
 ## Following an idea (the idea agent)
 
 Brainstorm is an agent in the plain sense: it keeps a record of what the writer has said about the idea they are on, decides each turn whether to ask something, asks one

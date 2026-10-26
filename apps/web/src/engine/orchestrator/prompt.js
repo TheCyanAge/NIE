@@ -186,7 +186,7 @@ export function ideaRequestBlock({ kind, lens, seeds = [], develop = null, note 
     ].join('\n');
   }
   const what = lens ? leadNoun(lens) : 'ideas';
-  const lines = [`The writer wants ${what} for ${kindPhrase(kind)}${lens ? ` (${LENSES[lens]?.label ?? lens})` : ''}. Give 3 to 5 numbered ideas, one or two sentences each. A closing question is optional: add one only if it is specific to this project and you have not asked it before.`];
+  const lines = [`The writer wants ${what} for ${kindPhrase(kind)}${lens ? ` (${LENSES[lens]?.label ?? lens})` : ''}. Give exactly 3 numbered ideas. Each is ONE sentence of under 30 words: a what-if, a complication or an angle that grows out of something THEY told you, not a summary of a plot and not a scene. Make the three different in kind from each other. A closing question is optional: add one only if it is specific to this project and you have not asked it before.`];
   if (note) lines.push(note);
   if (seeds.length) lines.push(`Examples of the size and kind of idea wanted. Do not copy them; be more specific to this writer's project:\n${seeds.map((s, i) => `${i + 1}. ${s}`).join('\n')}`);
   return lines.join('\n');
