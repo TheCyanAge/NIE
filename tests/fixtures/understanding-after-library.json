@@ -1,0 +1,349 @@
+{
+ "note": "Messages that follow one of NIE's library answers, to measure what the card does to the reading of the next message. Written by the maintainer after an audit found that 'what are the tropes of romance?' after a card on Gothic fiction was read as a request for ideas; the labels were NOT blind-checked, unlike tests/fixtures/understanding-messages.json. The same ten questions come twice: 'raw' shows the model the card as the app used to (its first 220 characters), 'neutral' marks the card as a library reply (meta.library) so the reading sees one neutral line. Run it with: node scripts/understanding-probe.mjs --fixture tests/fixtures/understanding-after-library.json (workflow understanding-eval, input fixture).",
+ "tasks": [
+  "ideas",
+  "develop",
+  "feedback",
+  "craft",
+  "tell",
+  "write",
+  "edit",
+  "about-nie",
+  "chat",
+  "unclear"
+ ],
+ "items": [
+  {
+   "id": "raw-1",
+   "text": "what are the tropes of romance?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "raw-2",
+   "text": "what are the subgenres of fantasy?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "raw-3",
+   "text": "who are the key authors of noir?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "raw-4",
+   "text": "what is the history of the sonnet?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "raw-5",
+   "text": "how is it different from horror?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "raw-6",
+   "text": "and the history?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "raw-7",
+   "text": "give me some twists for my heist story",
+   "task": "ideas",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "raw-8",
+   "text": "what are some tropes I could use in my gothic romance?",
+   "task": "ideas",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": "raw-9",
+   "text": "I'm writing a gothic novel set in a Cornish manor and the heroine is a governess.",
+   "task": "tell",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "raw-10",
+   "text": "does my opening chapter work as a gothic opening?",
+   "task": "feedback",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938)."
+    }
+   ]
+  },
+  {
+   "id": "neutral-1",
+   "text": "what are the tropes of romance?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  },
+  {
+   "id": "neutral-2",
+   "text": "what are the subgenres of fantasy?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  },
+  {
+   "id": "neutral-3",
+   "text": "who are the key authors of noir?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  },
+  {
+   "id": "neutral-4",
+   "text": "what is the history of the sonnet?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  },
+  {
+   "id": "neutral-5",
+   "text": "how is it different from horror?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  },
+  {
+   "id": "neutral-6",
+   "text": "and the history?",
+   "task": "craft",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  },
+  {
+   "id": "neutral-7",
+   "text": "give me some twists for my heist story",
+   "task": "ideas",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  },
+  {
+   "id": "neutral-8",
+   "text": "what are some tropes I could use in my gothic romance?",
+   "task": "ideas",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ],
+   "hard": true
+  },
+  {
+   "id": "neutral-9",
+   "text": "I'm writing a gothic novel set in a Cornish manor and the heroine is a governess.",
+   "task": "tell",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  },
+  {
+   "id": "neutral-10",
+   "text": "does my opening chapter work as a gothic opening?",
+   "task": "feedback",
+   "history": [
+    {
+     "role": "user",
+     "content": "What is gothic fiction?"
+    },
+    {
+     "role": "assistant",
+     "content": "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion, where a house or a family carries a past that presses on the living.\n\n- A haunted or decaying house, castle or institution that holds a secret\n- The persecuted heroine, trapped in a household or marriage\n- A brooding figure whose menace and attraction cannot be separated\n\nWorks to look at: The Castle of Otranto (Horace Walpole, 1764); Rebecca (Daphne du Maurier, 1938).",
+     "library": {
+      "subject": "Gothic fiction"
+     }
+    }
+   ]
+  }
+ ]
+}

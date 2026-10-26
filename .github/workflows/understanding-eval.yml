@@ -23,6 +23,10 @@ on:
         description: 'Instead of the labelled messages: the same conversation with 1 slot and with 2, twice each, alternating, on this machine (about 12 minutes)'
         type: boolean
         default: false
+      fixture:
+        description: 'Another labelled set instead of the main one (for example tests/fixtures/understanding-after-library.json: messages that follow a library answer). Empty = the main set.'
+        type: string
+        default: ''
       e2e:
         description: 'Also run a short real conversation through the whole orchestrator (slower: it generates answers)'
         type: boolean
@@ -64,8 +68,11 @@ jobs:
       - name: Measure understanding with the real model
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/apps/desktop/bin
+          FIXTURE: ${{ inputs.fixture }}
         run: |
           SAMPLE="${{ inputs.sample }}"
+          FIX=()
+          if [ -n "$FIXTURE" ]; then FIX=(--fixture "$FIXTURE"); fi
           E2E=""
           if [ "${{ inputs.e2e }}" = "true" ]; then E2E="--e2e"; fi
           if [ "${{ inputs.long_text }}" = "true" ]; then
@@ -73,7 +80,7 @@ jobs:
           elif [ "${{ inputs.ab_slots }}" = "true" ]; then
             node scripts/understanding-probe.mjs --ab-slots --out understanding-report.json
           else
-            node scripts/understanding-probe.mjs --sample "${SAMPLE:-100}" --slots "${{ inputs.slots }}" $E2E --out understanding-report.json
+            node scripts/understanding-probe.mjs "${FIX[@]}" --sample "${SAMPLE:-100}" --slots "${{ inputs.slots }}" $E2E --out understanding-report.json
           fi
 
       - name: Upload the report

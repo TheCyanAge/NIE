@@ -35,7 +35,7 @@ const args = process.argv.slice(2);
 const opt = (name, def = null) => (args.includes(name) ? args[args.indexOf(name) + 1] : def);
 const flag = (name) => args.includes(name);
 
-const fixture = JSON.parse(fs.readFileSync(path.join(root, 'tests/fixtures/understanding-messages.json'), 'utf8'));
+const fixture = JSON.parse(fs.readFileSync(path.join(root, opt('--fixture', 'tests/fixtures/understanding-messages.json')), 'utf8')); // (--fixture: another labelled set, for example tests/fixtures/understanding-after-library.json)
 const sampleSize = Number(opt('--sample', 0));
 const items = sampleSize
   ? fixture.tasks.flatMap((t) => {
