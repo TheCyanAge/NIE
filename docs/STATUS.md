@@ -137,20 +137,20 @@ was told, wrongly, that it had no library. The fixes are in three parts.
   What the first two runs showed (17 of 17 follow-ups read as intended; the model's retelling still added authors, titles and examples of its own, "Anne Rice", "Rosemary's Baby", so its replies go through a names check against the
   records) was not enough. Those runs' headline count, "replies naming something no record holds", re-runs the product's own check on a reply it has already cleaned, so it is zero by construction and says nothing; it is **not** evidence.
   What measures a library answer is an **audit**: the lab prints every full reply and the library's records on the subject (`AUDIT-RECORDS` / `AUDIT-REPLY` lines), and a separate agent (not the model being measured) splits each reply
-  into claims and judges each against the records: supported, not in the records, wrong, or crediting the writer with something they never said. Four audits of the same kind of scripted conversation (33 replies each, ten conversations
-  of which five are a "tour" of profiles beyond Gothic fiction), as the answer path changed:
+  into claims and judges each against the records: supported, not in the records, wrong, or crediting the writer with something they never said. Five audits of the same kind of scripted conversation (33 replies each, ten conversations
+  of which five are a "tour" of profiles beyond Gothic fiction), as the answer path changed (the table shows four; the fourth column is the last, taken after the fix for the one credited claim; the audit before it judged 386 claims: 361 supported, 23 not in the records, 0 wrong, 1 credited, 1 of 33 replies):
 
   | | the model retells the records | direct questions answered with the library's text | + the reading of a question after a library answer (a mistake, below) | + the reading guarded, final |
   | --- | --- | --- | --- | --- |
-  | claims judged | 202 | 351 | 393 | 386 |
-  | supported by the records | 152 (75%) | 307 (87%) | 361 (92%) | 361 (94%) |
-  | not in the records | 33 | 30 | 23 | 23 |
+  | claims judged | 202 | 351 | 393 | 446 |
+  | supported by the records | 152 (75%) | 307 (87%) | 361 (92%) | 419 (94%) |
+  | not in the records | 33 | 30 | 23 | 26 |
   | wrong | 10 | 1 | 1 | 0 |
-  | crediting the writer with something they never said | 7 | 9 | 4 | 1 |
-  | replies with a wrong or credited claim | **13 of 33** | 4 of 33 | 4 of 33 | **1 of 33** |
+  | crediting the writer with something they never said | 7 | 9 | 4 | 0 |
+  | replies with a wrong or credited claim | **13 of 33** | 4 of 33 | 4 of 33 | **0 of 33** |
   | replies written by code / by the model | 1 / 32 | 29 / 4 | 29 / 4 | 32 / 1 |
   | follow-ups read as intended (lab) | not recorded for this run (17 of 17 in the two earlier ones) | one conversation 2 of 4, the rest all | the same conversation 2 of 4 | all ten conversations |
-  | mean turn on the lab runner | about 18 s | 6.1 s | 8.7 s | 4.3 s |
+  | mean turn on the lab runner | about 18 s | 6.1 s | 8.7 s | 4.4 s |
 
   What the audits found, in order:
   1. A 3B model retelling the records got something wrong or credited the writer with things in 13 of 33 replies: "Walter Scott belongs to the Victorian period", "both the Bishop and the Pound sestina were published in 1909",
@@ -166,8 +166,9 @@ was told, wrongly, that it had no library. The fixes are in three parts.
      the card instead (`tests/fixtures/understanding-after-library.json`, ten questions, `understanding-eval` with the `fixture` input) read 2 of 6 general questions correctly against 6 of 6 with the card as it is; and three extra examples in
      the reading prompt (one used the word "tropes") took two of the six back to "ideas". Both were reverted. The label of a short factual question like this flips between "craft" and "ideas" with the smallest change, a near-tie for a 3B model,
      so it is no longer left to the label: while a library conversation is open, a short factual question that the model read as ideas, develop, unclear or chat but that names something the library holds is kept a library question, and the change
-     of label is recorded as `understood.overruled`. After that the lab reads every conversation as intended and the audit finds one credited claim ("... as you mentioned" in the single model-written reply); the check on a model's library
-     reply now removes sentences of that kind, which has not been measured since.
+     of label is recorded as `understood.overruled`. After that the lab reads every conversation as intended and an audit found one credited claim ("... as you mentioned" in the single model-written reply); the check on a model's library
+     reply now removes sentences of that kind, and the last audit finds none. **But that audit had a single model-written reply** (the pronoun question, 5 claims, all supported) and 32 composed by code, so it shows that the code-composed
+     answers match the records and that the reading is now right on these conversations; it says little about how accurate the model's own library replies are (the first audit, 33 replies by the model, is the measure of that).
 
   **What the audits cannot see.** They were judged by an AI agent against the records the lab printed, not against the web (the records themselves are the fact-checked profiles and the library); 33 replies on scripted conversations is a small
   sample; a verbatim bullet counts as one supported claim, so copying inflates "supported"; 17 of the 23 "not in the records" in the last audit are library text from entries the lab did not print (a second card such as "Gothic fiction
