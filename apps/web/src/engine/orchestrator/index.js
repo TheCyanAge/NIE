@@ -533,13 +533,12 @@ export class Orchestrator {
    * The craft notes that go with a story conversation. Measured on the real model (and by reading what the search returned), plain word matching over thousands of records
    * puts noise next to a message about someone's story ("a lighthouse keeper forging tide tables" found Syllogism, Apposition and three citation rules; "retired surgeon" found
    * the style rules for "Dr" and "Mister"), and a 3B model then talks about whatever it is handed. So a note goes in only when it is about the craft of making a story (a technique,
-   * a structure, a genre, a form, a movement), matches strongly, and covers what the message is about; a message of three words or fewer, which cannot be about a technique,
-   * gets none. The writer's declared genres and forms (their profile) still go in.
+   * a structure, a genre, a form, a movement), matches strongly, and covers what the message is about (a bare "hey" finds nothing that strong). The writer's declared genres and forms (their profile) still go in.
    */
   storyNotes(project, text, { limit = 2 } = {}) {
     const declared = forProfile(project.profile).slice(0, 2);
     const t = String(text ?? '').trim();
-    if (t.split(/\s+/).filter(Boolean).length <= 3) return declared;
+    if (!t) return declared;
     const found = searchScored(t, { limit: 6, minScore: STORY_NOTE_MIN_SCORE })
       .filter((x) => STORY_NOTE_KINDS.has(x.entry.kind) && x.headCoverage >= STORY_NOTE_MIN_COVERAGE)
       .slice(0, limit)

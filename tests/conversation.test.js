@@ -98,3 +98,17 @@ test('an answer asks at most one question, and a message about feeling stuck is 
   assert.ok(stuck.reply);
   assert.match(calls.at(-1).messages.at(-1).content, /Begin with one short, human sentence/);
 });
+
+test('library notes in a story conversation are only craft that bears on it: no citation rules next to a lighthouse keeper, a heist gets its structure', () => {
+  const { o } = setup();
+  const project = projectWith();
+  const names = (text) => o.storyNotes(project, text).map((e) => `${e.kind}:${e.name}`);
+  for (const text of ['a lighthouse keeper forging tide tables', 'retired surgeon what should she want most', 'hey', 'the second one is interesting why would that work', 'hmm that feels a bit obvious']) {
+    const found = o.storyNotes(project, text);
+    assert.ok(found.length <= 4, text);
+    assert.ok(found.every((e) => ['technique', 'structure', 'genre', 'form', 'movement'].includes(e.kind)), `${text}: ${names(text)}`);
+    assert.ok(!found.some((e) => /Reference entry|Doctor, Mister|Mr, Mrs|Syllogism|Apposition/.test(e.name)), `${text}: ${names(text)}`);
+  }
+  assert.deepEqual(o.storyNotes(project, 'hey'), []);
+  assert.ok(names('heist twist').some((n) => /Heist structure/.test(n)), names('heist twist').join(' | '));
+});

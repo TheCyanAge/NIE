@@ -185,7 +185,7 @@ the same causes showed up everywhere a message only makes sense in the conversat
   state anything about the story that the writer did not say (that was NIE writing their idea, and is why the instruction used to forbid adding anything at all); a suggestion says it is NIE's, so it may bring new things. `holdToPlan`
   keeps it and removes, one sentence at a time, anything else that brings imagery of its own, a quoted line of dialogue, and stacked questions; only when nothing is left does the canned acknowledgement stand in, after one more try
   that says why. Nothing here drafts the writer's text.
-- **Notes**. A library note enters a story conversation only when it is a technique, structure, genre, form or movement that matches strongly and covers the message (`storyNotes`); a message of three words or fewer gets none.
+- **Notes**. A library note enters a story conversation only when it is a technique, structure, genre, form or movement that matches strongly and covers the message (`storyNotes`);
 - **Known wrong readings** of a 3B model are overruled and recorded in `understood.overruled`: a writer with nothing yet ("I want to write something but I don't know what") is read as ideas and given a human line and a few sparks; someone
   doing something ("a girl who can hear the dead") is a story, so NIE does not open with "what are you making: a story, a poem, an article...?".
 
