@@ -293,3 +293,19 @@ test('"thanks, bye for now" is a goodbye; a name is asked for and gets direction
   const { isLowMood } = await import('../apps/web/src/engine/orchestrator/smalltalk.js');
   assert.ok(isLowMood('i hate my protagonist'));
 });
+
+test('every planned "what are you making?" question survives the checks on a reply (one of them says "you describe" and was being taken for a sentence that credits the writer)', async () => {
+  const { default: agent } = await import('../apps/web/src/engine/agent/index.js');
+  const { KIND_QUESTIONS } = await import('../apps/web/src/engine/agent/plan.js');
+  const msg = 'A homeless man befriends a cat.';
+  const seen = new Set();
+  for (let i = 0; i < 200 && seen.size < KIND_QUESTIONS.length; i++) {
+    const project = projectWith();
+    const t = await agent.turn({ project, message: msg, reading: { task: 'tell' }, recentMessages: [] });
+    if (t.plan.act !== 'ask' || t.plan.reason !== 'kind') continue;
+    seen.add(t.plan.question.text);
+    const out = holdToPlan('Tell me more about who he is.', t.plan, t, msg, [msg], {});
+    assert.ok(out.includes(t.plan.question.text), `kept: ${t.plan.question.text}`);
+  }
+  assert.ok(seen.size >= 5, `saw ${seen.size} of the kind questions`);
+});

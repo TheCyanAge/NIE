@@ -116,13 +116,14 @@ function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxS
   const again = (x) => words(x).length >= 5 && recent.some((r) => similarity(x, r) >= 0.7);
   const saidStems = new Set(stemList(String(said ?? '')));
   const sayingItBack = (x) => {
-    if (!CREDITS_WRITER.test(x) || !saidStems.size) return false;
+    if (isQ(x) || !CREDITS_WRITER.test(x) || !saidStems.size) return false;
     // (what is credited, without the "In your description, you mention": "You mentioned the keeper forges tide tables." right after they said so)
     const mine = [...new Set(stemList(x.replace(IN_YOUR_WORDS, '').replace(CREDITS_WRITER, '')))];
     return mine.length > 0 && mine.filter((m) => saidStems.has(m)).length / mine.length >= 0.6;
   };
   const echo = (x) => (isQ(x) && said && similarity(x, said) >= 0.6) || sayingItBack(x);
-  let kept = parts.filter((x) => !isFiller(x) && !LEAKS_NOTES.test(x) && !COINED_NAME.test(x) && !(CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
+  // (only statements credit the writer: the planned question "What would you call this when you describe it to a friend: a novel, a play, a song, a column?" says "you describe" and asks about nothing they said)
+  let kept = parts.filter((x) => !isFiller(x) && !LEAKS_NOTES.test(x) && !COINED_NAME.test(x) && !(!isQ(x) && CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
   if (maxSentences && kept.length > maxSentences) kept = kept.slice(0, maxSentences); // (a reply to a short reaction is short)
   const joined = kept.join(' ').trim();
   return kept.length < parts.length && words(joined).length >= 6 ? joined : out;
