@@ -721,6 +721,14 @@ test('groundNames with facts: headings, word counts, edition years and "the 1500
   assert.deepEqual(run(['x'], 'The scheme is ABABCDCDEFEFGG.'), ['ABABCDCDEFEFGG']);
 });
 
+test('groundNames with facts: a sentence that credits the writer with something they said, mentioned or listed goes (and only with facts)', () => {
+  const reply = 'The history you mentioned can enrich your story. Gothic fiction began in 1764. As you\'ve said, the setting matters. The history you\'ve listed is long. A reader may mention the setting.';
+  const r = groundNames(reply, { sources: ['Gothic fiction began in 1764.'], known: [], facts: true });
+  assert.equal(r.text, 'Gothic fiction began in 1764. A reader may mention the setting.', 'only the sentences that credit the writer go, and nothing is reworded');
+  assert.deepEqual(r.removed.map((x) => x.said?.[0]), ['you mentioned', "As you've said", "you've listed"]);
+  assert.equal(groundNames(reply, { sources: ['x'], known: [] }).removed.length, 0, 'without facts the check is as it was');
+});
+
 test('groundNames with facts is fast on pathological input (a long run of ordinals, in the reply or in a source)', () => {
   const t0 = Date.now();
   groundNames(`${'1st, '.repeat(10000)} end.`, { sources: ['x'], facts: true });

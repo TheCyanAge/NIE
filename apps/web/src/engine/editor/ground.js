@@ -17,7 +17,7 @@ import { removeSpans, sentenceSpans } from './sentences.js';
  *    `sections` (how many sections the text has) says it cannot exist.
  * What the check cannot see: a set-up or a fact made of ordinary words. It stops the inventions that can be counted, nothing more.
  *
- * With `facts: true` (an answer from the library) a sentence is also judged on the dates and patterns it states: a year, a decade ("the 1990s"), a century ("the 17th century",
+ * With `facts: true` (an answer from the library) a sentence that credits the writer with having said, mentioned or listed something also goes ("as you mentioned"), and a sentence is also judged on the dates and patterns it states: a year, a decade ("the 1990s"), a century ("the 17th century",
  * "seventeenth-century") or a run of five or more capitals (a rhyme scheme such as ABABCDCDEFEFGG) that no source has goes with the sentence. A century and a decade are grounded by a
  * year of that century or decade in a source as well as by the same words; the reply can say "the 17th century" when a record says 1606. It stops an invented date or an invented
  * scheme; a true date set against the wrong thing (a real year given to the wrong poem) is made of words that are all in the records and gets through.
@@ -346,6 +346,14 @@ function unknownFacts(sentence, vs) {
   return [...new Set(out)];
 }
 
+// A sentence that credits the writer with having said, mentioned or listed something ("as you mentioned", "the history you've listed"). In an answer from the library it is never needed,
+// and the model made it up: measured on the real model, replies thanked the writer for a "forbidden love affair" and a "suburban setting" they had never described.
+const ATTRIBUTION_RE = /\b(?:as you(?:'ve| have)? (?:mentioned|said|noted|told me|listed|described)|you(?:'ve| have)? (?:mentioned|listed|told me|described))\b/i;
+const attributions = (sentence) => {
+  const m = ATTRIBUTION_RE.exec(sentence);
+  return m ? [m[0]] : [];
+};
+
 // ── the check ────────────────────────────────────────────────────────────────
 
 /**
@@ -365,7 +373,7 @@ export function groundNames(reply, opts) {
   const vs = vocabularies(sources, known);
   const ctx = { memo: new Map(), budget: { left: 4_000_000 } };
   const spans = sentenceSpans(src);
-  const verdicts = spans.map((sp) => ({ sp, names: unknownNames(sp.text, vs, ctx), numbers: [...unknownNumbers(sp.text, vs, sections), ...(facts ? unknownFacts(sp.text, vs) : [])] }));
+  const verdicts = spans.map((sp) => ({ sp, names: unknownNames(sp.text, vs, ctx), numbers: [...unknownNumbers(sp.text, vs, sections), ...(facts ? unknownFacts(sp.text, vs) : [])], said: facts ? attributions(sp.text) : [] }));
   // A name the check has just refused comes back in other sentences of the same reply, often at the start of one ("Haldric watches the harbour"), where a capital
   // proves nothing and the first look let it pass: a word that no source has, and that is not ordinary English, goes with the sentences that named it.
   const refused = new Set();
@@ -387,9 +395,9 @@ export function groundNames(reply, opts) {
   }
   const cut = [];
   for (const v of verdicts) {
-    if (v.names.length || v.numbers.length) {
+    if (v.names.length || v.numbers.length || v.said.length) {
       cut.push(v.sp);
-      result.removed.push({ sentence: v.sp.text, names: [...new Set(v.names)], numbers: v.numbers });
+      result.removed.push({ sentence: v.sp.text, names: [...new Set(v.names)], numbers: v.numbers, ...(v.said.length ? { said: v.said } : {}) });
     }
   }
   if (!cut.length) return result;

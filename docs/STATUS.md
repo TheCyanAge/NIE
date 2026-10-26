@@ -134,20 +134,49 @@ was told, wrongly, that it had no library. The fixes are in three parts.
   "how is it different from romance?" (side by side, with the profile's own point) and, with a model, a pronoun question ("why did it start in Britain?") stay on the subject; a facet the library has no record of is said plainly; the facets not yet shown
   are offered as chips. It is kept per project and ends when idea cards take over. Measured on the real model (`scripts/library-lab.mjs`, scripted conversations in `tests/fixtures/library-sessions.mjs`, a slow 2-thread runner, about 35 s a turn):
 
-  | | first run | after the fixes below |
-  | --- | --- | --- |
-  | follow-ups read as intended | 17 of 17 | 17 of 17 |
-  | replies using the record's own words (checked ones) | 7 of 8 | 8 of 8 |
-  | the writer's own story talk left alone | 1 of 2 | 2 of 2 |
-  | replies naming something no record holds | 6 | 2 |
+  What the first two runs showed (17 of 17 follow-ups read as intended; the model's retelling still added authors, titles and examples of its own, "Anne Rice", "Rosemary's Baby", so its replies go through a names check against the
+  records) was not enough. Those runs' headline count, "replies naming something no record holds", re-runs the product's own check on a reply it has already cleaned, so it is zero by construction and says nothing; it is **not** evidence.
+  What measures a library answer is an **audit**: the lab prints every full reply and the library's records on the subject (`AUDIT-RECORDS` / `AUDIT-REPLY` lines), and a separate agent (not the model being measured) splits each reply
+  into claims and judges each against the records: supported, not in the records, wrong, or crediting the writer with something they never said. Four audits of the same kind of scripted conversation (33 replies each, ten conversations
+  of which five are a "tour" of profiles beyond Gothic fiction), as the answer path changed:
 
-  What the first run showed, and what changed: a profile of the wrong subject answered a facet question (above); a reply built from the records still added authors, titles and examples of its own ("Anne Rice", "Rosemary's Baby"), so a library
-  answer from the model now goes through the names-and-numbers check against the records and the conversation (the sentence goes, and NIE says so; if nothing is left it shows the record itself); the model spoke of "the notes you provided" and
-  of NIE in the third person, so the instruction now says the library is NIE's own; and "What does the aunt hide?" after a message about "her aunt's house" was taken for a library question. The second run showed two more (the subject of
-  "what are the tropes of romance?" became the trope "Forbidden love"; the model cited the Chicago Manual of Style for a record that names no guide), fixed in the commit after it; that change has not been re-measured yet. The check can
-  also remove a correct sentence (it flagged "Couples", the first word of a sentence, as a name): it errs towards leaving out.
+  | | the model retells the records | direct questions answered with the library's text | + the reading of a question after a library answer (a mistake, below) | + the reading guarded, final |
+  | --- | --- | --- | --- | --- |
+  | claims judged | 202 | 351 | 393 | 386 |
+  | supported by the records | 152 (75%) | 307 (87%) | 361 (92%) | 361 (94%) |
+  | not in the records | 33 | 30 | 23 | 23 |
+  | wrong | 10 | 1 | 1 | 0 |
+  | crediting the writer with something they never said | 7 | 9 | 4 | 1 |
+  | replies with a wrong or credited claim | **13 of 33** | 4 of 33 | 4 of 33 | **1 of 33** |
+  | replies written by code / by the model | 1 / 32 | 29 / 4 | 29 / 4 | 32 / 1 |
+  | follow-ups read as intended (lab) | not recorded for this run (17 of 17 in the two earlier ones) | one conversation 2 of 4, the rest all | the same conversation 2 of 4 | all ten conversations |
+  | mean turn on the lab runner | about 18 s | 6.1 s | 8.7 s | 4.3 s |
+
+  What the audits found, in order:
+  1. A 3B model retelling the records got something wrong or credited the writer with things in 13 of 33 replies: "Walter Scott belongs to the Victorian period", "both the Bishop and the Pound sestina were published in 1909",
+     a rhyme scheme of its own for the villanelle, "Lewis Turco is credited with its invention" (the terzanelle's credit), "your reference to Robert Jordan" in answer to "What is epic fantasy?". Most of it was made of words that are all
+     in the records and put together wrongly, which no check on names, numbers or dates can see. So **a direct question that the library matches strongly by an entry's own name, and every follow-up in a library thread (facet, "tell me
+     more", comparison), is now answered with the library's own text, composed by code** (`libraryReply`), with or without a model: instant, and checked against the web when the profile was written. The model reads the message and does not retell
+     the records. A weaker match, a question with more in it ("... and would it suit a poem about my mother?", "in two sentences"), a pronoun question ("why did it start in Britain?"), a long text of the writer's in play and an online model
+     (not measured) still go to the model, whose reply now loses any sentence that names something, or states a year, decade, century or rhyme scheme, that the records do not hold, or that credits the writer with something they said.
+  2. An adversarial review of that change found it answered compound questions with a canned dump, put a novel (Fingersmith) ahead of the technique for "what is a plot twist?", ignored an online model, deleted correct edition years
+     and mistook "1,500 words" and "NEVER" for years and rhyme schemes. All fixed, with tests.
+  3. The audits then showed one real defect left: after "What is gothic fiction?", "what are the tropes of romance?" was read as a request for ideas and answered with story cards that invented "your gothic castle" and "the forbidden love
+     affair you mentioned"; the follow-ups after it found no library thread. The reading step is shown the last two messages, and NIE's last message was now a library card. **A first fix made it worse**: showing the reading a one-line summary of
+     the card instead (`tests/fixtures/understanding-after-library.json`, ten questions, `understanding-eval` with the `fixture` input) read 2 of 6 general questions correctly against 6 of 6 with the card as it is; and three extra examples in
+     the reading prompt (one used the word "tropes") took two of the six back to "ideas". Both were reverted. The label of a short factual question like this flips between "craft" and "ideas" with the smallest change, a near-tie for a 3B model,
+     so it is no longer left to the label: while a library conversation is open, a short factual question that the model read as ideas, develop, unclear or chat but that names something the library holds is kept a library question, and the change
+     of label is recorded as `understood.overruled`. After that the lab reads every conversation as intended and the audit finds one credited claim ("... as you mentioned" in the single model-written reply); the check on a model's library
+     reply now removes sentences of that kind, which has not been measured since.
+
+  **What the audits cannot see.** They were judged by an AI agent against the records the lab printed, not against the web (the records themselves are the fact-checked profiles and the library); 33 replies on scripted conversations is a small
+  sample; a verbatim bullet counts as one supported claim, so copying inflates "supported"; 17 of the 23 "not in the records" in the last audit are library text from entries the lab did not print (a second card such as "Gothic fiction
+  (eighteenth-century origins)"), not necessarily false; a true fact given to the wrong thing, or a poor choice of which entry answers, is invisible to any check (a code-composed answer cannot say something false, but it can answer the wrong
+  question: the cyberpunk-versus-space-opera comparison says plainly that the library holds no note on the difference and shows two overviews, and "tell me more" can return only the few leftover bullets). The audit also judged the model's
+  one remaining reply type (the pronoun question) as having no real answer where the records give no reason. Library answers by code are accurate to the records and often long and list-like; they are less like a conversation, and that is the
+  price of not being wrong.
 - **A rule-reading bug found on the way**: with no model, "What is a sonnet?", "what is a haiku" and "Explain the villanelle" were read as requests for ideas (the form word counted as a lens) and got no answer. They now go to the library.
-- **Honest limits.** The model composing the answer is still a 3B model: it can be flat, repeat itself or drift, and a reply from it takes 15 to 70 s on a slow computer. The records are what NIE knows; the library cannot be complete, and "seemingly
+- **Honest limits.** A direct library question is answered by code from the records, instantly; everything else the model writes is a 3B model's: it can be flat, repeat itself or drift, and a reply from it takes 15 to 70 s on a slow computer. The records are what NIE knows; the library cannot be complete, and "seemingly
   infinite knowledge of all literature" is not something a program on one computer can offer. What can be offered is a large library that says what it holds and what it does not, a conversation that stays on the subject, and the optional online
   model in Settings for questions beyond it. A larger offline model (for example a 7B) was considered and **not** added: Settings has no model chooser beyond the one bundled model, the download address of a larger model cannot be verified from
   here, and it would be several times slower on an ordinary CPU.
