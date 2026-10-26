@@ -1,0 +1,107 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch summaries only (WebFetch could not resolve hosts). The shared per-turn search budget ran out after the villanelle checks, so every ode.js and elegy.js claim was checked from the checker's own knowledge, and anything not solidly known was softened. Villanelle claims on Passerat, Gosse, Dobson, Wilde, Robinson, Thomas, Roethke, Plath, Auden, Bishop, Henley and the terzanelle were checked against search summaries.",
+  "files": {
+    "ode.js": {
+      "method": "own knowledge only (search budget exhausted before this file); lint OK",
+      "claimsChecked": 49,
+      "confirmed": 40,
+      "corrected": [
+        {
+          "where": "terms: Strophe, antistrophe, epode",
+          "was": "the stand in a different one (presented as the meaning of epode)",
+          "now": "the closing part in a different one, which Ben Jonson called the stand",
+          "why": "Epode is Greek for an after-song; turn, counter-turn and stand are Jonson's English names for the three parts."
+        },
+        {
+          "where": "history, last point: Campos Triumphal Ode",
+          "was": "wrote the Triumphal Ode (1915) to machines and cities",
+          "now": "published the Triumphal Ode in 1915, a poem of the modern machine age",
+          "why": "Written 1914, published in Orpheu in 1915; the subject is the modern industrial age, so the narrower 'machines and cities' was dropped."
+        },
+        {
+          "where": "canon: twentieth century point",
+          "was": "Alvaro de Campos's Triumphal Ode (1915)",
+          "now": "the Triumphal Ode (published 1915) by Alvaro de Campos",
+          "why": "Same date correction: 1915 is the publication year, not the writing year."
+        }
+      ],
+      "softened": [
+        {"where": "history, first point", "was": "The earliest odes were sung by a chorus", "now": "Many early Greek odes were sung by a chorus", "why": "Some early Greek lyric (Sappho, Alcaeus) was solo song; choral performance is not true of all of them."},
+        {"where": "history, Renaissance point", "was": "in the early seventeenth century ... Cary and Morison (about 1629)", "now": "in the seventeenth century ... (composed around 1629)", "why": "The composition date is approximate; the period label was loosened to match."},
+        {"where": "history, Tennyson point", "was": "published for the duke's state funeral", "now": "published at the time of the duke's state funeral", "why": "Safer wording for a publication that coincided with the funeral."},
+        {"where": "subgenres, Horatian ode", "was": "Marvell's Horatian Ode ... follows Horace's balance and tone", "now": "is named for Horace's balance and restraint", "why": "Marvell's stanza is not a Horatian metre; the claim is about the name and manner only."},
+        {"where": "subgenres, other traditions", "was": "qasida ... is commonly translated as ode", "now": "is often translated as ode", "why": "Translation practice varies."},
+        {"where": "readers, length", "was": "from about fifty lines to a few hundred", "now": "from a few dozen lines to a few hundred", "why": "Keats's To Autumn (33 lines) falls below fifty."}
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "No web search was possible for this file (shared search budget exhausted); the dates were checked from solid knowledge only: Horace 23 BCE, Ronsard 1550, Cowley 1656, Dryden 1697, Congreve 1706, Gray 1757, Schiller 1785, Beethoven 1824, Coleridge 1802, Wordsworth 1807, Keats 1819, Shelley 1820, Tennyson 1852, Neruda 1954.",
+        "Works record for Pindar's Victory Odes gives c. 470 BCE, only a midpoint of his datable odes (about 498 to 446 BCE), copied from the library's own record; the text itself states no Pindar date.",
+        "Horace's fourth book (about 13 BCE) is not dated in the text, so it is not asserted.",
+        "The Jonson ode for Cary and Morison is dated only as 'around 1629', not verified by search.",
+        "Keats's odes are dated 1819 by composition; the odes reached book form in 1820. The Ode to a Nightingale works year 1819 matches the library."
+      ]
+    },
+    "elegy.js": {
+      "method": "own knowledge only (search budget exhausted before this file); lint OK",
+      "claimsChecked": 50,
+      "confirmed": 37,
+      "corrected": [
+        {"where": "canon: twentieth century point", "was": "Rilke's Duino Elegies, which take their name from the mournful mood", "now": "named for the castle near Trieste where he began them", "why": "The title comes from Duino Castle, not from a mood."},
+        {"where": "canon: English Renaissance point", "was": "Ben Jonson's poem on his first son (1616)", "now": "On My First Sonne (printed 1616 among his epigrams and often read as an elegy)", "why": "The poem is titled and printed as an epigram; calling it an elegy outright was misleading."},
+        {"where": "terms: Pathetic fallacy", "was": "a term from John Ruskin", "now": "a term coined by John Ruskin in the nineteenth century", "why": "Ruskin coined it in Modern Painters in the 1850s; stated plainly."},
+        {"where": "terms: Epicedium", "was": "from the Greek and Latin for a funeral song", "now": "from the Greek epikedeion, a funeral song", "why": "The Latin word is a borrowing from the Greek."}
+      ],
+      "softened": [
+        {"where": "history: Roman love elegists", "was": "writing in the late first century BCE", "now": "writing from the later first century BCE", "why": "Ovid was active into the first century CE."},
+        {"where": "history: Ovid's Tristia", "was": "is an elegy of homesickness", "now": "gathers poems of exile and homesickness in elegiac couplets", "why": "More exact description of the work."},
+        {"where": "history: meaning in English", "was": "From the sixteenth century elegy came in English to mean a poem of mourning", "now": "In English the word came to mean mainly a poem of mourning by the seventeenth century", "why": "The exact century of the shift was not certain; the later bound is safe."},
+        {"where": "history: last point", "was": "the grief memoir has taken over some of its ground in prose", "now": "prose grief memoirs now sit beside the elegy as a kindred way of writing about loss", "why": "The original was an unsupported claim about one form displacing another."},
+        {"where": "subgenres: classical and love elegy", "was": "Goethe's Roman Elegies (1795)", "now": "(published 1795)", "why": "The poems were written 1788 to 1790 and published in 1795."},
+        {"where": "craft: Gray's stanza", "was": "a stanza often called the elegiac stanza", "now": "often called the elegiac stanza (or heroic quatrain), though earlier poets used it", "why": "Gray did not invent the stanza; the name is a convention."},
+        {"where": "terms: Elegiac stanza", "was": "so called because of that poem", "now": "often named after that poem and also called the heroic quatrain", "why": "Same softening."},
+        {"where": "canon: eighteenth century", "was": "the most quoted English elegy", "now": "among the best-known English elegies", "why": "A superlative that cannot be verified."},
+        {"where": "terms: Threnody", "was": "the Greek threnos means a wailing", "now": "from the Greek threnos, a lament or dirge", "why": "More defensible gloss."}
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "No web search was possible for this file (shared search budget exhausted); the dates were checked from solid knowledge only: Astrophel 1595, Lycidas written 1637 and printed 1638, Gray 1751, Adonais 1821, In Memoriam 1850, Whitman 1865, Thyrsis 1866, Hardy 1914, Duino Elegies 1923, Auden 1939, Sacks 1985, Ramazani 1994, Art O Laoghaire 1773.",
+        "The works year for Lycidas is 1638 (first printing) while the library's genre entry lists 1637 (composition); the text states both.",
+        "Exeter Book 'copied in the later tenth century' rests on the usual dating of about 960 to 990, not re-checked by search.",
+        "Auden's In Memory of W. B. Yeats is dated 1939 (magazine publication that year); the collection Another Time appeared in 1940.",
+        "The name 'elegiac stanza' for the abab pentameter quatrain follows common handbook usage; handbooks differ."
+      ]
+    },
+    "villanelle.js": {
+      "method": "web search summaries for most claims; lint OK",
+      "claimsChecked": 55,
+      "confirmed": 45,
+      "corrected": [
+        {"where": "history: Auden", "was": "W. H. Auden's If I Could Tell You appeared in 1940", "now": "W. H. Auden wrote If I Could Tell You in 1940", "why": "Written 1940 (dated October 1940 by his editor); first printed in a magazine in early 1941 according to a scholar of the form."},
+        {"where": "canon: mid-century point", "was": "Mid-century: ... If I Could Tell You (1940)", "now": "Twentieth century: ... If I Could Tell You (written 1940)", "why": "Same date issue; 1940 is not a first-publication year."},
+        {"where": "canon: Robinson point", "was": "Early twentieth century: Robinson's The House on the Hill, from the 1890s", "now": "Late nineteenth century: ... written in the 1890s, often cited as an early American villanelle", "why": "A poem of the 1890s is not early twentieth century (first version 1894, collected in 1896)."},
+        {"where": "history: the fixed form", "was": "nineteenth-century writers on French verse took Passerat's poem as the pattern ... so most Renaissance villanelles do not match it", "now": "French writers on verse after the Renaissance, up to Banville's 1872 handbook, took Passerat's poem as the pattern, and scholars disagree about who first fixed it; most other Renaissance villanelles are looser songs", "why": "Sources trace the fixing to eighteenth-century dictionary makers, to Tenint in 1844, or to Banville; they disagree."},
+        {"where": "history: English poets", "was": "after Edmund Gosse's 1877 essay ... belongs to the same moment", "now": "late 1870s and 1880s, helped by Gosse's 1877 essay ... Wilde's Theocritus (1881) belongs to the same fashion", "why": "Dobson's villanelle appeared in 1877 itself, so 'after' the essay was too strict; Wilde's poem is in his 1881 Poems."},
+        {"where": "summary and canon watch", "was": "mid-twentieth-century poems by Auden, Thomas, Roethke, Plath and Bishop", "now": "twentieth-century poems ...", "why": "Bishop's One Art is 1976, not mid-century."}
+      ],
+      "softened": [
+        {"where": "history: Thomas", "was": "became the best-known villanelle in English", "now": "is widely regarded as the best-known villanelle in English", "why": "A superlative stated as opinion."},
+        {"where": "tropes: address to a you", "was": "many villanelles speak to a lover or the dead", "now": "some villanelles ...", "why": "No count supports 'many'."},
+        {"where": "history: mid-century poets", "was": "between the late 1940s and 1953", "now": "between the late 1940s and the early 1950s", "why": "Plath's villanelle was written about 1951 and printed in 1953; Roethke's appeared in his 1953 book."}
+      ],
+      "removed": [
+        {"where": "canon works list: If I Could Tell You, W. H. Auden, 1940", "why": "Year is not the first-publication year (written 1940, reported first printed 1941 in a magazine, collected 1945) and could not be fixed from two sources. The poem stays in the text as 'written 1940'. Canon keeps 5 works."}
+      ],
+      "remainingDoubts": [
+        "Passerat's J'ay perdu ma tourterelle: printed in the 1606 Recueil (confirmed by search, after his death in 1602); one source gives composition as 1574. Passerat's dates 1534 to 1602 were confirmed by search.",
+        "Auden's first publication was reported in a single scholarly web source as a magazine in early 1941; not confirmed by a second source, which is why the work record was removed.",
+        "W. E. Henley's A Dainty Thing's the Villanelle: poem exists and is about the form; its year (about 1877 in London magazine, 1888 in A Book of Verses) was not confirmed, so the text only says Henley wrote early examples in the 1870s and 1880s.",
+        "Roethke's The Waking: first appearance found only in the 1953 book; an earlier magazine appearance was not ruled out.",
+        "Robinson's House on the Hill is described as 'often cited as an early American villanelle'; no source calls it the first.",
+        "The terzanelle is credited to Lewis Turco (search summaries agree); its date and exact scheme are not stated and handbooks differ.",
+        "Rondeau, pantoum, sestina and ghazal descriptions in the compare facet are standard textbook definitions, not re-checked by search."
+      ]
+    }
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch only; WebFetch was not used (hosts do not resolve here), so the web source is search summaries, not the works themselves. Items marked 'own knowledge' below were not returned by a search and rest on solid recall.",
+  "lintOk": true,
+  "files": {
+    "literary-journalism.js": {
+      "claimsChecked": 46,
+      "confirmed": 38,
+      "corrected": [
+        {
+          "where": "history conv 1 (Mayhew)",
+          "was": "begun in the Morning Chronicle in 1849 and developed into London Labour and the London Poor",
+          "now": "begun in the Morning Chronicle in 1849 and continued in London Labour and the London Poor",
+          "why": "The Chronicle letters began in October 1849; London Labour began as a separate weekly serial from December 1850 and reused only part of the Chronicle material, so 'developed into' overstated the link."
+        },
+        {
+          "where": "history conv 2 (Tarbell and Steffens)",
+          "was": "Around 1900 the muckraking magazines and writers such as Ida Tarbell and Lincoln Steffens (both 1904), ... John Reed's Ten Days That Shook the World (1919)",
+          "now": "From about 1900 to 1920 ... Ida Tarbell and Lincoln Steffens (whose magazine series became books in 1904) ...",
+          "why": "Both books (History of the Standard Oil Company, The Shame of the Cities) were published by McClure, Phillips in 1904 after magazine series from 1902; a bare '1904' read as the date of the work itself. 'Around 1900' also sat badly beside a 1919 title."
+        },
+        {
+          "where": "terms conv 1 (Wolfe's four devices)",
+          "was": "the four devices Tom Wolfe listed in 1973",
+          "now": "the four devices Tom Wolfe listed in the early 1970s",
+          "why": "Wolfe set the devices out in his early-1970s essays and in the 1973 anthology introduction; the single year was too exact to defend. The four devices themselves (scene-by-scene construction, full dialogue, third-person point of view, status details) were confirmed."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history conv 6 (Sims)",
+          "was": "Norman Sims's anthology The Literary Journalists (1984) and later critical studies gave the name currency",
+          "now": "Norman Sims's anthology The Literary Journalists (1984) is often credited with giving the name currency",
+          "why": "Sims himself makes this claim and it is widely repeated, but at least one critic argues the term was in use earlier and took its present sense later; the facet is already 'contested'. The 1984 date, Ballantine anthology and Sims as editor were confirmed."
+        },
+        {
+          "where": "readers conv 5",
+          "was": "normally sold on a proposal with sample chapters",
+          "now": "usually sold on a proposal with sample chapters",
+          "why": "General trade-nonfiction practice; 'normally' was slightly stronger than the evidence."
+        },
+        {
+          "where": "compare conv 4 (reportage)",
+          "was": "is the standard term in many European languages",
+          "now": "is a common term in several European languages, with national traditions of its own",
+          "why": "Search found no source calling it the 'standard' term; scholarship shows it is used in French, Polish, Czech, Swedish and other traditions with different meanings."
+        },
+        {
+          "where": "terms conv 6 (composite character)",
+          "was": "most professional standards treat an undisclosed composite as fabrication",
+          "now": "professional standards generally treat an undisclosed composite as fabrication",
+          "why": "No survey of codes was checked; 'generally' is the defensible form."
+        },
+        {
+          "where": "terms conv 8 (reportage)",
+          "was": "the standard word in many European languages",
+          "now": "a common word in several European languages",
+          "why": "Same as the compare facet."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Literary Journalism Studies: the association (IALJS) was confirmed as founded in July 2006; the journal's start in 2009 is supported by an article saying the association created it in 2009 and by coverage 'from spring 2009', but no source labelled issue 1. The text only says 'in the 2000s', which holds either way.",
+        "Wolfe's third device is given as 'third-person point of view' (his own phrase, from recall); one search summary quoted a secondary source as 'multiple points of view'. The description in the text ('present scenes through a particular character') is unchanged either way.",
+        "Own knowledge only (not returned by a search): Orwell's Wigan Pier 1937 and Down and Out 1933, Jack London 1903, Reed 1919, New Yorker founded 1925, Herr Dispatches 1977 (confirmed as Knopf 1977 by search), McPhee 1977 (confirmed by library records), LeBlanc 2003, Boo 2012, Didion 1968.",
+        "Latin American crónica: Walsh, García Márquez and Poniatowska are named as writers in the tradition on general knowledge; no source was checked for that classification, which is a matter of usage."
+      ]
+    },
+    "narrative-history.js": {
+      "claimsChecked": 48,
+      "confirmed": 47,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history conv 3 (Ranke)",
+          "was": "historians such as Leopold von Ranke made archival research the standard",
+          "now": "historians such as Leopold von Ranke helped make archival research the standard",
+          "why": "Ranke is a key figure in source-based method but did not do it alone; the search found no source for the stronger form."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Hume's History: volume dates differ by listing (one gives 1754, 1756, 1759, 1761 for six volumes); '1754 to 1762' is the usual span and is kept. Gibbon: one museum catalogue lists 1776 to 1789, the standard span is 1776 to 1788 (final volumes April 1788) and is kept.",
+        "Own knowledge only (not returned by a search): Prescott 1843, Macaulay from 1848, Michelet and Parkman (given without dates), Shirer 1960, Schama's Citizens 1989, Sobel's Longitude 1995, Clark's The Sleepwalkers 2012, McCullough's Path Between the Seas 1977 / Truman 1992 / John Adams 2001, Beard SPQR 2015 (search could not confirm the year), Trevelyan as a narrative writer for general readers, Livy and Tacitus composing speeches.",
+        "The line that Hume's History was admired for 'irony, scope and prose' is a critical judgment not checked against a source; it is hedged by 'admired'.",
+        "Russia's calendar change is stated only as 1918 (31 January followed by 14 February); the exact decree date was not stated and is not needed."
+      ]
+    },
+    "business-book.js": {
+      "claimsChecked": 46,
+      "confirmed": 39,
+      "corrected": [
+        {
+          "where": "history conv 2 (Hawthorne)",
+          "was": "studies at the Hawthorne works of Western Electric in the 1920s and 1930s",
+          "now": "the Hawthorne studies at Western Electric (mid-1920s to early 1930s)",
+          "why": "Sources date the studies about 1924 to 1932 (Mayo's interpretation book is 1933); the 1930s overstated the span."
+        },
+        {
+          "where": "history conv 5 (The One Minute Manager)",
+          "was": "Kenneth Blanchard and Spencer Johnson's The One Minute Manager (1982) sold very widely",
+          "now": "Blanchard and Johnson's The One Minute Manager (trade edition 1982) sold very widely",
+          "why": "Library records show the William Morrow edition is 1982 but it reprints an earlier 1981 Blanchard-Johnson edition, so a bare 1982 as first publication was not safe."
+        },
+        {
+          "where": "subgenres conv 7 (The Goal)",
+          "was": "Eliyahu Goldratt's The Goal (1984)",
+          "now": "Eliyahu Goldratt and Jeff Cox's The Goal (1984)",
+          "why": "The Goal was co-written with Jeff Cox."
+        },
+        {
+          "where": "canon conv 6 (The Goal)",
+          "was": "Eliyahu Goldratt's The Goal (1984)",
+          "now": "Eliyahu Goldratt and Jeff Cox's The Goal (1984)",
+          "why": "Same as above."
+        }
+      ],
+      "softened": [
+        {
+          "where": "craft conv 8 (fables)",
+          "was": "many fables add a short non-narrative summary of the model",
+          "now": "some fables add a short non-narrative summary of the model",
+          "why": "Lencioni's The Five Dysfunctions of a Team does (its contents list a closing 'The Model' section), but there is no evidence for 'many'; The Goal does not."
+        },
+        {
+          "where": "terms conv 2 (case study)",
+          "was": "Harvard Business School made the case method a standard way of teaching management",
+          "now": "Harvard Business School's use of the case method from the 1920s helped make it a standard way of teaching management",
+          "why": "HBS drew on the law-school case method, renamed it 'case method' in 1921 and made it its main method over the 1920s; it was not the only influence on its spread."
+        },
+        {
+          "where": "pitfalls conv 2 (halo)",
+          "was": "the later fortunes of celebrated firms have often differed",
+          "now": "some celebrated firms later lost their standing",
+          "why": "'Often' is vague and unquantified; the narrower claim is safe and the vague sentence also pushed the field over the length limit."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Fayol's Administration industrielle et generale is dated 1916 (its first appearance, in a mining-industry society bulletin); the stand-alone book is usually dated 1917. Search could not confirm the bulletin detail, so the text keeps the common '1916'.",
+        "Own knowledge only (not returned by a search): Taylor 1911, Carnegie 1936 (Library of Congress listing found, year from recall), Follett's group writings (The New State 1918, Creative Experience 1924; the text names no title), Senge 1990 (a source said 'first published in 1990'), Collins and Porras Built to Last 1994, Collins Good to Great 2001, Schein 1985, Lencioni 2002 (Jossey-Bass first edition 2002 confirmed), Chandler 1962 and Porter 1980 (confirmed by search).",
+        "Minimum viable product: the phrase was coined earlier (Frank Robinson, 2001) and spread through Steve Blank and Ries; the text says 'popularised by' Ries, which is defensible. The origin of 'pivot' was not searched.",
+        "Knowledge worker: the text says 'a term used by Drucker'; most sources date his coinage to 1959 (Landmarks of Tomorrow), one outlier says 1969. The text gives no year."
+      ]
+    }
+  },
+  "totals": {
+    "claimsChecked": 140,
+    "corrected": 7,
+    "softened": 9,
+    "removed": 0
+  },
+  "otherChecks": [
+    "All three files still pass node scripts/library-profile-check.mjs --staging (9 records each, lint clean, every facet found).",
+    "No sample prose or pasteable lines in any facet; facets match the README meanings; keywords are phrases a writer would type.",
+    "Compared with the library entries for Literary journalism, New Journalism, Social reporting and immersion journalism, Foreign correspondence and war reporting, Narrative history, Microhistory, and Business and management book: no contradictions in dates, titles or authors."
+  ]
+}

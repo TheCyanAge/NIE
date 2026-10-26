@@ -411,6 +411,10 @@ What the second checkers could not confirm:
 | Audio drama and podcasts | radio-drama, fiction-podcast, nonfiction-podcast | 172 | 4 | 17 | 0 | yes |
 | YA romance, early chapter books and fairy tales | ya-romance, early-chapter-book, fairy-tale | 184 | 10 | 16 | 1 | yes |
 | Existentialism, the Harlem Renaissance and the Beats | existentialism, harlem-renaissance, beat-generation | 232 | 4 | 14 | 1 | yes |
+| Western, adventure and war fiction | western, adventure-fiction, war-fiction | 260 | 9 | 11 | 1 | yes |
+| Journalism, history writing and the business book | literary-journalism, narrative-history, business-book | 140 | 7 | 9 | 0 | yes |
+| Fan fiction, webnovels and light novels | fan-fiction, webnovel, light-novel (held back) | 126 | 3 | 11 | 0 | yes |
+| Ode, elegy and villanelle | ode (held back), elegy (held back), villanelle | 154 | 13 | 18 | 1 | yes |
 
 ### Comedy, satire and magical realism
 
@@ -456,3 +460,42 @@ What the second checkers could not confirm:
 - Nugent's Fire!! story is widely called the first Black-authored work on homosexuality; the text keeps only the weaker 'more openly than in earlier Black writing'. The 1935 Harlem riot as an end-marker and Hughes's Mulatto staged 1935 were not confirmed by search.
 - Many dates were not individually searched and rest on solid knowledge: most Harlem and existentialist work years, Evergreen Review 1957, Big Table 1959, City Lights 1953 and Pocket Poets 1955, the Johnson, Jones and Carolyn Cassady memoir years, and death years.
 - Memoirs of a Beatnik is dated 1969 (some sources say 1968, probably the writing date); Pull My Daisy is dated 1959 (one filmography says 1958).
+
+### Western, adventure and war fiction
+
+- WebFetch could not be used (hosts do not resolve), so search summaries were the only web source; several titles and dates rest on solid knowledge because a summary returned nothing for them (e.g. Cooper, Defoe, Swift and Scott dates, Hatchet, Campbell 1949, The Caine Mutiny 1951, Cold Mountain 1997, Mailer, Jones, Heller, Vonnegut, True Grit's narrator, Stagecoach 1939, Unforgiven 1992, The Wild Bunch 1969, Blood Meridian 1985).
+- The Virginian as 'usually named the first major western novel' is disputed by scholars who cite earlier cowboy novels (e.g. Emma Ghent Curtis's The Administratrix, about 1889); the text already calls Wister a convention and the record is 'contested', so it was left.
+- Master and Commander is dated 1969 (first US edition; British edition 1970), Matterhorn 2010 (a small-press edition appeared in 2009), The Coral Island 1857 (one Britannica biography says 1858), Around the World in Eighty Days is now 'serialised 1872' (book 1873, works field kept at 1872 to match the library), A Fistful of Dollars 1964 is the Italian release year.
+- Interpretive claims (western as frontier nostalgia, The Red Badge of Courage as 'first modern war novel') are worded as critics' views and were not individually sourced.
+- Market observations in the readers facets (shelving labels, series, strands of WWII historical fiction) cannot be verified; those records stay 'varies' with an asOf.
+
+### Journalism, history writing and the business book
+
+- Web source was WebSearch summaries only (WebFetch not used), not the works themselves.
+- Literary Journalism Studies: the association (IALJS) is confirmed as founded in July 2006, but the journal's 2009 start is inferred from coverage and one article, with no source labelling issue 1. The text only says 'in the 2000s', which holds either way.
+- Wolfe's third device is written as 'third-person point of view' (his own phrase, from recall). One secondary source quoted in search said 'multiple points of view'.
+- Hume's History volume years differ by listing (1754 to 1762 kept). One museum catalogue gives Gibbon as 1776 to 1789 (1776 to 1788 kept).
+- Fayol's Administration industrielle et generale is kept as 1916 (first appearance in a society bulletin; the stand-alone book is usually dated 1917). Search could not confirm the bulletin detail.
+- Not returned by any search, so they rest on solid recall: Prescott 1843, Macaulay 1848, Shirer 1960, Schama 1989, Sobel 1995, Clark 2012, McCullough's three dates, Beard SPQR 2015, Taylor 1911, Carnegie 1936, Senge 1990, Built to Last 1994, Good to Great 2001, Schein 1985, Orwell 1933 and 1937, Jack London 1903, Reed 1919.
+- Minimum viable product was coined earlier (Frank Robinson, 2001); the text says 'popularised by' Ries, which is defensible. The origin of 'pivot' was not searched.
+- Treating Walsh, Garcia Marquez and Poniatowska as crónica writers rests on general usage, not a checked source.
+
+### Fan fiction, webnovels and light novels
+
+- Web source was WebSearch summaries only; WebFetch could not resolve hosts, so no primary pages were read.
+- The per-turn search budget ran out part-way through the light-novel checks. Spice and Wolf (February 2006), Toradora (March 2006), Kono Light Novel ga Sugoi (2004), the Haruhi anime month and the Japanese industry terms (kuchi-e, atogaki, shinjin-sho, komikaraizu, media mix, label, light literature) rest on the checker's own knowledge.
+- Platform start dates differ between sources and only the year is stated: Qidian (February or May 2002), Kakao Page (February or April 2013). Mo Dao Zu Shi start day (31 October 2015) could not be confirmed, so only 2015 is stated.
+- Slash word origin (K/S) is fannish tradition per Fanlore, not documented. The file calls it 'the usual explanation'.
+- Fifty Shades of Grey: the common account is that it began as Twilight fan fiction, but its publisher described it as original work.
+- Kino's Journey was a Dengeki prize finalist, not a winner. The file now says it came through the prize route.
+- Sword Art Online and the Dengeki prize page limit: sources disagree on whether it was turned down or never submitted. The wording now fits both.
+- Golden finger was confirmed. Face-slapping (da lian), shuang, mentor-in-an-object and late-bloomer rest on widely used fan usage, not on a source.
+- Legal remarks about fan fiction and the claim that most archives forbid selling stay deliberately general.
+
+### Ode, elegy and villanelle
+
+- Only the villanelle claims were checked by web search. The shared search budget ran out before the ode and elegy files, so their claims were checked from my own knowledge and softened where I was not sure. WebFetch could not resolve hosts, so search summaries were my only web source.
+- Pindar's works year c. 470 BCE is only a midpoint of his datable odes (about 498 to 446 BCE), copied from the library record. Horace's fourth book is not dated in the text. The Jonson Cary and Morison ode is dated only 'around 1629', unverified.
+- Auden's If I Could Tell You was written in 1940 and reportedly first printed in a magazine in early 1941, from one scholarly source. I removed it from the works list (canon keeps 5 works) and left it in the text as 'written 1940'.
+- Henley's villanelle year, Roethke's The Waking (1953; an earlier magazine appearance was not ruled out) and the terzanelle's date and scheme are unconfirmed. Robinson's The House on the Hill is called an early American villanelle, not the first.
+- Passerat's poem was printed in 1606 (confirmed), and one source says it was written in 1574. Scholars disagree about who fixed the nineteen-line pattern (eighteenth-century dictionary makers, an 1844 treatise, or Banville), so the text says they disagree.

@@ -1,0 +1,151 @@
+{
+  "searchUsed": true,
+  "method": "WebSearch summaries only (WebFetch cannot resolve hosts here). The per-turn search budget ran out part-way through the light-novel checks, so the last few light-novel claims rest on the checker's own knowledge and are listed under remainingDoubts. Check script: node scripts/library-profile-check.mjs --staging prints OK for all three files after the edits.",
+  "files": {
+    "fan-fiction.js": {
+      "claimsChecked": 44,
+      "confirmed": 43,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "profile-fan-fiction-subgenres, conv, podfic point",
+          "was": "podfic, an audio reading that is usually made with the writer's permission",
+          "now": "podfic, an audio reading that fan custom says to make after asking the writer's permission",
+          "why": "Fanlore describes asking permission as the norm in English-language podfic fandom but a debated one (some ask only when posting, blanket permissions exist). 'Usually made with permission' stated practice as fact; the new wording states it as custom."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Spockanalia: sources agree on 1967 and on 'first Star Trek fanzine' (Fullerton archive dates issue 1 to 1 September 1967; publisher and editor names differ, none are stated).",
+        "Slash: Fanlore treats the K/S origin of the word as fannish tradition, not a documented origin, and dates the virgule to about 1977 and the word 'slash' later; the file already says 'the usual explanation' and the watch line calls it tradition.",
+        "Fifty Shades of Grey: Britannica/Fanlore say it began as Twilight fan fiction (posted from 2009); the publisher Vintage described the books as original work. The file says 'began as Twilight fan fiction', which is the common account.",
+        "After: Wattpad posting 2013 and Gallery Books print in late 2014 confirmed; the file states only 2014 for the book.",
+        "Kindle Worlds: announced/launched May 2013 (Know Your Meme says launch June), site shut August 2018; the file states 2013 and 2018 only.",
+        "Cassandra Clare's 'first novel' and Draco Trilogy history rests on Wikipedia-level sources and fan forums; City of Bones 2007 (Simon and Schuster) is solid.",
+        "Bacon-Smith's Enterprising Women (1992) and Jenkins's Textual Poachers (1992) were not individually confirmed by a search result; they come from the checker's solid knowledge.",
+        "'Most archives forbid or discourage selling fan fiction' is a general statement (varies is set); not checked archive by archive.",
+        "Legal remarks remain deliberately general and are not legal advice."
+      ]
+    },
+    "webnovel.js": {
+      "claimsChecked": 42,
+      "confirmed": 38,
+      "corrected": [
+        {
+          "where": "profile-webnovel-history, conv, Qidian point",
+          "was": "paid chapters remain the base of most Chinese webnovel business",
+          "now": "rival sites copied the model, though free ad-supported reading apps have since grown large",
+          "why": "Search results show free ad-supported apps (Fanqie from ByteDance, Qimao backed by Baidu) are a major part of the Chinese market, so 'remain the base of most' was an overstatement. The point also had to be shortened to stay under the 300-character lint limit."
+        },
+        {
+          "where": "profile-webnovel-canon, conv, Wang Yu point",
+          "was": "a hero of little talent who climbs by caution and effort",
+          "now": "a hero of ordinary aptitude who climbs by caution and effort",
+          "why": "Sources describe Han Li's aptitude as mediocre or ordinary, not as lacking talent."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-webnovel-history, conv, Solo Leveling point",
+          "was": "Korean web novels reached a worldwide audience through adaptation in the late 2010s, most visibly Solo Leveling",
+          "now": "Korean web novels reached a worldwide audience largely through adaptation, most visibly Solo Leveling",
+          "why": "The webtoon began in 2018 but the anime that carried the series to a world audience is 2024, so 'in the late 2010s' did not fit the rest of the sentence."
+        },
+        {
+          "where": "profile-webnovel-subgenres, conv, xianxia point",
+          "was": "it is the best-known Chinese webnovel genre abroad",
+          "now": "it is among the best-known Chinese webnovel genres abroad",
+          "why": "A superlative that no source ranks."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Qidian: Wikipedia gives May 2002 for founding and October 2003 for the pay-to-read system; a Chinese source says February 2002. Only the year 2002 and 'October 2003' are stated, the latter from Wikipedia; Chinese-language primary sources were not seen.",
+        "Kakao Page: Kakao's own history says 9 April 2013, a Wikipedia article says February; only 2013 is stated. The 'wait for free' model is described in Kakao's history as Wait-or-Pay.",
+        "Mo Dao Zu Shi: the search could not confirm the exact start day (31 October 2015); the file says only 'serialised from 2015'. Animation July 2018 and The Untamed June 2019 confirmed.",
+        "A Record of a Mortal's Journey to Immortality 2008 follows the existing library entry; the search did not return the Qidian start date directly.",
+        "'Golden finger' was confirmed (jin shou zhi, a plot device that favours the protagonist); 'face-slapping' (da lian) and 'shuang' were not returned by search and rest on widely used fan usage and the checker's knowledge.",
+        "Chinese platforms' male-oriented and female-oriented channels confirmed (nanpin/nupin, Qidian women's channel from 2005); the claim about Japanese web novels being 'often in first person' and Chinese ones 'often in close third' is a general tendency, not sourced.",
+        "The hoebinghwan abbreviation (regression, possession, reincarnation) is confirmed by Korean academic and press sources; the text does not spell it out.",
+        "'Mentor in an object' and 'late bloomer' are presented as recurring tropes with no work named; not individually sourced.",
+        "The early-bulletin-board sentence for the late 1990s in China, Japan and Korea is a general claim not individually sourced."
+      ]
+    },
+    "light-novel.js": {
+      "claimsChecked": 40,
+      "confirmed": 31,
+      "corrected": [
+        {
+          "where": "profile-light-novel-canon, conv, second point, and the canon summary",
+          "was": "Prize-born hits of the 1990s and 2000s: Boogiepop and Others (1998) and Kino's Journey (2000) ... both from Dengeki Bunko; summary said 'prize-winning ... hits'",
+          "now": "Dengeki Bunko hits that came through its new-author prize: Boogiepop and Others (1998) and Kino's Journey (2000); summary says 'prize-route'",
+          "why": "Boogiepop won the 4th Dengeki (Game) Novel Prize, but sources describe Kino's Journey as a finalist for the 6th prize, not a winner, so 'prize-born' and 'prize-winning' overstated it."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-light-novel-history, conv, first point",
+          "was": "Vampire Hunter D (1983) is often called a forerunner of the form",
+          "now": "is sometimes counted among the forerunners of the form",
+          "why": "Fanlore says its books are 'sometimes called light novels'; one Japanese history calls it an origin, but that is one account, so 'often' was too strong. 1983 and the author are confirmed."
+        },
+        {
+          "where": "profile-light-novel-history, summary",
+          "was": "from 2009, web novels have fed it since",
+          "now": "from the late 2000s, web novels have fed it since",
+          "why": "Sword Art Online reached print in April 2009, but Naro-sourced series were being printed around then and later; an exact year as the start of a trend is not supportable."
+        },
+        {
+          "where": "profile-light-novel-history, conv, web novels point",
+          "was": "From 2009 web novels became a major source",
+          "now": "From around 2009 web novels became a major source",
+          "why": "Same reason as the summary."
+        },
+        {
+          "where": "profile-light-novel-history, conv, Dengeki Bunko point",
+          "was": "and the first is often credited with helping the category take off",
+          "now": "and Boogiepop is often credited with helping the category take off",
+          "why": "The referent was ambiguous. Anime News Network and other sources credit Boogiepop with an outsized effect on the category."
+        },
+        {
+          "where": "profile-light-novel-readers, conv, volume length",
+          "was": "about forty to sixty thousand words is typical",
+          "now": "about forty to sixty thousand words is common",
+          "why": "The range follows the library's existing entry; no authoritative figure was found (Wikipedia gives about 50,000 words, unsourced), so 'typical' was firmer than the evidence."
+        },
+        {
+          "where": "profile-light-novel-readers, conv, series point",
+          "was": "publishers usually decide whether to continue by the sales of early volumes",
+          "now": "publishers often decide whether to continue by the sales of early volumes",
+          "why": "General publishing statement that was not sourced."
+        },
+        {
+          "where": "profile-light-novel-craft, conv, illustration point",
+          "was": "The author supplies character descriptions and key scenes ... so the writer decides which moments are worth a picture.",
+          "now": "The author usually supplies character descriptions and may suggest key scenes, while an illustrator working with the editor designs the characters and plates, so it helps to know which moments could carry a picture.",
+          "why": "Who chooses the illustrated scenes was not sourced and practice varies by imprint; the original claimed the writer decides."
+        },
+        {
+          "where": "profile-light-novel-pitfalls, conv, format point",
+          "was": "a manuscript far over the limit can be turned down, as happened to one famous web novel before it found a publisher",
+          "now": "a manuscript far over the limit may be unable to enter, as one famous web novel could not before it was posted online and later printed",
+          "why": "Sources disagree: Wikipedia says Kawahara did not submit Sword Art Online to the 2002 Dengeki prize because it was over the page limit and posted it online instead; another account says it was turned down. The new wording is true under both."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The search budget ran out before these were checked, so they rest on the checker's own knowledge: Spice and Wolf first volume February 2006; Toradora first volume March 2006; Kono Light Novel ga Sugoi first edition 2004; Haruhi anime 2006 (SF Encyclopedia confirms 2006 start but not the month); Haruhi first novel June 2003 (Moegirlpedia) and English edition 2009 (Publishers Weekly review of the Little, Brown edition).",
+        "Term 'light novel': coinage around 1990 credited to Kamikita Keita on a NIFTY-Serve science-fiction and fantasy forum is supported by a 2020 scholarly article; one forum post says the late 1980s or early 1990s. The file names no person and says 'around 1990'. A 1994 newspaper review is cited as an early (not necessarily the first) use; the file does not state 1994.",
+        "Boogiepop and Others: prize year 1997 (4th prize) and book year 1998 are both given by sources; the file states only 1998.",
+        "Sentence-length titles in the 2010s: supported by a scholarly article on the evolution of light novel titles; not otherwise sourced.",
+        "'Light literature' (raito bungei) imprints, kuchi-e, atogaki, shinjin-sho, komikaraizu, media mix and label (reberu) are Japanese industry terms from the checker's knowledge, not returned by search.",
+        "'About 105 by 148 mm' for A6 is arithmetic on the standard paper size and was not tied to a publisher source.",
+        "Sword Art Online posted online from 2002: supported by the Reki Kawahara article summary; print April 2009 confirmed.",
+        "English licensing of a few light novels in the 2000s was not checked title by title."
+      ]
+    }
+  },
+  "hubConsistency": "Checked against node scripts/library-hub.mjs: fan-fiction, genre-world-webnovel and genre-world-light-novel. Works years in the profiles agree with the hub entries (Wide Sargasso Sea 1966, Harry Potter and the Methods of Rationality 2010; The King's Avatar 2011, Re:Zero 2012, Solo Leveling 2016; Boogiepop and Others 1998, Haruhi Suzumiya 2003, Sword Art Online 2009). Nothing in the hubs is contradicted by the profiles.",
+  "ruleChecks": "No sample prose or pasteable line in any of the three files. No quote over 14 words, no URLs. Facets match the README meanings. Each facet keeps at least five conv points; nothing was removed.",
+  "lint": "node scripts/library-profile-check.mjs --staging printed OK (9 records, lint clean, every facet found) for fan-fiction.js, webnovel.js and light-novel.js after the edits."
+}

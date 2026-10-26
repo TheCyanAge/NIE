@@ -1,0 +1,204 @@
+{
+  "group": "Western, adventure and war fiction",
+  "searchUsed": true,
+  "searchNote": "WebSearch was used for every flagged item and for every title, author, date and 'first' claim in the three files (about 60 searches). WebFetch was not usable (hosts do not resolve), so search summaries were the only web source. Where a summary returned nothing for a point, the point was kept only if it rests on solid knowledge and is listed under remainingDoubts; otherwise it was softened.",
+  "lintOk": true,
+  "files": {
+    "western.js": {
+      "claimsChecked": 92,
+      "confirmed": 86,
+      "corrected": [
+        {
+          "where": "profile-western-history, conv (pulp magazines)",
+          "was": "from about 1920 pulp magazines devoted to westerns fed it with writers such as Max Brand",
+          "now": "from 1919 pulp magazines devoted to westerns, such as Western Story Magazine, fed it with writers such as Max Brand",
+          "why": "Search confirmed Street & Smith's Western Story Magazine, the first all-western pulp, dates from 1919 (cover date September 1919; one source says it reached newsstands in July) and that Max Brand (Frederick Faust) was its most prolific contributor. 'About 1920' was off by a year, and the magazine can now be named."
+        },
+        {
+          "where": "profile-western-history, conv (golden age)",
+          "was": "The 1940s and 1950s are often called its golden age: ... John Ford's Stagecoach (1939) ...",
+          "now": "The years from about 1939 to the 1950s are often called its golden age: ...",
+          "why": "The point listed Stagecoach (1939) under 'the 1940s and 1950s', which was inconsistent. Stagecoach is usually treated as the start of the sound-era golden age, so the span was widened rather than the film dropped."
+        },
+        {
+          "where": "profile-western-canon, conv (irony and doubt)",
+          "was": "The 1960s turn toward irony and doubt: Oakley Hall's Warlock (1958), ...",
+          "now": "The turn toward irony and doubt, from the late 1950s: Oakley Hall's Warlock (1958), ...",
+          "why": "Warlock was published in 1958 (Viking, September 1958, confirmed), so it cannot sit under a '1960s' label."
+        },
+        {
+          "where": "profile-western-terms, conv (horse opera)",
+          "was": "Horse opera: an informal, often affectionate name for a western, especially an old-fashioned one in print, film or radio.",
+          "now": "Horse opera: an informal name for a western, especially an old-fashioned or formulaic one in print, film or radio; it has been used both affectionately and dismissively.",
+          "why": "Search sources say the phrase has been used to convey either disparagement or affection (its association with silent-film westerns is documented from about 1916 to 1917). 'Often affectionate' alone contradicted the facet's own watch note that the term can sound dismissive."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-western-history, conv (Zane Grey)",
+          "was": "Zane Grey's Riders of the Purple Sage (1912) made the western a best-selling form",
+          "now": "Zane Grey's Riders of the Purple Sage (1912) was a best seller that helped make the western a popular form",
+          "why": "Sources call it Grey's best-selling and best-known book and a landmark of the genre, but the 'best-selling western of all time' line is promotional and unsourced, and one book did not by itself 'make' the form."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-western-readers, conv (length and shelving)",
+          "was": "classic mass-market westerns were often short, well under 80,000 words",
+          "now": "classic mass-market westerns were often fairly short paperbacks",
+          "why": "No source could be found for any word count for classic mass-market westerns; the figure was removed and the general, defensible statement kept."
+        }
+      ],
+      "confirmedHighlights": [
+        "Beadle's dime novels began in 1860 (first title Malaeska, 9 June 1860; term 'dime novel' tied to it).",
+        "Buffalo Bill's Wild West opened in Omaha on 19 May 1883; European debut in London in 1887 (no year is given in the text).",
+        "Turner's thesis read to the American Historical Association in 1893; the 1890 census bulletin said there was no longer a frontier line.",
+        "The Great Train Robbery (Edison, December 1903, Edwin S. Porter) is a landmark of early American cinema; sources warn that legends call it the first western, and the text only says 'an early landmark'.",
+        "L'Amour: pulp stories from 1938, one western before the war, many western pulps after 1946, Hondo 1953 grew from a 1952 Collier's story.",
+        "Gunsmoke 1955 to 1975 (CBS), Bonanza 1959 to 1973 (NBC), Deadwood 2004 to 2006, Lonesome Dove 1985 and Pulitzer 1986, News of the World 2016, The Sisters Brothers 2011, Hell or High Water 2016, No Country for Old Men 2005 set in 1980, Warlock 1958 plot, The Searchers novel 1954 and film 1956, Log of a Cowboy 1903, Big Sky 1947 and Way West 1949, Welcome to Hard Times and Butcher's Crossing 1960, The Son 2013, Close Range 1999, Gunfighter Nation 1992 and West of Everything 1992, barbed wire patent 1874, Colt Single Action Army 1873, quick-draw duels rare, Manifest Destiny phrase from 1845, Shane's boy narrator Bob Starrett, Little Big Man's old narrator Jack Crabb, The Shootist 1975 (Swarthout)."
+      ],
+      "remainingDoubts": [
+        "'The Virginian is usually named the first major western novel': search found scholars who dispute 'first cowboy novel' (Emma Ghent Curtis's The Administratrix, about 1889 is cited). The text already says Wister is the convention, not a hard fact, and the history record is 'contested', so it was left.",
+        "A Fistful of Dollars 1964 is the Italian release year (US release 1967); Stagecoach 1939, Unforgiven 1992, The Wild Bunch 1969, Shane (film) 1953, Blood Meridian 1985, The Ox-Bow Incident 1940, All the Pretty Horses 1992 and True Grit's retrospective narrator Mattie Ross were not returned by search and rest on solid knowledge.",
+        "'Many critics see the western as part of a nostalgia for a frontier that had just ended' is interpretive; it is worded as critics' view and was not individually sourced.",
+        "Series, shelving and reader-expectation statements in the readers facet are market observations that cannot be checked; the record is marked 'varies' with an asOf."
+      ]
+    },
+    "adventure-fiction.js": {
+      "claimsChecked": 88,
+      "confirmed": 81,
+      "corrected": [
+        {
+          "where": "profile-adventure-fiction-history, conv (late twentieth century)",
+          "was": "Martin Green (Dreams of Adventure, Deeds of Empire, 1979) and Edward Said (Culture and Imperialism, 1993) examined its imperial assumptions",
+          "now": "Martin Green's Dreams of Adventure, Deeds of Empire (1979) linked adventure tales to empire, Edward Said's Culture and Imperialism (1993) read imperial attitudes in fiction broadly",
+          "why": "Search confirmed both titles and years. Green's book is about adventure tales as the energising myth of English imperialism, but Said's book is about empire and Western culture in general (Austen, Kipling, Conrad), not specifically about adventure fiction, so grouping them as both examining adventure's imperial assumptions overstated Said."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-adventure-fiction-history, conv (ancient roots)",
+          "was": "Homer's Odyssey, traditionally dated to about the eighth century BCE",
+          "now": "Homer's Odyssey, usually dated to about the eighth or seventh century BCE",
+          "why": "Sources give the eighth century, the end of the eighth century, or 'eighth or seventh' with no consensus."
+        },
+        {
+          "where": "profile-adventure-fiction-history, conv (postwar)",
+          "was": "MacLean's The Guns of Navarone (1957) and Wilbur Smith's When the Lion Feeds (1964) among best sellers, ... The Princess Bride (1973) as an affectionate reworking",
+          "now": "the best-selling authors Alistair MacLean (The Guns of Navarone, 1957) and Wilbur Smith (When the Lion Feeds, 1964), Patrick O'Brian's sea fiction (Master and Commander, 1969) and William Goldman's The Princess Bride (1973)",
+          "why": "Years confirmed (Navarone 1957 Collins; When the Lion Feeds 1964 Heinemann, Smith's debut; Master and Commander 1969 first US edition; Princess Bride 1973). 'Among best sellers' was attached to specific books that were not shown to be best sellers, so it now describes the authors. The 'affectionate reworking' label was dropped to fit the length limit and because it was a judgment."
+        },
+        {
+          "where": "profile-adventure-fiction-subgenres and canon, conv (Verne)",
+          "was": "Around the World in Eighty Days (1872)",
+          "now": "Around the World in Eighty Days (serialised 1872)",
+          "why": "Sources agree it ran in Le Temps in November and December 1872 and appeared as a Hetzel book on 30 January 1873. The works field keeps 1872 to agree with the library's own adventure entry."
+        },
+        {
+          "where": "profile-adventure-fiction-readers, conv (shelving)",
+          "was": "the word adventure is used most as a category for younger readers and in some libraries and e-book stores",
+          "now": "the word adventure itself appears as a category for younger readers and in some libraries and e-book stores",
+          "why": "'Used most' was an unsourced market comparison; the softer statement is still true and keeps the 'varies' stance."
+        },
+        {
+          "where": "profile-adventure-fiction-craft, conv (point of view)",
+          "was": "Jim Hawkins in Treasure Island and Allan Quatermain in King Solomon's Mines both narrate",
+          "now": "Jim Hawkins in Treasure Island (for most of it) and Allan Quatermain in King Solomon's Mines narrate",
+          "why": "Search confirmed Dr Livesey narrates three chapters of Treasure Island (chapters 16 to 18 in most editions); Quatermain narrates King Solomon's Mines throughout."
+        },
+        {
+          "where": "profile-adventure-fiction-terms, conv (ripping yarn)",
+          "was": "Ripping yarn: a British phrase for a fast, spirited adventure story, associated with the boys' magazines such as the Boy's Own Paper, begun in 1879.",
+          "now": "Ripping yarn: a British, now old-fashioned phrase for a fast, spirited adventure story, often linked in the mind with the boys' adventure tradition and papers such as the Boy's Own Paper, begun in 1879.",
+          "why": "Boy's Own Paper began on 18 January 1879 (confirmed), and 'ripping' is dated British slang; no source traced the phrase to the magazines themselves, so the link is now stated as an association, not an origin."
+        }
+      ],
+      "removed": [],
+      "confirmedHighlights": [
+        "Argonautica of Apollonius of Rhodes (third century BCE); Chrétien de Troyes's Arthurian romances (about 1160 to 1190, so 'later twelfth century' is fair); Don Quixote 1605 and 1615; Gulliver's Travels 1726; Robinson Crusoe 1719; Ivanhoe 1819.",
+        "The Coral Island 1857 (one Britannica biography gives 1858; Wikisource and Gutenberg say 1857); Voyages extraordinaires begun with Five Weeks in a Balloon in 1863; Twenty Thousand Leagues 1870.",
+        "The Three Musketeers serialised in Le Siècle from March 1844; The Count of Monte Cristo serialised in the Journal des Débats from August 1844.",
+        "Tarzan first printed in All-Story, October 1912; The Lost World 1912 (Strand, April to November); Captain Blood 1922; Scaramouche 1921; Captains Courageous 1897; Kidnapped 1886; The Prisoner of Zenda 1894; The Thirty-Nine Steps 1915; She 1887; King Solomon's Mines 1885 narrated by Allan Quatermain; Treasure Island book 1883; Sharpe's Eagle 1981; Shogun 1975; The Princess Bride 1973; Hatchet 1987 and Life of Pi 2001 (publication years).",
+        "Boy's Own Paper begun 1879; picaresque tradition begun in sixteenth-century Spain (Lazarillo de Tormes, 1554); MacGuffin credited to Angus MacPhail and popularised by Hitchcock, so 'associated with Alfred Hitchcock' is fair; Campbell's The Hero with a Thousand Faces 1949."
+      ],
+      "remainingDoubts": [
+        "Master and Commander is dated 1969 (first US edition, Lippincott); the British Collins edition is 1970. Kept 1969 as first publication.",
+        "Treasure Island is dated 1883 as the book; it was serialised 1881 to 1882, and a few older introductions give May 1883. The text says 1883 only for the book.",
+        "Search summaries returned nothing on Hatchet, The Hero with a Thousand Faces, Cooper's, Defoe's, Swift's and Scott's dates, or Kidnapped/She/Thirty-Nine Steps at title level beyond the dates above; these rest on solid knowledge.",
+        "Jin Yong's wuxia novels are named without a title or year, so there is nothing to date; the jianghu description was not individually sourced.",
+        "Readers facet statements about length, series and shelving are market observations that cannot be checked; the record carries 'varies' and an asOf."
+      ]
+    },
+    "war-fiction.js": {
+      "claimsChecked": 80,
+      "confirmed": 72,
+      "corrected": [
+        {
+          "where": "profile-war-fiction-history, conv (ancient war stories)",
+          "was": "Virgil's Aeneid, written before 19 BCE",
+          "now": "Virgil's Aeneid, unfinished at his death in 19 BCE",
+          "why": "'Written before 19 BCE' was vague and hid the useful fact: Virgil worked on it from about 30 BCE and died in 19 BCE with it unrevised. The Song of Roland remains dated 'eleventh or twelfth century' (composition debated; the Oxford manuscript is twelfth century)."
+        },
+        {
+          "where": "profile-war-fiction-canon, conv (reference reading)",
+          "was": "Paul Fussell's The Great War and Modern Memory (1975) is the classic study of how the First World War shaped English writing about war.",
+          "now": "Paul Fussell's The Great War and Modern Memory (1975) is a much-cited study of how British writers' experience of the First World War shaped later literature and memory.",
+          "why": "Title, author and year confirmed (Oxford University Press, 1975). The book is about British participants' literary responses and the modern ironic sensibility, not about 'English writing about war' in general; 'the classic' also became 'a much-cited'."
+        },
+        {
+          "where": "profile-war-fiction-terms, conv (lost generation)",
+          "was": "made known in English by Hemingway's use of it in The Sun Also Rises (1926)",
+          "now": "usually credited to Gertrude Stein and popularised by Hemingway, who used it as an epigraph to The Sun Also Rises (1926)",
+          "why": "Search shows the phrase is usually credited to Stein (who herself passed it on from a French hotel keeper or, in Hemingway's telling, a garage owner), and Hemingway used it as the novel's epigraph. The old wording implied Hemingway's novel introduced it."
+        },
+        {
+          "where": "profile-war-fiction-canon, conv (heading of the last era)",
+          "was": "Recent wars and new angles: Kevin Powers's The Yellow Birds (2012), Phil Klay's Redeployment (2014) and Anthony Doerr's All the Light We Cannot See (2014).",
+          "now": "Recent work and new angles: ... (same titles)",
+          "why": "Titles and years are right (Powers 2012, Klay 2014, Doerr 2014), but All the Light We Cannot See is about the Second World War, so it does not belong under 'recent wars'."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-war-fiction-history, conv (Heller and Vonnegut)",
+          "was": "used satire, dark comedy and time-shifts to attack the idea of a clean war story, as opposition to the Vietnam War grew",
+          "now": "used satire, dark comedy and time-shifts to attack the idea of a clean war story, and both found a large readership as opposition to the Vietnam War grew",
+          "why": "Catch-22 (1961) was written before the Vietnam opposition; the loose causal link is replaced by a statement about readership, which is the defensible part."
+        },
+        {
+          "where": "profile-war-fiction-history, conv (Vietnam writing)",
+          "was": "Vietnam writing, led by Tim O'Brien",
+          "now": "Vietnam writing, with Tim O'Brien (Going After Cacciato, 1978; The Things They Carried, 1990) among its best-known voices",
+          "why": "Going After Cacciato 1978 (National Book Award for fiction) and The Things They Carried 1990 are confirmed; 'led by' claimed a hierarchy no source supports."
+        },
+        {
+          "where": "profile-war-fiction-readers, conv (Second World War stories)",
+          "was": "Second World War stories, especially of women and civilians, have been a strong strand of historical fiction in recent years",
+          "now": "Second World War stories, including many centred on women and civilians, have been a recurring strand of historical fiction in recent years, and readers of that strand tend to expect a human story over a campaign narrative",
+          "why": "Market observation that cannot be sourced; 'strong' and 'especially' were replaced by a weaker description, and the reader expectation was hedged with 'tend to'."
+        },
+        {
+          "where": "profile-war-fiction-terms, conv (moral injury)",
+          "was": "a term from psychology for the damage done to a person's conscience by what they did, saw or failed to prevent in war.",
+          "now": "a term from psychology and military medicine for the damage done to a person's conscience by what they did, saw or failed to prevent in war; its exact definition is still debated.",
+          "why": "Search shows the term is generally traced to Jonathan Shay in the 1990s and broadened by Litz and colleagues in 2009, with many competing definitions. No coiner is named in the text; the debate is now stated."
+        }
+      ],
+      "removed": [],
+      "confirmedHighlights": [
+        "Stendhal's The Charterhouse of Parma 1839 (Waterloo); Tolstoy's Sevastopol Sketches 1855 to 1856; War and Peace 1869; The Red Badge of Courage 1895 (published 3 October 1895; Crane born 1871; 'first modern war novel' is a critics' label).",
+        "Barbusse's Under Fire 1916 (Prix Goncourt, December 1916); Hasek's Svejk 1921 to 1923; Parade's End 1924 to 1928; All Quiet and A Farewell to Arms both 1929; Mailer 1948; From Here to Eternity 1951; Grossman's Life and Fate seized 1961, first published in Lausanne in 1980.",
+        "Going After Cacciato 1978; The Things They Carried 1990 with a narrator named Tim O'Brien; The Killer Angels 1974 and the 1975 Pulitzer Prize for Fiction; Regeneration trilogy 1991 to 1995 (Regeneration 1991, The Eye in the Door 1993, The Ghost Road 1995), set partly in Craiglockhart hospital; Birdsong 1993; The Yellow Birds 2012; Redeployment 2014.",
+        "The Thin Red Line 1962; Captain Corelli's Mandolin 1994; Das Boot 1973; The Hunt for Red October 1984; Starship Troopers 1959; The Forever War 1974; Fussell 1975; PTSD entered the DSM in 1980 (DSM-III); shell shock was the First World War term (Lancet, 1915)."
+      ],
+      "remainingDoubts": [
+        "Matterhorn is dated 2010 (Atlantic Monthly Press); a small-press edition appeared in 2009 (El Leon Literary Arts). Kept 2010 as the main publication.",
+        "The Caine Mutiny 1951, Cold Mountain 1997, The Sympathizer 2015, Mailer, Jones, Heller (1961) and Vonnegut (1969) dates were not returned at title level by search and rest on solid knowledge; Doerr 2014 and Nguyen 2015 were consistent with the results.",
+        "'Often called the first modern war novel' for The Red Badge of Courage is a convention (Britannica uses it); the history record is 'contested' and the watch note says so.",
+        "'Band of brothers' from Shakespeare's Henry V, 'grunt' as Vietnam-era slang and 'no man's land' were not separately searched; they are standard and were left as written.",
+        "Readers facet statements about shelving and the 'military fiction' label are market observations that cannot be checked; the record carries 'varies' and an asOf."
+      ]
+    }
+  },
+  "other": "No sample prose, dialogue or pasteable line was found in any of the three files. Keywords read as questions a writer would type. Nothing contradicts the library's own hub entries for western, adventure and war-fiction (works and years agree). Lint: OK for all three files after the final edits (two conv points had to be shortened to stay within 300 characters)."
+}
