@@ -213,12 +213,19 @@ But these are the conversations the fixes were written against, so they flatter 
 | `heldout`, `684fe06` | 36 | 10 / 16 / 10 | 4 | 1 / 19 / 16 | 4 / 23 / 9 | 0 |
 | `heldout`, `cf57166` (after fixes made from the line above) | 36 | 7 / 22 / 7 | 4 | 1 / 18 / 17 | 6 / 27 / 3 | 0 |
 | `heldout2`, `cf57166` (never looked at before this run) | 37 | 14 / 16 / 7 | 8 | 1 / 22 / 14 | 8 / 23 / 6 | 2 borderline (it coined names) |
-| `heldout`, the "before" engine, same conversations | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
-| `heldout2`, the "before" engine, same conversations | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+| `heldout`, the "before" engine (`b3ab042`), same conversations | 36 | 11 / 15 / 10 | 6 | 1 / 18 / 17 | 7 / 17 / 12 | 1 |
+| `heldout2`, the "before" engine, same conversations | 37 | 11 / 19 / 7 | 7 | 1 / 16 / 20 | 4 / 22 / 11 | 1 borderline |
+| **Both unseen sets together, before** | 73 | 22 / 34 / 17 | 13 | 2 / 34 / 37 | 11 / 39 / 23 | 2 |
+| **Both unseen sets together, `cf57166`** | 73 | 21 / 38 / 14 | 12 | 2 / 40 / 31 | 14 / 50 / 9 | 2 borderline |
 
-**What this says, plainly.** What carried over to unseen conversations is much smaller than what the first table shows. On the fresh set NIE understood the context well in 14 of 37 replies and badly in 7, was robotic in 14, and helped in 8. A person on the other
-end would still notice the stiffness. Most replies are rated "stiff" and "thin": correct and on topic, but flat, generic ("adds a layer of complexity"), and short of an idea the writer can use. A 3B model is the limit of that; a larger local model or an online
-model (Settings) would very likely do better, which has not been measured here.
+(The "before" engine is the one at `b3ab042`, before any of this work, run on the same conversations with the same model and judged the same way. Round five, `c14096b`, is what the second set showed and was not measured again on unseen conversations.)
+
+**What this says, plainly.** On conversations nobody had tuned on, the work made Brainstorm better in two ways and not in the way it was meant to. It gives far fewer replies that are no use at all (23 of 73 before, 9 now) and fewer that read as robotic (37 to 31): the
+canned filing lines ("Got it, here's what I have for who it is for: ...", "Right, I have that.", "Mm, okay."), a hello answered with a remark about the word "hello", a goodbye answered with a form question, and the library's own wording leaking into a reply are mostly gone.
+It did NOT understand more of what a message refers to: replies the reviewer rated as understanding the context well were 22 of 73 before and 21 now, and on the first unseen set they were 11 before and 7 now (the difference is within the noise, but it is not an improvement). Invented details are about
+the same (13 and 12). The very large gains in the first table were gains on those 45 conversations, which the fixes were written against; they did not carry over. A person on the other end would still notice the stiffness: most replies are rated "stiff" and "thin", correct and on topic
+but flat, generic ("adds a layer of complexity") and short of an idea the writer can use. A 3B model is the limit of that. A larger local model, or an online model (Settings), would very likely do better; that has not been measured here, and NIE's rules (it never writes the writer's text) are the same
+with any model.
 
 **What the reviewer and the lab cannot see.** One reviewer, one run per row, small sets; "stiff vs robotic" and "thin vs helps" are judgment calls. The writer's lines are scripted and cannot react to NIE. The reviewer sees the reply text, not the screen (idea
 cards, chips), the speed (a reply took 15 to 40 seconds on the 2-thread runner, about 25 on average), or how it feels to use. Several of the checks in code (`holdSmallTalk`, `holdToPlan`) remove what the model first said before the reviewer sees it, so the numbers describe
