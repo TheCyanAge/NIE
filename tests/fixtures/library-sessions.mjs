@@ -50,6 +50,52 @@ export const LIBRARY_SESSIONS = [
       { say: 'tell me more', follow: 'more' },
     ],
   },
+  // A tour of five more profiles, for the audit: a short talk about each (what is it, then two facets), to see what the model makes of the profile records beyond Gothic fiction.
+  {
+    id: 'tour-epic-fantasy',
+    about: 'Facets of a fantasy subgenre.',
+    steps: [
+      { say: 'What is epic fantasy?', follow: null },
+      { say: 'what about its subgenres?', follow: 'facet' },
+      { say: 'what do readers expect from it?', follow: 'facet' },
+    ],
+  },
+  {
+    id: 'tour-noir',
+    about: 'Facets of a crime subgenre.',
+    steps: [
+      { say: 'What is noir?', follow: null },
+      { say: 'what about its history?', follow: 'facet' },
+      { say: 'and who are the key authors?', follow: 'facet' },
+    ],
+  },
+  {
+    id: 'tour-haiku',
+    about: 'Facets of a poetic form.',
+    steps: [
+      { say: 'What is haiku?', follow: null },
+      { say: 'what about its history?', follow: 'facet' },
+      { say: 'what is the vocabulary people use for it?', follow: 'facet' },
+    ],
+  },
+  {
+    id: 'tour-cyberpunk',
+    about: 'Facets of a science fiction subgenre, then a comparison.',
+    steps: [
+      { say: 'What is cyberpunk?', follow: null },
+      { say: 'what about its tropes?', follow: 'facet' },
+      { say: 'how is it different from space opera?', follow: 'compare' },
+    ],
+  },
+  {
+    id: 'tour-romanticism',
+    about: 'Facets of a movement.',
+    steps: [
+      { say: 'What is Romanticism?', follow: null },
+      { say: 'what about its history?', follow: 'facet' },
+      { say: 'and who are the key authors?', follow: 'facet' },
+    ],
+  },
   {
     id: 'not-hijacked',
     about: "Talk about the writer's own story is never taken for a library follow-up.",

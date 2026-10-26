@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       sessions:
-        description: 'Scripted conversations to run (comma separated: gothic-thread, another-subject, form-without-profile, form-with-profile, not-hijacked)'
+        description: 'Scripted conversations to run (comma separated: gothic-thread, another-subject, form-without-profile, form-with-profile, tour-epic-fantasy, tour-noir, tour-haiku, tour-cyberpunk, tour-romanticism, not-hijacked)'
         type: string
-        default: 'gothic-thread,another-subject,form-without-profile,form-with-profile,not-hijacked'
+        default: 'gothic-thread,another-subject,form-without-profile,form-with-profile,tour-epic-fantasy,tour-noir,tour-haiku,tour-cyberpunk,tour-romanticism,not-hijacked'
       threads:
         description: 'Model-server threads (empty = what the app picks: half the cores)'
         type: string
