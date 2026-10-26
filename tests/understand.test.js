@@ -191,19 +191,14 @@ test('a general question the rules cannot place is sent to the library by the mo
   assert.match(prompt, /built-in library/);
 });
 
-test('the reading prompt shows NIE\'s earlier library card as one neutral line, not the card\'s text (it pulled the next general question toward "ideas")', async () => {
-  const { buildUnderstandMessages } = await import('../apps/web/src/engine/orchestrator/understand.js');
-  const history = [
-    { role: 'user', content: 'What is gothic fiction?' },
-    { role: 'assistant', content: "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres\n\nA literary mode of ruined castles, buried secrets and intense emotion.", library: { subject: 'Gothic fiction' } },
-  ];
+test('the reading prompt shows a general question about a genre as craft and a request for tropes for the writer\'s own story as ideas (measured: a library card before it pushed the first toward ideas)', async () => {
+  const { UNDERSTAND_SYSTEM, buildUnderstandMessages } = await import('../apps/web/src/engine/orchestrator/understand.js');
+  assert.match(UNDERSTAND_SYSTEM, /"What are the tropes of romance\?" -> \{"task":"craft"/);
+  assert.match(UNDERSTAND_SYSTEM, /"What are some tropes I could use in my heist story\?" -> \{"task":"ideas"/);
+  // an earlier reply of NIE's, library card or not, is shown as it is (the model read the card best that way: a one-line summary of it did worse on the real model)
+  const history = [{ role: 'user', content: 'What is gothic fiction?' }, { role: 'assistant', content: "From NIE's built-in library:\n\n**Gothic fiction**  ·  Genres", library: { subject: 'Gothic fiction' } }];
   const user = buildUnderstandMessages({ text: 'what are the tropes of romance?', history })[1].content;
-  assert.match(user, /NIE: \(answered a reference question from its library, about Gothic fiction\)/);
-  assert.doesNotMatch(user, /ruined castles|built-in library:/);
-  assert.match(user, /Writer: What is gothic fiction\?/);
-  // an ordinary reply of NIE's is shown as before
-  const plain = buildUnderstandMessages({ text: 'ok', history: [{ role: 'assistant', content: 'What does she want most?' }] })[1].content;
-  assert.match(plain, /NIE: What does she want most\?/);
+  assert.match(user, /NIE: From NIE's built-in library:/);
 });
 
 test('a question about the writer\'s own story is not sent to the library even if it sounds general', async () => {

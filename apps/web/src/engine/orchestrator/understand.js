@@ -47,6 +47,9 @@ Examples:
 "Is my ending too predictable?" -> {"task":"feedback","topic":"ending"}
 "Does my voice stay consistent across the chapters?" -> {"task":"feedback","topic":"voice"}
 "What's a villanelle?" -> {"task":"craft","topic":"villanelle"}
+"What are the tropes of romance?" -> {"task":"craft","topic":"romance tropes"}
+"Who are the key authors of noir?" -> {"task":"craft","topic":"noir authors"}
+"What are some tropes I could use in my heist story?" -> {"task":"ideas","topic":"heist tropes"}
 "Can I start a sentence with And?" -> {"task":"craft","topic":"starting a sentence with And"}
 "My novel is a slow-burn mystery on a fishing island. The narrator is a retired ferry captain." -> {"task":"tell","topic":"mystery novel"}
 "just finished chapter nine, took me three weeks" -> {"task":"tell","topic":""}
@@ -63,10 +66,7 @@ const oneLine = (s, n) => clip(String(s ?? '').replace(/\s+/g, ' ').trim(), n);
 export function buildUnderstandMessages({ text, history = [] }) {
   const recent = history.filter((m) => (m.role === 'user' || m.role === 'assistant') && m.content).slice(-2);
   const parts = [];
-  // (A reply from NIE's reference library is a card of reference text. Shown to the model it pulled the next general question toward "ideas": measured on the real model, "what are the
-  // tropes of romance?" after a card on Gothic fiction was read as a request for ideas and answered with a castle the writer never mentioned. It is shown as one neutral line.)
-  const said = (m) => (m.role === 'user' ? oneLine(m.content, 160) : m.library ? `(answered a reference question from its library${m.library.subject ? `, about ${oneLine(m.library.subject, 60)}` : ''})` : oneLine(m.content, 220));
-  if (recent.length) parts.push(`Earlier in this chat:\n${recent.map((m) => `${m.role === 'user' ? 'Writer' : 'NIE'}: ${said(m)}`).join('\n')}`);
+  if (recent.length) parts.push(`Earlier in this chat:\n${recent.map((m) => `${m.role === 'user' ? 'Writer' : 'NIE'}: ${oneLine(m.content, m.role === 'user' ? 160 : 220)}`).join('\n')}`);
   const t = String(text ?? '').trim();
   const shown = t.length > 600 ? `${t.slice(0, 450).trimEnd()} … ${t.slice(-120).trimStart()}` : t;
   parts.push(`The writer's new message:\n"""\n${shown}\n"""`);
