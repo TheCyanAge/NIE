@@ -304,16 +304,24 @@ function unknownNumbers(sentence, vs, sections) {
 
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth', 'twenty-first'];
 const ORD = `(?:\\d{1,2}(?:st|nd|rd|th)|${ORDINALS.join('|')})`;
-const CENTURY_RE = new RegExp(`\\b(${ORD}(?:\\s*(?:,|and|or|to|-|–)\\s*${ORD})*)[\\s-]+centur(?:y|ies)\\b`, 'gi');
+const CENTURY_RE = new RegExp(`\\b(${ORD}(?:\\s*(?:,|and|or|to|-|–)\\s*${ORD}){0,4})[\\s-]+centur(?:y|ies)\\b`, 'gi'); // (bounded: a long run of ordinals that no "century" follows cannot make this quadratic)
 const ORD_RE = new RegExp(ORD, 'gi');
 const DECADE_RE = /\b(\d{3})0s\b/g;
-const SCHEME_RE = /\b[A-Z]{5,}\b/g;
+const SCHEME_RE = /\b[A-H]{5,}\b/g; // a rhyme scheme or a line scheme (ABABCDCDEFEFGG); not a heading or an acronym
 const ordinalValue = (w) => (/^\d/.test(w) ? parseInt(w, 10) : ORDINALS.indexOf(w.toLowerCase()) + 1);
 const centuryOfYear = (y) => Math.floor((y - 1) / 100) + 1;
 
-/** The years, decades, centuries and capital runs a text states. `said` are the centuries it names outright; `centuries` adds those of its years and decades (what a text can ground). */
-function factsIn(text) {
-  const years = new Set(numbersIn(text, { limit: 20000 }).filter((n) => n.digits && Number.isInteger(n.value) && n.value >= 1000 && n.value <= 2100).map((n) => n.value));
+const NOT_A_YEAR = /^\s*(?:words?|pages?|lines?|copies|people|readers|characters|syllables|entries|titles|years?|hours|minutes|miles|feet|dollars|pounds|per ?cent|%)/i;
+/**
+ * The years, decades, centuries and capital runs a text states. `said` are the centuries it names outright; `centuries` adds those of its years and decades (what a text can
+ * ground). `strict` (the sentence being judged, not a source): a year is four digits, without a comma ("1,500 words") and not a count ("1200 pages"); in a source a year may also be written in words.
+ */
+function factsIn(text, strict = false) {
+  const years = new Set(
+    numbersIn(text, { limit: 20000 })
+      .filter((n) => Number.isInteger(n.value) && n.value >= 1000 && n.value <= 2100 && (!strict || (n.digits && !n.written.includes(',') && !NOT_A_YEAR.test(text.slice(n.end, n.end + 12)))))
+      .map((n) => n.value)
+  );
   const decades = new Set([...text.matchAll(DECADE_RE)].map((m) => Number(m[1]) * 10));
   const said = new Set();
   for (const m of text.matchAll(CENTURY_RE)) for (const o of m[1].matchAll(ORD_RE)) said.add(ordinalValue(o[0]));
@@ -328,10 +336,11 @@ const suffix = (n) => (n % 100 >= 11 && n % 100 <= 13 ? 'th' : n % 10 === 1 ? 's
 /** Dates and patterns the sentence states that no source has (see `facts` above). */
 function unknownFacts(sentence, vs) {
   const have = vs.filter((v) => !v.trusted).map(factsOf);
-  const mine = factsIn(sentence);
+  const mine = factsIn(sentence, true);
   const out = [];
   for (const y of mine.years) if (!have.some((f) => f.years.has(y))) out.push(String(y));
-  for (const d of mine.decades) if (!have.some((f) => f.decades.has(d) || [...f.years].some((y) => y >= d && y < d + 10))) out.push(`${d}s`);
+  // ("the 1500s" is also how people say the sixteenth century: a decade on a hundred is grounded by that century too)
+  for (const d of mine.decades) if (!have.some((f) => f.decades.has(d) || [...f.years].some((y) => y >= d && y < d + 10) || (d % 100 === 0 && f.centuries.has(centuryOfYear(d + 1))))) out.push(`${d}s`);
   for (const c of mine.said) if (!have.some((f) => f.centuries.has(c))) out.push(`${c}${suffix(c)} century`);
   for (const t of mine.schemes) if (!have.some((f) => f.schemes.has(t))) out.push(t);
   return [...new Set(out)];

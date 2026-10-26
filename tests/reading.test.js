@@ -433,10 +433,10 @@ test('a general craft question is still answered from the library even when the 
   const { text } = loadBible();
   const project = projectWith({ storyText: text });
   const { o, calls } = setup({ reading: { task: 'craft', topic: 'villanelle' }, reply: 'A villanelle is a nineteen-line poem.' });
-  const r = await o.brainstorm({ project, message: 'In one or two sentences, what is a villanelle?' });
+  const r = await o.brainstorm({ project, message: 'In one or two sentences, what is a villanelle?' }); // (a request about the shape of the answer: the model answers it, shown the library's notes)
   assert.equal(r.intent.type, 'library-question');
-  assert.match(r.reply, /villanelle/i, 'answered from the library');
-  assert.equal(calls.length, 0, 'the library\'s own text is the answer; no model is asked to retell it, so the long text cannot be dragged into a prompt');
+  assert.equal(calls.length, 1);
+  assert.doesNotMatch(promptOf(calls), /The writer's text is long/, 'the text is not dragged in');
 });
 
 test('a question that says "this bible" or "the text" is about the text; its measured style reaches the model', async () => {

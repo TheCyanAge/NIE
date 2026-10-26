@@ -179,16 +179,16 @@ test('an idea request read by the model still makes idea cards, with the lens th
   assert.equal(calls.length, 1);
 });
 
-test('a general question the rules cannot place is sent to the library by the model\'s topic, and answered with what the library holds', async () => {
+test('a general question the rules cannot place is sent to the library by the model\'s topic, and the model is told what the library holds', async () => {
   const msg = "I keep hearing about a thing where the narration slides into a character's thoughts without any tags, what's it called?";
   const { o, calls } = setup({ reading: read('craft', 'free indirect discourse'), reply: 'It is called free indirect style.' });
   const r = await o.brainstorm({ project: projectWith(), message: msg });
   assert.equal(r.intent.type, 'library-question');
   assert.deepEqual(r.understood, { by: 'model', task: 'craft', topic: 'free indirect discourse' });
-  assert.equal(r.route, 'builtin', 'the library\'s own text, composed by code');
-  assert.match(r.reply, /free indirect/i, 'the library entry is the answer');
-  assert.match(r.reply, /built-in library/);
-  assert.equal(calls.length, 0, 'the model read the message and was not asked to retell the entry');
+  // (the library entry was found through the model's topic, not by the message itself, and the message is long and loosely worded: the model answers it, shown the entry)
+  const prompt = calls[0].messages.at(-1).content;
+  assert.match(prompt, /free indirect/i, 'the library entry is in the prompt');
+  assert.match(prompt, /built-in library/);
 });
 
 test('a question about the writer\'s own story is not sent to the library even if it sounds general', async () => {

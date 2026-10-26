@@ -7,7 +7,7 @@
 const TERMINATORS = '.!?…';
 const CLOSERS = '"\'”’)]*_';
 const LIST_MARK = /^(?:\d{1,3}[.)]|[-*•])[ \t]+/;
-const ABBREV_TAIL = /(?:^|[\s("'])(?:mr|mrs|ms|dr|prof|sr|jr|st|vs|e\.g|i\.e|fig|cf|approx|no)\.$/i;
+const ABBREV_TAIL = /(?:^|[\s("'])(?:mr|mrs|ms|dr|prof|sr|jr|st|vs|e\.g|i\.e|fig|cf|approx|no|ed|eds|vol|vols|pp|ca|c)\.$/i;
 const INITIAL_TAIL = /(?:^|[\s("'])[A-HJ-Z]\.$/;
 const hasLetters = (s) => /[\p{L}\p{N}]/u.test(s);
 const isWs = (c) => c === 32 || (c >= 9 && c <= 13) || c === 0xa0 || c === 0x2028 || c === 0x2029 || c === 0xfeff || c === 0x3000;

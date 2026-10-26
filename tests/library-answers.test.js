@@ -67,6 +67,15 @@ test('the library tells strong from weak from nothing, and a weak match must nam
   assert.ok(searchScored('free indirect discourse', { limit: 1 })[0].score > 10);
 });
 
+test('among close matches the entry whose own name is what was asked about comes first (its name outranks another entry\'s alias)', () => {
+  const a = answerFromLibrary('what is dialogue');
+  assert.equal(a.strength, 'strong');
+  assert.equal(a.entries[0].name, 'Dialogue', '"dialogue" is only an alias of Philosophical dialogue');
+  assert.equal(a.nameHit, true);
+  assert.equal(answerFromLibrary('What is a villanelle?').entries[0].name, 'Villanelle');
+  assert.equal(answerFromLibrary('what is a villain').nameHit, false, 'a strong match found by keywords alone says so');
+});
+
 test('coverage can be reported honestly', () => {
   const s = libraryStats();
   assert.ok(s.total >= 150);

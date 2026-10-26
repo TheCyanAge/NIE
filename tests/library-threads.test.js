@@ -361,6 +361,59 @@ test('the model is told the library is NIE\'s own, to speak as NIE, to add no na
   assert.match(prompt, /go on to what is new instead of repeating it/);
 });
 
+test('only a direct question is answered with the library\'s text: a second clause, a story reference or a request about the shape of the answer goes to the model with the whole message', async () => {
+  const asks = [
+    ['What is a villanelle, and would it suit a poem about my mother?', 'villanelle'],
+    ["What's a sonnet? Please answer in two sentences.", 'sonnet'],
+    ['What is noir? I want my detective to be noir, how do I do that?', 'noir'],
+    ['In one or two sentences, what is a villanelle?', 'villanelle'],
+    ['Should I use a flashback here?', 'flashback'],
+  ];
+  for (const [q, topic] of asks) {
+    const { o, calls } = withModel(() => 'It repeats lines.', { reading: () => ({ task: 'craft', topic }) });
+    const r = await say(o, projectWith(), q);
+    assert.equal(calls.length, 1, `${q}: the model answers`);
+    assert.ok(calls[0].messages.some((m) => m.content.includes(q)), `${q}: it is shown the whole message`);
+    assert.equal(r.route, 'local', q);
+  }
+  const { o, calls } = withModel(() => 'MODEL TEXT', { reading: () => ({ task: 'craft', topic: 'villanelle' }) });
+  const r = await say(o, projectWith(), 'What is a villanelle?');
+  assert.equal(calls.length, 0, 'a direct question is answered by the library\'s text');
+  assert.equal(r.route, 'builtin');
+  // a follow-up that carries a clause about the writer's own story is not canned either
+  const t = withModel(() => 'It matters in this way.', { reading: () => ({ task: 'craft', topic: '' }) });
+  const project = projectWith();
+  await say(t.o, project, 'What is noir?');
+  const f = await say(t.o, project, 'and the history, does that matter for my detective?');
+  assert.equal(t.calls.length, 1, 'the model answers the follow-up that has a story clause');
+  assert.equal(f.route, 'local');
+});
+
+test('the library\'s text is not used when its first match is a novel for a question about a technique, or was found by keywords alone; a question that names the work still gets the work', async () => {
+  for (const q of ['what is a plot twist', 'what is a villain']) {
+    const { o, calls } = withModel(() => 'It is a surprise the story has been preparing.', { reading: () => ({ task: 'craft', topic: '' }) });
+    const r = await say(o, projectWith(), q);
+    assert.equal(calls.length, 1, `${q}: the model answers, with the records it is shown`);
+    assert.notEqual(r.route, 'builtin', q);
+  }
+  const { o, calls } = withModel(() => 'MODEL TEXT', { reading: () => ({ task: 'craft', topic: '' }) });
+  for (const q of ['What is Rebecca?', 'Who wrote Rebecca?']) {
+    const r = await say(o, projectWith(), q);
+    assert.equal(r.route, 'builtin', q);
+    assert.match(r.reply, /Rebecca/, q);
+  }
+  assert.equal(calls.length, 0);
+});
+
+test('with an online model the answer is not composed by code: the online model (not measured) answers, and its reply is still checked against the records', async () => {
+  const local = { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: modelWithReading(() => 'LOCAL TEXT', { reading: () => ({ task: 'craft', topic: 'villanelle' }) }) };
+  const online = { configured: true, chat: async () => 'The villanelle repeats two refrain lines.' };
+  const o = new Orchestrator({ engine: new AIEngine({ local, online, isOnline: () => true }) });
+  const r = await say(o, projectWith(), 'What is a villanelle?');
+  assert.equal(r.route, 'online');
+  assert.match(r.reply, /repeats two refrain lines/);
+});
+
 test('a question that uses a word from the writer\'s own recent story messages is about the story, not a library question the library cannot answer', async () => {
   const o = noModel();
   const project = projectWith();

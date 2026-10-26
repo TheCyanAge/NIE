@@ -442,9 +442,22 @@ export function answerFromLibrary(query, { limit = 3, kinds = null } = {}) {
   }
   // Entries close in score to the best one belong to the answer; the rest are only "related".
   const entries = scored.filter((x) => x.score >= top * 0.72 && x.headCoverage >= (strength === 'weak' ? TUNE.hiCov : TUNE.weak)).slice(0, limit).map((x) => x.entry);
+  // Among those, the one whose NAME is what was asked about comes first ("what is dialogue?": the technique Dialogue, not the form Philosophical dialogue that scores a little higher).
+  const phrase = topicPhrase(query);
+  if (phrase) {
+    const named = (e) => (plainName(e.name) === phrase ? 2 : e.aka.some((n) => plainName(n) === phrase) ? 1 : 0); // (its own name outranks an alias: "dialogue" is only an alias of Philosophical dialogue)
+    entries.sort((a, b) => named(b) - named(a));
+  }
   const related = scored.map((x) => x.entry).filter((e) => !entries.includes(e)).slice(0, 4);
-  return { strength, entries, related };
+  // `nameHit`: the first entry's own name (or an alias) is in the question. A strong match without it was found by keywords alone ("what is a villain?" finds a technique whose keywords include villain).
+  const firstStems = tokens([entries[0]?.name ?? '', ...(entries[0]?.aka ?? [])].join(' '));
+  return { strength, entries, related, nameHit: Boolean(entries[0]) && (phrase && [entries[0].name, ...entries[0].aka].some((n) => plainName(n) === phrase) ? true : firstStems.some((t) => q.has(t) && t.length > 1 && !STOPWORDS.has(t))) };
 }
+
+const plainName = (s) => String(s ?? '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const TOPIC_STEM = /^\s*(?:what(?:'s|’s| is| are| does| do)?|who(?:'s| is| was)?|define|explain|describe|tell me about)\s+(?:(?:a|an|the)\s+)?/i;
+/** "What is a villanelle?" -> "villanelle": the thing a definition question asks about, to compare with entry names. */
+const topicPhrase = (query) => plainName(String(query ?? '').replace(TOPIC_STEM, '').replace(/\b(?:mean|means|exactly|really)\b/gi, ''));
 
 // The kinds a project's declared genre, form or style can mean (never a single work, a style-guide rule or a word-usage note).
 const PROFILE_KINDS = ['genre', 'structure', 'style', 'form', 'technique', 'movement', 'tradition'];

@@ -120,7 +120,17 @@ const REFERS_BACK = /\b(?:did|do|have|had)\s+I\s+(?:say|said|tell|told|mention|m
 const UNGROUNDED_LIBRARY_NOTE = "My offline model answered, but everything it said named something I could not find in my library, so I've left it out. Here is what the library itself says.";
 const LEFT_OUT_LIBRARY = "(I left out part of that reply because it named something I couldn't find in my library.)";
 /** The words of the library records a reply may draw names, titles, dates and numbers from. */
-const recordText = (e) => [e.name, ...(e.aka ?? []), e.summary, ...(e.conventions ?? []), ...(e.watchFor ?? []), ...(e.deliberateWhen ?? []), e.example ?? '', e.author ?? '', ...(e.works ?? []).map((w) => `${w.title} ${w.author} ${w.year ?? ''}`), ...(e.refs ?? [])].join('\n');
+const recordText = (e) => [e.name, ...(e.aka ?? []), e.summary, ...(e.conventions ?? []), ...(e.watchFor ?? []), ...(e.deliberateWhen ?? []), e.example ?? '', e.author ?? '', e.year ?? '', e.guide ?? '', e.asOf ?? '', e.region ?? '', e.language ?? '', e.scope ?? '', ...(e.questions ?? []), ...(e.works ?? []).map((w) => `${w.title} ${w.author} ${w.year ?? ''}`), ...(e.refs ?? [])].join('\n'); // (everything the model is shown: an edition year in `asOf` or a work's `year` is a date a correct reply may state)
+/**
+ * A direct question about the subject itself: one short sentence, nothing about the writer's own story, no second clause and no request about the shape of the answer ("in two
+ * sentences"). Only such a question is answered by the library's own text; anything else goes to the model, which is shown the same records and the whole message.
+ */
+const NOT_A_DIRECT_ASK = /\b(?:my|mine|our|i|i'm|i'd|i've|i'll|should|would|could|briefly|short(?:ly)?|summar\w*|nutshell|tl;?dr|simple terms|eli5|bullets?|in (?:one|two|three|four|a few|\d+)(?: or (?:two|three|four))? (?:short )?(?:sentences?|lines?|words?|paragraphs?)|and (?:how|why|would|could|should|can))\b/i;
+const WORK_ASK = /\b(?:who wrote|wrote|written by|author|published|publication|when was)\b/i;
+function directLibraryAsk(text) {
+  const t = String(text ?? '').trim();
+  return Boolean(t) && words(t).length <= 16 && !NOT_A_DIRECT_ASK.test(t) && !/[.!?]\s+\S/.test(t.replace(/\b(?:e\.g|i\.e|vs|approx|c|ca)\./gi, ''));
+}
 /** True when the message uses a content word the writer used in one of their last few messages that were not library questions: "What does the aunt hide?" after "her aunt's house" is about their story. */
 function echoesRecentStory(text, past) {
   const earlier = past.filter((m) => m.role === 'user' && m.intent !== 'library-question' && !m.compacted).slice(-3);
@@ -557,6 +567,7 @@ export class Orchestrator {
     // A general question about craft, style, usage, a form, genre or work: answer from the offline library, with its sources.
     // (Not a premise: it must not become the story's working premise.)
     let lib = null;
+    let ownStrong = false; // the library's strong answer comes from the message itself (or from a follow-up it clearly makes), not from the model's one-word topic
     let libMiss = false;
     let ownProject = false;
     const libraryCandidate = text.length > LONG_MESSAGE_CHARS || aboutText || follow || BARE_REPLY.test(text) ? false : byModel ? reading.task === 'craft' : intent.type === 'discuss' || intent.type === 'craft-question' || (intent.type === 'share-premise' && GENERAL_Q.test(text));
@@ -580,6 +591,7 @@ export class Orchestrator {
       const refersBack = mindHit && REFERS_BACK.test(text);
       const general = byModel ? !storyTalk : GENERAL_Q.test(text) && !storyTalk;
       let a = refersBack ? { strength: 'none', entries: [], related: [] } : answerFromLibrary(text);
+      ownStrong = a.strength === 'strong';
       // The model's short topic ("villanelle") finds the entry when the long way of asking buries it (never for talk about the writer's own project:
       // a bare topic like "villain" would match the library and skip the check that stops it answering about their story).
       if (general && !refersBack && a.strength !== 'strong' && reading.topic) {
@@ -589,7 +601,10 @@ export class Orchestrator {
       if (a.strength === 'strong' || (a.strength === 'weak' && general)) lib = a;
       else if (general && words(text).length >= 3) libMiss = true;
     }
-    if (follow?.entries) lib = { strength: follow.kind === 'context' ? 'weak' : 'strong', entries: follow.entries, related: [] }; // (a pronoun question the library cannot pick out: the subject's records, as the closest it has)
+    if (follow?.entries) {
+      lib = { strength: follow.kind === 'context' ? 'weak' : 'strong', entries: follow.entries, related: [] }; // (a pronoun question the library cannot pick out: the subject's records, as the closest it has)
+      ownStrong = follow.kind !== 'context';
+    }
     if (lib || libMiss) intent.type = 'library-question';
 
     if (intent.type !== 'library-question') project.conversation.workingPremise = updateWorkingPremise(project.conversation.workingPremise, text, intent);
@@ -686,10 +701,15 @@ export class Orchestrator {
       extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const turnTokens = aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700;
-    // An answer to a question the library answers well is the library's own text, put together by code, and no model is asked to retell it: measured on the real model (an audit of
-    // 33 replies against the records they were built from), a 3B model that retold the notes got something wrong or credited the writer with something they never said in
-    // 13 of them. A match the library is only loosely sure of, and a pronoun question it cannot pick out, still go to the model, with the names, dates and schemes it states checked.
-    const byCode = Boolean(lib) && lib.strength === 'strong' && follow?.kind !== 'context' && !analysis;
+    // An answer to a direct question the library answers well is the library's own text, put together by code, and no model is asked to retell it: measured on the real model (an audit
+    // of 33 replies against the records they were built from), a 3B model that retold the notes got something wrong or credited the writer with something they never said in 13 of
+    // them. A match the library is only loosely sure of, a pronoun question it cannot pick out, a question with more in it than the subject, and any answer with an online model
+    // (not measured) still go to the model, and what it says is checked for names, dates and schemes the records do not hold.
+    // (Only for the offline model, which is what was measured; only for a direct question; and never a work's record unless the question names the work or asks who wrote it: the top
+    // match is chosen by words, and "what is a plot twist?" can find a novel before it finds the technique.)
+    const topEntry = lib?.entries?.[0] ?? null;
+    const worksOnly = topEntry?.kind === 'work' && !(WORK_ASK.test(askText) || askText.toLowerCase().includes(String(topEntry.name ?? '').toLowerCase()));
+    const byCode = Boolean(lib) && lib.strength === 'strong' && ownStrong && follow?.kind !== 'context' && !analysis && !worksOnly && lib.nameHit !== false && this.engine.route?.() !== 'online' && directLibraryAsk(askText);
     const got = byCode ? { asked: { res: { text: null, route: 'builtin' }, failure: null, modelReady: true, trimmed: [], read: null }, polished: null, retried: false } : await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: turnTokens, steered: Boolean(brief) });
     const asked = got.asked;
     const res = asked.res;

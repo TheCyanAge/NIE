@@ -709,6 +709,31 @@ test('groundNames with facts: a year, decade, century or rhyme scheme that no so
   assert.equal(groundNames('It was famous by 1750.', { sources: src, known: [] }).removed.length, 0, 'without facts the check is as it was');
 });
 
+test('groundNames with facts: headings, word counts, edition years and "the 1500s" are not mistaken for rhyme schemes, invented years or invented decades', () => {
+  const run = (sources, reply) => groundNames(reply, { sources, known: [], facts: true }).removed.flatMap((r) => r.numbers);
+  assert.deepEqual(run(['x'], 'You should NEVER info dump, and KEY POINTS: be brief. UNESCO set a poetry day.'), [], 'capitals that are not rhyme-scheme letters');
+  assert.deepEqual(run(['x'], 'Flash fiction usually runs under 1,500 words, or 1200 pages for a saga.'), [], 'a count is not a year');
+  assert.deepEqual(run(['It runs under two thousand words.'], 'It runs under 2000 words.'), [], 'a count in words in the source');
+  assert.deepEqual(run(['The edition of 2017 and APA 7th ed. (2019).'], 'Chicago (2017) and APA (2019) differ.'), [], 'years a record states');
+  assert.deepEqual(run(['It arrived in the sixteenth century.'], 'The sonnet reached England in the 1500s.'), [], 'the 1500s is also the sixteenth century');
+  assert.deepEqual(run(['Realism grew in the 19th century.'], 'Realism grew in the mid-1800s.'), []);
+  assert.deepEqual(run(['x'], 'It happened in the 1900s.'), ['1900s'], 'a decade on a hundred no source reaches');
+  assert.deepEqual(run(['x'], 'The scheme is ABABCDCDEFEFGG.'), ['ABABCDCDEFEFGG']);
+});
+
+test('groundNames with facts is fast on pathological input (a long run of ordinals, in the reply or in a source)', () => {
+  const t0 = Date.now();
+  groundNames(`${'1st, '.repeat(10000)} end.`, { sources: ['x'], facts: true });
+  groundNames(`${'first and '.repeat(8000)} end.`, { sources: ['1st-'.repeat(100000)], facts: true });
+  assert.ok(Date.now() - t0 < 2500, `took ${Date.now() - t0} ms`);
+});
+
+test('sentences: "ed." and "c." do not end a sentence', async () => {
+  const { sentenceSpans } = await import('../apps/web/src/engine/editor/sentences.js');
+  assert.equal(sentenceSpans('APA 7th ed. (2019) uses figures for 10 and up. Chicago 17th ed. (2017) spells most out.').length, 2);
+  assert.equal(sentenceSpans('Passerat (c. 1574) wrote it. Others followed.').length, 2);
+});
+
 test('groundNames: removal keeps lists and paragraphs tidy; an empty result is "" and says so; bad input is harmless', () => {
   const reply = 'Here is what I see:\n\n- Dessa Varnholt keeps the Book.\n- Torvald Henkel keeps the keys.\n- Rurik Sennet passes the brake band.\n\nThat is all.';
   const r = groundNames(reply, { sources: [BIBLE] });
