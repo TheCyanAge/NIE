@@ -1,5 +1,6 @@
 import { fnv1a, clip } from '../util/text.js';
 import { groundNames } from '../editor/ground.js';
+import { stemList } from '../agent/state.js';
 import { isFiller, similarity, splitSentencesLite } from './variety.js';
 
 /**
@@ -27,7 +28,7 @@ const BACK = /\b(?:back again|i'?m back|im back|back for more|hello again|hi aga
 const COMMENTARY = /\b(?:tone|signals?|indicates?|conveys?|implies|at the end|right from the start|your (?:message|greeting|opening)|this message|the message)\b/i;
 // NIE saying the writer's project is its own ("I'm writing a mystery set on a night train").
 const OWNS_THE_PROJECT = /^\s*(?:i'?m|i am|i was|i have been|i've been)\s+(?:writing|working on|building|making)\b|\bmy (?:story|novel|book|script|poem|premise|protagonist)\b|^\s*(?:got it[.,]?\s+)?you(?:'re| are| have been|'ve been)\s+(?:writing|crafting|working on|building|making|telling|developing|exploring)\b/i;
-const FEELING_LOW = /\b(?:tired|exhausted|drained|burnt? ?out|stuck|blocked|stressed|overwhelmed|discouraged|frustrated|can'?t (?:write|think|do this)|no motivation|don'?t know where to (?:start|begin)|not sure where to start)\b/i;
+const FEELING_LOW = /\b(?:tired|exhausted|drained|burnt? ?out|stuck|blocked|stressed|overwhelmed|discouraged|frustrated|can'?t (?:write|think|do this)|no motivation|don'?t know where to (?:start|begin)|not sure where to start|rejection|rejected|not (?:any |that |very )?good (?:at|enough)|(?:don'?t|do not) think i'?m (?:any )?good|i (?:suck|give up)|give up|want to quit|waste of time|hopeless)\b/i;
 
 /** @returns {'back'|'thanks'|'bye'|'how-are-you'|'greeting'|'low'|'ack'} */
 export function kindOfSmallTalk(text) {
@@ -64,7 +65,7 @@ const HOW = {
   thanks: 'They are thanking you. Take it graciously in a few words, and leave the door open without pushing.',
   bye: 'They are saying goodbye. Say goodbye warmly in a few words.',
   'how-are-you': "They asked how you are. Answer honestly and briefly: you are an AI writing partner, so say you're ready to work and glad they're here, then turn it back to them.",
-  low: 'They sound tired, stuck or discouraged. Say something human about that first, with no advice list. You may ask one gentle question about what would help.',
+  low: "They sound tired, stuck or discouraged. Stay with them for a sentence, specific to what they said. Do not agree with a harsh thing they say about themselves and do not argue with it either. Then at most one gentle question or one small next step; no advice list.",
   ack: 'They are just acknowledging what you said. Respond to that in a few words and let them lead.',
 };
 
@@ -133,6 +134,11 @@ export function holdSmallTalk(reply, { project, text, past = [] } = {}) {
   if (!out || wordCount(out) < 2) return '';
   // most of the reply is one of the writer's earlier messages said back (measured: a hello was answered with the writer's own two sentences)
   for (const m of [text, ...past.filter((x) => x.role === 'user').map((x) => x.content)]) if (wordCount(m) >= 5 && similarity(out, String(m)) >= 0.6) return '';
+  // A thank-you, a goodbye or an "ok cool" is not a comment on the story ("The mystery deepens without the conductor."): two words of the writer's project in it, and it is not an answer to this message.
+  if (['ack', 'thanks', 'bye'].includes(kind)) {
+    const project_ = new Set(past.filter((m) => m.role === 'user').flatMap((m) => stemList(String(m.content ?? ''))));
+    if ([...new Set(stemList(out))].filter((w) => project_.has(w)).length >= 2) return '';
+  }
   const writerSaid = [text, ...past.filter((m) => m.role === 'user').map((m) => m.content), ...whereWeWere(project, { limit: 6, chars: 260 })];
   // Talking ABOUT the message instead of answering it ("The 'thanks' at the end signals a warm tone"), or quoting words nobody said, is what a hello must never get.
   if (COMMENTARY.test(out)) return '';

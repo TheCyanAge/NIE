@@ -17,7 +17,7 @@ import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
 import { createProjectData } from '../apps/web/src/engine/project/store.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
-import { HELD_OUT_SESSIONS, TALK_SESSIONS } from '../tests/fixtures/talk-sessions.mjs';
+import { HELD_OUT_SESSIONS, HELD_OUT_SESSIONS_2, TALK_SESSIONS } from '../tests/fixtures/talk-sessions.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -51,9 +51,9 @@ async function labChat(messages, o = {}) {
 }
 const engine = new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat: labChat }, online: null, isOnline: () => false });
 
-const ALL = [...TALK_SESSIONS, ...HELD_OUT_SESSIONS];
+const ALL = [...TALK_SESSIONS, ...HELD_OUT_SESSIONS, ...HELD_OUT_SESSIONS_2];
 const asked = String(opt('--sessions', TALK_SESSIONS.map((s) => s.id).join(','))).split(',');
-const wanted = asked.flatMap((id) => (id === 'heldout' ? HELD_OUT_SESSIONS.map((x) => x.id) : id === 'all' ? ALL.map((x) => x.id) : [id]));
+const wanted = asked.flatMap((id) => (id === 'heldout' ? HELD_OUT_SESSIONS.map((x) => x.id) : id === 'heldout2' ? HELD_OUT_SESSIONS_2.map((x) => x.id) : id === 'all' ? ALL.map((x) => x.id) : [id]));
 const report = { threads: service.threads, sessions: {} };
 
 async function runSession(session) {

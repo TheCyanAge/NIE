@@ -286,7 +286,6 @@ test('a model that reads a plain statement as "write" or "edit" does not get it 
   for (const [msg, said] of [
     ['My novel is about a lighthouse keeper who starts getting letters from the sea.', 'write'],
     ['just finished chapter nine. she finally tells him about the fire. took me three weeks', 'edit'],
-    ['ok great, thanks, got it', 'edit'],
     ['why does he', 'write'],
     ['...', 'edit'],
   ]) {

@@ -108,3 +108,7 @@ export function replyContext({ text, past }) {
   lines.push('Keep it to three or four sentences.');
   return lines.join('\n');
 }
+
+const CHOICE = /\bwhich\b[^?]*\b(?:better|best|stronger|weaker|more interesting|would you (?:pick|choose|go with)|should i (?:pick|choose|go with|use|write))\b|\bwhat do you think (?:of|about)\b|\bdo you (?:like|prefer)\b|\byour (?:view|opinion|pick|take)\b/i;
+/** "Which is better?", "what do you think of the name Elias?": they want NIE's view, not a description of both options (measured: "Let's consider which one better ties into your narrative direction..."). */
+export const opinionNote = (text) => (CHOICE.test(String(text ?? '')) ? "They are asking what YOU think. Give your honest view in plain words with one reason for it; if it is a matter of taste, say so and still lean one way. Do not just describe both options." : '');

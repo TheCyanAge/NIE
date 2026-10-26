@@ -201,6 +201,7 @@ function opensWithPraise(s) {
     if (/^\s+\p{Lu}\p{Ll}/u.test(rest)) return false; // "Great Britain", "Good Omens": a name ("EXCELLENT CHOICE!" is only loud)
     if (/^[\s!.…]*$/.test(rest)) return true; // "Great!"
     if (/^\s*[,;:—–-]/.test(rest)) return WARM.has(m[1].toLowerCase()) && (end || countWords(s) <= 9); // "Awesome, let's dig in!"
+    if (end && WARM.has(m[1].toLowerCase()) && countWords(s) <= 4) return true; // "Great shift!", "Great insights!": a warm lead, a word or two, and an exclamation mark
     if ((end ? NOUN2_LOOSE : NOUN2).test(rest)) return true; // "Great focus on ...", "Interesting premise."
     return end && /^\s+(?:on|for|with|of|about|to|in|that|how|you|your|the|this|these|those|it)\b/i.test(rest); // "Great to see ...!"
   }

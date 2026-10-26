@@ -59,7 +59,7 @@ const fits = (addon, kind) => !kind || !Array.isArray(addon.baseKinds) || !addon
 
 // Someone doing something, as a story premise says it: "a girl who can hear the dead", "a retired surgeon who lost her license", "my protagonist is Marta", "the conductor vanishes between two stations".
 // Only when nothing else names what is being made (an article, a poem, a script... are found first), and only for a message long enough to be a premise.
-const STORY_SHAPE = /\b(?:a|an|the)\s+(?:[\w'-]+\s+){0,3}?[\w'-]+\s+(?:who|whose)\s+(?:[\w'-]+\s+){0,2}?(?:can|could|has|had|is|was|lost|forges?|forged|hears?|finds?|found|wants?|must|never|keeps?|hides?|steals?|stole|sees?|knows?|discovers?|vanish\w*|disappear\w*|dies|died|returns?|escapes?)\b|\b(?:my|the)\s+(?:protagonist|main character|hero|heroine|villain|narrator|detective)\s+(?:is|was)\b|\b(?:a|an|the)\s+(?:[\w'-]+\s+){0,2}?(?:vanish|disappear)\w*\s+(?:between|from|on|in|at|after)\b/i;
+const STORY_SHAPE = /\b(?:a|an|the)\s+(?:[\w'-]+\s+){0,3}?[\w'-]+\s+(?:who|whose)\s+[\w'-]+|\b(?:my|the)\s+(?:protagonist|main character|hero|heroine|villain|narrator|detective)\s+(?:is|was)\b|\b(?:a|an|the)\s+(?:[\w'-]+\s+){0,2}?(?:vanish|disappear)\w*\s+(?:between|from|on|in|at|after)\b/i;
 
 /** @returns {{ kind: string|null, form: string|null, genres: string[] }} */
 export function detectProject(text, { packs, kindHint = null } = {}) {

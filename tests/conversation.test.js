@@ -224,3 +224,45 @@ test('the memory answer lists what the writer said once, and says which message 
   assert.match(r.reply, /you said, one message ago|you said, 2 messages ago/);
   assert.doesNotMatch(r.reply, /Main character: girl/);
 });
+
+// ── from the first held-out set (conversations nobody had tuned on) ───────────
+
+test('a thank-you with a tail, and a message of discouragement, are small talk by the rules; neither is answered with "what are you making?"', async () => {
+  const { detectIntent } = await import('../apps/web/src/engine/intent/intent.js');
+  for (const t of ["thanks that's all for today", "ok i'll try it, thanks", 'thanks for the help', 'just got another rejection letter', "i dont think i'm any good at this", 'ok great, thanks, got it']) assert.equal(detectIntent(t, { hasHistory: true }).type, 'greeting', t);
+  for (const t of ['thanks, now give me twists', 'thanks. what about the ending?', 'thank you, can you check my draft', 'my rejection letter said the plot was thin']) assert.notEqual(detectIntent(t, { hasHistory: true }).type, 'greeting', t);
+  const { o, calls } = setup({ reading: task('tell'), reply: 'Rejections sting, and one letter says little about you. What did it say, if you want to tell me?' });
+  const r = await o.brainstorm({ project: projectWith(), message: "i dont think i'm any good at this" });
+  assert.equal(r.agent?.act, 'chat');
+  assert.match(calls.at(-1).messages.at(-1).content, /Do not agree with a harsh thing they say about themselves/);
+  assert.doesNotMatch(r.reply, /fiction, nonfiction|story, a poem/);
+});
+
+test('a note only enters when the message uses a word of its name; the prompt\'s own labels are never said back; praise of two words is praise', async () => {
+  const { o } = setup();
+  const project = projectWith();
+  assert.deepEqual(o.storyNotes(project, 'which would you pick?'), []);
+  const agentTurn = { enforce: (t) => t, grounded: () => true, ack: 'Noted.' };
+  const out = holdToPlan("From the notes, it seems you're exploring writing techniques. Maybe the poem never names her at all.", { act: 'reflect', reason: 'gap' }, agentTurn, 'which would you pick?', []);
+  assert.doesNotMatch(out, /From the notes/);
+  assert.match(out, /never names her/);
+  const { isPraiseOpener } = await import('../apps/web/src/engine/orchestrator/variety.js');
+  for (const s of ['Great shift!', 'Great insights!']) assert.ok(isPraiseOpener(s), s);
+  for (const s of ['Great Britain is where the story starts.', 'Perfect pitch is the problem.']) assert.ok(!isPraiseOpener(s), s);
+});
+
+test('"which is better?" and "what do you think of the name?" are told to give a view with a reason', async () => {
+  const { o, calls } = setup({ reading: task('develop'), reply: 'I would go with the town that shares one dream: it gives you a whole community to write about, where a cat is a single image.' });
+  await o.brainstorm({ project: projectWith(), message: 'two ideas: a cat that predicts deaths, or a town where everyone shares one dream. which is better?' });
+  assert.match(calls.at(-1).messages.at(-1).content, /asking what YOU think/);
+  const { opinionNote } = await import('../apps/web/src/engine/orchestrator/replyto.js');
+  assert.match(opinionNote('what do you think of the name Elias for a lighthouse keeper?'), /honest view/);
+  assert.equal(opinionNote('the second one is interesting'), '');
+});
+
+test('a thank-you, a goodbye or "ok cool" is not answered with a remark on the story', async () => {
+  const project = projectWith();
+  const past = [{ role: 'user', content: "I'm writing a mystery set on a night train. The conductor vanishes between two stations." }];
+  assert.equal(holdSmallTalk('The mystery deepens without the conductor.', { project, text: 'ok cool', past }), '');
+  assert.equal(holdSmallTalk('Glad to help. Come back whenever you like.', { project, text: 'thanks', past }), 'Glad to help. Come back whenever you like.');
+});

@@ -10,7 +10,7 @@ import { composeMessages, ideaRequestBlock, indexFor, RETRY_TOKEN_LIMIT } from '
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_EDIT_AGAIN, DECLINE_WRITE, DECLINE_WRITE_AGAIN, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
 import { avoidBlock, isFiller, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
-import { isReaction, replyContext } from './replyto.js';
+import { isReaction, opinionNote, replyContext } from './replyto.js';
 import { feelingNote, holdSmallTalk, isLowMood, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
@@ -97,8 +97,11 @@ export function withoutQuestionLists(text) {
  * twist, "the second twist you mentioned"), the sentence puts NIE's idea in the writer's mouth and goes. Measured on the real model: "The second twist you mentioned ... a hidden artifact with mind-control powers".
  */
 const CREDITS_WRITER = /\b(?:you(?:'ve| have)?\s+(?:also\s+)?(?:said|mention(?:ed)?|noted|told me|describ(?:e|ed)|listed|suggested|wrote|brought up|state[ds]?)|what you(?:'re| are) saying|as you(?:'ve| have)?\s+(?:said|mentioned|noted|told me|described))\b/i;
+// The prompt's own labels said back to the writer ("From the notes, it seems you're exploring writing techniques").
+const LEAKS_NOTES = /\b(?:from|in|per|according to|based on|using) the (?:reference |library |idea )?notes\b|\breference notes\b|\bthe notes (?:say|suggest|show|mention)\b|\bwhat you understand so far\b/i;
 const IN_YOUR_WORDS = /^\s*(?:in|from) your (?:description|message|note|premise|summary|text|words)[,:]?\s*/i;
 function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxSentences = 0 } = {}) {
+  out = out.replace(/\(\s*(?:you might ask|question|for example)\s*:\s*/gi, '').replace(/^\s*\((?=[^)]*$)/, ''); // "(You might ask: ...": a coaching aside, with its bracket left open
   const parts = splitSentencesLite(out);
   if (parts.length < 2) return out;
   const known = new Set(writerTexts.flatMap((t) => stemList(String(t ?? ''))));
@@ -117,7 +120,7 @@ function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxS
     return mine.length > 0 && mine.filter((m) => saidStems.has(m)).length / mine.length >= 0.6;
   };
   const echo = (x) => (isQ(x) && said && similarity(x, said) >= 0.6) || sayingItBack(x);
-  let kept = parts.filter((x) => !isFiller(x) && !(CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
+  let kept = parts.filter((x) => !isFiller(x) && !LEAKS_NOTES.test(x) && !(CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
   if (maxSentences && kept.length > maxSentences) kept = kept.slice(0, maxSentences); // (a reply to a short reaction is short)
   const joined = kept.join(' ').trim();
   return kept.length < parts.length && words(joined).length >= 6 ? joined : out;
@@ -592,8 +595,11 @@ export class Orchestrator {
     const declared = forProfile(project.profile).slice(0, 2);
     const t = String(text ?? '').trim();
     if (!t) return declared;
+    // (and the message must use a word of the note's own name: "which would you pick?" matched a note on phrasal verbs, and a reply began "From the notes, it seems you're exploring writing techniques")
+    const said = new Set(stemList(t));
+    const named = (e) => [e.name, ...(e.aka ?? [])].some((n) => stemList(String(n ?? '')).some((w) => said.has(w)));
     const found = searchScored(t, { limit: 6, minScore: STORY_NOTE_MIN_SCORE })
-      .filter((x) => STORY_NOTE_KINDS.has(x.entry.kind) && x.headCoverage >= STORY_NOTE_MIN_COVERAGE)
+      .filter((x) => STORY_NOTE_KINDS.has(x.entry.kind) && x.headCoverage >= STORY_NOTE_MIN_COVERAGE && named(x.entry))
       .slice(0, limit)
       .map((x) => x.entry);
     return [...new Map([...declared, ...found].map((e) => [e.id, e])).values()].slice(0, limit + 2);
@@ -870,7 +876,7 @@ export class Orchestrator {
       history: aboutText ? [] : past,
       retrieved,
       legacy: this.variety === 'legacy',
-      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, noAsk || aboutText || lib || libMiss ? '' : feelingNote(askText), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, noAsk || aboutText || lib || libMiss ? '' : feelingNote(askText), noAsk || aboutText || lib || libMiss ? '' : opinionNote(askText), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const writerWords = past.filter((m) => m.role === 'user').slice(-12).map((m) => String(m.content ?? '').slice(0, 1200)); // (what the writer really said, for "you mentioned")
     const holdOpts = { recent: past.filter((m) => m.role === 'assistant').slice(-3).flatMap((m) => splitSentencesLite(String(m.content ?? ''))), maxSentences: replyTo ? 4 : 0 };

@@ -206,3 +206,93 @@ export const HELD_OUT_SESSIONS = [
     ],
   },
 ];
+
+// ── held out, second set ────────────────────────────────────────────────────
+// Written after the first held-out set had been read and used to fix things (so that set is no longer held out), and not looked at, nor run, until the final code. Other subjects, other voices again.
+export const HELD_OUT_SESSIONS_2 = [
+  {
+    id: 'h2-memoir',
+    about: 'A memoir about a father who ran a hardware shop: a detail, a doubt, a request for structure, and thanks.',
+    steps: [
+      { say: "I'd like to write about my dad's hardware shop", note: 'the idea; a memoir, not said' },
+      { say: 'he knew every customer by name and what they were fixing', note: 'a detail' },
+      { say: "i'm worried it's boring", note: 'a doubt' },
+      { say: 'how should I even start it?', note: 'asks for a way in; NIE offers concepts, not an opening line' },
+      { say: 'ok thank you', note: 'thanks' },
+    ],
+  },
+  {
+    id: 'h2-screenplay',
+    about: 'A screenplay premise, a hostile reaction to the first idea, and a request for the antagonist.',
+    steps: [
+      { say: 'screenplay idea: two rival bakers get snowed in together', note: 'the idea; a script' },
+      { say: 'no, not a romance please', note: 'a boundary; "that" is whatever NIE just said' },
+      { say: 'who should the antagonist be then?', note: 'asks for a suggestion' },
+      { say: 'hm. boring', note: 'rejects NIE\'s suggestion, no reason' },
+      { say: 'what if the snow is not really snow', note: 'the writer\'s own twist' },
+    ],
+  },
+  {
+    id: 'h2-lyrics',
+    about: 'A song about moving away; short replies; "surprise me".',
+    steps: [
+      { say: 'writing a song about leaving my hometown', note: 'the idea; lyrics' },
+      { say: 'the chorus should be about the train station', note: 'a plan; NIE must not write the chorus' },
+      { say: 'surprise me', note: 'asks for something unexpected' },
+      { say: 'ha that is actually good', note: 'a reaction to NIE\'s last suggestion' },
+      { say: 'can you just write the chorus then', note: 'asks NIE to write; declined, with alternatives' },
+    ],
+  },
+  {
+    id: 'h2-childrens',
+    about: 'A children\'s picture book, a question about the audience, and a question about NIE.',
+    steps: [
+      { say: 'i want to do a picture book about a shy octopus', note: 'the idea' },
+      { say: 'for kids around four', note: 'the audience' },
+      { say: 'is that too scary, an octopus?', note: 'asks for a view' },
+      { say: 'are you able to remember all this tomorrow?', note: 'asks about NIE\'s memory; answered from facts' },
+    ],
+  },
+  {
+    id: 'h2-names',
+    about: 'A fantasy map and a run of questions about names, with a correction and a pronoun that needs a referent.',
+    steps: [
+      { say: 'my fantasy world has three cities on one river', note: 'the idea; a world' },
+      { say: 'the first one is a trading port', note: 'a detail; "the first one" is the writer\'s own' },
+      { say: 'what should I call the port?', note: 'asks for naming ideas; NIE offers directions, not a final name' },
+      { say: 'no, something shorter', note: 'a correction to NIE\'s last answer' },
+      { say: 'and the second one?', note: '"the second one" is the second city' },
+    ],
+  },
+  {
+    id: 'h2-feedback',
+    about: 'The writer asks whether the idea is any good, then answers a question NIE asked, then says they changed their mind.',
+    steps: [
+      { say: 'a detective who is afraid of the dark. is that any good?', note: 'asks for an honest view of an idea' },
+      { say: 'she works nights, that is the problem', note: 'the writer\'s own detail' },
+      { say: 'actually I changed my mind, she should be afraid of crowds', note: 'a correction by the writer' },
+      { say: 'what does that change?', note: '"that" is the change' },
+    ],
+  },
+  {
+    id: 'h2-hate',
+    about: 'The writer dislikes their own protagonist, jokes, and asks for help with a mean character.',
+    steps: [
+      { say: 'i hate my protagonist', note: 'frustration about the work' },
+      { say: 'she is just so passive', note: 'the reason' },
+      { say: 'haha yes exactly', note: 'agreement with whatever NIE said' },
+      { say: 'give me a villain that would force her to act', note: 'a request for ideas' },
+    ],
+  },
+  {
+    id: 'h2-mixed',
+    about: 'A greeting after a break, a question about craft in the middle, and a return to the story.',
+    steps: [
+      { say: 'hi again', note: 'a greeting; nothing in the project yet' },
+      { say: "what's the difference between a theme and a motif?", note: 'a craft question' },
+      { say: 'ok so my story is about a ferry that never arrives', note: 'the writer\'s idea after the craft answer' },
+      { say: 'could the ferry be a motif?', note: 'connects the craft answer to the idea' },
+      { say: 'thanks, bye for now', note: 'a goodbye' },
+    ],
+  },
+];
