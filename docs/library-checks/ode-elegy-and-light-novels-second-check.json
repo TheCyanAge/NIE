@@ -1,0 +1,393 @@
+{
+  "searchUsed": true,
+  "searchNote": "Second check. WebSearch summaries only (WebFetch could not resolve hosts, so no page was read in full; every \"confirmed\" below rests on a search summary of encyclopedia, library, publisher, university or catalogue pages plus the checker's own knowledge). ode.js, elegy.js and light-novel.js were all searched in this pass. villanelle.js is unchanged from the first check (already installed).",
+  "files": {
+    "ode.js": {
+      "method": "second check with WebSearch summaries; lint OK",
+      "firstPass": {
+        "method": "own knowledge only (search budget exhausted before this file); lint OK",
+        "claimsChecked": 49,
+        "corrected": [
+          {
+            "where": "terms: Strophe, antistrophe, epode",
+            "was": "the stand in a different one (presented as the meaning of epode)",
+            "now": "the closing part in a different one, which Ben Jonson called the stand",
+            "why": "Epode is Greek for an after-song; turn, counter-turn and stand are Jonson's English names for the three parts."
+          },
+          {
+            "where": "history, last point: Campos Triumphal Ode",
+            "was": "wrote the Triumphal Ode (1915) to machines and cities",
+            "now": "published the Triumphal Ode in 1915, a poem of the modern machine age",
+            "why": "Written 1914, published in Orpheu in 1915; the subject is the modern industrial age, so the narrower 'machines and cities' was dropped."
+          },
+          {
+            "where": "canon: twentieth century point",
+            "was": "Alvaro de Campos's Triumphal Ode (1915)",
+            "now": "the Triumphal Ode (published 1915) by Alvaro de Campos",
+            "why": "Same date correction: 1915 is the publication year, not the writing year."
+          }
+        ],
+        "softened": [
+          {
+            "where": "history, first point",
+            "was": "The earliest odes were sung by a chorus",
+            "now": "Many early Greek odes were sung by a chorus",
+            "why": "Some early Greek lyric (Sappho, Alcaeus) was solo song; choral performance is not true of all of them."
+          },
+          {
+            "where": "history, Renaissance point",
+            "was": "in the early seventeenth century ... Cary and Morison (about 1629)",
+            "now": "in the seventeenth century ... (composed around 1629)",
+            "why": "The composition date is approximate; the period label was loosened to match."
+          },
+          {
+            "where": "history, Tennyson point",
+            "was": "published for the duke's state funeral",
+            "now": "published at the time of the duke's state funeral",
+            "why": "Safer wording for a publication that coincided with the funeral."
+          },
+          {
+            "where": "subgenres, Horatian ode",
+            "was": "Marvell's Horatian Ode ... follows Horace's balance and tone",
+            "now": "is named for Horace's balance and restraint",
+            "why": "Marvell's stanza is not a Horatian metre; the claim is about the name and manner only."
+          },
+          {
+            "where": "subgenres, other traditions",
+            "was": "qasida ... is commonly translated as ode",
+            "now": "is often translated as ode",
+            "why": "Translation practice varies."
+          },
+          {
+            "where": "readers, length",
+            "was": "from about fifty lines to a few hundred",
+            "now": "from a few dozen lines to a few hundred",
+            "why": "Keats's To Autumn (33 lines) falls below fifty."
+          }
+        ],
+        "removed": []
+      },
+      "claimsChecked": 40,
+      "confirmed": 35,
+      "corrected": [
+        {
+          "where": "history, Romantic-era point (Schiller)",
+          "was": "Romantic-era odes turned inward: Schiller's An die Freude (written 1785, ...), then Coleridge, Wordsworth, Keats, Shelley",
+          "now": "Late eighteenth-century and Romantic-era odes widened the form: Schiller's An die Freude (written 1785, ...), then Coleridge, Wordsworth, Keats, Shelley",
+          "why": "Schiller's poem (written summer 1785, printed 1786 in Thalia, confirmed by search) is a communal hymn to joy from before the Romantic period, so \"Romantic-era\" and \"turned inward\" did not describe it. All the dates in the point were confirmed (Coleridge 1802, Wordsworth 1807, Shelley 1820, Beethoven 1824)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, Tennyson point",
+          "was": "published at the time of the duke's state funeral",
+          "now": "published in the week of the duke's state funeral",
+          "why": "Funeral was 18 November 1852; search sources give the ode's publication as 16, 17 or 18 November and disagree, so only the week is asserted."
+        },
+        {
+          "where": "history, Neruda point",
+          "was": "Odas elementales (1954) praised onions, tomatoes and other plain things",
+          "now": "Odas elementales (1954) praised the onion and other plain things",
+          "why": "Britannica ties the onion ode to the 1954 book (year 1954 confirmed); the tomato ode's place in that volume was only supported by weak sources (a translation page and a retailer listing), so it was dropped from the text. The socks ode is in the 1956 second volume and is not mentioned."
+        },
+        {
+          "where": "subgenres, Horatian ode",
+          "was": "Marvell's Horatian Ode upon Cromwell's Return from Ireland is named for Horace's balance and restraint",
+          "now": "Marvell's Horatian Ode upon Cromwell's Return from Ireland (written 1650) draws on Horace for its poise and restraint",
+          "why": "Search supports 1650 and a scholarly view that the poem owes much to Horace Odes 1.37; \"named for his balance and restraint\" over-read the title."
+        },
+        {
+          "where": "terms, Carpe diem",
+          "was": "Latin for seize the day",
+          "now": "Latin, usually rendered seize the day",
+          "why": "Odes 1.11 is confirmed as the source, but the \"seize\" rendering is a later English convention and \"pluck\" or \"harvest\" are also argued."
+        }
+      ],
+      "removed": [],
+      "confirmedBySearch": [
+        "Horace Odes books 1 to 3 published 23 BCE, book 4 (15 poems) in 13 BCE (the text states only \"a fourth some years later\"; some scholars dispute joint publication of 1 to 3).",
+        "Ronsard's Quatre premiers livres des Odes, 1550 (January 1550; one auction catalogue says 1549), imitating Pindar and Horace.",
+        "Jonson's Cary-Morison ode: written shortly after Morison's death in 1629; first printed in the 1640 Workes; sections named Turn, Counter-Turn and Stand (so \"which Ben Jonson called the stand\" holds).",
+        "Cowley's Pindarique Odes within the 1656 folio Poems; Congreve's 1706 Discourse on the Pindarique Ode argues Pindar was regular and Cowley's imitators were not.",
+        "Collins's Odes on Several Descriptive and Allegorical Subjects: entered in the printer's ledger 15 Dec 1746, title page dated 1747.",
+        "Gray's Progress of Poesy and The Bard in Odes by Mr. Gray, 1757, Strawberry Hill, both strophe/antistrophe/epode (triadic) Pindarics.",
+        "Schiller An die Freude written 1785, printed 1786 in Thalia; Beethoven's Ninth completed and performed 1824.",
+        "Coleridge Dejection: An Ode drafted 4 April 1802, printed in the Morning Post 4 October 1802; Shelley West Wind written 1819 near Florence, printed 1820 in the Prometheus Unbound volume, five 14-line sections of terza rima tercets and a couplet.",
+        "Wordsworth's ode in Poems, in Two Volumes, 1807 (under the title \"Ode\"), irregular Pindaric in form.",
+        "Campos's Ode Triunfal composed 1914, first printed in Orpheu no. 1 (March 1915), a celebration of machines and the modern age.",
+        "Gray's cat ode written 22 Feb to 1 Mar 1747, first printed anonymously in Dodsley's Collection of Poems, 1748.",
+        "Dryden's Alexander's Feast written for the 1697 St Cecilia's Day festival (22 November 1697).",
+        "Keats's Nightingale (8 stanzas), Grecian Urn (5) and Melancholy (3) each use ten-line stanzas.",
+        "Shijing alternate English title Book of Odes; qasida \"often translated as ode\", monorhyme, praise a main use (Britannica).",
+        "Pindar's datable victory odes run from 498 BCE to 446 BCE; stasimon is a choral ode between episodes; Greek ode word from aoide, song; carpe diem is from Odes 1.11."
+      ],
+      "remainingDoubts": [
+        "Search summaries were the only web source (WebFetch cannot resolve hosts); no page was read in full, and several summaries came from Wikipedia, Britannica and catalogue records rather than editions.",
+        "Pindar's works year \"c. 470 BCE\" is only a midpoint of his datable odes (about 498 to 446 BCE, confirmed), kept to match the library's existing work record.",
+        "The publication day of Tennyson's Wellington ode is disputed (16, 17 or 18 November 1852), so the text says only \"in the week of\" the funeral.",
+        "The Neruda tomato ode was not confirmed to be in the 1954 volume by search (recall says it is), so only the onion is named; the profile's other Neruda wording (\"everyday foods and objects\", \"ordinary things\") is general and consistent with Britannica.",
+        "\"Regular Pindarics\" for Gray means the triadic strophe/antistrophe/epode shape (confirmed); it is critical convention, not a count of identical metres.",
+        "The Princeton Encyclopedia of Poetry and Poetics is cited as a reference by title only; it was not searched for its ode entry.",
+        "The line-length range (\"a few dozen to a few hundred\") is a rough statement checked only against well-known examples (Keats's To Autumn about 33 lines, the Wellington ode a few hundred), not a count."
+      ]
+    },
+    "elegy.js": {
+      "method": "second check with WebSearch summaries; lint OK",
+      "firstPass": {
+        "method": "own knowledge only (search budget exhausted before this file); lint OK",
+        "claimsChecked": 50,
+        "corrected": [
+          {
+            "where": "canon: twentieth century point",
+            "was": "Rilke's Duino Elegies, which take their name from the mournful mood",
+            "now": "named for the castle near Trieste where he began them",
+            "why": "The title comes from Duino Castle, not from a mood."
+          },
+          {
+            "where": "canon: English Renaissance point",
+            "was": "Ben Jonson's poem on his first son (1616)",
+            "now": "On My First Sonne (printed 1616 among his epigrams and often read as an elegy)",
+            "why": "The poem is titled and printed as an epigram; calling it an elegy outright was misleading."
+          },
+          {
+            "where": "terms: Pathetic fallacy",
+            "was": "a term from John Ruskin",
+            "now": "a term coined by John Ruskin in the nineteenth century",
+            "why": "Ruskin coined it in Modern Painters in the 1850s; stated plainly."
+          },
+          {
+            "where": "terms: Epicedium",
+            "was": "from the Greek and Latin for a funeral song",
+            "now": "from the Greek epikedeion, a funeral song",
+            "why": "The Latin word is a borrowing from the Greek."
+          }
+        ],
+        "softened": [
+          {
+            "where": "history: Roman love elegists",
+            "was": "writing in the late first century BCE",
+            "now": "writing from the later first century BCE",
+            "why": "Ovid was active into the first century CE."
+          },
+          {
+            "where": "history: Ovid's Tristia",
+            "was": "is an elegy of homesickness",
+            "now": "gathers poems of exile and homesickness in elegiac couplets",
+            "why": "More exact description of the work."
+          },
+          {
+            "where": "history: meaning in English",
+            "was": "From the sixteenth century elegy came in English to mean a poem of mourning",
+            "now": "In English the word came to mean mainly a poem of mourning by the seventeenth century",
+            "why": "The exact century of the shift was not certain; the later bound is safe."
+          },
+          {
+            "where": "history: last point",
+            "was": "the grief memoir has taken over some of its ground in prose",
+            "now": "prose grief memoirs now sit beside the elegy as a kindred way of writing about loss",
+            "why": "The original was an unsupported claim about one form displacing another."
+          },
+          {
+            "where": "subgenres: classical and love elegy",
+            "was": "Goethe's Roman Elegies (1795)",
+            "now": "(published 1795)",
+            "why": "The poems were written 1788 to 1790 and published in 1795."
+          },
+          {
+            "where": "craft: Gray's stanza",
+            "was": "a stanza often called the elegiac stanza",
+            "now": "often called the elegiac stanza (or heroic quatrain), though earlier poets used it",
+            "why": "Gray did not invent the stanza; the name is a convention."
+          },
+          {
+            "where": "terms: Elegiac stanza",
+            "was": "so called because of that poem",
+            "now": "often named after that poem and also called the heroic quatrain",
+            "why": "Same softening."
+          },
+          {
+            "where": "canon: eighteenth century",
+            "was": "the most quoted English elegy",
+            "now": "among the best-known English elegies",
+            "why": "A superlative that cannot be verified."
+          },
+          {
+            "where": "terms: Threnody",
+            "was": "the Greek threnos means a wailing",
+            "now": "from the Greek threnos, a lament or dirge",
+            "why": "More defensible gloss."
+          }
+        ],
+        "removed": []
+      },
+      "claimsChecked": 32,
+      "confirmed": 31,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history, pastoral-lament point",
+          "was": "the pastoral poems of Theocritus and of the later Greek poets Bion and Moschus, and Virgil's Eclogues, set the pattern of a shepherd mourning a shepherd",
+          "now": "Theocritus's song for the herdsman Daphnis, the lament for Bion traditionally credited to Moschus, and Virgil's Eclogues set the pattern of a shepherd mourning a shepherd",
+          "why": "Search sources say Theocritus Idyll 1 is the source of the pastoral lament, Bion wrote the Lament for Adonis, and the Lament for Bion is traditionally credited to Moschus but probably by a pupil of Bion; Virgil's Fifth Eclogue mourns Daphnis. The new wording names what is documented and keeps the attribution honest."
+        }
+      ],
+      "removed": [],
+      "confirmedBySearch": [
+        "Tyrtaeus (war), Mimnermus (love, wine), Solon (politics), Theognis as archaic Greek elegists in elegiac couplets (hexameter then pentameter).",
+        "Tibullus (died 19 BCE), Propertius (first book about 28 BCE) and Ovid's Amores as Augustan love elegy; \"from the later first century BCE\" holds.",
+        "Exeter Book copied about 975 (Britannica), containing The Wanderer, The Seafarer and The Ruin; \"later tenth century\" holds.",
+        "Spenser's Astrophel printed 1595 in the Colin Clouts volume, a pastoral elegy for Sir Philip Sidney.",
+        "Lycidas written 1637, first printed 1638 in Justa Edouardo King Naufrago; Milton's 1645 note calls it a Monody.",
+        "Gray's Elegy 1751; abab iambic pentameter quatrains, called the elegiac or heroic stanza.",
+        "Arnold's Thyrsis (1866) for Clough; Adonais (1821) for Keats; In Memoriam A.H.H. published 1850 for Arthur Hallam, abba tetrameter stanza; Whitman's lilac elegy first printed 1865 in Sequel to Drum-Taps.",
+        "Jonson's On My First Sonne appeared in the 1616 folio among the Epigrams and is read as an elegy.",
+        "Hardy's Poems of 1912-13 for Emma, in Satires of Circumstance (November 1914); Auden's In Memory of W. B. Yeats first published 1939 (New Republic, 8 March), collected 1940.",
+        "Goethe's Roman Elegies written 1788 to 1790, published 1795 in Die Horen; Donne's love elegies are a recognised group in modern editions.",
+        "Rilke's Duino Elegies begun at Duino Castle near Trieste (1912), completed 1922, published 1923.",
+        "Ramazani, Poetry of Mourning (1994): modern elegies often do not reach the consolation Sacks's model expects; Sacks, The English Elegy (1985).",
+        "Ruskin's pathetic fallacy appears in Modern Painters III (sources give 1854 or 1856, so only \"nineteenth century\" is asserted).",
+        "Urdu marsiya of Mir Anis and Mirza Dabir (nineteenth-century Lucknow, Karbala subject); Caoineadh Airt Uí Laoghaire for Art Ó Laoghaire killed in 1773."
+      ],
+      "remainingDoubts": [
+        "Search summaries were the only web source (WebFetch cannot resolve hosts); no page was read in full.",
+        "Ovid's exile from 8 CE and the Tristia in elegiac couplets were not covered by the search results and rest on the checker's own knowledge (well established).",
+        "The epicedium (Greek epikedeion) and threnody (Greek threnos) etymologies were not covered by search; they are stated loosely and rest on standard dictionary knowledge.",
+        "Lycidas is dated 1638 in the works list (first printing) while the library's genre entry lists 1637 (composition); the text gives both.",
+        "The Ruskin year is given as 1854 by some sources and 1856 by others, so the text does not name a year.",
+        "Auden's poem was first published in March 1939 (New Republic confirmed; a London Mercury appearance was not confirmed); the text asserts only 1939.",
+        "The name \"elegiac stanza\" for Gray's quatrain follows handbook usage (Thomas Gray Archive, Shmoop and enotes agree); handbooks differ and earlier poets used the stanza.",
+        "The Art Ó Laoghaire lament is dated by the 1773 killing; authorship and composition history are discussed by scholars, and the text names no author."
+      ]
+    },
+    "villanelle.js": {
+      "method": "web search summaries for most claims; lint OK",
+      "claimsChecked": 55,
+      "confirmed": 45,
+      "corrected": [
+        {
+          "where": "history: Auden",
+          "was": "W. H. Auden's If I Could Tell You appeared in 1940",
+          "now": "W. H. Auden wrote If I Could Tell You in 1940",
+          "why": "Written 1940 (dated October 1940 by his editor); first printed in a magazine in early 1941 according to a scholar of the form."
+        },
+        {
+          "where": "canon: mid-century point",
+          "was": "Mid-century: ... If I Could Tell You (1940)",
+          "now": "Twentieth century: ... If I Could Tell You (written 1940)",
+          "why": "Same date issue; 1940 is not a first-publication year."
+        },
+        {
+          "where": "canon: Robinson point",
+          "was": "Early twentieth century: Robinson's The House on the Hill, from the 1890s",
+          "now": "Late nineteenth century: ... written in the 1890s, often cited as an early American villanelle",
+          "why": "A poem of the 1890s is not early twentieth century (first version 1894, collected in 1896)."
+        },
+        {
+          "where": "history: the fixed form",
+          "was": "nineteenth-century writers on French verse took Passerat's poem as the pattern ... so most Renaissance villanelles do not match it",
+          "now": "French writers on verse after the Renaissance, up to Banville's 1872 handbook, took Passerat's poem as the pattern, and scholars disagree about who first fixed it; most other Renaissance villanelles are looser songs",
+          "why": "Sources trace the fixing to eighteenth-century dictionary makers, to Tenint in 1844, or to Banville; they disagree."
+        },
+        {
+          "where": "history: English poets",
+          "was": "after Edmund Gosse's 1877 essay ... belongs to the same moment",
+          "now": "late 1870s and 1880s, helped by Gosse's 1877 essay ... Wilde's Theocritus (1881) belongs to the same fashion",
+          "why": "Dobson's villanelle appeared in 1877 itself, so 'after' the essay was too strict; Wilde's poem is in his 1881 Poems."
+        },
+        {
+          "where": "summary and canon watch",
+          "was": "mid-twentieth-century poems by Auden, Thomas, Roethke, Plath and Bishop",
+          "now": "twentieth-century poems ...",
+          "why": "Bishop's One Art is 1976, not mid-century."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history: Thomas",
+          "was": "became the best-known villanelle in English",
+          "now": "is widely regarded as the best-known villanelle in English",
+          "why": "A superlative stated as opinion."
+        },
+        {
+          "where": "tropes: address to a you",
+          "was": "many villanelles speak to a lover or the dead",
+          "now": "some villanelles ...",
+          "why": "No count supports 'many'."
+        },
+        {
+          "where": "history: mid-century poets",
+          "was": "between the late 1940s and 1953",
+          "now": "between the late 1940s and the early 1950s",
+          "why": "Plath's villanelle was written about 1951 and printed in 1953; Roethke's appeared in his 1953 book."
+        }
+      ],
+      "removed": [
+        {
+          "where": "canon works list: If I Could Tell You, W. H. Auden, 1940",
+          "why": "Year is not the first-publication year (written 1940, reported first printed 1941 in a magazine, collected 1945) and could not be fixed from two sources. The poem stays in the text as 'written 1940'. Canon keeps 5 works."
+        }
+      ],
+      "remainingDoubts": [
+        "Passerat's J'ay perdu ma tourterelle: printed in the 1606 Recueil (confirmed by search, after his death in 1602); one source gives composition as 1574. Passerat's dates 1534 to 1602 were confirmed by search.",
+        "Auden's first publication was reported in a single scholarly web source as a magazine in early 1941; not confirmed by a second source, which is why the work record was removed.",
+        "W. E. Henley's A Dainty Thing's the Villanelle: poem exists and is about the form; its year (about 1877 in London magazine, 1888 in A Book of Verses) was not confirmed, so the text only says Henley wrote early examples in the 1870s and 1880s.",
+        "Roethke's The Waking: first appearance found only in the 1953 book; an earlier magazine appearance was not ruled out.",
+        "Robinson's House on the Hill is described as 'often cited as an early American villanelle'; no source calls it the first.",
+        "The terzanelle is credited to Lewis Turco (search summaries agree); its date and exact scheme are not stated and handbooks differ.",
+        "Rondeau, pantoum, sestina and ghazal descriptions in the compare facet are standard textbook definitions, not re-checked by search."
+      ]
+    },
+    "light-novel.js": {
+      "method": "second check with WebSearch summaries (first checker's search budget ran out part-way); lint OK",
+      "claimsChecked": 26,
+      "confirmed": 23,
+      "corrected": [
+        {
+          "where": "canon, Dengeki Bunko point",
+          "was": "Dengeki Bunko hits that came through its new-author prize: Boogiepop and Others (1998) and Kino's Journey (2000)",
+          "now": "Dengeki Bunko hits from writers its new-author prize brought in: ...",
+          "why": "Boogiepop and Others won the fourth Dengeki (Game) Novel Prize (1997) and was published in February 1998, but Sigsawa's Kino's Journey was a finalist for the sixth prize and then serialised (March 2000) with the first book on 10 July 2000, so \"came through the prize\" overstated it for Kino."
+        },
+        {
+          "where": "canon, watch",
+          "was": "Years here usually mean the first volume in print, except where the conv text notes an earlier web posting",
+          "now": "Years here usually mean the first volume in print; Re:Zero's year is its web start (printed 2014)",
+          "why": "The note contradicted the works list: Sword Art Online is listed by its 2009 print year although its conv point also mentions web posting, while Re:Zero is listed by its 2012 web start (the library's other records use 2012). The note now says what the list actually does."
+        }
+      ],
+      "softened": [
+        {
+          "where": "subgenres, light-literature point",
+          "was": "Romance, historical romance and light literary lines: some imprints aim at young women or at older readers, sometimes called light literature, with illustrated covers but quieter, more adult subject matter",
+          "now": "Romance and light literary lines: some imprints aim at older or adult readers with quieter, more everyday stories, a shelf sometimes called light literature (raito bungei) in Japan, and its border with the light novel is blurry",
+          "why": "Search confirms raito bungei as a Japanese category between light novels and general fiction with a blurry border and quieter, more realistic stories; it did not confirm \"young women\", \"historical romance\" or \"illustrated covers\" (sources suggest fewer illustrations), so those were dropped."
+        }
+      ],
+      "removed": [],
+      "confirmedBySearch": [
+        "Vampire Hunter D by Hideyuki Kikuchi, first novel 1983, called a forerunner.",
+        "Fujimi Fantasia Bunko established 1988; Slayers entered the first Fantasia Awards 1989, began in Dragon Magazine in 1989 and was published as a Fantasia Bunko novel in 1990.",
+        "Light novel as a term: credited to Kamikita Keita, sysop of the SF and Fantasy forum on Nifty-Serve, around 1990 (the exact year is loose in sources); early 1994 newspaper use cited.",
+        "Dengeki Bunko established June 1993 (first book Crystania); Boogiepop and Others, Dengeki Game Novel Prize 1997, published 25 February 1998; Boogiepop widely credited with launching the category's popularity.",
+        "Kino's Journey first volume 10 July 2000 under Dengeki Bunko.",
+        "Haruhi Suzumiya: first novel June 2003 (Sneaker Bunko); anime aired April to July 2006; English edition by Little, Brown with Yen Press from April 2009.",
+        "Kono Light Novel ga Sugoi first edition released 26 November 2004 (the 2005 listing), by Takarajimasha.",
+        "Sword Art Online: written 2001, not submitted to the Dengeki Game Novel Prize because it ran over the page limit, posted online from 2002, printed by Dengeki Bunko April 2009.",
+        "Shosetsuka ni Naro opened 2 April 2004; Re:Zero web serial from April 2012, first volume in print January 2014 (MF Bunko J).",
+        "Spice and Wolf volume 1 listed as 10 February 2006 (Dengeki Bunko, Dengeki Novel Prize silver 2005); Toradora! volume 1 on 10 March 2006.",
+        "Bunkobon is A6 (10.5 by 14.8 cm); a light novel averages about 50,000 words; colour pages at the front, black-and-white pictures inside.",
+        "English light novels were few in the 2000s (Slayers by Tokyopop from 2004, Seven Seas from 2007, Haruhi from 2009) and grew around 2013.",
+        "Kuchi-e is the Japanese word for a frontispiece; komikaraizu is the loanword for turning a novel or other work into manga; media mix means one work spread across novel, manga, anime and games; label (reberu) is the term used for light novel imprints such as Dengeki Bunko and Fujimi Fantasia Bunko."
+      ],
+      "remainingDoubts": [
+        "Search summaries were the only web source (WebFetch cannot resolve hosts); no page was read in full, and many came from Wikipedia and fan or retail pages rather than publisher records.",
+        "Atogaki (afterword) and shinjin-sho (new-author prize) are standard Japanese words checked from the checker's own knowledge; the search returned no page that defines them for light novels.",
+        "Spice and Wolf: one search summary (a fan encyclopedia) gives June 2006 for the series start against 10 February 2006 in Wikipedia's volume list; the text asserts only the year 2006, which holds either way.",
+        "Re:Zero is listed as 2012 (web start, matching the library's other records); the text says printed in 2014.",
+        "The Nifty-Serve origin of the term \"light novel\" rests on one source naming Kamikita Keita and \"around 1990\"; the text says \"usually traced\" and \"around 1990\".",
+        "Raito bungei was confirmed only as an existing, blurry category; its imprints and readership were not confirmed, which is why the claims about them were removed.",
+        "The word-count range (forty to sixty thousand) agrees with the library's light-novel entry and with a source giving about fifty thousand on average, but practice differs by imprint and prize."
+      ]
+    }
+  }
+}

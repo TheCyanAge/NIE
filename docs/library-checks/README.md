@@ -373,6 +373,7 @@ Interactive fiction, visual novels and game narrative (first check 234 claims / 
 | Romance subgenres | historical-romance, romantic-comedy, paranormal-romance | 130 | 2 | 12 | 0 | yes |
 | Japanese, Chinese and African American literature | japanese-literature, chinese-literature, african-american-literature | 405 | 5 | 6 | 0 | yes |
 | Darker thriller and horror subgenres | psychological-thriller, espionage-fiction, cosmic-horror | 110 | 2 | 4 | 1 | yes |
+| Ode, elegy and light novels (the first checks of ode and elegy had no search; the light-novel check ran out of search part-way) | ode, elegy, light-novel | 98 | 3 | 6 | 0 | yes |
 
 What the second checkers could not confirm:
 
@@ -413,8 +414,8 @@ What the second checkers could not confirm:
 | Existentialism, the Harlem Renaissance and the Beats | existentialism, harlem-renaissance, beat-generation | 232 | 4 | 14 | 1 | yes |
 | Western, adventure and war fiction | western, adventure-fiction, war-fiction | 260 | 9 | 11 | 1 | yes |
 | Journalism, history writing and the business book | literary-journalism, narrative-history, business-book | 140 | 7 | 9 | 0 | yes |
-| Fan fiction, webnovels and light novels | fan-fiction, webnovel, light-novel (held back) | 126 | 3 | 11 | 0 | yes |
-| Ode, elegy and villanelle | ode (held back), elegy (held back), villanelle | 154 | 13 | 18 | 1 | yes |
+| Fan fiction, webnovels and light novels | fan-fiction, webnovel, light-novel (installed after a second check with search) | 126 | 3 | 11 | 0 | yes |
+| Ode, elegy and villanelle | ode, elegy (installed after a second check with search), villanelle | 154 | 13 | 18 | 1 | yes |
 
 ### Comedy, satire and magical realism
 
@@ -499,3 +500,16 @@ What the second checkers could not confirm:
 - Auden's If I Could Tell You was written in 1940 and reportedly first printed in a magazine in early 1941, from one scholarly source. I removed it from the works list (canon keeps 5 works) and left it in the text as 'written 1940'.
 - Henley's villanelle year, Roethke's The Waking (1953; an earlier magazine appearance was not ruled out) and the terzanelle's date and scheme are unconfirmed. Robinson's The House on the Hill is called an early American villanelle, not the first.
 - Passerat's poem was printed in 1606 (confirmed), and one source says it was written in 1574. Scholars disagree about who fixed the nineteen-line pattern (eighteenth-century dictionary makers, an 1844 treatise, or Banville), so the text says they disagree.
+
+### Ode, elegy and light novels (second check)
+
+- Web source was search summaries only (WebFetch cannot resolve hosts); no page was read in full, and many summaries came from Wikipedia, Britannica and catalogue or retail pages rather than primary editions.
+- ode.js: Pindar's works year 'c. 470 BCE' is only a midpoint of his datable odes (498 to 446 BCE, confirmed), kept to match the library's work record.
+- ode.js: Tennyson's Wellington ode publication day is disputed (16, 17 or 18 Nov 1852); the text now says only 'in the week of' the funeral.
+- ode.js: the Neruda tomato ode could not be confirmed in the 1954 volume by search, so only the onion (Britannica) is named.
+- ode.js: 'regular Pindarics' for Gray means the triadic strophe/antistrophe/epode shape (confirmed); the Princeton Encyclopedia ref and the 'few dozen to a few hundred lines' range were not searched.
+- elegy.js: Ovid's exile from 8 CE and the epicedium and threnody etymologies were not covered by search and rest on the checker's own knowledge; the Ruskin coinage year is 1854 or 1856 in different sources, so no year is stated.
+- elegy.js: Auden's poem is confirmed as published in 1939 (New Republic); a London Mercury appearance was not confirmed. The name 'elegiac stanza' follows handbook usage and handbooks differ.
+- light-novel.js: atogaki, shinjin-sho and the kuchi-e usage for light novels are standard Japanese terms checked from knowledge; the search returned no page defining them for light novels.
+- light-novel.js: raito bungei was confirmed only as an existing, blurry category, so the claims about its imprints and readers were removed. One source gives June 2006 for Spice and Wolf against 10 Feb 2006 in the Wikipedia volume list; the text states only 2006.
+- light-novel.js: the Nifty-Serve origin of the term 'light novel' rests on one source naming Kamikita Keita and 'around 1990'. Re:Zero's works year 2012 is its web start (library convention); print was 2014.

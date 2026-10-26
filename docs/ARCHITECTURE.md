@@ -79,7 +79,7 @@ A message that names another subject by its name, or a thing of its own ("how do
 
 | Concern | Code |
 | --- | --- |
-| Narrative library (about 12,000 records incl. derived lookups; BM25-style search), whole-subject profiles, the thread of a conversation about the library | `apps/web/src/engine/knowledge/` (`thread.js`, `library/profiles/`) |
+| Narrative library (about 13,000 records incl. derived lookups; BM25-style search), whole-subject profiles, the thread of a conversation about the library | `apps/web/src/engine/knowledge/` (`thread.js`, `library/profiles/`) |
 | Project profile + interpreter (fragmented, unreliable, surreal, clinical, nonfiction forms → what to treat as deliberate) | `engine/profile/` |
 | Rule-based intent recognition (the fallback reader), working premise (adapts when the writer changes direction), form sniffing | `engine/intent/` |
 | Project store: fresh-by-construction creation, full deletion, preferences | `engine/project/` |
