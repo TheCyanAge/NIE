@@ -1,0 +1,60 @@
+name: talk-lab
+
+# Measures, with the REAL model (Qwen2.5-3B) and the app's own llama-server arguments, how Brainstorm TALKS over scripted conversations (scripts/talk-lab.mjs, tests/fixtures/talk-sessions.mjs):
+# greetings and small talk, a message that is a reply to NIE's last reply ("yes", "the second one", "say more about that"), pushback, a writer who is stuck, a name that comes back later.
+# It prints every reply with the message before it (TALK-REPLY lines in the job log) so that a judge other than the model can rate each one; nothing here builds, ships or publishes anything.
+on:
+  workflow_dispatch:
+    inputs:
+      sessions:
+        description: 'Scripted conversations to run (comma separated: greet-fresh, greet-in-flow, premise-and-replies, twists, stuck, character-callbacks, pushback, tired, write-request, meta, craft-then-story)'
+        type: string
+        default: 'greet-fresh,greet-in-flow,premise-and-replies,twists,stuck,character-callbacks,pushback,tired,write-request,meta,craft-then-story'
+      threads:
+        description: 'Model-server threads (empty = what the app picks: half the cores)'
+        type: string
+        default: ''
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch the llama.cpp runtime (Linux)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p rt apps/desktop/bin
+          gh release download b9085 --repo ggml-org/llama.cpp --pattern 'llama-*-bin-ubuntu-x64*' --dir rt
+          for f in rt/*; do
+            case "$f" in
+              *.zip) unzip -q -o "$f" -d rt/x ;;
+              *.tar.gz|*.tgz) mkdir -p rt/x && tar -xzf "$f" -C rt/x ;;
+            esac
+          done
+          find rt/x \( -type f -o -type l \) \( -name 'llama-server' -o -name '*.so' -o -name '*.so.*' \) -exec cp -P {} apps/desktop/bin/ \;
+          chmod +x apps/desktop/bin/llama-server
+
+      - name: Fetch the real model (about 1.9 GB, resumable)
+        run: node scripts/fetch-runtime.mjs --no-runtime
+
+      - name: Run the lab
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/apps/desktop/bin
+        run: |
+          T=""
+          if [ -n "${{ inputs.threads }}" ]; then T="--threads ${{ inputs.threads }}"; fi
+          node scripts/talk-lab.mjs $T --sessions "${{ inputs.sessions }}" --out talk-lab-report.json
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: talk-lab-report
+          path: talk-lab-report.json
+          if-no-files-found: ignore
