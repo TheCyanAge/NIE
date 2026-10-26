@@ -182,6 +182,49 @@ was told, wrongly, that it had no library. The fixes are in three parts.
   model in Settings for questions beyond it. A larger offline model (for example a 7B) was considered and **not** added: Settings has no model chooser beyond the one bundled model, the download address of a larger model cannot be verified from
   here, and it would be several times slower on an ordinary CPU.
 
+## How Brainstorm talks (the conversation lab)
+
+A writer typed "hey" in Brainstorm and NIE answered about a "thanks" that was never there. To measure how Brainstorm TALKS, not guess, `scripts/talk-lab.mjs` (workflow `talk-lab`) runs scripted conversations from an empty project on the
+real Qwen2.5-3B (Q4_K_M) through the whole product path and prints every reply with the message before it (`TALK-REPLY`); a separate AI reviewer (never the model being measured) then rates every reply on six things: did it understand the message in the
+context of the conversation, did it state anything the writer never said, does it read like a person (natural / stiff / robotic), does it help, did it break the rule that NIE never writes the writer's text, is the length right. The conversations are in
+`tests/fixtures/talk-sessions.mjs`: eleven (45 replies) that the early fixes were written against, eight "held out" (36 replies, `heldout`) written after the first round, and eight more (37 replies, `heldout2`) written after those had been read and used, and run
+only on the code before round five. `engine_commit` lets the lab run an earlier engine on the same conversations.
+
+**On the conversations the fixes were written against** (45 replies; the reviewer's counts; each row is one run of one version):
+
+| Version | Context good / partly / wrong | Invented | Natural / stiff / robotic | Helps / thin / none | Rule |
+|---|---|---|---|---|---|
+| Before (`b3ab042`) | 8 / 28 / 9 | 6 | 2 / 25 / 18 | 9 / 29 / 7 | 1 borderline |
+| Round 1 (small talk on its own, a reply is read against NIE's last message, one suggestion that says it is NIE's) | 20 / 21 / 4 | 2 | 2 / 24 / 19 | 13 / 28 / 4 | 0 |
+| Round 2 | 22 / 17 / 6 | 2 | 4 / 23 / 18 | 19 / 23 / 3 | 0 |
+| Round 3 | 22 / 17 / 6 | 3 | 6 / 23 / 16 | 20 / 20 / 5 | 0 |
+| Round 3, part two | 29 / 15 / 1 | 2 | 5 / 30 / 10 | 23 / 21 / 1 | 0 |
+| Round 3, part three (`684fe06`) | 23 / 17 / 5 | 0 | 4 / 32 / 9 | 15 / 25 / 5 | 0 |
+| Round 4 (`cf57166`) | 22 / 20 / 3 | 5 | 4 / 26 / 15 | 13 / 31 / 1 | 0 |
+
+The last three rows are nearly the same code, so the spread between them (context good 22 to 29, robotic 9 to 15, helps 13 to 23) is the run-to-run noise of a 3B model and of one reviewer: differences of several replies in one row mean nothing.
+Against the "before" row the direction is clear and larger than that noise: far fewer replies that misread what the message refers to (wrong 9 to 1 to 5), fewer invented details (6 to 0 to 5), more that help (9 to 13 to 23), fewer robotic (18 to 9 to 15).
+But these are the conversations the fixes were written against, so they flatter NIE.
+
+**On conversations nobody had tuned on** (the fairer test):
+
+| Set and version | Replies | Context good / partly / wrong | Invented | Natural / stiff / robotic | Helps / thin / none | Rule |
+|---|---|---|---|---|---|---|
+| `heldout`, `684fe06` | 36 | 10 / 16 / 10 | 4 | 1 / 19 / 16 | 4 / 23 / 9 | 0 |
+| `heldout`, `cf57166` (after fixes made from the line above) | 36 | 7 / 22 / 7 | 4 | 1 / 18 / 17 | 6 / 27 / 3 | 0 |
+| `heldout2`, `cf57166` (never looked at before this run) | 37 | 14 / 16 / 7 | 8 | 1 / 22 / 14 | 8 / 23 / 6 | 2 borderline (it coined names) |
+| `heldout`, the "before" engine, same conversations | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+| `heldout2`, the "before" engine, same conversations | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+
+**What this says, plainly.** What carried over to unseen conversations is much smaller than what the first table shows. On the fresh set NIE understood the context well in 14 of 37 replies and badly in 7, was robotic in 14, and helped in 8. A person on the other
+end would still notice the stiffness. Most replies are rated "stiff" and "thin": correct and on topic, but flat, generic ("adds a layer of complexity"), and short of an idea the writer can use. A 3B model is the limit of that; a larger local model or an online
+model (Settings) would very likely do better, which has not been measured here.
+
+**What the reviewer and the lab cannot see.** One reviewer, one run per row, small sets; "stiff vs robotic" and "thin vs helps" are judgment calls. The writer's lines are scripted and cannot react to NIE. The reviewer sees the reply text, not the screen (idea
+cards, chips), the speed (a reply took 15 to 40 seconds on the 2-thread runner, about 25 on average), or how it feels to use. Several of the checks in code (`holdSmallTalk`, `holdToPlan`) remove what the model first said before the reviewer sees it, so the numbers describe
+the replies a writer would get, not the raw model; the lab prints the raw text (`TALK-RAW`) so the layer that changed it can be found. The "rule" column counts replies that wrote the writer's text; none did, but two coined a ready-made name (since changed to offer
+directions a name could take), and a few "What if" lines read like one-sentence plot beats, which were counted as concepts.
+
 ## Rules, in detail
 Understood and **checked exactly**: forbidden words/phrases; terminology ("use X not Y"); sentence/paragraph length limits; first/second/third person and
 past/present tense; named patterns (adverbs, exclamation marks, semicolons, em dashes, ellipses, contractions, profanity, filter/hedge words, similes,
