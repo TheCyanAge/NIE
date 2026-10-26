@@ -96,7 +96,8 @@ export function withoutQuestionLists(text) {
  * "You mentioned ...", "what you're saying is ...": a sentence that credits the WRITER with something. Kept only when the words of the sentence are the writer's own (they did say it); when they are NIE's (its own
  * twist, "the second twist you mentioned"), the sentence puts NIE's idea in the writer's mouth and goes. Measured on the real model: "The second twist you mentioned ... a hidden artifact with mind-control powers".
  */
-const CREDITS_WRITER = /\b(?:you(?:'ve| have)?\s+(?:also\s+)?(?:said|mentioned|noted|told me|described|listed|suggested|wrote|brought up)|what you(?:'re| are) saying|as you(?:'ve| have)?\s+(?:said|mentioned|noted|told me|described))\b/i;
+const CREDITS_WRITER = /\b(?:you(?:'ve| have)?\s+(?:also\s+)?(?:said|mention(?:ed)?|noted|told me|describ(?:e|ed)|listed|suggested|wrote|brought up|state[ds]?)|what you(?:'re| are) saying|as you(?:'ve| have)?\s+(?:said|mentioned|noted|told me|described))\b/i;
+const IN_YOUR_WORDS = /^\s*(?:in|from) your (?:description|message|note|premise|summary|text|words)[,:]?\s*/i;
 function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxSentences = 0 } = {}) {
   const parts = splitSentencesLite(out);
   if (parts.length < 2) return out;
@@ -109,7 +110,12 @@ function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxS
   // NIE saying again what it said in its last few replies (measured: "What if Marta's biggest wish is to heal ..." three turns running), or asking the writer back the very question they just asked
   const again = (x) => words(x).length >= 5 && recent.some((r) => similarity(x, r) >= 0.7);
   const saidStems = new Set(stemList(String(said ?? '')));
-  const sayingItBack = (x) => CREDITS_WRITER.test(x) && saidStems.size > 0 && [...new Set(stemList(x))].filter((m) => saidStems.has(m)).length / Math.max(1, new Set(stemList(x)).size) >= 0.6; // "You mentioned the keeper forges tide tables." right after they said so
+  const sayingItBack = (x) => {
+    if (!CREDITS_WRITER.test(x) || !saidStems.size) return false;
+    // (what is credited, without the "In your description, you mention": "You mentioned the keeper forges tide tables." right after they said so)
+    const mine = [...new Set(stemList(x.replace(IN_YOUR_WORDS, '').replace(CREDITS_WRITER, '')))];
+    return mine.length > 0 && mine.filter((m) => saidStems.has(m)).length / mine.length >= 0.6;
+  };
   const echo = (x) => (isQ(x) && said && similarity(x, said) >= 0.6) || sayingItBack(x);
   let kept = parts.filter((x) => !isFiller(x) && !(CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
   if (maxSentences && kept.length > maxSentences) kept = kept.slice(0, maxSentences); // (a reply to a short reaction is short)
@@ -141,6 +147,12 @@ export function holdToPlan(text, plan, agentTurn, said = '', writerTexts = [], {
       if (!out) out = agentTurn.ack || '';
       if (plan.act === 'ask') out = agentTurn.enforce(out);
     }
+  }
+  if (plan?.act === 'ask' && !/^\s*(?:\d{1,2}[.)]|[-*•])\s/m.test(out)) {
+    // An ask turn asks ONE thing, and it is the planned one at the end: a question the model asked mid-paragraph ("What is her name?") is not removable by `enforce`, so it goes here.
+    const parts = splitSentencesLite(out);
+    const qs = parts.filter((x) => /\?["')\]]*\s*$/.test(x) && !isSuggestion(x));
+    if (qs.length > 1) out = parts.filter((x) => !qs.includes(x) || x === qs.at(-1)).join(' ').trim();
   }
   if (plan?.act === 'serve' && !/^\s*(?:\d{1,2}[.)]|[-*•])\s/m.test(out)) {
     // An answer asks at most one thing (the prompt says so; a 3B model still stacks three): all but the last question sentence go.

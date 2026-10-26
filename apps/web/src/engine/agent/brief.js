@@ -64,7 +64,8 @@ export function briefFor({ plan, state, ctx, libraryNotes = [] }) {
   for (const t of TRIES) {
     const shown = new Set([...recorded].sort((a, b) => getSlot(state, b.id).turn - getSlot(state, a.id).turn).slice(0, t.filled).map((s) => s.id));
     const parts = [];
-    if (!blank) parts.push(`What you understand so far (the writer's own words):\n${recorded.filter((s) => shown.has(s.id)).map((s) => `- ${s.label}: ${clip(getSlot(state, s.id).value, t.clip)}`).join('\n') || '- Nothing recorded yet.'}`);
+    // (nothing recorded: no block, measured on the real model a reply said "You mentioned feeling stuck with nothing recorded yet")
+    if (!blank && recorded.length) parts.push(`What you understand so far (the writer's own words):\n${recorded.filter((s) => shown.has(s.id)).map((s) => `- ${s.label}: ${clip(getSlot(state, s.id).value, t.clip)}`).join('\n')}`);
     if (unknown.length && !blank && asking) parts.push(`Not yet known: ${unknown.slice(0, t.unknown).join(', ')}`);
     if (notes.length && t.notes) parts.push(`Conventions to keep in mind:\n${notes.slice(0, t.notes).map((n) => `- ${clip(squash(n), 140)}`).join('\n')}`);
     if (asked.length && asking) parts.push(`Questions you have already asked (do not repeat or reword them):\n${asked.slice(-t.asked).map((q) => `- ${trimWords(q, 25)}`).join('\n')}`);

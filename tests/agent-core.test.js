@@ -1174,7 +1174,7 @@ test('briefFor: what is understood, what is not, the conventions, what was asked
   assert.match(briefFor({ plan: { act: 'reflect' }, state, ctx }), /This turn:\nTalk like a collaborator who is listening\. In at most three short sentences: first answer what they just said[^\n]*then give ONE suggestion of your own[^\n]*begin it with "What if", "You could", "Maybe" or "One angle:"[^\n]*never a line of their story and never stated as if it already happened\. Do not retell their idea or say how good it is\. Ask no other question\./)
   assert.match(briefFor({ plan: { act: 'serve' }, state, ctx }), /This turn:\nAnswer what they asked \(or give what they asked for\)\. Do not interview them this turn\. Stay with ideas, explanations and questions/);
   assert.match(briefFor({ plan: { act: 'ask', slot: null, question: KIND_QUESTIONS[2] }, state: emptyAgentState(), ctx }), /ask exactly ONE question about what kind of piece they are making/);
-  assert.match(briefFor({ plan: { act: 'reflect' }, state: with_(), ctx }), /- Nothing recorded yet\./);
+  assert.doesNotMatch(briefFor({ plan: { act: 'reflect' }, state: with_(), ctx }), /Nothing recorded|What you understand so far/, 'nothing recorded: no block (a reply said "nothing recorded yet" to the writer)');
   for (const act of ['ask', 'reflect', 'serve']) assert.ok(!/\b(?:write|draft|compose|rewrite)\b/i.test(briefFor({ plan: { ...plan, act }, state: bigState(), ctx })), 'never an instruction to write the writer\'s text');
 });
 

@@ -122,3 +122,20 @@ test('"the second one" means the second card the writer sees, whatever numbers t
   const text = { role: 'assistant', content: '3. The vault is a decoy.\n4. The mole is the curator.\n5. The loot was never there.' };
   assert.match(pickedItem('the second one', text).text, /mole/);
 });
+
+test('"go back to the first thing you said" is answered with NIE\'s first real reply shown, not its latest idea', () => {
+  const past = [
+    { role: 'user', content: 'a thriller about a translator who realises the speech is a lie' },
+    { role: 'assistant', content: 'What single thing, if it vanished tomorrow, would set the translator free?', route: 'local' },
+    { role: 'user', content: 'give me a few directions' },
+    { role: 'assistant', content: '1. The lie is hers.\n\n2. The booth is bugged.', route: 'local', ideas: [{ text: 'The lie is hers.' }, { text: 'The booth is bugged.' }] },
+    { role: 'user', content: "that's cliche" },
+    { role: 'assistant', content: 'Understood. What if the lie is exposed in a private moment?', route: 'local' },
+  ];
+  const note = replyContext({ text: 'ok go back to the first thing you said', past });
+  assert.match(note, /They mean the first thing you said in this conversation/);
+  assert.match(note, /What single thing, if it vanished tomorrow/);
+  assert.doesNotMatch(note, /private moment/);
+  const small = [{ role: 'assistant', content: 'Hey there.', route: 'local', agent: { act: 'chat' } }, ...past];
+  assert.match(replyContext({ text: 'ok go back to the first thing you said', past: small }), /What single thing/, 'a hello is not "the first thing"');
+});

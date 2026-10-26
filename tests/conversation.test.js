@@ -201,3 +201,15 @@ test('"You mentioned ..." right after they said it is an echo and goes; a questi
   const fixed = enforceReply("That sounds really challenging. How does that moment connect to your main character's desire and the stakes of the story?", plan, { state, ctx: agent.ctx, askedTexts: [], terms: new Set(['story', 'stuck', 'complet']) });
   assert.match(fixed.text, /Which came first for you/);
 });
+
+test('an ask turn keeps one question, the planned one at the end, and drops "In your description, you mention ..."', async () => {
+  const { default: agent } = await import('../apps/web/src/engine/agent/index.js');
+  const project = projectWith();
+  const msg = 'I am writing about a girl who can hear the dead.';
+  const t = await agent.turn({ project, message: msg, reading: { task: 'develop' }, recentMessages: [] });
+  assert.equal(t.plan.act, 'ask');
+  const out = holdToPlan('In your description, you mention "a girl". What is her name? What does she look like?', t.plan, t, msg, [msg], {});
+  assert.doesNotMatch(out, /In your description/);
+  assert.equal((out.match(/\?/g) ?? []).length, 1, out);
+  assert.match(out, new RegExp(t.plan.question.text.slice(0, 20).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});

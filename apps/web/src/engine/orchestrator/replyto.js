@@ -81,6 +81,12 @@ const STANCE = {
   follow: 'It is a reply to your last message. Answer it as a reply to that, not as a new topic.',
 };
 
+/** NIE's first reply in the chat that was written for the idea: not small talk, not a refusal or a fixed answer (its route is "builtin"), unless it was a set of idea cards. */
+export function firstOfNie(history) {
+  const m = (Array.isArray(history) ? history : []).find((x) => x?.role === 'assistant' && String(x.content ?? '').trim() && x.agent?.act !== 'chat' && (x.route !== 'builtin' || x.ideas?.length));
+  return m ? String(m.content).replace(/\n{2,}/g, '\n').trim() : '';
+}
+
 /**
  * The note for the turn: what the writer is replying to. '' when it is not a short reply to NIE (the first message, a long message, or when NIE spoke only a card of ideas the
  * writer can see in the history anyway).
@@ -94,7 +100,10 @@ export function replyContext({ text, past }) {
   const kind = kindOfReply(text, last);
   const item = kind === 'pick' ? pickedItem(text, last) : null;
   const lines = [`Their message is a reply to what you said last:\n"""\n${clip(lastText, LAST_CHARS)}\n"""`];
-  if (item) lines.push(`They mean number ${item.n} of your list: "${clip(item.text, 220)}". Work with that one.`);
+  // "go back to the first thing you said": a small model cannot find it far up the conversation, so it is found here (NIE's first reply that was not small talk, a refusal or a library card) and shown
+  const first = kind === 'go-back' && /\b(?:first|original|beginning|start)\b/i.test(text) ? firstOfNie(history) : null;
+  if (first) lines.splice(0, 1, `They mean the first thing you said in this conversation:\n\"\"\"\n${clip(first, 380)}\n\"\"\"\nGo back to that, not to your latest idea.`);
+  else if (item) lines.push(`They mean number ${item.n} of your list: "${clip(item.text, 220)}". Work with that one.`);
   else lines.push(BEFORE.test(text) && kind === 'follow' ? STANCE.follow : STANCE[kind]);
   lines.push('Keep it to three or four sentences.');
   return lines.join('\n');
