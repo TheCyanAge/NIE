@@ -37,8 +37,17 @@ export const LIBRARY_SESSIONS = [
     id: 'form-without-profile',
     about: 'A subject the library holds no facets of: a facet question is answered by saying so.',
     steps: [
+      { say: 'What is a sestina?', follow: null, mustMention: [['sestina']] },
+      { say: 'what about its tropes?', follow: ['missing', 'facet'] }, // (says it holds none, until the library has a profile of the sestina)
+    ],
+  },
+  {
+    id: 'form-with-profile',
+    about: 'A form the library holds a whole-subject profile of: a facet question is answered from that profile, and "tell me more" goes on to the next part of it.',
+    steps: [
       { say: 'What is a villanelle?', follow: null, mustMention: [['villanelle']] },
-      { say: 'what about its tropes?', follow: ['missing', 'facet'] }, // (says it holds none, until the library has a profile of the villanelle)
+      { say: 'what about its history?', follow: 'facet', mustMention: [['Passerat', 'French', 'Thomas', 'Roethke', 'nineteen']] },
+      { say: 'tell me more', follow: 'more' },
     ],
   },
   {
