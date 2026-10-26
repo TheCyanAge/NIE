@@ -57,11 +57,13 @@ const wanted = asked.flatMap((id) => (id === 'heldout' ? HELD_OUT_SESSIONS.map((
 const report = { threads: service.threads, sessions: {} };
 
 async function runSession(session) {
-  const o = new Orchestrator({ engine, variety: 'full' });
+  const trace = [];
+  const o = new Orchestrator({ engine, variety: 'full', trace });
   const project = createProjectData({ title: `Talk ${session.id}` });
   const turns = [];
   for (const step of session.steps) {
     const from = calls.length;
+    trace.length = 0;
     const t0 = Date.now();
     const r = await o.brainstorm({ project, message: step.say });
     const ms = Date.now() - t0;
@@ -69,7 +71,7 @@ async function runSession(session) {
       say: step.say, note: step.note ?? '', reply: r.reply, ms, route: r.route, intent: r.intent.type,
       read: r.understood ? `${r.understood.by}:${r.understood.task ?? '-'}${r.understood.overruled ? `(was ${r.understood.overruled})` : ''}` : null,
       agent: r.agent ? `${r.agent.act ?? r.agent.handled ?? '-'}${r.agent.slot ? `:${r.agent.slot}` : ''}` : null,
-      cards: r.ideas?.length ?? 0,
+      cards: r.ideas?.length ?? 0, held: trace.at(-1) ?? null,
       words: wordsOf(r.reply), questions: (r.reply.match(/\?/g) ?? []).length, calls: calls.slice(from).length,
     });
   }
@@ -83,6 +85,8 @@ async function runSession(session) {
   };
   console.log(`\n--- ${session.id}: ${JSON.stringify(m)}`);
   turns.forEach((t, i) => console.log(`TALK-REPLY ${JSON.stringify({ session: session.id, turn: i + 1, say: t.say, note: t.note, reply: t.reply, route: t.route, intent: t.intent, read: t.read, agent: t.agent, cards: t.cards, sec: Number((t.ms / 1000).toFixed(1)) })}`));
+  // (what the model first said on a steered turn, where it differs from the reply: for whoever fixes what the judge finds, not for the judge)
+  turns.forEach((t, i) => t.held && t.held.raw.trim() !== t.reply.trim() && console.log(`TALK-RAW ${JSON.stringify({ session: session.id, turn: i + 1, plan: t.held.plan, raw: t.held.raw })}`));
   return { metrics: m, turns };
 }
 

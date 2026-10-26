@@ -331,8 +331,9 @@ export class Orchestrator {
    *   `agent: null` turns the idea agent off (agent/: the sheet of the writer's own words, the paced questions, the offer to keep an idea), for the lab's A/B runs.
    *   `mind: false` stops NIE recalling what the writer said earlier (mind/), `editor: false` stops the measured facts about a long text (editor/): both only for A/B runs.
    */
-  constructor({ engine, readNotes = true, variety = 'full', agent = defaultAgent, mind = true, editor = true }) {
+  constructor({ engine, readNotes = true, variety = 'full', agent = defaultAgent, mind = true, editor = true, trace = null }) {
     this.engine = engine;
+    this.trace = trace; // (an array, only for the labs: what the model first said on a steered turn, and what it was held to)
     this.readNotes = readNotes;
     this.variety = variety;
     this.agent = agent;
@@ -879,6 +880,7 @@ export class Orchestrator {
     if (res.text) {
       const guarded = got.polished.guarded;
       reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn, askText, writerWords, holdOpts) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      this.trace?.push({ plan: plan?.act ?? null, raw: guarded.text, held: reply });
       // A writer who says they are stuck or tired is met by a person before a question (the model rarely does it, and its comment, which rests on nothing they said, is cut).
       if (brief && isLowMood(askText) && splitSentencesLite(reply)[0] && /\?["')\]]*\s*$/.test(splitSentencesLite(reply)[0])) reply = `${pickLine(LOW_LEADS, askText)} ${reply}`;
       // Every sentence the model gave stated something of its own about the story as if it were so, and none was a suggestion: ask once more, saying exactly that, before the canned acknowledgement stands in.
