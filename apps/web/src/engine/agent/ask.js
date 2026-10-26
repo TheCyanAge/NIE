@@ -203,6 +203,15 @@ export function askTerms(state, recentMessages = []) {
 // ── keeping a model's reply to the plan ──────────────────────────────────────
 
 const LIST_MARK = /^(?:\d{1,3}[.)]|[-*•])[ \t]+/;
+
+/**
+ * A suggestion is NIE's own idea, said as one: "What if...", "You could...", "Maybe...", "One angle:...". It is a concept for the writer to react to (an angle, a complication,
+ * a possibility), never a line of their story, and it may carry words the writer never used, which is what makes it a suggestion and not an echo. "What if...?" ends in a question
+ * mark but is not a question ABOUT their project, so it is not counted or cut as one.
+ */
+export const SUGGESTION_FRAME = /^\s*(?:(?:and|or|so|but|also|now|then)[,\s]+)?(?:what if|what about (?:having|making|letting|giving|turning|adding)|you could|you might|you can try|maybe|perhaps|one (?:angle|option|possibility|direction|complication|way in|thing to try|thought)|another (?:angle|option|possibility|direction|complication|thought)|something to try|try (?:asking|giving|making|letting|flipping|having|turning|adding|starting)|consider\b|it could be|it might be|there'?s room)/i;
+export const isSuggestion = (s) => SUGGESTION_FRAME.test(String(s ?? ''));
+
 function endsWithQ(s) {
   for (let i = s.length - 1; i >= 0; i--) {
     if (s[i] === '?') return true;
@@ -235,7 +244,7 @@ function analyse(text) {
     const at = text.indexOf(s, cursor);
     if (at < 0) continue;
     if (spans.length && /\n[ \t\r]*\n/.test(text.slice(cursor, at))) para++;
-    spans.push({ text: s, start: at, end: at + s.length, para, q: endsWithQ(s), item: lines.some((l) => at >= l.start && at <= l.end && l.item) });
+    spans.push({ text: s, start: at, end: at + s.length, para, q: endsWithQ(s) && !isSuggestion(s), item: lines.some((l) => at >= l.start && at <= l.end && l.item) });
     cursor = at + s.length;
   }
   for (const sp of spans) {

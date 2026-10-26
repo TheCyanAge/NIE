@@ -1,6 +1,6 @@
 import { detectIntent, extractPremiseCues, updateWorkingPremise } from '../intent/intent.js';
 import { interpretProfile } from '../profile/interpret.js';
-import { answerFromLibrary, forProfile, libraryStatus, loadLibrary, search } from '../knowledge/index.js';
+import { answerFromLibrary, forProfile, libraryStatus, loadLibrary, search, searchScored } from '../knowledge/index.js';
 import { MAX_AGE, afterRest, chipsFor, noteAnswer, resolveFollowUp } from '../knowledge/thread.js';
 import { emptyThread } from '../knowledge/thread-state.js';
 import { appendMessage } from '../project/memory.js';
@@ -10,6 +10,8 @@ import { composeMessages, ideaRequestBlock, indexFor, RETRY_TOKEN_LIMIT } from '
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
 import { avoidBlock, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
+import { replyContext } from './replyto.js';
+import { holdSmallTalk, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
 import { makeOverview, projectNotesCache, readThrough, sectionKey } from '../reading/notes.js';
@@ -23,6 +25,7 @@ import defaultAgent from '../agent/index.js';
 import { detectProject } from '../agent/detect.js';
 import { grasp as agentGrasp } from '../agent/sheet.js';
 import { filledIds, stemSet } from '../agent/state.js';
+import { isSuggestion } from '../agent/ask.js';
 import { parseKeepCommand } from '../agent/talk.js';
 import { clearTokenMemo, describeMind, mindOf, recall, rememberStatements } from '../mind/index.js';
 import { analyseText, analysisKey, clearGroundingCache, editorialEvidence, findThirdPerson, groundNames, measuredAnswer, readbackFrame } from '../editor/index.js';
@@ -39,6 +42,9 @@ const RANK = { none: 0, weak: 1, strong: 2 };
 /** "yes", "no", "ok", "maybe": a reply, not a question, so it is never looked up in the library ("yes" found "yes-but"). */
 /** A turn that only acknowledges and asks needs a sentence or two, not 700 tokens: the model is held to that (the writer waits for every token on a CPU). */
 const SHORT_TURN_TOKENS = 200;
+const STORY_NOTE_KINDS = new Set(['technique', 'structure', 'genre', 'form', 'movement']);
+const STORY_NOTE_MIN_SCORE = 12;
+const STORY_NOTE_MIN_COVERAGE = 0.4;
 /**
  * The built-in replies of the older design end in a list of questions ("A few things would help me: - ...? - ...?"). The idea agent asks ONE, now and then, so under its
  * plan those lists go (with the line that introduced them); what is left is the part of the reply that says something.
@@ -79,20 +85,29 @@ export function holdToPlan(text, plan, agentTurn, said = '') {
     if (kept.length < sentences.length && kept.some((x) => /\?["')\]]*\s*$/.test(x))) out = kept.join(' ').trim();
   }
   if (plan?.act === 'ask' || plan?.act === 'reflect') {
-    // The comment (what is not a question) must stay with what the writer said; invented imagery is cut, and a turn left with nothing says what it recorded instead.
+    // What is not a question is either a SUGGESTION (NIE's own idea, said as one: "What if...", "You could...") or a comment on what the writer said. A comment must stay with their
+    // words (measured on the real model: asked to react without adding anything, a 3B model wrote lines of story the writer never wrote), so a comment sentence that brings in
+    // imagery of its own is cut, one sentence at a time. A suggestion may bring new things, because it says it is NIE's idea; one that quotes a line of dialogue is cut.
+    // A turn left with nothing says what it recorded instead.
     const sentences = splitSentencesLite(out);
-    const isQ = (x) => /\?["')\]]*\s*$/.test(x);
-    const comment = sentences.filter((x) => !isQ(x)).join(' ').trim();
-    if (comment && agentTurn.grounded && !agentTurn.grounded(comment)) {
-      const questions = sentences.filter(isQ).join(' ').trim();
-      out = plan.act === 'ask' ? questions : '';
+    const isQ = (x) => /\?["')\]]*\s*$/.test(x) && !isSuggestion(x);
+    const ok = (x) => isQ(x) || (isSuggestion(x) ? !/["“][^"”]{12,}["”]/.test(x) : !agentTurn.grounded || agentTurn.grounded(x));
+    const kept = sentences.filter(ok);
+    if (kept.length < sentences.length) {
+      const questions = kept.filter(isQ).join(' ').trim();
+      const rest = kept.filter((x) => !isQ(x)).join(' ').trim();
+      out = plan.act === 'ask' ? [rest, questions].filter(Boolean).join(' ') : rest;
       if (!out) out = agentTurn.ack || '';
       if (plan.act === 'ask') out = agentTurn.enforce(out);
     }
   }
-  if (plan?.act === 'reflect' && /\?/.test(out)) {
-    const kept = splitSentencesLite(out).filter((s) => !/\?["')\]]*\s*$/.test(s)).join(' ').trim();
-    out = words(kept).length >= 4 ? kept : agentTurn.ack || kept || out;
+  if (plan?.act === 'reflect') {
+    // (a turn that does not ask keeps its suggestion and drops any real question)
+    const isQ = (x) => /\?["')\]]*\s*$/.test(x) && !isSuggestion(x);
+    if (splitSentencesLite(out).some(isQ)) {
+      const kept = splitSentencesLite(out).filter((x) => !isQ(x)).join(' ').trim();
+      out = words(kept).length >= 4 ? kept : agentTurn.ack || kept || out;
+    }
   }
   return out || text;
 }
@@ -407,6 +422,28 @@ export class Orchestrator {
     return this.#finish(project, intent, h.reply, 'builtin', false, { suggestions: h.suggestions, agent: { handled: h.kind, ...(h.committed ? { kept: true } : {}) } });
   }
 
+  /**
+   * Small talk (see smalltalk.js). The model answers from the earlier conversation and one instruction; its reply must pass `holdSmallTalk` (short, no list, at most one question,
+   * nothing named that the writer never named), otherwise NIE's own line, chosen by what the writer said, stands. Nothing is recorded in the idea sheet or the project's mind.
+   */
+  async #smallTalk({ project, intent, text, past, onToken, signal }) {
+    let reply = '';
+    let route = 'builtin';
+    let fallback = null;
+    if ((this.engine.route?.() ?? 'builtin') !== 'builtin') {
+      const composeArgs = { mode: 'brainstorm', project, interp: null, userMessage: text, document: null, history: past, retrieved: [], legacy: this.variety === 'legacy', extra: smallTalkNote({ text, project }) };
+      const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.8, maxTokens: SHORT_TURN_TOKENS });
+      if (got.asked.res.text) {
+        reply = holdSmallTalk(got.polished.guarded.text, { project, text, past });
+        route = reply ? got.asked.res.route : 'builtin';
+        if (!reply) fallback = { reason: 'withheld' };
+      } else if (got.asked.failure && got.asked.modelReady) fallback = { reason: 'error', detail: describeModelFailure(got.asked.failure) };
+    }
+    if (!reply) reply = smallTalkFallback({ text, project });
+    if (route === 'builtin') onToken?.(reply, reply);
+    return this.#finish(project, intent, reply, route, false, { agent: { act: 'chat' }, ...(fallback ? { fallback } : {}), suggestions: [] });
+  }
+
   /** Chips after a reply that asked a question: an honest way out of it, and the way to keep what there is. */
   #agentChips(turn, project) {
     const plan = turn?.plan;
@@ -461,6 +498,24 @@ export class Orchestrator {
     intent.type = 'craft-question';
     intent.reading = { ...intent.reading, task: 'craft', overruled: reading.task };
     return true;
+  }
+
+  /**
+   * The craft notes that go with a story conversation. Measured on the real model (and by reading what the search returned), plain word matching over thousands of records
+   * puts noise next to a message about someone's story ("a lighthouse keeper forging tide tables" found Syllogism, Apposition and three citation rules; "retired surgeon" found
+   * the style rules for "Dr" and "Mister"), and a 3B model then talks about whatever it is handed. So a note goes in only when it is about the craft of making a story (a technique,
+   * a structure, a genre, a form, a movement), matches strongly, and covers what the message is about; a message of three words or fewer, which cannot be about a technique,
+   * gets none. The writer's declared genres and forms (their profile) still go in.
+   */
+  storyNotes(project, text, { limit = 2 } = {}) {
+    const declared = forProfile(project.profile).slice(0, 2);
+    const t = String(text ?? '').trim();
+    if (t.split(/\s+/).filter(Boolean).length <= 3) return declared;
+    const found = searchScored(t, { limit: 6, minScore: STORY_NOTE_MIN_SCORE })
+      .filter((x) => STORY_NOTE_KINDS.has(x.entry.kind) && x.headCoverage >= STORY_NOTE_MIN_COVERAGE)
+      .slice(0, limit)
+      .map((x) => x.entry);
+    return [...new Map([...declared, ...found].map((e) => [e.id, e])).values()].slice(0, limit + 2);
   }
 
   retrieve(project, text) {
@@ -571,6 +626,9 @@ export class Orchestrator {
       const emit = onToken;
       onToken = emit ? (d, full) => emit(d, lead + full) : emit;
     }
+
+    // A hello, a thanks, "how are you?", "ok cool": answered like a person, in a line or two, with nothing fetched for it (no library notes, no recall, no idea sheet to point at).
+    if (!paste && !lensOpt && !follow && !aboutText && isSmallTalk(reading, askText)) return this.#smallTalk({ project, intent, text: askText, past, onToken, signal });
 
     // The subject has nothing more (or no record of that facet): said plainly, from what the library really holds, with no model asked.
     if (follow?.reply) {
@@ -695,7 +753,7 @@ export class Orchestrator {
     }
     // (A turn that only acknowledges and asks is steered by the idea agent's brief, which carries the genre's conventions; the general reference notes add prompt to read for little.)
     const steeredShort = Boolean(agentTurn) && !lib && !libMiss && !aboutText && !noAsk && ['ask', 'reflect'].includes(agentTurn.plan?.act);
-    const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.retrieve(project, askText).slice(0, steeredShort ? 2 : 6);
+    const retrieved = lib ? [...new Map([...lib.entries, ...lib.related, ...this.retrieve(project, askText)].map((e) => [e.id, e])).values()].slice(0, 6) : this.storyNotes(project, askText, { limit: steeredShort ? 2 : 3 });
     const shared = intent.type === 'share-passage' ? text : '';
     const passage = doc.document ? '' : shared; // a long paste is already shown through the reading block; do not show its opening a second time
     const report = shared ? scan({ text: doc.document?.subject === 'passage' ? doc.document.text : shared, project }) : null;
@@ -710,6 +768,9 @@ export class Orchestrator {
     // (With no model, a writer who simply tells NIE about the idea gets an acknowledgement of what was recorded. A reply that has its own content stays: a change of direction, a pasted passage, the first sparks.)
     const telling = steer && Boolean(agentTurn.ack) && (agentTurn.act === 'info' || agentTurn.act === 'answer') && ['share-premise', 'discuss'].includes(intent.type);
 
+    // A short reply to NIE's last message is told what it replies to (and which numbered idea it picks), so it is never answered as if it came from nowhere.
+    const replyTo = paste || lensOpt || lib || libMiss || noAsk || aboutText ? '' : replyContext({ text: askText, past });
+
     const composeArgs = {
       mode: 'brainstorm',
       project,
@@ -721,7 +782,7 @@ export class Orchestrator {
       history: aboutText ? [] : past,
       retrieved,
       legacy: this.variety === 'legacy',
-      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const turnTokens = aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700;
     // An answer to a direct question the library answers well is the library's own text, put together by code, and no model is asked to retell it: measured on the real model (an audit

@@ -89,11 +89,16 @@ test('a reply that is nothing but questions ends with exactly one, even when the
   assert.equal((three.text.match(/\?/g) ?? []).length, 1, three.text);
 });
 
-test('a turn that only acknowledges and asks is told to be short and to add nothing of its own', () => {
+test('a turn that asks is told to be short and to add nothing of its own; a turn that does not ask may add one suggestion, said as NIE\'s own idea', () => {
   const state = { ...story(), slots: { protagonist: { value: 'Wren Alder', turn: 1, via: 'said' } } };
   for (const act of ['ask', 'reflect']) {
     const brief = briefFor({ plan: { act, slot: 'want', question: { text: 'What does Wren want most?' } }, state, ctx });
-    assert.match(brief, /Do not retell their idea, guess what happens next, add any detail of your own, or say how good it is\./);
+    if (act === 'ask') assert.match(brief, /Do not retell their idea, guess what happens next, add any detail of your own, or say how good it is\./);
+    else {
+      assert.match(brief, /ONE suggestion of your own/);
+      assert.match(brief, /Do not retell their idea or say how good it is\./);
+      assert.doesNotMatch(brief, /add any detail of your own/);
+    }
     assert.ok(estimateTokens(brief) <= 380);
   }
 });

@@ -435,8 +435,8 @@ test('a thank-you is answered warmly and briefly: the model is told not to turn 
   const { o, calls, reads } = setup({ reading: read('ideas'), reply: 'You are welcome!' });
   await o.brainstorm({ project: projectWith(), message: 'thanks!' });
   assert.equal(reads.length, 0);
-  assert.match(calls[0].messages.at(-1).content, /just being friendly/);
-  assert.match(calls[0].messages.at(-1).content, /Do not give ideas, lists or advice/);
+  assert.match(calls[0].messages.at(-1).content, /small talk/);
+  assert.match(calls[0].messages.at(-1).content, /Do not give ideas, lists, advice or craft notes/);
 });
 
 test('questions about file formats are answered from the facts about Read mode', async () => {

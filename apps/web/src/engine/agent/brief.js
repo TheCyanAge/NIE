@@ -40,7 +40,8 @@ function instruction(plan, slot, hintChars) {
   const ask = `ask exactly ONE question about ${about}. Use their own names and terms; make it specific to THIS project.${q}`;
   if (plan.act === 'ask') return `Reply in at most two short sentences that point at one specific detail they gave. ${NO_RETELL} Then ${ask} ${KEEP_THEIRS}`;
   if (plan.act === 'serve') return `Answer what they asked (or give what they asked for). Do not interview them this turn.${plan.alsoAsk ? ` After answering, ${ask}` : ''} ${KEEP_THEIRS}`;
-  return `Reply in ONE short plain statement (at most 25 words) that points at one specific detail they gave and what it sets up. ${NO_RETELL} It must not be a question and must not hint at one: no "what", "how" or "why" aimed at them. ${KEEP_THEIRS}`;
+  if (plan.act === 'reflect' && plan.reason === 'chat') return `Answer them the way a thoughtful person would, in one or two short sentences. Do not ask about the details of their project this turn. ${KEEP_THEIRS}`;
+  return `Talk like a collaborator who is listening. In at most three short sentences: first answer what they just said (if they asked something, answer it; if they reacted to your last message, respond to THAT), using their own names and terms and adding no fact to their story; then give ONE suggestion of your own that follows from it, and say it as a suggestion: begin it with "What if", "You could", "Maybe" or "One angle:". A suggestion is an angle, a complication or a possibility, in one sentence, never a line of their story and never stated as if it already happened. Do not retell their idea or say how good it is. Ask no other question. ${KEEP_THEIRS}`;
 }
 
 /**

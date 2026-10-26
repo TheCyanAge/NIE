@@ -77,7 +77,15 @@ const RULES = [
     /^\s*(?:what|who|how|why|when|where)(?:'s| is| are| does| do| was| were)\b.*\b(?:narrator|structure|genre|trope|arc|pov|point of view|tense|foreshadow|pacing|subtext|motif|theme|symbol|exposition|dialogue|twist|climax|act|plot|device|style|voice|irony|framing)\b/i,
     /\b(?:explain|define|what does .* mean|difference between|teach me)\b/i,
   ]],
-  ['greeting', [/^\s*(?:hi|hello|hey|yo|good (?:morning|afternoon|evening)|thanks|thank you|ok(?:ay)?|cool)\b[\s!.,?]*$/i]],
+  // Small talk, by rule: a hello, thanks, "how are you?", "back again", a goodbye, "ok cool". Whole messages only; "hey, can you give me ideas?" is not small talk.
+  ['greeting', [
+    /^\s*(?:hi+|hello|hey+|heya|hiya|yo|howdy|good (?:morning|afternoon|evening)|morning|thanks|thank you|thx|cheers|ok(?:ay)?|cool)\b[\s!.,?]*$/i,
+    /^\s*(?:(?:hi+|hello|hey+|heya|hiya|yo|howdy)[\s,!.]*)?(?:how are you(?: doing)?(?: today)?|how'?s it going|how have you been|how'?re you|what'?s up|sup)[\s!.,?]*$/i,
+    /^\s*(?:(?:hi+|hello|hey+|yo)[\s,!.]*)?(?:i'?m back(?: again)?|im back|back again|back for more)[\s!.,?]*$|^\s*(?:hi|hello|hey) again[\s!.,?]*$/i,
+    /^\s*(?:thanks|thank you|thx|cheers)(?: (?:so much|a lot|very much|again|nie|a bunch))*[\s!.,?]*$/i,
+    /^\s*(?:bye+|goodbye|good ?night|see you|see ya|talk (?:to you )?(?:later|soon)|ttyl)(?: (?:now|later|for now|soon|tomorrow))?[\s!.,?]*$/i,
+    /^\s*(?:ok(?:ay)?|cool|nice|great|awesome|alright|got it|sounds good|makes sense)(?:[\s,]+(?:cool|thanks|thank you|great|nice|awesome|got it|sounds good|makes sense))?[\s!.,?]*$/i,
+  ]],
 ];
 
 // A question that asks what something is, who made it, or to explain it ("what is a sonnet", "who invented the villanelle", "explain the villanelle"), as opposed to
