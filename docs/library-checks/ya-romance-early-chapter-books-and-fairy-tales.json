@@ -1,0 +1,145 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch summaries were the only web source; WebFetch could not resolve hosts (getaddrinfo ENOTFOUND). Where a search did not return a fact, it was kept only if it rests on solid knowledge or agrees with the library's own entries, and is listed in remainingDoubts.",
+  "lintOk": true,
+  "files": {
+    "ya-romance.js": {
+      "claimsChecked": 62,
+      "confirmed": 50,
+      "corrected": [
+        {
+          "where": "history conv 5 (paperback lines)",
+          "was": "In the early 1980s mass-market paperback lines such as Bantam's Sweet Dreams and Scholastic's Wildfire ... sold teen romance",
+          "now": "From the late 1970s and early 1980s mass-market paperback lines such as Scholastic's Wildfire and Bantam's Sweet Dreams, and from 1983 the Sweet Valley High series, ...",
+          "why": "Search sources put Wildfire's first titles in 1978 or 1979, not the early 1980s; Sweet Dreams began in 1981; Sweet Valley High's first books appeared in fall 1983. Canon conv label changed to 'late 1970s and 1980s' and the history watch note to match."
+        },
+        {
+          "where": "history conv 5 (decline of the lines)",
+          "was": "the market for these lines faded by the early 1990s",
+          "now": "the market for these lines shrank through the 1990s",
+          "why": "Sweet Dreams ran to about 1995 or 1996 (sources differ), so 'faded by the early 1990s' was too early; no source gave a firm end date for Wildfire."
+        }
+      ],
+      "softened": [
+        {"where": "history conv 1", "was": "the most-cited ancestor", "now": "a frequently cited ancestor", "why": "A superlative nobody has measured."},
+        {"where": "history conv 2", "was": "built around dates, dances and going steady", "now": "centred on first dates, friendships and growing up", "why": "A Kirkus review of Going on Sixteen describes a shy girl joining her peer group; the old wording overstated the plot content of both books."},
+        {"where": "history conv 3", "was": "two high-school seniors", "now": "two teenagers near the end of high school", "why": "Search sources did not state the characters' grade; wording kept to what is certain."},
+        {"where": "history conv 4 (Annie on My Mind)", "was": "a landmark ... of the romance that does not end in tragedy", "now": "a landmark of lesbian young adult fiction and an early queer love story with a hopeful ending", "why": "Sources frame it as 'one of the first' lesbian YA novels with a happy ending (the Edwards committee's own judgement), not a plain first."},
+        {"where": "history conv 7", "was": "three of them were adapted as films", "now": "at least three of them were adapted as films", "why": "The Fault in Our Stars, To All the Boys I've Loved Before and Love, Simon are certain; searches found no film of Anna and the French Kiss, and Eleanor & Park was still in development in the latest source (2019), so an exact count could not be fixed."},
+        {"where": "history watch 2", "was": "paperback lines of the 1980s", "now": "paperback lines of the late 1970s and 1980s", "why": "Matches the corrected Wildfire dating."},
+        {"where": "subgenres conv 4", "was": "Eleanor & Park, set in 1986", "now": "set in the mid-1980s", "why": "Sources say Omaha in 1986 to 1987; the vaguer wording is true either way."},
+        {"where": "readers conv 7", "was": "a large share of its readers are adults", "now": "many of its readers are adults", "why": "No figure is given, so the claim should not imply one."},
+        {"where": "canon conv 3", "was": "the best-known formula series of teen romance and drama", "now": "among the best-known formula series ...", "why": "Superlative; also dated the era label to late 1970s and 1980s."}
+      ],
+      "removed": [
+        {"where": "subgenres conv 8 (historical teen romance)", "was": "a smaller strand", "why": "An unverified market-size claim; the rest of the sentence stands."}
+      ],
+      "remainingDoubts": [
+        "Wildfire's exact launch year (1978 or 1979) was not settled by any primary source; the file says only 'late 1970s'.",
+        "Years for Romeo and Juliet (1590s), Forever (1975), Twilight (2005), The Hunger Games (2008), The Fault in Our Stars (2012), Simon vs. (2015) and To All the Boys (2014) rest on solid knowledge and agreement with the library; search did not return them directly.",
+        "Heartstopper: sources give August or September 2016 for the start; only the year is stated.",
+        "Meg Cabot's The Princess Diaries: most sources say October 2000, one lists May 2000; either way 2000.",
+        "Length range (fifty to ninety thousand words) matches the library's YA contemporary entry; it is a rough norm, not checked against a market survey.",
+        "'Junior novel' as a period label is supported by search summaries of scholarship (malt shop books, female junior novels), but Going on Sixteen itself was not found described with that label.",
+        "Search summaries only; no page was fetched."
+      ]
+    },
+    "early-chapter-book.js": {
+      "claimsChecked": 50,
+      "confirmed": 45,
+      "corrected": [
+        {
+          "where": "readers conv 4 (pictures)",
+          "was": "Pictures appear every page or two",
+          "now": "Pictures appear every few pages, in some series on nearly every page",
+          "why": "The library's own early chapter book entry says 'every few pages'; the profile contradicted it. Series differ."
+        }
+      ],
+      "softened": [
+        {"where": "history conv 2 (Henry Huggins)", "was": "is often cited as an early model of the everyday-life chapter book", "now": "is an early example of the everyday-life story for children just past picture books, a vein that many later chapter-book series follow", "why": "Year 1950 confirmed; 'often cited as an early model' is a characterisation no source supported."},
+        {"where": "history conv 4", "was": "short series for new independent readers", "now": "short series for children reading on their own", "why": "Encyclopedia Brown is read by somewhat older children, so 'new independent readers' overreached."},
+        {"where": "history conv 6", "was": "publishers and booksellers came to treat the early chapter book as its own category", "now": "in the years after, publishers and booksellers increasingly treated the early chapter book as its own category", "why": "A causal claim stated as settled; made a gradual, hedged statement."},
+        {"where": "history conv 7", "was": "authors known for older fiction began writing for this stage", "now": "some authors known for older fiction began writing for this stage", "why": "Not all authors; avoids an overgeneral claim."}
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Encyclopedia Brown (1963), Nate the Great (1972), Winnie-the-Pooh (1926) and the Seuss/Minarik 1957 titles: 1957 launches and Frog and Toad Are Friends (1970) were confirmed by search; Encyclopedia Brown and Nate the Great years rest on knowledge and on the library's own entries.",
+        "'Often under about a hundred pages' and the few-thousand-to-fifteen-thousand word range are rough norms (the word range follows the library); not checked against a market survey.",
+        "'A stronger emphasis on phonics in several countries' is supported by search results for England's phonics screening check (first run 2012) and an Australian state trial (2017) but is kept general; no US figures were checked.",
+        "The 'dull school primers' remark in the 1957 point was not separately sourced.",
+        "Search summaries only; no page was fetched."
+      ]
+    },
+    "fairy-tale.js": {
+      "claimsChecked": 72,
+      "confirmed": 62,
+      "corrected": [
+        {
+          "where": "history summary",
+          "was": "they first appear in print in Italian and French collections of the sixteenth and seventeenth centuries",
+          "now": "the first major printed collections of fairy tales are Italian and French, from the sixteenth and seventeenth centuries, and Romantic collectors gathered more in the nineteenth",
+          "why": "'First appear in print' contradicted the file's own Apuleius point and earlier written tales; narrowed to the first major collections."
+        },
+        {
+          "where": "history conv 3 (Straparola and Basile)",
+          "was": "Straparola's Le piacevoli notti (1550 to 1553) and Basile's Lo cunto de li cunti (1634 to 1636) printed tales that later appear as Puss in Boots, Cinderella, Sleeping Beauty and Rapunzel, for adult courtly readers",
+          "now": "Straparola's Le piacevoli notti (two volumes, 1550 or 1551 and 1553) holds an early Puss in Boots, and Basile's Lo cunto de li cunti (1634 and 1636) early Cinderella, Sleeping Beauty and Rapunzel tales, both written for adults",
+          "why": "The old sentence blurred which author held which tale; sources assign Puss in Boots to Straparola and the other three to Basile. First-volume date of Straparola differs by source (1550 or 1551). Basile's two volumes are 1634 and 1636. 'Courtly' was not supported, so it became 'adults'."
+        },
+        {
+          "where": "canon conv 1 (Straparola dates)",
+          "was": "Le piacevoli notti (1550 to 1553)",
+          "now": "first volume 1550 or 1551, second 1553 (Basile: 1634 and 1636)",
+          "why": "Sources disagree on 1550 or 1551 for the first volume; the file now says so. The works[] year stays 1550 to agree with the library's 'c. 1550' record."
+        },
+        {
+          "where": "history conv 4 (Galland)",
+          "was": "the Arabic Nights",
+          "now": "the Arabian Nights",
+          "why": "Standard English title of the work Galland translated; 1704 to 1717 in twelve volumes confirmed."
+        },
+        {
+          "where": "history conv 9",
+          "was": "From the 1970s feminist, psychoanalytic and postcolonial readings of the tales ...",
+          "now": "Through the later twentieth century psychoanalytic, feminist and, later, postcolonial readings of the tales ...",
+          "why": "Psychoanalytic readings of tales are far older than the 1970s, and postcolonial ones later; the old wording dated all three to one decade."
+        },
+        {
+          "where": "pitfalls conv 1 (Cox)",
+          "was": "Marian Roalfe Cox gathered 345 variants of Cinderella in 1893",
+          "now": "345 variants of Cinderella, Catskin and Cap o' Rushes in 1893",
+          "why": "The 1893 Folk-Lore Society volume's 345 variants cover three related tale types, not Cinderella alone."
+        },
+        {
+          "where": "pitfalls conv 7 (informants)",
+          "was": "(many informants were educated and middle class)",
+          "now": "(many of the Grimms' informants were educated and middle class)",
+          "why": "The evidence (Grimmwelt museum and others) concerns the Grimms' informants; the old wording generalised it to all tale tellers."
+        }
+      ],
+      "softened": [
+        {"where": "history conv 4 (d'Aulnoy)", "was": "is credited with the term conte de fées", "now": "is generally credited with the term conte de fées", "why": "Sources say she was not the only one using the term; the 1697 to 1698 anchor is firm."},
+        {"where": "canon conv 3 (Grimm)", "was": "the most influential collection of European tales and the model for later folklore collecting", "now": "among the most influential collections of European tales and a model for later folklore collecting", "why": "Superlative and exclusive."},
+        {"where": "terms conv 8 (conte de fées)", "was": "credited to Marie-Catherine d'Aulnoy ... from which English fairy tale comes", "now": "generally credited ... from which the English fairy tale is taken", "why": "Same hedge as the history point."}
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The 2016 study (da Silva and Tehrani, Royal Society Open Science) is confirmed; only light evidence of published criticism was found, so 'a claim that is debated' rests largely on general knowledge and is kept with confidence 'contested'.",
+        "Straparola's first volume: 1550 (one journal), 1551 (a biography entry) and 'between 1550 and 1553' all appear; the file states both years.",
+        "Beaumont's version is dated 1756 by most sources; one archive dates the book 1757. Left at 1756 (matches the library).",
+        "Olrik's law of three and repetition did not appear in the search results (only 'two to a scene' and the existence of the laws did); kept from solid knowledge. Lüthi's one-dimensionality was confirmed.",
+        "Calvino's Fiabe italiane (1956), Perrault (1697), Propp (1928), Aarne (1910), Tolkien's lecture (1939), Disney (1937), Wilde (1888), Andersen (1835) and Carter (1979) rest on solid knowledge and agreement with the library; search did not return Calvino directly.",
+        "Grimm informants being educated and middle class is supported by a museum source (Grimmwelt); no scholarly article was reached.",
+        "Lang's twelve coloured fairy books by 1910 is confirmed; much of the translation and retelling was by Leonora Lang and others, which the file does not mention (omitted as unrelated new content).",
+        "The antisemitic and racist figures in old collections is kept as a general statement; no specific cases were checked.",
+        "Search summaries only; no page was fetched."
+      ]
+    }
+  },
+  "totals": {
+    "claimsChecked": 184,
+    "corrected": 10,
+    "softened": 16,
+    "removed": 1
+  }
+}

@@ -409,6 +409,8 @@ What the second checkers could not confirm:
 | --- | --- | --- | --- | --- | --- | --- |
 | Comedy, satire and magical realism | comedy, satire, magical-realism | 278 | 6 | 5 | 0 | yes |
 | Audio drama and podcasts | radio-drama, fiction-podcast, nonfiction-podcast | 172 | 4 | 17 | 0 | yes |
+| YA romance, early chapter books and fairy tales | ya-romance, early-chapter-book, fairy-tale | 184 | 10 | 16 | 1 | yes |
+| Existentialism, the Harlem Renaissance and the Beats | existentialism, harlem-renaissance, beat-generation | 232 | 4 | 14 | 1 | yes |
 
 ### Comedy, satire and magical realism
 
@@ -431,3 +433,26 @@ What the second checkers could not confirm:
 - 'Spot effects' usage differs between British studio practice (made live) and general sound-design usage; the glossary line now allows both.
 - The speech-rate figure, slot lengths, episode lengths, content-note and transcript practice, the 'public-service broadcasters' statement, and the glossary definitions (diegetic, binaural, track, actuality, paper edit, room tone, right of reply) are general practice or common usage, not checked against a published glossary or sourced statistics.
 - Characterisations (Homecoming told through conversations and calls, Alice Isn't Dead as horror, Radio Ballads as documentary-drama, S-Town likened to a novel) rest on memory plus a quick search.
+
+### YA romance, early chapter books and fairy tales
+
+- Web source was WebSearch summaries only; WebFetch could not resolve hosts (ENOTFOUND), so no page was read directly.
+- Wildfire's exact launch year (1978 or 1979) is unsettled; the file now says only 'late 1970s'. Sweet Dreams ran to about 1995 or 1996, so the decline is now 'shrank through the 1990s'.
+- Straparola's first volume is dated 1550 or 1551 by different sources; the text says both and the works[] year stays 1550 to match the library's 'c. 1550' record.
+- The da Silva and Tehrani 2016 study is confirmed, but little published criticism turned up, so 'debated' rests mostly on general knowledge.
+- Several dates were not returned by search and rest on solid knowledge plus agreement with the library: Encyclopedia Brown 1963, Nate the Great 1972, Hunger Games 2008, Calvino 1956, Perrault 1697, Propp 1928, Aarne 1910, Tolkien 1939, Wilde 1888, Olrik's law of three.
+- Eleanor & Park and Anna and the French Kiss film status was only checked through about 2019, so the file says 'at least three' films.
+- The claim that many of the Grimms' informants were educated and middle class is supported by a museum source (Grimmwelt) only.
+- Page-count and word-count norms for early chapter books and the phonics-emphasis remark are rough, general statements.
+
+### Existentialism, the Harlem Renaissance and the Beats
+
+- Web source was WebSearch summaries only; WebFetch was not usable, so no primary page or work text was read.
+- Esslin's 1961 contrast of Sartre and Camus (reasoned, traditional forms) with the absurdists is paraphrased from solid knowledge; search did not return the passage.
+- Robbe-Grillet's late-1950s essay is confirmed as 1958 and anti-anthropomorphic, but that it names Sartre's Nausea was not confirmed; the specific 'nausea' example was dropped.
+- Camus admiring Cain is repeated mainly by booksellers; the one scholarly source says the original attribution is missing, so the text now says only that Cain's Postman is often named as a model.
+- Sartre's later criticism of the Humanism lecture is supported by the Stanford Encyclopedia (the one publication he openly regretted) but no dated quotation was seen.
+- Black Arts Movement criticism of 1920s white patronage could not be confirmed and was removed in favour of a general statement.
+- Nugent's Fire!! story is widely called the first Black-authored work on homosexuality; the text keeps only the weaker 'more openly than in earlier Black writing'. The 1935 Harlem riot as an end-marker and Hughes's Mulatto staged 1935 were not confirmed by search.
+- Many dates were not individually searched and rest on solid knowledge: most Harlem and existentialist work years, Evergreen Review 1957, Big Table 1959, City Lights 1953 and Pocket Poets 1955, the Johnson, Jones and Carolyn Cassady memoir years, and death years.
+- Memoirs of a Beatnik is dated 1969 (some sources say 1968, probably the writing date); Pull My Daisy is dated 1959 (one filmography says 1958).

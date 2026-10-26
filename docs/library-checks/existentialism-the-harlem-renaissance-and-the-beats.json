@@ -1,0 +1,176 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch summaries were the only web source; WebFetch was not used (hosts do not resolve here). Claims below marked 'solid knowledge' were not individually searched.",
+  "files": {
+    "existentialism.js": {
+      "claimsChecked": 72,
+      "confirmed": 65,
+      "corrected": [
+        {
+          "where": "subgenres, memoir bullet",
+          "was": "Sartre's The Words (published in the early 1960s)",
+          "now": "Sartre's The Words (serialised in 1963, as a book in 1964)",
+          "why": "Searches show serialisation in Les Temps modernes in October and November 1963 and sources dating the book to 1964 (Larousse) or 1963 (Wikipedia); 'early 1960s' hid a real discrepancy."
+        },
+        {
+          "where": "terms, leap of faith",
+          "was": "Leap of faith: Kierkegaard's term for a choice of belief that goes beyond proof",
+          "now": "the usual name for a choice of belief that goes beyond proof, tied to Kierkegaard's talk of a leap, though he did not use the phrase",
+          "why": "Scholarship (McKinnon's computer check of Kierkegaard's collected works, Nientied) finds the phrase 'leap of faith' absent from Kierkegaard's writings."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, beyond France bullet",
+          "was": "Critics have read Saul Bellow and Kobo Abe in the light of existential themes.",
+          "now": "Some critics also read Saul Bellow and Kobo Abe through existential themes.",
+          "why": "Bellow's Dangling Man is widely read this way (secondary sources found); Abe not confirmed by search, so the claim is limited to 'some critics'."
+        },
+        {
+          "where": "history watch",
+          "was": "Camus and Heidegger distanced themselves from it",
+          "now": "Camus rejected it and Heidegger distanced himself from Sartre's version of it",
+          "why": "Sources support Camus rejecting the label and Heidegger's Letter on Humanism distancing himself from Sartre's existentialism, not an explicit rejection of the word itself."
+        },
+        {
+          "where": "tropes, mortality bullet",
+          "was": "a thread that critics trace back to Tolstoy's The Death of Ivan Ilyich (1886) and to Kierkegaard",
+          "now": "a thread also found in Tolstoy's The Death of Ivan Ilyich (1886) and in Kierkegaard",
+          "why": "The attributed critical lineage was interpretive and not sourced; the plain statement that the theme is present is safe."
+        },
+        {
+          "where": "craft, The Stranger bullet",
+          "was": "Camus acknowledged admiring James M. Cain",
+          "now": "James M. Cain's The Postman Always Rings Twice (1934) is often named as a model",
+          "why": "Searches found the claim repeated by publishers and booksellers; the one scholarly source (Egert) says the attribution lacks an original source. Reworded to what critics say."
+        },
+        {
+          "where": "compare, nouveau roman bullet",
+          "was": "Robbe-Grillet argued that existentialist writers still read human meanings, such as nausea, into things",
+          "now": "Robbe-Grillet argued that existentialist writing still gave things human meanings through its imagery",
+          "why": "Search confirmed the late-1950s essay (Nature, humanisme, tragedie, 1958) and its attack on anthropomorphic imagery, but did not surface the passages naming Sartre; the specific 'nausea' example was dropped."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Esslin's 1961 contrast of Sartre and Camus (reasoned traditional forms) with the absurdists is paraphrased from solid knowledge of his introduction; search summaries did not return the passage.",
+        "Robbe-Grillet's essay is confirmed as 1958 and anti-anthropomorphic; that it names Sartre's Nausea specifically was not confirmed by search.",
+        "Sartre's later criticism of the Humanism lecture is supported (Stanford Encyclopedia: the one publication he openly regretted) but no dated quotation was seen.",
+        "Not individually searched, from solid knowledge: Kierkegaard 1843, Kafka 1925/1926, Heidegger 1927, Nausea 1938, The Wall 1939, Being and Nothingness and The Flies 1943, No Exit staged 1944, Roads to Freedom 1945-49, Plague and Ethics of Ambiguity 1947, Dirty Hands 1948, Second Sex 1949, Just Assassins 1949, Rebel 1951 and break 1952, Mandarins 1954, Fall 1956, Exile and the Kingdom 1957, Memoirs of a Dutiful Daughter 1958, Moviegoer 1961, Woman in the Dunes 1962, Nobel 1957 and 1964, death years, Marcel as Catholic thinker and playwright (Marcel confirmed by search).",
+        "Sources for all of this were search summaries only; WebFetch was not usable."
+      ]
+    },
+    "harlem-renaissance.js": {
+      "claimsChecked": 78,
+      "confirmed": 70,
+      "corrected": [
+        {
+          "where": "terms, Talented Tenth",
+          "was": "W. E. B. Du Bois's phrase from 1903",
+          "now": "a phrase W. E. B. Du Bois made famous in an essay of 1903",
+          "why": "PBS, Wikipedia and Sage report the phrase was used earlier (Henry Lyman Morehouse, 1896) and Du Bois popularised it in 1903."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, background bullet",
+          "was": "Harlem became the largest Black urban community in the country",
+          "now": "Harlem became one of the best-known Black urban communities in the country",
+          "why": "Size rankings against Chicago and other cities depend on year and on district versus city; not verified."
+        },
+        {
+          "where": "readers, women writers bullet",
+          "was": "Alice Walker's 1975 essay on Hurston helped bring her work back into print and into classrooms",
+          "now": "Alice Walker's 1975 essay on Hurston is widely credited with renewing interest in her work",
+          "why": "Search confirms the March 1975 Ms. essay and the revival credit, but not the specific out-of-print claim."
+        },
+        {
+          "where": "subgenres, folk and rural fiction bullet",
+          "was": "a dramatic final section set in Georgia and the northern cities",
+          "now": "a dramatic final section, with settings in Georgia and the northern cities",
+          "why": "The book as a whole is set in Georgia and the North; the final section's setting was not confirmed."
+        },
+        {
+          "where": "subgenres, satire and detective bullet",
+          "was": "Fisher's The Conjure-Man Dies (1932) is often called the first detective novel by a Black American",
+          "now": "often called the first Black American detective novel, depending on how earlier crime fiction is counted",
+          "why": "Sources split: LA Review of Books and others say first full-length; Wikipedia says second. Qualified."
+        },
+        {
+          "where": "compare, Negritude bullet",
+          "was": "the Paris writers read the Harlem writers, notably McKay",
+          "now": "the Paris writers drew on the Harlem writers, McKay among them",
+          "why": "Stanford Encyclopedia and BlackPast support Harlem influence via the Nardal salon and Locke's anthology; 'notably McKay' as a read author was only partly confirmed."
+        },
+        {
+          "where": "terms, New Negro",
+          "was": "Alain Locke's term for the self-confident ... Black American of the 1920s",
+          "now": "the phrase Alain Locke made central in 1925 for the self-confident ... Black American; it was in use before his anthology",
+          "why": "Avoids crediting the coinage to Locke."
+        }
+      ],
+      "removed": [
+        {
+          "where": "compare, Black Arts Movement bullet",
+          "was": "it criticised what it saw as the dependence of the 1920s writers on white patrons",
+          "now": "its writers looked back on the 1920s movement with both debt and criticism",
+          "why": "Two searches could not confirm a specific Black Arts criticism of white patronage; the specific claim was removed and replaced with a safe general statement."
+        }
+      ],
+      "remainingDoubts": [
+        "1935 Harlem riot as a marker of the end was not confirmed by search (stated as 'often used'; the watch line gives the contested range 1929 to the late 1930s).",
+        "Nugent's story in Fire!! is widely called the first Black-authored work to address homosexuality; the text keeps the weaker 'more openly than in earlier Black writing'.",
+        "Hughes's Mulatto 'staged 1935' rests on memory (Broadway, October 1935); search did not return it.",
+        "Not individually searched, from solid knowledge: Opportunity 1923, Messenger 1917, Survey Graphic March 1925, If We Must Die 1919, Negro Speaks of Rivers 1921, Shuffle Along 1921, Color 1925, Weary Blues 1926, Quicksand 1928, Passing 1929, Home to Harlem 1928, Blacker the Berry 1929, There Is Confusion 1924, Plum Bun 1928, Black No More 1931, Infants of the Spring 1932, Mules and Men 1935, God's Trombones 1927, Southern Road 1932, Caroling Dusk 1927, Black Manhattan 1930, The Big Sea 1940, Book of American Negro Poetry 1922, Cane foreword by Waldo Frank (confirmed by search), Autobiography of an Ex-Colored Man 1912, McKay's 1912 dialect verse.",
+        "Confirmed by search: Fauset from 1919, Civic Club dinner arranged by Charles S. Johnson (March 1924), Hughes's racial-mountain essay as reply to Schuyler (The Nation, June 1926), Wright's 1937 New Masses review and its minstrel charge, Black Chicago Renaissance 1930s to 1950s, Great Migration from about 1916, Black Arts Movement 1965 to about 1975.",
+        "Sources for all of this were search summaries only; WebFetch was not usable."
+      ]
+    },
+    "beat-generation.js": {
+      "claimsChecked": 82,
+      "confirmed": 78,
+      "corrected": [
+        {
+          "where": "history, 1958 and 1959 bullet",
+          "was": "Naked Lunch appeared in Paris in 1959, where Burroughs, Ginsberg and Corso lived at the Beat Hotel [in 1959]",
+          "now": "Naked Lunch appeared in Paris in 1959, where Burroughs, Ginsberg and Corso had all stayed at the Beat Hotel",
+          "why": "Sources show Ginsberg and Corso arrived in late 1957 and Ginsberg left in 1958, so all three were not living there in 1959."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, afterlife bullet",
+          "was": "Ginsberg and Anne Waldman founded the Jack Kerouac School of Disembodied Poetics at Naropa in 1974",
+          "now": "Ginsberg, Anne Waldman and others founded the Jack Kerouac School ... in 1974",
+          "why": "Sources agree on 1974 and on Ginsberg and Waldman but add Diane di Prima, John Cage and others as founders."
+        },
+        {
+          "where": "subgenres, craft and terms (three places)",
+          "was": "cut-up dated from 1959",
+          "now": "from the late 1950s",
+          "why": "Gysin's own recollection puts the discovery in 1958, a museum timeline in 1959, and Burroughs adopted it in September 1959."
+        },
+        {
+          "where": "craft, spontaneous prose bullet",
+          "was": "his statement of principles dates from the late 1950s",
+          "now": "his statement of principles, Essentials of Spontaneous Prose, was printed in the late 1950s",
+          "why": "Search confirms printing in Black Mountain Review (autumn 1957) and Evergreen Review (1958); the date of writing was not confirmed."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Memoirs of a Beatnik is dated 1969 (Olympia Press); some sources give 1968, probably the date of writing.",
+        "Pull My Daisy is dated 1959 (premiere November 1959); one filmography gives 1958.",
+        "Not individually searched, from solid knowledge: City Lights opened 1953 and Pocket Poets 1955, Evergreen Review 1957, Big Table 1959, Joyce Johnson's Minor Characters 1983, Hettie Jones 1990, Carolyn Cassady's Off the Road 1990, Corso's Gasoline 1958, Ferlinghetti's Coney Island 1958, Burroughs's Queer written early 1950s and published 1985, Original Scroll 2007, Williams's Howl introduction, Howl facsimile, Olson 1950, Cassady/Kerouac/Ginsberg/Burroughs death years.",
+        "Confirmed by search: Howl ruling 3 October 1957 and the March 1957 customs seizure, Six Gallery 7 October 1955 with Rexroth and the readers named, beatnik coined by Herb Caen (2 April 1958), Holmes's 1952 article and 1948 conversation, Naked Lunch US 1962 and Massachusetts 1966, Mexico City Blues 1959, Soft Machine 1961, Preface to a Twenty Volume Suicide Note 1961, This Kind of Bird Flies Backward 1958, Dinners and Nightmares 1961, Riprap 1959, Solitudes Crowded with Loneliness 1965, Ginsberg meeting Carl Solomon in 1949, Huncke as the usual source of 'beat', Beat writers' French reading (Rimbaud, Celine, Genet).",
+        "Sources for all of this were search summaries only; WebFetch was not usable."
+      ]
+    }
+  },
+  "lint": {
+    "existentialism.js": "OK",
+    "harlem-renaissance.js": "OK",
+    "beat-generation.js": "OK"
+  },
+  "consistency": "Checked against library entries move-west-existentialism-literature, move-west-harlem-renaissance, move-west-beat-generation, move-west-chicago-renaissance (about 1890 to 1925), move-west-southern-renaissance (about 1920 to 1960), move-west-san-francisco-renaissance and move-west-lost-generation; no contradiction found. Dinners and Nightmares 1961 agrees with the library entry. No sample prose or pasteable lines found in any file."
+}
