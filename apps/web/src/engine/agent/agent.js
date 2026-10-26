@@ -1,4 +1,5 @@
 import { EXPLICIT_ASK } from '../brainstorm/commands.js';
+import { isReaction } from '../orchestrator/replyto.js';
 import { questionsIn, similarity } from '../orchestrator/variety.js';
 import { addToBoard } from '../project/board.js';
 import { pick } from '../util/text.js';
@@ -71,9 +72,14 @@ const AFTER_HELD = [{ label: 'Add more details', text: 'Let me add more details:
 const STATES_INTENT = /^\s*i(?:'d| would)?\s+(?:really\s+)?(?:want|like|hope|plan|intend|need)\s+(?:the |my |it |them |this |people |readers? |listeners? |viewers? |everyone |anyone |her |him )[^?]*$/i;
 const GREETING = /^\s*(?:hi|hello|hey|yo|thanks|thank you|ok(?:ay)?|cool|nice|great|good (?:morning|afternoon|evening))\b[\s!.,?]*$/i;
 
+/** A short reaction to what NIE just said ("that's cliche", "too political", "go back to the first thing you said", "why would that work?", "yes"): a reply to NIE, not something told about the idea. */
+const reactionTo = (text, words, st, lastReply) => Boolean(lastReply) && st.pending?.kind !== 'question' && isReaction(text, lastReply);
+
 /** What the writer is doing this turn (see `reading.task` in understand.js). No reading: a light rule reading. */
-function actOf(reading, text, st, words) {
+function actOf(reading, text, st, words, lastReply = '') {
   if (words >= PASTE_WORDS) return 'feedback';
+  // (measured on the real model: "that's cliche" and "no, I don't like that direction, too political" were filed under "Also" as details of the idea and answered with "I have that down")
+  if (reactionTo(text, words, st, lastReply) && !['ideas', 'write', 'edit', 'about-nie', 'chat'].includes(reading?.task)) return 'question';
   const answering = () => (st.pending?.kind === 'question' && isAnswer(text, { asked: true }) ? 'answer' : 'info');
   switch (reading?.task) {
     case 'ideas': return 'ideas';
@@ -179,7 +185,7 @@ export function createAgent({ packs, config = {} } = {}) {
 
   const sheetOf = (e) => ({ kind: e.kind, form: e.form, genres: [...e.genres], slots: { ...e.slots }, extra: [...e.extra] });
 
-  async function turn({ project, message, reading = null, chat = null, kindHint = null, recentMessages = [], signal, libraryNotes = [], seed } = {}) {
+  async function turn({ project, message, reading = null, chat = null, kindHint = null, recentMessages = [], lastReply = '', signal, libraryNotes = [], seed } = {}) {
     let text = squash(String(message ?? '')).slice(0, 8000);
     const sd = String(seed ?? project?.id ?? 'nie');
     let st = read(project);
@@ -297,7 +303,7 @@ export function createAgent({ packs, config = {} } = {}) {
     }
     // CHOICE: the overlap test ("12+ words about nothing recorded") only judges a message that TELLS NIE something. A question, a request for ideas, a
     // feedback request and a pasted text are about the idea on the table, whatever words they use, and must never swap the sheet; an explicit marker still does.
-    const tells = ['info', 'answer'].includes(actOf(reading, text, st, words));
+    const tells = ['info', 'answer'].includes(actOf(reading, text, st, words, lastReply));
     if (isNewIdea(text, st, { skipOverlap: st.pending?.kind === 'question' || !tells, recent: recentMessages })) {
       let base = st;
       if (filledIds(st).length + st.extra.length >= 3 && changedSinceCommit(st, ctx)) {
@@ -309,7 +315,7 @@ export function createAgent({ packs, config = {} } = {}) {
     }
 
     // 5. an ordinary message: detect, read, plan
-    const act = actOf(reading, text, st, words);
+    const act = actOf(reading, text, st, words, lastReply);
     const telling = act === 'info' || act === 'answer';
     const shrug = telling && isShrug(text);
     let s = telling ? { ...st, turn: st.turn + 1 } : st;

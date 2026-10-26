@@ -7,10 +7,10 @@ import { appendMessage } from '../project/memory.js';
 import { addToBoard, boardToChat, emptyBrainstorm, ideaId } from '../project/board.js';
 import { scan, scanWithModel } from '../analysis/scan.js';
 import { composeMessages, ideaRequestBlock, indexFor, RETRY_TOKEN_LIMIT } from './prompt.js';
-import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_WRITE, libraryMissReply, libraryReply } from './builtin.js';
+import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_EDIT_AGAIN, DECLINE_WRITE, DECLINE_WRITE_AGAIN, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
 import { avoidBlock, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
-import { replyContext } from './replyto.js';
+import { isReaction, replyContext } from './replyto.js';
 import { holdSmallTalk, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
@@ -42,6 +42,17 @@ const RANK = { none: 0, weak: 1, strong: 2 };
 /** "yes", "no", "ok", "maybe": a reply, not a question, so it is never looked up in the library ("yes" found "yes-but"). */
 /** A turn that only acknowledges and asks needs a sentence or two, not 700 tokens: the model is held to that (the writer waits for every token on a CPU). */
 const SHORT_TURN_TOKENS = 200;
+// Said before the first few sparks when the writer has nothing yet: a person first, a list second.
+const FROM_NOTHING = [
+  "You don't have to know yet. Here are a few starting points to react to; take whichever pulls at you, even if it's only to say no to it.",
+  "Nobody knows what they're writing before they start. These are only things to push against.",
+  "No pressure to have it figured out. A few sparks to react to, and we'll go from whatever catches.",
+];
+const pickLine = (list, seed) => list[parseInt(fnv1a(String(seed)), 16) % list.length];
+const REFLECT_RETRY_NOTES = {
+  invented: 'Your last try stated things about their story that they never said. The only facts about their story are the ones in their own words above. Answer again in at most three short sentences: first respond to what they just said, using only their words; then ONE suggestion that begins with "What if", "You could", "Maybe" or "One angle:", so it is clearly your idea and not something already in their story.',
+  question: 'Your last try was a question, and this turn asks none. Answer again in at most three short sentences: first respond to what they just said, using their words; then ONE suggestion that begins with "What if", "You could", "Maybe" or "One angle:". Do not end on a question.',
+};
 const STORY_NOTE_KINDS = new Set(['technique', 'structure', 'genre', 'form', 'movement']);
 const STORY_NOTE_MIN_SCORE = 12;
 const STORY_NOTE_MIN_COVERAGE = 0.4;
@@ -123,7 +134,7 @@ export function finishedSentences(text, maxTokens = 0) {
   return cut > 20 ? t.slice(0, cut + 1) : t;
 }
 /** "What do you remember about my project?", "what have I told you?": answered from what is really held, not by the model. */
-const MIND_QUESTION = /\bwhat\s+(?:do|did|have|can|could)\s+you\s+(?:still\s+)?(?:remember|recall|hold|keep)\b|\bwhat\s+do\s+you\s+(?:know|have)\s+(?:so far\s+)?about\s+(?:my|this|our)\s+(?:story|project|idea|book|novel|script|world|plot|characters?)\b|\bwhat\s+(?:have|did)\s+i\s+(?:told|tell|said|say|given|give|shared)\s+you\b|\b(?:recap|summari[sz]e)\s+(?:everything|all|what)\s+(?:we|i|you)\b/i;
+const MIND_QUESTION = /\bwhat\s+(?:do|did|have|can|could)\s+you\s+(?:still\s+)?(?:remember|recall|hold|keep)\b|\bwhat\s+do\s+you\s+(?:know|have)\s+(?:so far\s+)?about\s+(?:my|this|our)\s+(?:story|project|idea|book|novel|script|world|plot|characters?)\b|\bwhat\s+(?:have|did)\s+i\s+(?:told|tell|said|say|given|give|shared)\s+you\b|\b(?:recap|summari[sz]e)\s+(?:everything|all|what)\s+(?:we|i|you)\b|\bdo\s+you\s+(?:still\s+)?(?:remember|recall|know)\s+(?:what|anything|everything|my|the)\b[^?]{0,40}\b(?:story|project|idea|book|novel|script|plot|characters?|about)\b|\b(?:remind me|tell me)\s+what\s+(?:my|the|i|we)\s+(?:story|project|idea|book|novel|script|plot)\b|\bwhat(?:'s| is)\s+my\s+(?:story|project|idea|book|novel|script|plot)\s+about\b/i;
 /** Words that make even a "who/what..." question one about what the program has counted (the cast, the pacing, the voice, consistency, the writer's rules). */
 const ASKS_FOR_COUNTS = /\b(?:pac(?:e|es|ing)|rhythm|characters?|cast|protagonists?|consisten\w*|contradict\w*|continuity|timelines?|tense|pov|point of view|voice|repeat\w*|overus\w*|rules?)\b/i;
 /** How well a recalled passage of the writer's must match a message for it to be about their project (measured: its questions score 0.79 and up, general craft questions find nothing). */
@@ -405,6 +416,7 @@ export class Orchestrator {
       return await this.agent.turn({
         project, message: text, reading, chat: this.#extractChat(), kindHint, signal,
         recentMessages: past.filter((m) => m.role === 'user').slice(-6).map((m) => String(m.content).slice(0, 600)),
+        lastReply: past.at(-1)?.role === 'assistant' ? String(past.at(-1).content ?? '') : '',
         libraryNotes: this.#libraryNotes(project, text),
       });
     } catch (err) {
@@ -573,7 +585,8 @@ export class Orchestrator {
     // NIE does not write or edit the writer's text. Decline clearly, without calling any model. (The rules decide this first, so a
     // request they recognise never reaches a model at all.)
     const decline = () => {
-      const reply = intent.type === 'request-edit' ? DECLINE_EDIT : DECLINE_WRITE;
+      const before = history.slice(0, -1).at(-1)?.content; // (asked again right after a refusal: the second answer is not the first one pasted again)
+      const reply = intent.type === 'request-edit' ? (before === DECLINE_EDIT ? DECLINE_EDIT_AGAIN : DECLINE_EDIT) : before === DECLINE_WRITE ? DECLINE_WRITE_AGAIN : DECLINE_WRITE;
       onToken?.(reply, reply);
       return this.#finish(project, intent, reply, 'builtin', true);
     };
@@ -642,7 +655,8 @@ export class Orchestrator {
     // (Recall comes first so that a message can never recall itself.) A turn that only acknowledges and asks gets a few items, a turn that answers or gives ideas gets more.
     const shortTurn = ['ask', 'reflect'].includes(agentTurn?.plan?.act);
     const recalled = paste ? null : this.#recallFor(project, askText, reading, { limit: shortTurn ? 3 : 6, budgetTokens: shortTurn ? 230 : 400, agentTurn });
-    const toldNie = !paste && !follow && !/\?\s*$/.test(askText) && (agentTurn?.act === 'info' || agentTurn?.act === 'answer' || ['tell', 'develop'].includes(reading.task));
+    const reacted = agentTurn?.act === 'question' && isReaction(askText, past.at(-1)?.role === 'assistant' ? past.at(-1).content : ''); // "that's cliche" is a reply to NIE, not something the writer told it
+    const toldNie = !paste && !follow && !reacted && !/\?\s*$/.test(askText) && (agentTurn?.act === 'info' || agentTurn?.act === 'answer' || ['tell', 'develop'].includes(reading.task));
     if (toldNie) this.#remember(project, askText, agentTurn?.act === 'answer' ? 'answered' : 'told');
 
     // A general question about craft, style, usage, a form, genre or work: answer from the offline library, with its sources.
@@ -700,7 +714,11 @@ export class Orchestrator {
     if (!lens && ideaIntent && (asks || words(askText).length <= 7)) lens = detectLens(askText);
     if (!lens && ideaIntent && asks && WANTS_MORE.test(text)) lens = bs.lastLens; // "more!" repeats the last request
     if (lens && !LENSES[lens]) lens = null;
-    const isIdeaAsk = !develop && (Boolean(lensOpt) || intent.type === 'request-ideas' || (!byModel && intent.type === 'discuss' && (Boolean(lens) || (asks && /\bideas?\b/i.test(askText)))));
+    // A writer with nothing yet ("I want to write something but I don't know what") is given a few starting points to react to, whatever label the model gave: measured on the real
+    // model, it was read as "write" (then "tell") and answered with "What are you making: a story, a poem, an article...?".
+    const fromNothing = byModel && intent.type === 'start-from-zero' && !lensOpt;
+    if (fromNothing && !lens) lens = 'spark';
+    const isIdeaAsk = !develop && (Boolean(lensOpt) || fromNothing || intent.type === 'request-ideas' || (!byModel && intent.type === 'discuss' && (Boolean(lens) || (asks && /\bideas?\b/i.test(askText)))));
 
     const resolved = resolveKind(project, askText, kindOpt ?? null);
     let kind = resolved.kind;
@@ -718,6 +736,7 @@ export class Orchestrator {
     const stated = detectKind(askText);
     if (stated && (isIdeaAsk || develop || intent.type === 'start-from-zero' || /\b(?:i'?m|i am|i want to|i'?d like to|i need to|let'?s)\s+(?:be\s+)?(?:writing|write|working on|draft)/i.test(askText))) bs.detectedKind = stated;
 
+    if (fromNothing && !note) note = pickLine(FROM_NOTHING, askText);
     if (isIdeaAsk || develop) return this.#ideas({ project, intent, text, kind, lens, develop, note: [agentTurn?.note, note].filter(Boolean).join('\n\n'), reading, recalled, onToken, onProgress, signal });
 
     // ── Conversation (not an idea request) ───────────────────────────────────
@@ -760,7 +779,7 @@ export class Orchestrator {
     // How to build this reply, which differs from the last ones; and what not to say again (openers, questions already asked).
     const plan = agentTurn?.plan ?? null;
     const asking = plan ? plan.act === 'ask' : undefined; // the shape of the reply agrees with the agent's plan for this turn (ask one question, or none)
-    const shape = this.variety !== 'full' || lib || libMiss || reading.task === 'chat' ? null : shapeFor({ history: past, kind: noAsk ? 'readback' : aboutText ? 'lookup' : isShortQuestion(askText) ? 'question' : 'conversation', seed: text, asks: noAsk || aboutText ? undefined : asking });
+    const shape = this.variety !== 'full' || lib || libMiss || steeredShort || reading.task === 'chat' ? null : shapeFor({ history: past, kind: noAsk ? 'readback' : aboutText ? 'lookup' : isShortQuestion(askText) ? 'question' : 'conversation', seed: text, asks: noAsk || aboutText ? undefined : asking });
     // What the agent wants of this reply (what it understands so far, what is not known, this turn's job) goes after the reading note.
     // (Not when the library answers, when the question is about the writer's text, or when the model could not tell what was asked: then the answer is a clarifying question, not the plan.)
     const steer = Boolean(agentTurn) && !lib && !libMiss && !aboutText && !noAsk && !(reading.by === 'model' && reading.task === 'unclear');
@@ -808,6 +827,14 @@ export class Orchestrator {
     if (res.text) {
       const guarded = got.polished.guarded;
       reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn, askText) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      // Every sentence the model gave stated something of its own about the story as if it were so, and none was a suggestion: ask once more, saying exactly that, before the canned acknowledgement stands in.
+      if (brief && plan?.act === 'reflect' && agentTurn.ack && reply === agentTurn.ack && res.route !== 'builtin') {
+        const again = await this.#askClean({ composeArgs: { ...composeArgs, extra: [composeArgs.extra, REFLECT_RETRY_NOTES[splitSentencesLite(guarded.text).some((x) => !/\?["')\]]*\s*$/.test(x)) ? 'invented' : 'question']].filter(Boolean).join('\n\n') }, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.7, maxTokens: turnTokens, steered: true });
+        if (again.asked.res.text) {
+          const second = holdToPlan(finishedSentences(again.polished.guarded.text, turnTokens), plan, agentTurn, askText);
+          if (second && second !== agentTurn.ack) reply = second;
+        }
+      }
       if (analysis && reply) {
         // An answer about the writer's text may only name what the text (or the writer) names: measured on the real model, replies invented names, numbers and set-ups.
         const g = groundNames(reply, {

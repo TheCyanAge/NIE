@@ -13,6 +13,12 @@ export const DECLINE_EDIT =
 export const DECLINE_WRITE =
   "I don't write or continue the story for you; that part is yours. I can help you think, though: tell me the idea and I'll ask the questions that sharpen it, test a twist with you, or, once you've written something, show you where it breaks your rules.";
 
+/** The same request again, right after the first refusal: said differently and shorter, with something to do instead, never the same paragraph twice. */
+export const DECLINE_WRITE_AGAIN =
+  "Still a no on writing it for you; the words have to be yours. I can give you a few directions to react to, or ask what the scene needs. Which would help?";
+export const DECLINE_EDIT_AGAIN =
+  "Still no on rewording it. I can point to where something breaks your own rules, or talk through what the passage is doing. Which would help?";
+
 /** How NIE is answering right now, in words that match the real state (see the exact offline status strings in ai/engine.js). */
 export function describeStatus(status) {
   if (!status) return "I'm answering from my built-in library and guidance.";
@@ -32,6 +38,8 @@ export function describeStatus(status) {
 /** "What does your model / library / database know?", "what do you know?", "how big is your library?": answered from the real counts (see knowledgeReply). */
 const KNOWLEDGE_QUESTION = /\bknow(?:s|ledge)?\b|\blibrary\b|\bdatabase\b|\btrained\b|\bremember\b|\bcontain|\bcover\b/i;
 const ABOUT_TOPICS = [
+  { id: 'person', re: /\b(?:real|actual)\s+(?:person|human)\b|\bare\s+you\s+(?:a\s+|an\s+)?(?:human|person|bot|robot|ai|machine|computer|program|real)\b|\bam\s+i\s+(?:talking|speaking|chatting)\s+(?:to|with)\s+(?:a\s+)?(?:person|human|bot|machine|real)/i, status: false,
+    text: "No, I'm not a person. I'm NIE, an AI writing partner. I can't live your story the way you do, but I can think it through with you: ideas, complications, questions, and what the craft says about it. What are you working on?" },
   { id: 'writing', re: /\b(?:write|rewrite|edit|fix|proofread|ghost-?write)\b/i, status: false,
     text: "No. I never write, rewrite or edit your text; your words stay yours. What I can do is brainstorm with you, ask the questions that sharpen an idea, answer craft questions, and, in Full Scan, mark the exact places where your text breaks the rules you set and say why." },
   { id: 'model', re: /\b(?:which|what)\s+(?:language\s+)?(?:model|ai)\b|\bchat\s?gpt\b|\bgpt\b|\bllm\b|\bqwen\b|\b(?:offline|online)\s+(?:model|one|assistant|ai)\b|\bwho\s+(?:made|built|created|developed)\b|\bhow\s+(?:smart|good)\b/i, status: true,

@@ -154,6 +154,11 @@ export function applyReading(intent, reading, text) {
     // wrong and contradicted NIE. When the rules recognise a question about NIE, the model's other reading is not believed.
     overruled = task;
     task = 'about-nie';
+  } else if (intent.type === 'start-from-zero' && ['write', 'tell', 'unclear', 'develop', 'chat'].includes(task) && wc <= 30) {
+    // The rules heard a writer with nothing to go on yet ("I want to write something but I don't know what", "where do I even start"). The model reads that as "write" (then "tell") and the
+    // answer becomes a question about the form of a piece that does not exist. It is a request for somewhere to begin, and is read as one (recorded as overruled).
+    overruled = task;
+    task = 'ideas';
   } else if ((task === 'write' || task === 'edit') && !looksLikeARequest(text)) {
     overruled = task; // the model said "write"/"edit" but nothing in the message asks for it: not a request, so nothing is declined
     task = /\?\s*$/.test(text) || wc < 3 ? 'unclear' : 'tell';

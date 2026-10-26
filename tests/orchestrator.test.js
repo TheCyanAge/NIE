@@ -131,7 +131,7 @@ test('with a model: prompt is built from this project only, history is included,
   await o.brainstorm({ project: b, message: 'A homeless man befriends a cat.' });
   const r = await o.brainstorm({ project: b, message: 'He is called Tom.' });
   assert.equal(r.route, 'local');
-  assert.equal(calls.length, 2);
+  assert.ok(calls.length >= 2, 'a reply that is only a question on a turn that asks none is asked for once more');
   const second = calls[1].messages;
   assert.equal(second[0].role, 'system');
   assert.match(second[0].content, /Slice of life/);

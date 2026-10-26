@@ -57,6 +57,10 @@ function rank(addons, text) {
 export const validKind = (k) => (KINDS.includes(k) ? k : null);
 const fits = (addon, kind) => !kind || !Array.isArray(addon.baseKinds) || !addon.baseKinds.length || addon.baseKinds.includes(kind);
 
+// Someone doing something, as a story premise says it: "a girl who can hear the dead", "a retired surgeon who lost her license", "my protagonist is Marta", "the conductor vanishes between two stations".
+// Only when nothing else names what is being made (an article, a poem, a script... are found first), and only for a message long enough to be a premise.
+const STORY_SHAPE = /\b(?:a|an|the)\s+(?:[\w'-]+\s+){0,3}?[\w'-]+\s+(?:who|whose)\s+(?:[\w'-]+\s+){0,2}?(?:can|could|has|had|is|was|lost|forges?|forged|hears?|finds?|found|wants?|must|never|keeps?|hides?|steals?|stole|sees?|knows?|discovers?|vanish\w*|disappear\w*|dies|died|returns?|escapes?)\b|\b(?:my|the)\s+(?:protagonist|main character|hero|heroine|villain|narrator|detective)\s+(?:is|was)\b|\b(?:a|an|the)\s+(?:[\w'-]+\s+){0,2}?(?:vanish|disappear)\w*\s+(?:between|from|on|in|at|after)\b/i;
+
 /** @returns {{ kind: string|null, form: string|null, genres: string[] }} */
 export function detectProject(text, { packs, kindHint = null } = {}) {
   const t = String(text ?? '').slice(0, MAX_TEXT);
@@ -64,6 +68,7 @@ export function detectProject(text, { packs, kindHint = null } = {}) {
   const genres = rank(packs?.genres, t);
   let kind = validKind(kindHint) ?? detectKind(t);
   if (!kind) kind = forms[0]?.addon.baseKinds?.[0] ?? genres[0]?.addon.baseKinds?.[0] ?? null; // a "sonnet" is a poem
+  if (!kind && STORY_SHAPE.test(t)) kind = 'story'; // "a lighthouse keeper who forges tide tables" is a story; asking "what are you making: a story, a poem, an article...?" right after it reads as a form
   return {
     kind,
     form: forms.find((h) => fits(h.addon, kind))?.addon.id ?? null,

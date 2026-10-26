@@ -34,9 +34,19 @@ export function numberedItems(message) {
   return out;
 }
 
+/**
+ * What the writer SEES as a list in NIE's last message, in the order they see it: the idea cards when the reply was cards (the screen numbers them 1, 2, 3 whatever the model's own
+ * numbering was), otherwise the numbered lines of the text. `last` is a message or its text.
+ */
+export function itemsOf(last) {
+  const cards = Array.isArray(last?.ideas) ? last.ideas.map((i) => String(i?.text ?? '').trim()).filter(Boolean) : [];
+  if (cards.length >= 2) return cards.map((text, i) => ({ n: i + 1, text }));
+  return numberedItems(typeof last === 'string' ? last : last?.content).map((it, i) => ({ n: i + 1, text: it.text }));
+}
+
 /** Which numbered item of NIE's last message the writer means ("the second one", "#3", "that last one"), or null. */
 export function pickedItem(text, last) {
-  const items = numberedItems(last);
+  const items = itemsOf(last);
   if (items.length < 2) return null;
   const t = String(text ?? '');
   if (LAST_ITEM.test(t)) return items.at(-1);
@@ -49,7 +59,7 @@ export function pickedItem(text, last) {
 }
 
 /** @returns {'pick'|'go-back'|'explain'|'pushback'|'agree'|'follow'} */
-export function kindOfReply(text, last) {
+export function kindOfReply(text, last) { // (`last` is NIE's last message, or its text)
   const t = String(text ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // ("cliché" and "cliche" are the same word here)
   if (pickedItem(t, last)) return 'pick';
   if (GO_BACK.test(t)) return 'go-back';
@@ -58,6 +68,10 @@ export function kindOfReply(text, last) {
   if (AGREE.test(t)) return 'agree';
   return 'follow';
 }
+
+/** A short reaction to NIE's last message (pushing back, asking why, going back, picking one, agreeing) rather than something new about the project. */
+export const REACTION_WORDS = 10;
+export const isReaction = (text, last) => Boolean(String((typeof last === 'string' ? last : last?.content) ?? '').trim()) && wordCount(text) <= REACTION_WORDS && ['pushback', 'explain', 'go-back', 'pick', 'agree'].includes(kindOfReply(text, last));
 
 const STANCE = {
   agree: 'They agree or like it. Do not just agree back: take it one step further, say what it opens up or changes.',
@@ -77,8 +91,8 @@ export function replyContext({ text, past }) {
   if (!last || last.role !== 'assistant' || !String(last.content ?? '').trim()) return '';
   if (wordCount(text) > REPLY_MAX_WORDS) return '';
   const lastText = String(last.content).replace(/\n{3,}/g, '\n\n').trim();
-  const kind = kindOfReply(text, lastText);
-  const item = kind === 'pick' ? pickedItem(text, lastText) : null;
+  const kind = kindOfReply(text, last);
+  const item = kind === 'pick' ? pickedItem(text, last) : null;
   const lines = [`Their message is a reply to what you said last:\n"""\n${clip(lastText, LAST_CHARS)}\n"""`];
   if (item) lines.push(`They mean number ${item.n} of your list: "${clip(item.text, 220)}". Work with that one.`);
   else lines.push(BEFORE.test(text) && kind === 'follow' ? STANCE.follow : STANCE[kind]);

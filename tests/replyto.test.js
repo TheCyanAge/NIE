@@ -101,3 +101,24 @@ test('an ask turn keeps its one question beside a grounded comment and a suggest
   assert.match(out, /Maybe the keeper is paid to get them wrong\./);
   assert.match(out, /Who pays her\?$/);
 });
+
+// ── what the writer is making, when they only describe it ─────────────────────
+
+test('someone doing something is a story premise, so NIE does not open with "what are you making: a story, a poem, an article...?"', async () => {
+  const { default: agent } = await import('../apps/web/src/engine/agent/index.js');
+  const { detectProject } = await import('../apps/web/src/engine/agent/detect.js');
+  const packs = agent.ctx.packs;
+  for (const t of ['I am writing about a girl who can hear the dead.', "I'm writing about a lighthouse keeper who forges tide tables.", 'ok let us try anyway. my idea is a boy who finds a map inside a library book']) assert.equal(detectProject(t, { packs }).kind, 'story', t);
+  assert.equal(detectProject('I want to write an article about a doctor who lost her license', { packs }).kind, 'article', 'a named form wins');
+  assert.equal(detectProject('something about the sea', { packs }).kind, null, 'nothing to go on: still asked');
+});
+
+test('"the second one" means the second card the writer sees, whatever numbers the model wrote in its own list', () => {
+  const last = { role: 'assistant', content: 'A few more:\n\n3. The vault is a decoy.\n\n4. The mole is the curator.\n\n5. The loot was never there.', ideas: [{ text: 'The vault is a decoy.' }, { text: 'The mole is the curator.' }, { text: 'The loot was never there.' }] };
+  assert.match(pickedItem('the second one is interesting', last).text, /mole is the curator/);
+  assert.match(pickedItem('that last one', last).text, /never there/);
+  assert.match(replyContext({ text: 'the first one, why would that work?', past: [{ role: 'user', content: 'x' }, last] }), /number 1 of your list: "The vault is a decoy\."/);
+  // with no cards, the numbered lines are read in the order they appear
+  const text = { role: 'assistant', content: '3. The vault is a decoy.\n4. The mole is the curator.\n5. The loot was never there.' };
+  assert.match(pickedItem('the second one', text).text, /mole/);
+});

@@ -511,7 +511,7 @@ test('an idea that was already kept needs no shelf, a tiny one is simply replace
 test('with no kind known, NIE asks what the writer is making: itself with no model, through the model when there is one', async () => {
   const agent = createAgent({ packs: testPacks() });
   const project = newProject('kind');
-  const first = await agent.turn({ project, message: 'I have an idea about a keeper who hears a bell under the sea.', reading: { task: 'tell' } });
+  const first = await agent.turn({ project, message: 'I have an idea about a bell under the sea.', reading: { task: 'tell' } });
   assert.equal(first.handled.kind, 'asked-kind');
   assert.ok(KIND_QUESTIONS.some((q) => q.text === first.handled.reply));
   assert.ok(first.handled.suggestions.some((s) => s.label === 'A poem'));
@@ -532,7 +532,7 @@ test('with no kind known, NIE asks what the writer is making: itself with no mod
   assert.equal((await agent.turn({ project: p5, message: 'Actually it is closer to a poem.', reading: { task: 'tell' } })).state.kind, 'poem');
   // with a model the usual path is used, so it can acknowledge what was said before asking
   const p2 = newProject('kind2');
-  const viaModel = await agent.turn({ project: p2, message: 'I have an idea about a keeper who hears a bell under the sea.', reading: { task: 'tell' }, chat: keywordModel() });
+  const viaModel = await agent.turn({ project: p2, message: 'I have an idea about a bell under the sea.', reading: { task: 'tell' }, chat: keywordModel() });
   assert.equal(viaModel.handled, null);
   assert.deepEqual([viaModel.plan.act, viaModel.plan.slot, viaModel.plan.reason], ['ask', null, 'kind']);
   assert.match(viaModel.brief, /ask exactly ONE question about what kind of piece they are making/);
@@ -540,7 +540,7 @@ test('with no kind known, NIE asks what the writer is making: itself with no mod
   assert.ok(KIND_QUESTIONS.some((q) => reply.endsWith(q.text)));
   // a hint from the UI settles it
   const p3 = newProject('kind3');
-  const hinted = await agent.turn({ project: p3, message: 'I have an idea about a keeper who hears a bell under the sea.', reading: { task: 'tell' }, kindHint: 'story' });
+  const hinted = await agent.turn({ project: p3, message: 'I have an idea about a bell under the sea.', reading: { task: 'tell' }, kindHint: 'story' });
   assert.equal(hinted.state.kind, 'story');
   assert.notEqual(hinted.plan.reason, 'kind');
   // forms and genres are picked up from the writer's words

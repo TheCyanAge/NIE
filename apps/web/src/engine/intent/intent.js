@@ -21,6 +21,7 @@ const RULES = [
     /\bwhere (?:do|should|would|can) i (?:even )?(?:start|begin)\b/i,
     /\b(?:blank page|writer'?s block|i'?m stuck|i am stuck|nothing to write)\b/i,
     /^\s*i don'?t know what to write\b/i,
+    /\bi want to write something\b.*\b(?:don'?t|do not) know\b/i,
     /\bhelp me (?:get started|start|begin)\b/i,
   ]],
   // Questions about NIE itself (what it can do, how it works, its model). Each pattern is the WHOLE question, so "what can you do about my
@@ -83,6 +84,10 @@ const RULES = [
     /^\s*(?:(?:hi+|hello|hey+|heya|hiya|yo|howdy)[\s,!.]*)?(?:how are you(?: doing)?(?: today)?|how'?s it going|how have you been|how'?re you|what'?s up|sup)[\s!.,?]*$/i,
     /^\s*(?:(?:hi+|hello|hey+|yo)[\s,!.]*)?(?:i'?m back(?: again)?|im back|back again|back for more)[\s!.,?]*$|^\s*(?:hi|hello|hey) again[\s!.,?]*$/i,
     /^\s*(?:thanks|thank you|thx|cheers)(?: (?:so much|a lot|very much|again|nie|a bunch))*[\s!.,?]*$/i,
+    // "thanks, that helps a lot", "thank you, this is perfect": thanks with a word on how it landed, and nothing asked
+    /^\s*(?:thanks|thank you|thx|cheers)(?: (?:so much|a lot|very much|again|nie|a bunch))*[\s,!.]+(?:(?:that|this|it)(?:'s| is| was| has)?\s+)?(?:really |so |very |been )?(?:help(?:s|ed|ful)?|great|good|perfect|useful|awesome|nice|wonderful|brilliant|exactly what i needed|just what i needed|works?)(?:\s+(?:a lot|so much|a ton|loads|lot))?[\s!.]*$/i,
+    // plain tiredness, with nothing about the work in it: a person answers it as a person
+    /^(?!.*\b(?:story|stuck|plot|chapter|scene|character|characters|write|writing|idea|draft|novel|poem|script|ending|opening)\b)\s*(?:i'?m|i am|im|feeling|so|really)?\s*(?:so |really |very |just |too |kind of |a bit )*(?:tired|exhausted|drained|burn(?:ed|t) out|stressed|overwhelmed|worn out|wiped)(?: (?:today|tonight|right now|lately|again))?(?: and (?:i )?can'?t (?:focus|think|concentrate))?[\s!.]*$|^\s*i can'?t (?:focus|concentrate) (?:today|tonight|right now)?[\s!.]*$/i,
     /^\s*(?:bye+|goodbye|good ?night|see you|see ya|talk (?:to you )?(?:later|soon)|ttyl)(?: (?:now|later|for now|soon|tomorrow))?[\s!.,?]*$/i,
     /^\s*(?:ok(?:ay)?|cool|nice|great|awesome|alright|got it|sounds good|makes sense)(?:[\s,]+(?:cool|thanks|thank you|great|nice|awesome|got it|sounds good|makes sense))?[\s!.,?]*$/i,
   ]],
