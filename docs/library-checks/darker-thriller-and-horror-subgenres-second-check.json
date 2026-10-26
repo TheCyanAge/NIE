@@ -1,0 +1,147 @@
+{
+  "subject": "Darker thriller and horror subgenres",
+  "searchUsed": true,
+  "searchNote": "WebSearch summaries were the only web source (WebFetch cannot resolve hosts here). Summaries quoted Wikipedia, publisher and library catalogue pages, Britannica and similar; no primary scans were read.",
+  "lintOk": true,
+  "files": {
+    "psychological-thriller.js": {
+      "claimsChecked": 34,
+      "confirmed": 32,
+      "corrected": [
+        {
+          "where": "profile-psychological-thriller-readers, conv point on length",
+          "was": "psychological and domestic suspense commonly run about 70,000 to 90,000 words, a little shorter than other thrillers",
+          "now": "Length varies by publisher: roughly 70,000 to 100,000 words, with about 80,000 to 90,000 a frequent target",
+          "why": "Search found blog and genre-guide figures of 70,000 to 100,000 and a publisher call of 70,000 to 120,000; nothing supported 'shorter than other thrillers' (spy and general thriller guides give 80,000 to 100,000). The facet is already confidence 'varies'."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "confirmedList": [
+        "Poe, The Tell-Tale Heart, January 1843 (The Pioneer)",
+        "Collins, The Woman in White, serialised 1859 to 1860 in All the Year Round",
+        "Francis Iles = Anthony Berkeley Cox; Malice Aforethought 1931; Before the Fact 1932; Hitchcock's Suspicion 1941 credited as adapted from it (departs from the novel's ambiguity; 'from' kept)",
+        "Du Maurier, Rebecca 1938; Hitchcock film 1940",
+        "Hamilton, Gas Light, premiered December 1938 in London; the term gaslighting derives from the play's plot and the film versions (one source notes the verb itself only spread decades later; text claims only that the word comes from the play and films)",
+        "Highsmith, Strangers on a Train 1950 and Hitchcock film 1951; The Talented Mr. Ripley 1955",
+        "Bloch, Psycho 1959; Hitchcock film 1960",
+        "Boileau-Narcejac, D'entre les morts 1954, source of Vertigo 1958",
+        "Rendell, A Judgement in Stone 1977 (opening gives away killer and motive); A Dark-Adapted Eye 1986 as Barbara Vine, the first Vine novel",
+        "Harris, Red Dragon 1981 and The Silence of the Lambs 1988; King, Misery 1987 (June 1987, Viking)",
+        "Watson, Before I Go to Sleep 2011; Flynn, Gone Girl 2012; Moriarty, Big Little Lies 2014; Hawkins, The Girl on the Train January 2015; Michaelides, The Silent Patient 5 February 2019",
+        "Wayne Booth credited with the term unreliable narrator in The Rhetoric of Fiction, 1961",
+        "Domestic noir: Julia Crouch is credited with applying the term in 2012 or 2013 (sources differ); the file only says the label became common in the 2010s, which holds"
+      ],
+      "remainingDoubts": [
+        "Crime and Punishment 1866 and The Turn of the Screw 1898 rest on recall; they are very well established but were not searched.",
+        "Hitchcock's Suspicion departs from Before the Fact in its ending; 'from Before the Fact' is the credited source and is kept."
+      ]
+    },
+    "espionage-fiction.js": {
+      "claimsChecked": 38,
+      "confirmed": 37,
+      "corrected": [
+        {
+          "where": "profile-espionage-fiction-history, Buchan conv point",
+          "was": "The Thirty-Nine Steps (1915) and Greenmantle (1916) set an adventurous amateur against enemy agents in the First World War.",
+          "now": "The Thirty-Nine Steps (1915), set just before the First World War, and Greenmantle (1916) set an adventurous amateur against enemy agents.",
+          "why": "Search sources say The Thirty-Nine Steps is set just before the war; only Greenmantle is a wartime Hannay novel. Also trimmed 'quiet' from the Maugham clause to stay within the 300-character limit."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "confirmedList": [
+        "Cooper, The Spy, 1821, set in the American Revolution",
+        "Kipling, Kim, book October 1901; the Great Game phrase, credited to Arthur Conolly (with Stoddart in one source), made widely known by Kim",
+        "Childers, The Riddle of the Sands, May 1903 (sources call it an early spy novel; file says 'often counted among the first modern spy novels', which is hedged)",
+        "Le Queux, The Invasion of 1910, 1906 (Daily Mail serial from March 1906)",
+        "Secret Service Bureau founded October 1909",
+        "Buchan, The Thirty-Nine Steps 1915, Greenmantle 1916",
+        "Maugham, Ashenden, 1928, from his First World War intelligence work in Switzerland and Russia",
+        "Ambler, Epitaph for a Spy 1938; The Mask of Dimitrios 1939 (US A Coffin for Dimitrios)",
+        "Greene: entertainments label; The Confidential Agent 1939; The Ministry of Fear 1943; Our Man in Havana 1958; The Human Factor 1978; Greene served with MI6 in the war",
+        "Fleming, Casino Royale, 13 April 1953, first Bond novel",
+        "Deighton, The Ipcress File, 1962, written as a contrast to Bond",
+        "Le Carré: former MI5 and MI6 officer; Call for the Dead 1961; The Spy Who Came in from the Cold 1963; Tinker Tailor Soldier Spy 1974; The Honourable Schoolboy 1977; Smiley's People 1979; Karla trilogy; The Night Manager 1993",
+        "Ludlum, The Bourne Identity, 1980, amnesiac protagonist",
+        "Furst, Night Soldiers, 1988, opening his Europe 1930s and wartime run",
+        "Silva, The Kill Artist, 2000, first Gabriel Allon",
+        "Herron, Slow Horses, 2010, first Slough House novel",
+        "Horowitz, Stormbreaker, 2000, first Alex Rider novel",
+        "MacInnes, Above Suspicion, 1941, her first novel, Scottish-born American",
+        "Conrad, The Secret Agent, 1907"
+      ],
+      "remainingDoubts": [
+        "Smiley's People is 1979 in Wikipedia; one bookseller listing says 1980. 1979 kept.",
+        "The 80,000 to 100,000 word figure for commercial thrillers comes from genre guides and blogs, not a publisher standard; the facet is confidence 'varies' and the sentence is general."
+      ]
+    },
+    "cosmic-horror.js": {
+      "claimsChecked": 38,
+      "confirmed": 33,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "profile-cosmic-horror-history, Lovecraft conv point",
+          "was": "The Call of Cthulhu (1928) and At the Mountains of Madness (1936) set people before beings that do not notice them.",
+          "now": "set people against beings and ages that dwarf them.",
+          "why": "In At the Mountains of Madness the shoggoths rebel and pursue the explorers, so 'do not notice them' overstated it."
+        },
+        {
+          "where": "profile-cosmic-horror-history, 'Later twentieth century' conv point",
+          "was": "Thomas Ligotti's Songs of a Dead Dreamer in 1986, which gave the mode a bleaker, more philosophical turn.",
+          "now": "Thomas Ligotti's Songs of a Dead Dreamer in the mid-1980s; his work gave the mode a bleaker, more philosophical turn. (Also 'role-playing game' shortened to 'game' for the length limit.)",
+          "why": "Sources disagree: Wikipedia gives the Silver Scarab Press first edition as 1985 and another listing says it appeared in March 1986. The claim that this one book gave the turn was widened to his work."
+        },
+        {
+          "where": "profile-cosmic-horror-canon, 'Later twentieth century' conv point",
+          "was": "Thomas Ligotti's Songs of a Dead Dreamer (1986)",
+          "now": "Thomas Ligotti's Songs of a Dead Dreamer (mid-1980s)",
+          "why": "1985 versus 1986 first-edition date is disputed."
+        },
+        {
+          "where": "profile-cosmic-horror-history, 1890s conv point",
+          "was": "The King in Yellow (1895) linked tales around a play that harms those who read it.",
+          "now": "The King in Yellow (1895) opens with linked tales around a play that harms those who read it.",
+          "why": "Only the first four stories of the collection are tied to the play; the rest are unrelated."
+        }
+      ],
+      "removed": [
+        {
+          "where": "profile-cosmic-horror-canon, works array",
+          "was": "{ title: 'Songs of a Dead Dreamer', author: 'Thomas Ligotti', year: 1986 }",
+          "now": "{ title: 'The Colour Out of Space', author: 'H. P. Lovecraft', year: 1927 }",
+          "why": "The first-publication year is disputed (1985 or 1986), and a works entry needs one certain year. Replaced with a work whose year is confirmed (Amazing Stories, September 1927) and which the canon text already names."
+        }
+      ],
+      "confirmedList": [
+        "Machen, The Great God Pan, John Lane Keynotes Series, 1894",
+        "Chambers, The King in Yellow, 1895, first four stories tied to a fictional play",
+        "Blackwood, The Willows, 1907 (in The Listener and Other Stories), two travellers on a Danube island",
+        "Hodgson, The House on the Borderland, 1908, a recluse's journal",
+        "Lovecraft 1890 to 1937; Supernatural Horror in Literature, The Recluse, August 1927; The Call of Cthulhu written 1926, Weird Tales February 1928; The Colour Out of Space, Amazing Stories, September 1927; The Dunwich Horror, Weird Tales, 1929; The Whisperer in Darkness, Weird Tales, 1931; At the Mountains of Madness, Astounding, 1936; The Shadow Over Innsmouth, 1936; The Shadow Out of Time, Astounding, 1936",
+        "Dunsany, The Gods of Pegana, 1905; Dunsany and Poe named as Lovecraft influences",
+        "Arkham House founded 1939 by Derleth and Wandrei; the term Cthulhu Mythos credited to Derleth",
+        "Campbell, The Inhabitant of the Lake and Less Welcome Tenants, Arkham House, 1964; Lumley, The Burrowers Beneath, 1974",
+        "Call of Cthulhu RPG, Chaosium, 1981, with a Sanity mechanic",
+        "LaValle, The Ballad of Black Tom, 2016; Ruff, Lovecraft Country, 2016; Emrys, Winter Tide, January 2017; VanderMeer, Annihilation, 2014",
+        "Ligotti, The Conspiracy Against the Human Race, 2010",
+        "Weird Tales first issue March 1923",
+        "Great Old Ones: the cult in The Call of Cthulhu believes in them",
+        "The Weird: A Compendium of Strange and Dark Stories, ed. Ann and Jeff VanderMeer, 2011"
+      ],
+      "remainingDoubts": [
+        "The library's own core entry (knowledge/library/enrich/core-genres.js) still lists Songs of a Dead Dreamer as 1986; that file is outside this task, and the date there is disputed (1985 or March 1986).",
+        "S. T. Joshi's biographies being standard Lovecraft scholarship rests on recall; search did not return it (his two-volume I Am Providence appeared in 2010).",
+        "The attribution of the Cthulhu Mythos label to Derleth follows Wikipedia and a review; scholarly discussion of whether Lovecraft used a similar phrase was not examined, so the text says 'most associated with', which is hedged.",
+        "The 70,000 to 90,000 word figure for horror novels comes from a blog source, not a publisher standard; the facet is confidence 'varies'."
+      ]
+    }
+  },
+  "summary": {
+    "claimsChecked": 110,
+    "corrected": 2,
+    "softened": 4,
+    "removed": 1
+  }
+}

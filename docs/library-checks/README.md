@@ -372,6 +372,7 @@ Interactive fiction, visual novels and game narrative (first check 234 claims / 
 | --- | --- | --- | --- | --- | --- | --- |
 | Romance subgenres | historical-romance, romantic-comedy, paranormal-romance | 130 | 2 | 12 | 0 | yes |
 | Japanese, Chinese and African American literature | japanese-literature, chinese-literature, african-american-literature | 405 | 5 | 6 | 0 | yes |
+| Darker thriller and horror subgenres | psychological-thriller, espionage-fiction, cosmic-horror | 110 | 2 | 4 | 1 | yes |
 
 What the second checkers could not confirm:
 
@@ -393,4 +394,12 @@ What the second checkers could not confirm:
 - Kishotenketsu (the flagged weakest claim) is kept but hedged. The Chinese four-line-verse origin is confirmed, but sources disagree on who devised it and when.
 - James Weldon Johnson's 1922 dialect point rests on a Poetry Foundation paraphrase, because his preface was not read. The wording was narrowed to match that paraphrase.
 - Not individually searched, only held from knowledge: dynasty and period boundaries, the Epic of Gesar (one encyclopedia entry), chuanqi as a Ming drama type, Jin Ping Mei's cut and full versions, and general statements about the Asian American and Chicano movements.
+
+### Darker thriller and horror subgenres
+
+- Web evidence came only from search summaries (Wikipedia, publisher, library and Britannica pages); WebFetch could not be used and no primary sources were read.
+- Songs of a Dead Dreamer has a disputed first-edition date (1985 per one source, March 1986 per another). It was removed from the cosmic horror works list and the text says mid-1980s; the library's own entry for it still says 1986.
+- Crime and Punishment (1866), The Turn of the Screw (1898) and S. T. Joshi's standing as Lovecraft's standard scholar rest on recall; search did not return them.
+- The word-count figures (psychological thriller 70,000 to 100,000, espionage 80,000 to 100,000, cosmic horror 70,000 to 90,000) come from blogs, genre guides and one publisher call, not a standard. Those facets are marked 'varies' and hedged.
+- Smiley's People is dated 1979 (one bookseller listing says 1980). The Cthulhu Mythos label is credited to Derleth in the sources checked; whether Lovecraft used a similar phrase was not examined, so the text says 'most associated with'.
 
