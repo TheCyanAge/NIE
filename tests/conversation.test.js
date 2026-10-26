@@ -186,3 +186,18 @@ test('a writer who says they are stuck is met by a person before the question', 
   assert.match(r.reply, /\?$/, 'and then one question');
   assert.equal((r.reply.match(/\?/g) ?? []).length, 1);
 });
+
+test('"You mentioned ..." right after they said it is an echo and goes; a question that shares only "story" and "character" with the session is replaced', async () => {
+  const agentTurn = { enforce: (t) => t, grounded: () => true, ack: 'Noted.' };
+  const said = "I'm writing about a lighthouse keeper who forges tide tables.";
+  const out = holdToPlan('You mentioned the lighthouse keeper forges tide tables. The forging is the whole secret. Who relies on those tables?', { act: 'ask', reason: 'core' }, agentTurn, said, []);
+  assert.doesNotMatch(out, /You mentioned/);
+  assert.match(out, /The forging is the whole secret/);
+  const { default: agent } = await import('../apps/web/src/engine/agent/index.js');
+  const { enforceReply } = await import('../apps/web/src/engine/agent/ask.js');
+  const { emptyAgentState } = await import('../apps/web/src/engine/agent/state.js');
+  const state = { ...emptyAgentState(), kind: 'story' };
+  const plan = { act: 'ask', slot: 'premise', question: { text: 'Which came first for you: a person you could not stop thinking about, or a situation you wanted to see play out?', type: 'either' } };
+  const fixed = enforceReply("That sounds really challenging. How does that moment connect to your main character's desire and the stakes of the story?", plan, { state, ctx: agent.ctx, askedTexts: [], terms: new Set(['story', 'stuck', 'complet']) });
+  assert.match(fixed.text, /Which came first for you/);
+});

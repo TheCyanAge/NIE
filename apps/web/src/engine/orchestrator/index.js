@@ -108,7 +108,9 @@ function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxS
   const isQ = (x) => /\?["')\]]*\s*$/.test(x);
   // NIE saying again what it said in its last few replies (measured: "What if Marta's biggest wish is to heal ..." three turns running), or asking the writer back the very question they just asked
   const again = (x) => words(x).length >= 5 && recent.some((r) => similarity(x, r) >= 0.7);
-  const echo = (x) => isQ(x) && said && similarity(x, said) >= 0.6;
+  const saidStems = new Set(stemList(String(said ?? '')));
+  const sayingItBack = (x) => CREDITS_WRITER.test(x) && saidStems.size > 0 && [...new Set(stemList(x))].filter((m) => saidStems.has(m)).length / Math.max(1, new Set(stemList(x)).size) >= 0.6; // "You mentioned the keeper forges tide tables." right after they said so
+  const echo = (x) => (isQ(x) && said && similarity(x, said) >= 0.6) || sayingItBack(x);
   let kept = parts.filter((x) => !isFiller(x) && !(CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
   if (maxSentences && kept.length > maxSentences) kept = kept.slice(0, maxSentences); // (a reply to a short reaction is short)
   const joined = kept.join(' ').trim();

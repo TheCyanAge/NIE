@@ -302,7 +302,8 @@ export function enforceReply(reply, plan, { state, ctx, askedTexts, terms } = {}
   let text = typeof reply === 'string' ? reply : '';
   const asked = askedTexts ?? (state?.asked ?? []).map((a) => a.text);
   const session = terms instanceof Set ? terms : state ? askTerms(state) : new Set();
-  const hits = (t) => [...new Set(stemList(t))].filter((s) => session.has(s)).length;
+  // ("story" and "character" are in every session: a question that only shares those with it, like "how does that moment connect to your main character's desire and the stakes of the story?", names nothing of THIS one)
+  const hits = (t) => [...new Set(stemList(t))].filter((s) => session.has(s) && !craftStems.has(s)).length;
   const repeated = (t) => isRepeat(t, asked, REPLY_SIMILAR);
   const bad = (t) => repeated(t) || isStockQuestion(t);
   // the best question of several: not a repeat, not stock, most terms of this session, the later one
