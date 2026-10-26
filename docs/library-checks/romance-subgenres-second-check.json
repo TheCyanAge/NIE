@@ -1,0 +1,333 @@
+{
+  "group": "Romance subgenres",
+  "searchUsed": true,
+  "searchNote": "Second pass. In the first pass web search ran only for historical-romance.js (search budget then ran out), so romantic-comedy.js and paranormal-romance.js were checked from recall and the library's own records. In this pass WebSearch was used for every flagged item and for every title, author, date and 'first' claim in those two files (about 60 searches). WebFetch could not resolve any host (DNS), so search summaries were the only web source; where a search summary said it could not confirm a point, the point was softened or listed under remainingDoubts. The historical-romance.js entry below is carried over unchanged from the first pass and was not re-checked in this pass. For the two re-checked files, 'earlierPass' keeps the first pass's changes (already applied in the files) so nothing is lost; the arrays corrected, softened and removed list only this pass's changes.",
+  "lintOk": true,
+  "files": {
+    "historical-romance.js": {
+      "claimsChecked": 44,
+      "confirmed": 36,
+      "corrected": [
+        {
+          "where": "profile-historical-romance-canon, conv (reference reading)",
+          "was": "Reference reading: Romance Fiction: A Guide to the Genre and Janice Radway's Reading the Romance are standard overviews for further reading.",
+          "now": "Reference reading: Romance Fiction: A Guide to the Genre is a readers' advisory guide to the genre, and Janice Radway's Reading the Romance (1984) is a well-known study of romance readers.",
+          "why": "Search confirmed both books exist (Ramsdell's guide, Libraries Unlimited, 1999 and a second edition in 2012; Radway, University of North Carolina Press, 1984). But Radway's book is a study of a group of readers, not an overview of the genre, so 'standard overviews' mischaracterised it. Still cited by title only."
+        },
+        {
+          "where": "profile-historical-romance-pitfalls, conv (details readers check)",
+          "was": "Details that readers of the period will check",
+          "now": "Details that readers who know the period will check",
+          "why": "The old wording could be read as contemporaries of the period; the point is about present-day readers who know the era."
+        },
+        {
+          "where": "profile-historical-romance-subgenres, conv (inspirational historical)",
+          "was": "Francine Rivers's Redeeming Love is a much-read example.",
+          "now": "Francine Rivers's Redeeming Love (1991) is a much-read example.",
+          "why": "A clarification rather than an error: search confirmed first publication in 1991 and a California Gold Rush setting, and the library record already says 1991. The year makes the example unambiguous. No publisher is named (a remembered publisher was not supported by the sources, so none is stated)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-historical-romance-history, conv (Scarlet Pimpernel)",
+          "was": "...joined love, disguise and danger to a historical backdrop and built an audience for period romance.",
+          "now": "...joined love, disguise and danger to a historical backdrop and were popular forerunners of later period romance.",
+          "why": "The 1905 date and the French Revolution setting are confirmed (and match the library), but 'built an audience for period romance' is an interpretive causal claim. 'Popular forerunners' says only what can be defended."
+        },
+        {
+          "where": "profile-historical-romance-subgenres, conv (Highland romance)",
+          "was": "...usually with a Scottish hero and an outsider heroine; Outlander is its most famous modern example.",
+          "now": "...often with a Scottish hero and an outsider heroine; Outlander is a famous modern example.",
+          "why": "A generalisation about a whole branch (flagged by the writer); 'usually' and 'most famous' are not checkable, 'often' and 'a famous' are."
+        },
+        {
+          "where": "profile-historical-romance-readers, conv (consent and respect)",
+          "was": "...since the 1970s boom, readers have moved away from coercion presented as passion...",
+          "now": "...since the 1970s boom, many readers have moved away from coercion presented as passion...",
+          "why": "A reader-attitude trend claim with no source; 'many readers' is defensible and agrees with the library's Bodice-ripper entry, which says later readers and writers questioned and largely dropped coercion plots."
+        },
+        {
+          "where": "profile-historical-romance-craft, conv (what the era allowed), Married Women's Property Acts",
+          "was": "...largely came under her husband's control until the Married Women's Property Acts of 1870 and 1882...",
+          "now": "...largely came under her husband's control until reform by the Married Women's Property Acts of 1870 and 1882...",
+          "why": "Search confirmed the 1870 Act was limited (it protected earnings and some later inheritances, not pre-marriage property) and the 1882 Act was the main step away from coverture, so the Acts are the reform, not a single date on which control ended."
+        },
+        {
+          "where": "profile-historical-romance-craft, conv (what the era allowed), Gretna Green",
+          "was": "...after the 1753 Marriage Act runaway couples went to Gretna Green in Scotland, where rules were looser.",
+          "now": "...after the Marriage Act of 1753 some runaway couples went to Gretna Green in Scotland, where rules were looser.",
+          "why": "Search confirmed the Act (Hardwicke's Act, passed 1753, in force from March 1754) did not extend to Scotland, where irregular marriages stayed legal, and that Gretna became the best-known stop mainly from the 1770s. 'Some' keeps it true; the date given is the year of the Act."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Not reached by search before the budget ran out, but each matches a library record (the lint year check passes) and solid prior knowledge: The Duke and I (2000), Devil in Winter (2006; search confirmed it is the third Wallflowers book but did not return the year), Sweet Savage Love (1974), Outlander (1991), The Grand Sophy (1950), Pamela (1740), Waverley (1814).",
+        "Confirmed by search this pass: Flowers from the Storm 1992, Lord of Scoundrels 1995 (the writer's two uncertain years), Whitney, My Love 1985, The Wolf and the Dove 1974 (March 1974, Avon), A Knight in Shining Armor 1989, The Flame and the Flower 1972 (first full-length original paperback romance), Regency Buck 1935 as the first of Heyer's Regency-set novels, The Black Moth 1921 and These Old Shades 1926 (Georgian), Indigo 1996, An Extraordinary Union 2017, Starz Outlander August 2014, Bridgerton December 2020. The writer's worry that earlier Heyer titles are unmentioned does not apply: the Georgian titles are named and the earlier ones are not Regency-set.",
+        "Market-trend claims are supported only by author and fan commentary, not sales data: that the Regency was among the most common historical settings by the 2000s (sources say every house publishing historicals publishes Regency-set books) and that the traditional Regency lines declined (Signet's line ended in 2006 and Zebra's about the same time). The wording is hedged ('among', 'declined') and kept.",
+        "Single-title length of about 80,000 to 100,000 words and the claim that a loss ending is usually sold as historical fiction or women's fiction are general-practice statements, not sourced; confidence is 'varies', the text says to treat figures as general, and the facet carries asOf.",
+        "Courtney Milan and Sherry Thomas as writers who widened the cast and settings in the 2010s rests on prior knowledge, not a search.",
+        "'Wallpaper historical' is confirmed as a reviewer and reader term (a romance blog discussed it in 2006) but it is informal; the text calls it a reader's term.",
+        "Order: the Beverly Jenkins point (Indigo, 1996) follows the 2000s Quinn and Kleypas point because it is grouped with the 2010s writers who widened the field, so the history facet is thematic rather than strictly earliest-first."
+      ]
+    },
+    "romantic-comedy.js": {
+      "claimsChecked": 70,
+      "confirmed": 64,
+      "confirmedBy": "Web search (WebSearch; WebFetch could not resolve any host, so search summaries were the only web source). Confirmed by search: Pillow Talk 1959, Annie Hall 1977 (US release 20 April 1977, ending where the pair part), Pretty Woman 1990, Four Weddings and a Funeral 1994, You've Got Mail 1998, Notting Hill 1999 (UK 21 May, US 28 May), (500) Days of Summer 2009, Bringing Up Baby 1938, His Girl Friday and The Philadelphia Story 1940, It Happened One Night 1934 with Robert Riskin's screenplay (Oscar for adapted screenplay) and When Harry Met Sally... 1989 with Nora Ephron's screenplay; New Comedy of Athens from about 320 BCE with Plautus and Terence adapting it for Rome; Much Ado About Nothing written 1598 to 1599 with Beatrice and Benedick tricked into admitting love; The Way of the World 1700 and its proviso scene; Austen 1813 and Emma (published December 1815, title page 1816, library says 1815); To All the Boys I've Loved Before (Simon & Schuster, 15 April 2014); The Love Hypothesis (Berkley, 14 September 2021, fake dating); The Hating Game 2016 (William Morrow); Beach Read 2020 (Berkley, with the father's death and grief at its centre); Red, White & Royal Blue 2019 (St. Martin's Griffin, same-gender leads); The Rosie Project (Text Publishing, Australia, 30 January 2013); Bet Me (St. Martin's Press, 10 February 2004); Bridget Jones's Diary (column in The Independent from 1995, novel 1996, loosely based on Pride and Prejudice); Cavell's Pursuits of Happiness (Harvard University Press, 1981) and its coinage of the comedy of remarriage with seven named 1930s and 1940s films; the Production Code enforced from July 1934 and screwball innuendo; HEA and HFN as romance terms; the gay best friend as a stock romcom figure criticised as an accessory with no inner life; the 1990s described as a golden age or renaissance of romantic comedy; Netflix and other streamers reviving romcoms after their decline in cinemas.",
+      "corrected": [
+        {
+          "where": "profile-romantic-comedy-canon, conv (reference reading)",
+          "was": "...and Romance Fiction: A Guide to the Genre covers the novels.",
+          "now": "...and Kristin Ramsdell's Romance Fiction: A Guide to the Genre is a readers' guide to romance novels, with a chick lit section in its 2012 edition.",
+          "why": "'Covers the novels' was vague and unverifiable. Search confirmed the author (Kristin Ramsdell, Libraries Unlimited, 1999; second edition 2012) and that the 2012 edition added a section on chick lit within its contemporary romance chapter. Search did not show a section on humorous romance as such, so the text claims only what was confirmed."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-romantic-comedy-history, conv (Bridget Jones)",
+          "was": "...Bridget Jones's Diary (1996)... helped launch the wave of comic first-person novels later called chick lit.",
+          "now": "...Bridget Jones's Diary (1996)... is often seen as a founding text of the wave of comic first-person novels later called chick lit.",
+          "why": "Search showed critics calling the novel an ur-text of chick lit, but also that the term chick lit predates it (a 1995 anthology, earlier slang) and that Fielding herself says the wave was a zeitgeist, not her doing. 'Helped launch' asserted causation; 'often seen as a founding text' reports the critical view. The 1996 year, the newspaper column (The Independent, 1995) and the loose borrowing from Pride and Prejudice are confirmed and unchanged."
+        },
+        {
+          "where": "profile-romantic-comedy-history, conv (since the 2010s)",
+          "was": "...while on screen the romcom has increasingly moved to streaming services, with a wider range of leads and settings.",
+          "now": "...while on screen much of the romcom has moved from cinemas to streaming services.",
+          "why": "Search (CBC 2018, NPR 2024, trade press) confirms a decline of the romcom in cinemas and a revival on Netflix and other streamers. 'A wider range of leads and settings' was not supported by anything found, so it was dropped. The four novel titles and years are confirmed."
+        },
+        {
+          "where": "profile-romantic-comedy-readers, conv (the happy ending)",
+          "was": "A story that withholds it is usually read as a romantic drama or an anti-romcom and sold as one.",
+          "now": "A story that withholds it is usually read as a romantic drama or an anti-romcom.",
+          "why": "How such books are marketed is a market claim that could not be sourced; how they are read is the defensible part. HEA and HFN as the two forms of the happy ending, and the romance definition of an emotionally satisfying and optimistic ending, are confirmed."
+        },
+        {
+          "where": "profile-romantic-comedy-terms, conv (comedy of remarriage)",
+          "was": "Comedy of remarriage: a term from the philosopher Stanley Cavell for Hollywood comedies in which a separated or divorced couple find their way back to each other.",
+          "now": "Comedy of remarriage: a term from the philosopher Stanley Cavell for Hollywood comedies, chiefly of the 1930s and 1940s, in which a couple, typically separated or divorced, find their way back to each other.",
+          "why": "Search confirmed the coinage, the 1981 book and the period, and that the genre is described as couples who reunite after separation or divorce. But Cavell's seven films include It Happened One Night and The Lady Eve, where the pair are not formally a divorced couple, so 'typically' is more accurate than an unqualified description. The period is now stated."
+        },
+        {
+          "where": "profile-romantic-comedy-terms, conv (meet-ugly)",
+          "was": "Meet-ugly: an informal name some writers and fans use for a first meeting that goes badly, setting up an enemies-to-lovers arc.",
+          "now": "Meet-ugly: an informal name used by some fans and writers for a first meeting that goes badly, often setting up an enemies-to-lovers arc.",
+          "why": "A fan-wiki source (Fanlore) documents 'meet-ugly' as an informal term from fan-fiction communities from about 2014, used loosely: sometimes for any poor first meeting, sometimes for enemies-to-lovers stories. 'Setting up' therefore became 'often setting up'. The point is kept as an informal term, not a standard one."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Annie Hall as an 'anti-romcom' rests on commentary (one source reads its structure as anti-romantic); (500) Days of Summer is widely called an anti-romantic comedy, and its narrator says it is not a love story. The text hedges both ('a label critics sometimes give'). If a stricter standard is wanted, drop Annie Hall from that point and keep (500) Days of Summer.",
+        "The 'late 1980s and 1990s as a high point' claim rests on journalism (A.V. Club and others use 'golden age' or 'renaissance'; a BFI essay places When Harry Met Sally... at the tail end of the genre's commercial zenith). It is hedged as 'often described', and the five film years are confirmed.",
+        "Romcom novel length of roughly 70,000 to 90,000 words rests on writing guides and blogs (the Romance Writers of America contest bands and Harlequin category lengths differ); the facet is 'varies' with asOf and a caveat in the text.",
+        "Emma is dated 1815 to agree with the library, though the title page says 1816; it was published in December 1815.",
+        "'Meet-ugly' is documented only as informal fan usage; the point can be dropped (the facet would keep 9 points) if a stricter standard is wanted.",
+        "'Since the 2010s romcom fiction has thrived in print and e-book' is a general trend statement supported by the four titles and years named, not by sales data."
+      ],
+      "earlierPass": {
+        "corrected": [
+          {
+            "where": "profile-romantic-comedy-history, conv (Shakespeare)",
+            "was": "...Beatrice and Benedick, a pair who spar and are talked into admitting a love they have denied.",
+            "now": "...Beatrice and Benedick, a pair who spar and are tricked by their friends into admitting a love they have denied.",
+            "why": "In the play their friends stage conversations each is meant to overhear, which is a trick, not persuasion. From solid knowledge of the play; the date c. 1599 matches the library."
+          },
+          {
+            "where": "profile-romantic-comedy-history, conv (Austen)",
+            "was": "Jane Austen's comic courtship novels, Pride and Prejudice (1813) and Emma (1815), moved the pattern into prose and made misjudgement and self-knowledge the engine of the love story.",
+            "now": "Jane Austen's comic courtship novels, Pride and Prejudice (1813) and Emma (1815), are the best-known prose versions of the pattern, with misjudgement and self-knowledge as the engine of the love story.",
+            "why": "Comic courtship plots were already common in eighteenth-century novels, so 'moved the pattern into prose' claimed a first that Austen did not make. The years match the library."
+          },
+          {
+            "where": "profile-romantic-comedy-canon, conv (1990s and 2000s novel)",
+            "was": "Helen Fielding's Bridget Jones's Diary (1996) and Jennifer Crusie's Bet Me (2004) set the comic voice and the romance structure for the romcom novel.",
+            "now": "Helen Fielding's Bridget Jones's Diary (1996) and Jennifer Crusie's Bet Me (2004) are leading examples of the comic voice and the romance structure in the romcom novel.",
+            "why": "Bet Me (2004) came after Bridget Jones and after earlier romcom fiction, so 'set' credited it with a first it did not make; 'leading examples' is defensible. Both years match the library."
+          }
+        ],
+        "softened": [
+          {
+            "where": "profile-romantic-comedy-history, conv (screwball)",
+            "was": "It Happened One Night (1934) opened a run of screwball comedies ... in which fast talk carried what the censorship of the day kept off the screen.",
+            "now": "It Happened One Night (1934) helped start a run of screwball comedies ... in which fast talk often carried what the censorship of the day kept off the screen.",
+            "why": "Critics differ on which film began screwball comedy, and the censorship point is an interpretation (the library's Screwball comedy entry makes a similar claim about the Hays Code era). The four film years and titles match the library."
+          },
+          {
+            "where": "profile-romantic-comedy-history, conv (late 1980s and 1990s)",
+            "was": "The late 1980s and 1990s are often seen as the studio romcom's high point:",
+            "now": "The late 1980s and 1990s are often described as a high point for the studio romcom:",
+            "why": "An interpretive trend claim the writer flagged; 'a high point' no longer asserts the single peak. The five film years are from solid knowledge."
+          },
+          {
+            "where": "profile-romantic-comedy-history, conv (since the 2010s)",
+            "was": "...while many new screen romcoms appear first on streaming services, with a wider range of leads and settings.",
+            "now": "...while on screen the romcom has increasingly moved to streaming services, with a wider range of leads and settings.",
+            "why": "'Many new screen romcoms appear first on streaming' is a market-share claim with no source; 'increasingly moved to streaming' states the direction only."
+          },
+          {
+            "where": "profile-romantic-comedy-subgenres, conv (anti-romcom)",
+            "was": "Anti-romcom or unromantic comedy: borrows the form but withholds or complicates the union, as in the films Annie Hall (1977) and (500) Days of Summer (2009).",
+            "now": "Anti-romcom: a label critics sometimes give to films that borrow the form but withhold or complicate the union, such as Annie Hall (1977) and (500) Days of Summer (2009).",
+            "why": "The writer flagged the label. It is a critics' label applied to some films, not an established category, so the text now says that. The two films and years are from solid knowledge. See removed for 'unromantic comedy'."
+          },
+          {
+            "where": "profile-romantic-comedy-readers, conv (happy ending)",
+            "was": "A story that withholds it is read as a romantic drama or an anti-romcom and should be sold as one.",
+            "now": "A story that withholds it is usually read as a romantic drama or an anti-romcom and sold as one.",
+            "why": "Describes practice instead of issuing an instruction (NIE gives reference, not rules); 'usually' keeps it a general-practice statement."
+          },
+          {
+            "where": "profile-romantic-comedy-canon, conv (stage)",
+            "was": "...Congreve's The Way of the World (1700), which set the sparring, witty couple.",
+            "now": "...Congreve's The Way of the World (1700), classic stage examples of the sparring, witty couple.",
+            "why": "'Set' claimed an origin; the 1700 date matches the library and Beatrice and Benedick came a century earlier."
+          },
+          {
+            "where": "profile-romantic-comedy-canon, conv (courtship novels)",
+            "was": "...the models for the comic love story in prose.",
+            "now": "...the best-known prose models of the comic love story.",
+            "why": "Same reasoning as the corrected history point: Austen is the best-known, not the first, prose model."
+          },
+          {
+            "where": "profile-romantic-comedy-canon, conv (late-century film)",
+            "was": "...Notting Hill (1999), which shaped the modern idea of the romcom.",
+            "now": "...Notting Hill (1999), which helped shape the modern idea of the romcom.",
+            "why": "An influence claim; 'helped shape' is defensible."
+          },
+          {
+            "where": "profile-romantic-comedy-pitfalls, conv (the sidekick)",
+            "was": "...a stock helper critics have long objected to, as with the so-called gay best friend.",
+            "now": "...a stock helper critics have objected to, as with the so-called gay best friend.",
+            "why": "'Long' implied a time span that was not checked; the critique itself is widely discussed."
+          },
+          {
+            "where": "profile-romantic-comedy-terms, conv (meet-ugly)",
+            "was": "Meet-ugly: a first meeting that goes badly, setting up an enemies-to-lovers arc.",
+            "now": "Meet-ugly: an informal name some writers and fans use for a first meeting that goes badly, setting up an enemies-to-lovers arc.",
+            "why": "The writer flagged 'meet-ugly' as a term in common use. I could not find a source in this pass, so the text no longer claims common use; it says the term is informal and used by some."
+          }
+        ],
+        "removed": [
+          {
+            "where": "profile-romantic-comedy-subgenres, conv (anti-romcom)",
+            "was": "Anti-romcom or unromantic comedy",
+            "now": "Anti-romcom",
+            "why": "'Unromantic comedy' as a second name for the label could not be sourced, so it was dropped."
+          }
+        ],
+        "remainingDoubtsThen": [
+          "No search was possible for this file (budget exhausted after historical-romance.js). Every film year (It Happened One Night 1934, Bringing Up Baby 1938, His Girl Friday and The Philadelphia Story 1940, Pillow Talk 1959, Annie Hall 1977, When Harry Met Sally... 1989, Pretty Woman 1990, Four Weddings and a Funeral 1994, You've Got Mail 1998, Notting Hill 1999, (500) Days of Summer 2009), Jenny Han 2014, The Love Hypothesis 2021, The Rosie Project 2013, Bet Me 2004 rest on solid prior knowledge; the works that have library records (Much Ado, Austen, Fielding, Thorne, McQuiston, Henry, Rosie Project, Bet Me, Love Hypothesis, To All the Boys, the first three screwball films) agree with them and the lint passes.",
+          "New Comedy of Athens placed in the fourth and third centuries BCE with Plautus and Terence as Roman successors, and Congreve's couple bargaining over marriage terms, are from solid knowledge and agree with the library's New Comedy and Roman comedy entry; not searched.",
+          "Cavell's coinage of 'comedy of remarriage' in Pursuits of Happiness (1981) was confirmed by the writer; not re-searched. Screenplay credits 'Robert Riskin (screenplay)' match the library; 'Nora Ephron (screenplay)' for When Harry Met Sally... is from knowledge.",
+          "Romcom novel length of roughly 70,000 to 90,000 words, shelving as contemporary romance and the 'category lines shorter' remark are general-practice statements, not sourced; confidence is 'varies' with asOf and a caveat in the text.",
+          "The 'anti-romcom' label for Annie Hall in particular is a critic's usage I could not check; the text now says critics sometimes use it. If a stricter standard is wanted, drop that point (the facet would keep 8 points).",
+          "'Meet-ugly' is informal and unsourced in this pass; the point can be dropped without breaking the facet (it would keep 9 points) if a later check cannot find it."
+        ]
+      }
+    },
+    "paranormal-romance.js": {
+      "claimsChecked": 60,
+      "confirmed": 52,
+      "confirmedBy": "Web search (WebSearch; WebFetch could not resolve any host, so search summaries were the only web source). Confirmed by search: Villeneuve's tale in La Jeune Americaine et les contes marins (1740) and Beaumont's abridgment in her Magasin des enfants (1756, so 'the 1750s' is safe); Polidori 1819; Le Fanu's Carmilla (serialised 1871 to 1872, 1872 as the library has it); Dracula 1897; Interview with the Vampire (Knopf, May 1976); Dark Shadows on ABC 1966 to 1971 with Barnabas Collins first appearing on 18 April 1967 and made a sympathetic lead; Silhouette Shadows 1993 to 1996 (66 books, first March 1993, last July 1996; paranormal, romantic suspense and Gothic romance); A Knight in Shining Armor 1989 (Dougless is pulled back to the sixteenth century); Outlander 1991 (Delacorte; UK title Cross Stitch; Claire sent from 1945 to 1743); Guilty Pleasures 1993 as the first Anita Blake book; Dark Prince 1999 as the first of Feehan's Dark (Carpathian) series; Dead Until Dark 2001 (Ace; telepathic waitress Sookie Stackhouse, the first Southern Vampire Mysteries novel); Twilight 2005 (Little, Brown, October 2005); Dark Lover 2005 as the first Black Dagger Brotherhood novel; Slave to Sensation 2006 as the first Psy-Changeling novel (Berkley); True Blood on HBO from 7 September 2008 to 24 August 2014, based on Harris's novels; Twilight film released 21 November 2008 and Breaking Dawn Part 2 on 16 November 2012; A Court of Thorns and Roses (Bloomsbury, 5 May 2015) as a major but not the first romantasy; monster romance as strongest in self-published and online fiction (agrees with the library's own entry); the hidden world as a classic urban fantasy trope called the masquerade; HEA and HFN.",
+      "corrected": [
+        {
+          "where": "profile-paranormal-romance-canon, conv (time-slip and early crossovers)",
+          "was": "...Diana Gabaldon's Outlander (1991), which sent modern lovers into the past.",
+          "now": "...Diana Gabaldon's Outlander (1991), in both of which a modern heroine is carried back into the past.",
+          "why": "Search shows that in both books a single modern woman (Dougless in A Knight in Shining Armor; Claire in Outlander) is carried into the past and meets her love there; 'modern lovers' was wrong. Both titles and years (1989, 1991) are confirmed and agree with the library."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-paranormal-romance-history, conv (time-travel)",
+          "was": "Time-travel and ghost romances were popular in the late 1980s and 1990s, with...",
+          "now": "Time-travel romance became well known in the late 1980s and 1990s, with...",
+          "why": "Search found a source crediting A Knight in Shining Armor (1989) and Outlander (1991) with making time-slip romance one of the most popular categories, but nothing on ghost romance and no sales data. The ghost-romance popularity claim was dropped and 'popular' became 'became well known'."
+        },
+        {
+          "where": "profile-paranormal-romance-history, conv (Guilty Pleasures)",
+          "was": "...in which a vampire hunter works among monsters; it is often named as an influence on urban fantasy, the genre next door to paranormal romance.",
+          "now": "...in which a vampire hunter works among monsters; the series is usually classed as urban fantasy, the genre next door to paranormal romance.",
+          "why": "The writer flagged the influence claim. Search found reviews and catalogues that class the book as urban fantasy, and some interviews that say Hamilton shaped the genre, but no authoritative history or scholarly source for an influence claim. The classification is what is supportable. The 1993 year and Anita Blake series are confirmed."
+        },
+        {
+          "where": "profile-paranormal-romance-canon, conv (series that built the genre)",
+          "was": "\"Series that built the genre: Christine Feehan's Dark Prince (1999)... and Charlaine Harris's Dead Until Dark (2001)...\"",
+          "now": "\"Series that helped build the genre: Christine Feehan's Dark Prince (1999)... and Charlaine Harris's Dead Until Dark (2001)...\"",
+          "why": "Search showed paranormal romance was already established in the 1990s (Silhouette Shadows, Love Spell and others, and vampire romances with happy endings), so 'built' overstated. Both years and the 'first of' claims are confirmed."
+        },
+        {
+          "where": "profile-paranormal-romance-canon, conv (mid-2000s boom)",
+          "was": "...set the vampire, brotherhood and shifter-and-psychic templates.",
+          "now": "...became leading examples of the vampire, brotherhood and shifter-and-psychic series.",
+          "why": "'Set the templates' credited three 2005 and 2006 books with a first they did not make (the search found accounts of vampire romances with happy endings already appearing in the 1990s); 'leading examples' is defensible. The three years are confirmed."
+        },
+        {
+          "where": "profile-paranormal-romance-canon, conv (neighbours)",
+          "was": "Neighbours that shaped it: Laurell K. Hamilton's Anita Blake series, beginning with Guilty Pleasures (1993), and Sarah J. Maas's A Court of Thorns and Roses (2015), which helped drive the fae and romantasy wave.",
+          "now": "Neighbouring genres: Laurell K. Hamilton's Anita Blake series, beginning with Guilty Pleasures (1993), usually classed as urban fantasy, and Sarah J. Maas's A Court of Thorns and Roses (2015), which helped drive the fae and romantasy wave.",
+          "why": "'Shaped it' repeated the unsupported influence claim for Hamilton. Sources say A Court of Thorns and Roses did not create romantasy but was one of its most successful books, so 'helped drive' stays."
+        },
+        {
+          "where": "profile-paranormal-romance-canon, conv (television and film)",
+          "was": "Dark Shadows (1966 to 1971), True Blood (2008 to 2014) and the Twilight films (2008 to 2012) took the genre to wider audiences.",
+          "now": "Dark Shadows (1966 to 1971), True Blood (2008 to 2014) and the Twilight films (2008 to 2012) brought vampire and supernatural romance to wide audiences.",
+          "why": "Dark Shadows (1966 to 1971) came long before the genre was named, so it could not have taken 'the genre' to audiences. The three date ranges are confirmed."
+        },
+        {
+          "where": "profile-paranormal-romance-readers, conv (length)",
+          "was": "Length: single-title paranormal romance commonly runs about 80,000 to 100,000 words...",
+          "now": "Length: single-title paranormal romance commonly runs from roughly 75,000 to 100,000 words...",
+          "why": "The one publisher guideline found (Entangled's Amara single-title line) gives 75,000 to 100,000 words as typical; other guides give 60,000 to 80,000 or over 100,000, so the figure is general. The text already says publishers and platforms differ."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The classification of Guilty Pleasures and the Anita Blake series as urban fantasy rests on reviews and catalogue tags, not on an authoritative genre history; the later books are described by some readers as drifting toward paranormal romance, which the text does not claim.",
+        "'Time-travel romance became well known in the late 1980s and 1990s' rests on reader, blog and encyclopedia-style sources, not industry sales data.",
+        "Single-title length of roughly 75,000 to 100,000 words rests on one publisher guideline and general guides; the facet is 'varies' with asOf and a caveat in the text.",
+        "Dark Prince (1999) is dated 1999 by Goodreads (March) and the author's site (August); the year agrees, the month is not stated. The publisher is deliberately not named. One blog gave 2005 for Dark Prince, which looks like a reissue year and was not used.",
+        "'Masquerade' as another name for the hidden world is documented as a common urban fantasy trope name, with the game Vampire: The Masquerade (1991) using the term; the text claims no origin for it.",
+        "The mid-2000s 'boom' is a trend claim: some sources say paranormal romance was established well before Twilight (2005) and that Twilight's craze was mainly young adult. The text names only the books and years and does not say that Twilight began the genre."
+      ],
+      "earlierPass": {
+        "corrected": [
+          {
+            "where": "profile-paranormal-romance-history, conv (Gothic fiction)",
+            "was": "...and twentieth-century Gothic romance added the dark house and the dangerous lover.",
+            "now": "...and twentieth-century Gothic romance carried on the dark house and the dangerous lover.",
+            "why": "The dark house and the dangerous lover are already central in eighteenth- and nineteenth-century Gothic fiction, so the twentieth century did not add them. The vampire dates (Polidori 1819, Carmilla 1872, Dracula 1897) match the library."
+          }
+        ],
+        "softened": [
+          {
+            "where": "profile-paranormal-romance-terms, conv (the hidden world)",
+            "was": "The masquerade or hidden world: the convention that the supernatural lives unseen among humans, which makes discovery a story event.",
+            "now": "The hidden world, sometimes called the masquerade: the convention that the supernatural lives unseen among humans, which makes discovery a story event.",
+            "why": "'Masquerade' is one common name for the convention, not the definition of it. The library's hidden-magical-world trope entry also lists 'masquerade' as an alternative name, so the two agree."
+          }
+        ],
+        "removed": [
+          {
+            "where": "profile-paranormal-romance-history, conv (Silhouette Shadows)",
+            "was": "...Silhouette ran Shadows, a short-lived line of paranormal romance, romantic suspense and Gothics.",
+            "now": "...Silhouette ran Shadows, a short-lived line of paranormal and Gothic romance.",
+            "why": "The 1993 to 1996 span was agreed by the writer's web check, but the description of the line's contents as including romantic suspense could not be confirmed, so it was dropped."
+          },
+          {
+            "where": "profile-paranormal-romance-history, conv (Guilty Pleasures)",
+            "was": "Laurell K. Hamilton's Guilty Pleasures (1993) began a vampire-hunter series that mixed monsters, mystery and romance, and it is often named as an influence on both urban fantasy and paranormal romance.",
+            "now": "Laurell K. Hamilton's Guilty Pleasures (1993) began the Anita Blake series, in which a vampire hunter works among monsters; it is often named as an influence on urban fantasy, the genre next door to paranormal romance.",
+            "why": "Flagged by the writer as interpretive. The claim of influence on paranormal romance itself, and the claim that the series mixed romance in from the start, could not be supported; the influence on urban fantasy is the widely made one. The 1993 year matches the library."
+          }
+        ],
+        "remainingDoubtsThen": [
+          "No search was possible for this file (budget exhausted after historical-romance.js). Villeneuve 1740, Beaumont's version in 'the 1750s' (sources give 1756 or 1757, so the vague date is deliberate), Polidori 1819, Carmilla 1872, Dracula 1897, Rice 1976, Deveraux 1989, Gabaldon 1991, Hamilton 1993, Harris 2001, Meyer 2005, Ward 2005, Singh 2006 and Maas 2015 all match library records (the lint year check passes) and solid prior knowledge.",
+          "From the writer's own web checks and my prior knowledge, not re-searched: Silhouette Shadows 1993 to 1996; Dark Shadows 1966 to 1971 on ABC with Barnabas Collins introduced in 1967 and 'its star'; Dark Prince 1999 (publisher deliberately not stated); True Blood 2008 to 2014; the Twilight films 2008 to 2012.",
+          "Nalini Singh's Psy-Changeling series described as combining shifters (changelings) with psychics (Psy) is from solid knowledge, not searched.",
+          "Single-title length of about 80,000 to 100,000 words and the statement that readers dislike a cliffhanger about the couple's own story are general-practice claims, not sourced; confidence is 'varies', with asOf and a caveat in the text.",
+          "'Alpha', 'fated mates', 'turning' and 'masquerade' are described as common usage and the watch line says terms vary by community; they are not fixed definitions and were not searched."
+        ]
+      }
+    }
+  }
+}

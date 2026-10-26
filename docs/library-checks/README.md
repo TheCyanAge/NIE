@@ -365,3 +365,32 @@ What the checkers could not confirm:
 ## Re-checks of two batches whose first checkers had no web search
 
 Interactive fiction, visual novels and game narrative (first check 234 claims / 2 corrected / 17 softened / 2 removed, from recall only; second check with search: 134 / 11 / 6 / 0) and travel writing, nature writing and self-help (first check 192 / 5 / 11 / 0 from recall only; second check with search 220 / 5 / 15 / 0) were held back after their first check and installed after the second. The second check of the interactive fiction batch corrected eleven claims the first one had left, which is the reason files checked from recall alone are held back.
+
+## Second checks with search (files whose first check had no web search)
+
+| Batch | Subjects | Claims checked | Corrected | Softened | Removed | Searched |
+| --- | --- | --- | --- | --- | --- | --- |
+| Romance subgenres | historical-romance, romantic-comedy, paranormal-romance | 130 | 2 | 12 | 0 | yes |
+| Japanese, Chinese and African American literature | japanese-literature, chinese-literature, african-american-literature | 405 | 5 | 6 | 0 | yes |
+
+What the second checkers could not confirm:
+
+### Romance subgenres
+
+- romantic-comedy.js: Annie Hall as an 'anti-romcom' rests on commentary; (500) Days of Summer is the better-supported example. The text hedges it as a label critics sometimes give.
+- romantic-comedy.js: 'late 1980s and 1990s as a high point' rests on journalism (golden age or renaissance), hedged as 'often described'; romcom novel length of roughly 70,000 to 90,000 words rests on writing guides and blogs (facet is 'varies' with asOf).
+- romantic-comedy.js: 'meet-ugly' is documented only as informal fan usage (Fanlore, from about 2014); the point can be dropped and the facet would keep 9 points. Emma is dated 1815 to match the library (published December 1815, title page 1816).
+- paranormal-romance.js: Guilty Pleasures and the Anita Blake series being 'usually classed as urban fantasy' rests on reviews and catalogue tags, not an authoritative genre history; no source was found for an influence claim, so none is made.
+- paranormal-romance.js: 'time-travel romance became well known in the late 1980s and 1990s' rests on reader, blog and encyclopedia-style sources, not sales data; single-title length of roughly 75,000 to 100,000 words rests on one publisher guideline plus general guides (facet is 'varies' with asOf).
+- paranormal-romance.js: the mid-2000s 'boom' is a trend claim (sources say paranormal romance was established before Twilight); the text names only books and years. WebFetch could not resolve any host (DNS), so search summaries were the only web source throughout.
+
+### Japanese, Chinese and African American literature
+
+- WebSearch worked this time, but WebFetch could not resolve any host and curl through the proxy returned 403, so no primary text was read. Every check rests on search summaries, not on the works themselves.
+- About 170 of the 405 claims were confirmed or corrected against a search result (56 Japanese, 50 Chinese, 64 African American). The rest are standard facts, such as period boundaries, form definitions and well-known titles, held from knowledge and consistent with the library entries.
+- Works-field years that are serial, novella or print dates (Camel Xiangzi 1937, Family 1931, Red Sorghum 1986, Journey to the West 1592, Dream of the Red Chamber 1791) follow the library. The text says what each date is where it matters.
+- 'First' claims depend on definitions. Wheatley is worded as 'generally seen as the first book of poems', Our Nig as 'usually named' (Webb 1857 and Crafts, published 2002, are caveats), and A Madman's Diary as 'often called' the first modern vernacular story.
+- Kishotenketsu (the flagged weakest claim) is kept but hedged. The Chinese four-line-verse origin is confirmed, but sources disagree on who devised it and when.
+- James Weldon Johnson's 1922 dialect point rests on a Poetry Foundation paraphrase, because his preface was not read. The wording was narrowed to match that paraphrase.
+- Not individually searched, only held from knowledge: dynasty and period boundaries, the Epic of Gesar (one encyclopedia entry), chuanqi as a Ming drama type, Jin Ping Mei's cut and full versions, and general statements about the Asian American and Chicano movements.
+

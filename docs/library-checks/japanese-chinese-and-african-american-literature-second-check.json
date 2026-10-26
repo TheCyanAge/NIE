@@ -1,0 +1,181 @@
+{
+  "method": {
+    "searchUsed": true,
+    "note": "This pass replaces an earlier recall-only pass. WebSearch worked (about 100 queries, each returning encyclopedias, library and publisher records, university pages and the Nobel and Pulitzer sites). WebFetch could not resolve any host and curl through the proxy returned 403, so no primary text was read; every check rests on WebSearch result summaries, and where a summary did not mention a claim it is listed under remainingDoubts and not counted as search-confirmed. claimsChecked counts discrete dated, attributed, \"first\", numeric, named-person and term claims examined; checkedWithSearch is the part confirmed or corrected against a search result this pass; the rest are standard facts (period boundaries, form definitions) held from solid knowledge and consistent with the library. The edits made by the earlier recall-only pass were all re-examined with search and held (priorPassChangesRechecked).",
+    "libraryCrossChecks": [
+      "trad-glob-japanese-modern (genbun itchi, Ukigumo 1887 to 1889, Futon 1907, Kokoro 1914, Crab Cannery Ship 1929, Kawabata Nobel 1968, Oe Nobel 1994): no contradiction",
+      "trad-glob-chinese-modern (Madman's Diary 1918, Thunderstorm 1934, Yan'an talks 1942, works years 1923, 1931, 1934, 1937, 1943): no contradiction",
+      "trad-eur-african-american (Douglass 1845, Jacobs 1861, Souls 1903, Their Eyes 1937, Go Tell It 1953, Beloved 1987): no contradiction",
+      "move-world-tanbi-ha-japanese-aestheticism (1900s and 1910s, Kafu, early Tanizaki) and move-world-buraiha-postwar-decadents (Dazai, Sakaguchi Ango, Oda Sakunosuke): the profile terms bullet agrees"
+    ],
+    "lint": "node scripts/library-profile-check.mjs --staging prints OK for all three files after the edits; longest conv point is 297, 290 and 296 characters; no URLs, no exclamation marks, no sample prose.",
+    "discrepanciesBetweenSources": [
+      "Waley's Genji: one catalogue gave 1921 to 1933 and another 1926 to 1933; Britannica and the volume-by-volume records give 1925 to 1933. Kept 1925 to 1933.",
+      "Saikaku, The Life of an Amorous Man: one reference gave 1683; the Waseda University Library record gives October 1682. Kept 1682.",
+      "Kokinshu: sources say ordered about 905, last poem possibly 914, finished form about 920. Text now says ordered in about 905.",
+      "Wang Wen-hsing, Family Catastrophe: serialised 1972 to 1973, book edition 1973. Text keeps 1973.",
+      "Mo Yan, Red Sorghum: novella in People's Literature, 1986; five parts joined as a novel in 1987 (the Nobel biography dates the novel 1987). Text and works field keep 1986, the first publication.",
+      "Lao She, Camel Xiangzi: serial September 1936 to May 1937 in one record, January 1937 start in another. Text says serialised 1936 to 1937; works field keeps the library year 1937.",
+      "Ba Jin, Family: serialised 1931 to 1932, book 1933. Text says serialised from 1931.",
+      "Jupiter Hammon: broadside dated 1761 by most sources, 1760 by one. Text keeps 1761.",
+      "Dery on Afrofuturism: 1993 in most sources, 1994 in some (the essay was reprinted in a 1994 book). Text now says early 1990s.",
+      "Ntozake Shange, for colored girls: 1974 to 1976 depending on source. The text gives no year.",
+      "Nihon shoki end point and Man'yoshu compilation details vary by source; the text makes no claim on either."
+    ]
+  },
+  "files": {
+    "japanese-literature.js": {
+      "claimsChecked": 140,
+      "checkedWithSearch": 56,
+      "confirmed": 135,
+      "confirmedBySearch": [
+        "Kojiki 712 and Nihon shoki 720; Kan'ami and Zeami shaping Noh in the late fourteenth and early fifteenth centuries; Akutagawa and Naoki prizes both founded by Kikuchi Kan in 1935; genbun itchi named 1885 and under way in the 1880s, Ukigumo 1887 to 1889; Shiki's haiku reform from 1892 and tanka reform 1898; Yoshikawa Eiji's Musashi in the Asahi 1935 to 1939; Matsumoto Seicho's social mystery of 1957 to 1958 (Points and Lines); In Praise of Shadows serialised 1933 to 1934, book 1934; Black Rain serialised January 1965 to September 1966; Waley 1925 to 1933, Seidensticker 1976, Tyler 2001, Washburn 2015 (Norton); Rashomon 1950 credited to both Akutagawa stories; Lu Xun to Japan 1902 and Guo Moruo 1914; Lai He (Chinese) and Yang Kui (Japanese) under Japanese rule 1895 to 1945; Futon 1907; Hojoki 1212, Tsurezuregusa about 1330 to 1332; Ugetsu 1776; Kwaidan 1904; Edogawa Ranpo debut 1923; Motoori Norinaga and mono no aware in the eighteenth century; Makioka Sisters begun 1943, suspended, complete 1948; Takekurabe 1895 to 1896; Maihime 1890; Saikaku 1682; Some Prefer Nettles 1929; Crab Cannery Ship 1929; Setting Sun 1947; No Longer Human 1948; Confessions of a Mask 1949; Woman in the Dunes 1962; A Personal Matter 1964; Silence 1966; Norwegian Wood 1987; Wind-Up Bird 1994 to 1995; Kitchen 1988; Housekeeper and the Professor 2003; Convenience Store Woman 2016; Kawabata Nobel 1968; Oe Nobel 1994; Hizakurige 1802 to 1809; tanbi-ha (Kafu, early Tanizaki) and burai-ha (Dazai, Sakaguchi Ango, Oda Sakunosuke); Thơ Mới 1932 to 1945; hangul in the fifteenth century.",
+        "Kishotenketsu: sources agree it comes from the Chinese four-line verse pattern (qi cheng zhuan he) by way of Korea, but not on who devised it or when."
+      ],
+      "corrected": [
+        {
+          "where": "history, Heian bullet (Kokinshu)",
+          "was": "the Kokinshu (compiled by imperial order from 905)",
+          "now": "the Kokinshu (ordered by the emperor in about 905)",
+          "why": "Sources give the order as about 905 (conceived under Uda, commissioned by Daigo) and the finished anthology as between about 914 and 920, so \"compiled ... from 905\" ran commissioning and completion together."
+        },
+        {
+          "where": "history, last bullet (light novels and keitai shosetsu)",
+          "was": "Light novels and mobile-phone novels (keitai shosetsu) grew in the 1990s and 2000s",
+          "now": "Light novels grew in the 1990s and mobile-phone novels (keitai shosetsu) in the 2000s",
+          "why": "Sources place the first mobile-phone novels in the early 2000s (online from 2000, Deep Love 2002 to 2003, commercial peak 2007), so they did not grow in the 1990s; the light-novel boom is placed in the 1990s."
+        },
+        {
+          "where": "tropes, family and household bullet (Sound of the Mountain)",
+          "was": "Kawabata's The Sound of the Mountain (1954)",
+          "now": "Kawabata's The Sound of the Mountain (serialised from 1949, in book form 1954)",
+          "why": "Sources give serialisation from 1949 to 1954 and the first book edition in 1954 (Noma Prize 1954); 1954 alone read as the date of writing."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, first bullet (Man'yoshu)",
+          "was": "the poetry anthology Man'yoshu, compiled in the later eighth century",
+          "now": "the poetry anthology Man'yoshu, put together in stages and usually dated to the later eighth century",
+          "why": "Nara Prefecture says the compilers and date are not known in detail; other sources describe volumes edited separately and gathered by Otomo no Yakamochi around the 780s. \"Compiled in\" a century implied one act."
+        },
+        {
+          "where": "craft, kishotenketsu bullet (the writer flagged this as the weakest craft claim)",
+          "was": "a four-part scheme ... borrowed from the pattern of Chinese verse, is often cited",
+          "now": "a four-part scheme ... usually traced to the pattern of Chinese four-line verse, is often cited",
+          "why": "Sources agree on the Chinese four-line verse origin (by way of Korea) but not on who devised it or when (a Tang attribution is speculative; the earliest firm description is Yuan-era), so \"borrowed\" was too definite. The bullet already says how far it describes Japanese fiction is debated, and it was kept."
+        }
+      ],
+      "removed": [],
+      "priorPassChangesRechecked": [
+        "Lu Xun (from 1902) and Guo Moruo (from 1914): confirmed by search.",
+        "Makioka Sisters (serialised from 1943, complete in 1948): confirmed.",
+        "Wind-Up Bird Chronicle 1994 to 1995: confirmed.",
+        "Shiki and the 1890s, with the tanka reform: confirmed (reform series began June 1892, tanka reform 1898).",
+        "Tanbi-ha and burai-ha wording in the terms bullet: confirmed and matches the library entries.",
+        "Zen as a school within Buddhism; genbun itchi from the 1880s; Korean \"much ... took shape\": all held."
+      ],
+      "remainingDoubts": [
+        "Tale of Genji \"c. 1010 CE\" in the works field and \"early eleventh century\" for Genji and The Pillow Book are approximations shared with the library; not re-searched.",
+        "The period boundaries (Heian 794 to 1185, Edo 1603 to 1868, Showa 1926 to 1989) and standard form definitions (waka, renga, kigo, kireji, kaidan) are held from knowledge and were not individually searched.",
+        "Light-novel dating rests on a truncated source (a fantasy boom in the 1990s); the claim is kept to the decade.",
+        "Takekurabe is \"1895 to 1896\" in the text and 1895 in the library; no lint conflict, but one form could be chosen.",
+        "The tanbi-ha range \"1900s and 1910s\" follows the library; web sources centre the shift on about 1910.",
+        "Ukigumo is called \"an early landmark\" on purpose: some scholars call it the first modern novel, others do not.",
+        "Primary texts were not read (WebFetch could not resolve hosts); checks rest on search summaries."
+      ]
+    },
+    "chinese-literature.js": {
+      "claimsChecked": 130,
+      "checkedWithSearch": 50,
+      "confirmed": 126,
+      "confirmedBySearch": [
+        "Shijing roughly eleventh to seventh centuries BCE (Songs of Chu, Analects and Zhuangzi dating is stated as uncertain in the watch line); Sima Qian's Records about 91 BCE; Liang Qichao's 1902 essay in New Fiction; imperial examinations abolished September 1905; A Madman's Diary May 1918; Call to Arms 1923 (preface dated December 1922); Ah Q serialised December 1921 to February 1922; Yan'an forum May 1942; Gao Xingjian Nobel 2000 and Mo Yan 2012; Soul Mountain first published in Taipei 1990; Red Sorghum 1986 (novella); Pu Songling's Liaozhai first printed 1766 (Zhao Qigao); Peony Pavilion 1598; Peach Blossom Fan 1699; Guan Hanqing's Dou E play in the Yuan; Journey to the West 1592 edition and Dream of the Red Chamber 1791 (Cheng-Gao); Three Hundred Tang Poems about 1763 (Sun Zhu); Family serialised from 1931; Camel Xiangzi serialised 1936 to 1937; Border Town 1934; Thunderstorm 1934; Love in a Fallen City 1943; To Live 1993; Song of Youth 1958; Legend of the Condor Heroes 1957; Three-Body Problem 2008 (serialised 2006) and Ken Liu's 2014 translation; Taipei People 1971; Family Catastrophe 1973; My City 1979 (book); Hawkes and Minford 1973 to 1986; Waley's Monkey 1942 abridged; Anthony Yu 1977 to 1983 complete; Pound's Cathay 1915 a free reworking; Tale of Kieu drawing on a Chinese novel; misty poetry as a critics' label for obscurity; Peking opera from about 1790 and the 1907 start of spoken drama; Tao Yuanming and retreat poetry; Woeser writing in Chinese; scar literature (1978) and root-seeking (1985); Thơ Mới 1932 to 1945; hangul in the fifteenth century; Lu Xun 1902 and Guo Moruo 1914 in Japan; Lai He and Yang Kui."
+      ],
+      "corrected": [
+        {
+          "where": "canon, classic novels bullet (Journey to the West)",
+          "was": "Journey to the West (first printed 1592)",
+          "now": "Journey to the West (earliest surviving edition 1592)",
+          "why": "Sources say earlier editions from about 1522 to 1566 are known but no copies survive; the 1592 Shidetang edition is the earliest that survives. The works field keeps 1592, which agrees with the library."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, May Fourth bullet",
+          "was": "Lu Xun's A Madman's Diary (1918) is the best-known first modern story",
+          "now": "Lu Xun's A Madman's Diary (1918) is often called the first modern vernacular story",
+          "why": "Sources say \"widely described as the first modern Chinese short story\", and hedge it; the month (April or May 1918) also varies. The library uses the stronger wording, which is a library matter."
+        },
+        {
+          "where": "canon, Tang and Song poetry bullet",
+          "was": "Three Hundred Tang Poems (1763)",
+          "now": "Three Hundred Tang Poems (compiled about 1763)",
+          "why": "Sources say \"compiled around 1763\" by Sun Zhu; the year is approximate."
+        },
+        {
+          "where": "compare, Korean bullet",
+          "was": "modern Korean writing grew under Japanese rule, not through the May Fourth path",
+          "now": "much modern Korean writing took shape under Japanese rule, not through the May Fourth path",
+          "why": "Modern Korean writing has beginnings before 1910 and continued after 1945; \"much\" keeps the claim true. Same wording as the Japanese profile."
+        }
+      ],
+      "removed": [],
+      "priorPassChangesRechecked": [
+        "Lu Xun (from 1902) and Guo Moruo (from 1914): confirmed.",
+        "Camel Xiangzi serialised 1936 to 1937; Family serialised from 1931: confirmed.",
+        "First-printing wording for Dream of the Red Chamber (1791) and Strange Tales (1766): confirmed.",
+        "Tao Yuanming and zhiguai sentence; Vietnamese bullet naming only \"a Chinese novel\": confirmed (the source novel is a seventeenth-century romance, Jin Yun Qiao).",
+        "Hedged wording on huaben, chapter headings and hooks, kinship terms, landscape painting comparison: held."
+      ],
+      "remainingDoubts": [
+        "Works field: Camel Xiangzi 1937, Family 1931, Red Sorghum 1986, Journey 1592 and Dream 1791 are the library's years; each is a serial, novella or print date rather than a single \"publication\", and the text says so where it matters. Wu Cheng'en stays a traditional attribution.",
+        "Qu Yuan's traditional dates are doubted by some scholars; the text only says the Songs of Chu are \"linked to\" him and the watch line says early attributions are uncertain.",
+        "Not individually searched: the dynasty boundaries (Han, Tang, Song, Yuan, Ming, Qing), the forms (lüshi eight lines, jueju four, zaju four acts), chuanqi as a Ming drama type, Jin Ping Mei cut and full versions, the Epic of Gesar (one encyclopedia entry only), the common surnames; all are standard and held from knowledge.",
+        "The Peking opera start (about 1790) is a convention rather than one documented event; the text says \"from the late eighteenth and nineteenth centuries\".",
+        "Huaben as storytellers' scripts is attributed as a traditional description, because scholars dispute it.",
+        "Primary texts were not read (WebFetch could not resolve hosts); checks rest on search summaries."
+      ]
+    },
+    "african-american-literature.js": {
+      "claimsChecked": 135,
+      "checkedWithSearch": 64,
+      "confirmed": 133,
+      "confirmedBySearch": [
+        "Jupiter Hammon's broadside 1761 (one source 1760); Wheatley's Poems 1773, described by sources as the first published book by an African American; Equiano 1789 in London; Douglass 1845; Jacobs 1861; Clotel 1853 (London); Our Nig 1859, the first novel by an African American woman published in the United States (Gates), with Webb 1857 and Crafts (published 2002) as caveats the text avoids by saying \"usually named\"; Iola Leroy 1892; Conjure Woman 1899; Up from Slavery 1901; Souls of Black Folk 1903 with the double-consciousness passage in an 1897 essay; Cane 1923; The New Negro 1925; Quicksand 1928 and Passing 1929; Native Son 1940; Black Boy 1945; The Street 1946; Brooks's Pulitzer 1950 for Annie Allen (1949); Invisible Man 1952; Go Tell It on the Mountain 1953; Raisin in the Sun 1959; The Fire Next Time 1963; Dutchman 1964; Black Arts Movement from 1965 in Harlem around Baraka; Bluest Eye 1970; Sula 1973; Song of Solomon 1977; Beloved 1987; Morrison Nobel 1993; Caged Bird 1969; Color Purple 1982; Kindred 1979; Wilson's ten-play cycle with all but Ma Rainey set in Pittsburgh's Hill District, Fences premiered 1985 at Yale Rep; Known World 2003; Salvage the Bones 2011; Men We Reaped 2013; Between the World and Me 2015; Underground Railroad 2016; Gates's Signifying Monkey 1988 and the talking book; Walker's womanist first used 1979 and developed in the 1983 essays; neo-slave narrative term credited to Bernard Bell in 1987; Mumbo Jumbo 1972; Oreo 1974; Aiiieeeee! 1974 (Frank Chin and others); House Made of Dawn 1968 and the Native American Renaissance; Piri Thomas 1967; Autobiography of an Ex-Colored Man 1912; Blacker the Berry 1929; Baldwin's 1949 protest-novel essay and Notes of a Native Son 1955; Sonny's Blues 1957; Weary Blues 1926; Home to Harlem 1928; Their Eyes 1937; Walcott Nobel 1992; Soyinka Nobel 1986; Things Fall Apart 1958; Bluest Eye and Beloved among the most challenged books; Great Migration from the 1910s; Spike Lee and the \"magical Negro\" label in 2001."
+      ],
+      "corrected": [
+        {
+          "where": "craft, watch line on dialect",
+          "was": "a point Harlem Renaissance writers made about the older dialect verse",
+          "now": "James Weldon Johnson judged the older dialect verse too narrow in range",
+          "why": "The general attribution to \"Harlem Renaissance writers\" was not found in any source. A search result (the Poetry Foundation) does support that Johnson likened dialect verse to an instrument with two registers, humor and pathos, so the line now makes only that narrower, sourced claim."
+        }
+      ],
+      "softened": [
+        {
+          "where": "terms, Afrofuturism",
+          "was": "the critic Mark Dery named it in 1993",
+          "now": "the critic Mark Dery is credited with the name, in the early 1990s",
+          "why": "Sources credit Dery but split between 1993 (the journal essay) and 1994 (the reprint in a book)."
+        }
+      ],
+      "removed": [],
+      "priorPassChangesRechecked": [
+        "Morrison and Butler returned to the slave narrative (not Walker): confirmed against the neo-slave narrative sources, which name Beloved and Kindred.",
+        "Quicksand not described as a passing novel; Fences \"first staged 1985\"; double consciousness \"made famous by\" the 1903 book (earlier 1897 essay): all confirmed.",
+        "Wheatley \"first book of poems by an African American\" (narrower than \"first published book\"): confirmed true.",
+        "Wilson cycle \"mostly\" in the Hill District: confirmed (all but Ma Rainey's Black Bottom).",
+        "Asian American \"histories that differ from slavery\" and the \"magical Negro\" label in quotation marks: held."
+      ],
+      "remainingDoubts": [
+        "Johnson's 1922 preface was not read; the dialect point rests on a Poetry Foundation paraphrase. The wording was narrowed to that paraphrase.",
+        "\"First\" claims depend on definitions (published, in the United States, by a woman, a book not a broadside); the text uses \"generally seen as\" and \"usually named\" for Wheatley and Our Nig.",
+        "The Harlem Renaissance span \"1920s and early 1930s\" sits inside the wider ranges some sources give (about 1918 to the mid-1930s); the Great Migration \"from the 1910s\" sits between sources that start in 1910 and in 1916.",
+        "Not individually searched: Brooks, Hayden, Clifton, Lorde, Cullen, Delany and Himes are named without works; Walker's Georgia, Hurston's Eatonville and Dunbar's mask poem are descriptive.",
+        "The Asian American \"movement of the late 1960s\" and the \"Chicano movement beside the Black Arts Movement\" are general statements held from knowledge.",
+        "Primary texts were not read (WebFetch could not resolve hosts); checks rest on search summaries."
+      ]
+    }
+  }
+}
