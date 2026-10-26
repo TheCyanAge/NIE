@@ -40,16 +40,17 @@ test('talking about the writer\'s own story is never hijacked by the library', a
   }
 });
 
-test('with a model: library notes (with their source) go to the model, with an instruction never to invent citations', async () => {
+test('with a model: a strong match is answered with the library\'s own text and says where it came from; the model is asked to read the message and not to retell the notes', async () => {
   const calls = [];
-  const o = withModel(() => 'Free indirect discourse blends narrator and character voice.', calls);
+  const o = withModel(() => 'MODEL TEXT that must not be shown.', calls);
   const r = await ask(o, projectWith(), 'What is free indirect discourse?');
-  assert.equal(r.route, 'local');
-  const user = calls[0].messages.at(-1).content;
-  assert.match(user, /Reference notes/);
-  assert.match(user, /Free indirect discourse/);
-  assert.match(user, /built-in library/);
-  assert.match(user, /Never invent citations/);
+  assert.equal(r.route, 'builtin', 'composed by code from the record');
+  assert.equal(r.intent.type, 'library-question');
+  assert.match(r.reply, /^From NIE's built-in library:/);
+  assert.match(r.reply, /Free indirect discourse/);
+  assert.match(r.reply, /works with no internet/);
+  assert.ok(!/MODEL TEXT/.test(r.reply));
+  assert.equal(calls.length, 0, 'no model was asked to write an answer (measured on the real model, a retelling of the notes was wrong or credited the writer with things they never said in 13 of 33 replies)');
 });
 
 test('with a model: when the library has nothing, the model is told so and told not to invent', async () => {

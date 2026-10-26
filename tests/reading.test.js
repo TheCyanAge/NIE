@@ -277,8 +277,10 @@ test('craft questions and questions about NIE never drag the writer\'s text in',
   const { text } = makeLongText({ words: 8000 });
   const project = projectWith({ storyText: text });
   const { o, calls } = setup({ reading: { task: 'craft', topic: 'villanelle' } });
-  await o.brainstorm({ project, message: "What's a villanelle?" });
-  assert.doesNotMatch(promptOf(calls), /The writer's text/);
+  const r = await o.brainstorm({ project, message: "What's a villanelle?" });
+  assert.equal(r.intent.type, 'library-question');
+  assert.match(r.reply, /villanelle/i, 'answered from the library');
+  assert.equal(calls.length, 0, 'no model was asked to retell the record, so there is no prompt the long text could be in');
 });
 
 test('the pasted text is split from the ask: a short first or last paragraph is the writer\'s question', () => {
@@ -431,8 +433,10 @@ test('a general craft question is still answered from the library even when the 
   const { text } = loadBible();
   const project = projectWith({ storyText: text });
   const { o, calls } = setup({ reading: { task: 'craft', topic: 'villanelle' }, reply: 'A villanelle is a nineteen-line poem.' });
-  await o.brainstorm({ project, message: 'In one or two sentences, what is a villanelle?' });
-  assert.doesNotMatch(promptOf(calls), /The writer's text is long/, 'the text is not dragged in');
+  const r = await o.brainstorm({ project, message: 'In one or two sentences, what is a villanelle?' });
+  assert.equal(r.intent.type, 'library-question');
+  assert.match(r.reply, /villanelle/i, 'answered from the library');
+  assert.equal(calls.length, 0, 'the library\'s own text is the answer; no model is asked to retell it, so the long text cannot be dragged into a prompt');
 });
 
 test('a question that says "this bible" or "the text" is about the text; its measured style reaches the model', async () => {

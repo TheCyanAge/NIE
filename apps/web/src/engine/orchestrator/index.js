@@ -686,7 +686,11 @@ export class Orchestrator {
       extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const turnTokens = aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700;
-    const got = await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: turnTokens, steered: Boolean(brief) });
+    // An answer to a question the library answers well is the library's own text, put together by code, and no model is asked to retell it: measured on the real model (an audit of
+    // 33 replies against the records they were built from), a 3B model that retold the notes got something wrong or credited the writer with something they never said in
+    // 13 of them. A match the library is only loosely sure of, and a pronoun question it cannot pick out, still go to the model, with the names, dates and schemes it states checked.
+    const byCode = Boolean(lib) && lib.strength === 'strong' && follow?.kind !== 'context' && !analysis;
+    const got = byCode ? { asked: { res: { text: null, route: 'builtin' }, failure: null, modelReady: true, trimmed: [], read: null }, polished: null, retried: false } : await this.#askClean({ composeArgs, history: past, known: [text, project.storyText], onToken, signal, temperature: aboutText ? 0.3 : 0.7, maxTokens: turnTokens, steered: Boolean(brief) });
     const asked = got.asked;
     const res = asked.res;
     const modelReady = asked.modelReady;

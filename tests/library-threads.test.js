@@ -272,10 +272,12 @@ test('with a model: a facet follow-up is answered by the library\'s record (word
   const { o, calls } = withModel(() => 'MODEL TEXT', { reading: () => ({ task: 'craft', topic: '' }) });
   const project = projectWith();
   await say(o, project, 'What is gothic fiction?');
-  calls.length = 0;
   const r = await say(o, project, 'and the vocabulary?');
-  const prompt = calls.map((c) => c.messages.map((m) => m.content).join('\n')).join('\n');
-  assert.match(prompt, /vocabulary of the genre/i, 'the vocabulary record is what the model is shown');
+  assert.equal(calls.length, 0, 'the model is not asked to retell a record');
+  assert.equal(r.route, 'builtin');
+  assert.ok(!/MODEL TEXT/.test(r.reply));
+  assert.match(r.reply, /vocabulary of the genre/i, 'the vocabulary record is what is shown');
+  assert.match(r.reply, /uncanny|sublime|Female Gothic/, 'in the record\'s own words');
   assert.equal(r.library.follow, 'facet');
   assert.deepEqual(project.conversation.library.shown, ['terms']);
 });
@@ -316,25 +318,31 @@ test('an answer from the library may only name what the library\'s records name:
   const invented = 'Gothic fiction began with The Castle of Otranto in 1764. Anne Rice later made the vampire a tragic hero in Interview With The Vampire. Its settings are ruined castles and decaying houses.';
   const { o } = withModel(() => invented, { reading: () => ({ task: 'craft', topic: '' }) });
   const project = projectWith();
-  const r = await say(o, project, 'What is gothic fiction?');
+  await say(o, project, 'What is gothic fiction?');
+  const r = await say(o, project, 'why did it start in Britain?'); // (a pronoun question the library cannot pick out goes to the model)
+  assert.equal(r.route, 'local');
   assert.ok(!/Anne Rice|Interview With The Vampire/.test(r.reply), 'the sentence that names what no record names is gone');
   assert.match(r.reply, /Otranto/, 'what the records name stays');
   assert.match(r.reply, /left out part of that reply because it named something I couldn't find in my library/);
 });
 
 test('an answer from the library may only state the dates and patterns the records state: a year or a rhyme scheme of the model\'s own has that sentence left out, and says so', async () => {
-  const invented = 'The villanelle has nineteen lines. Its rhyme scheme is typically ABAABCCDDCDEEDCDEE. A poet named in the records printed one in 1606, and the form returned in the 1890s.';
+  const invented = 'Gothic fiction began in Britain with The Castle of Otranto. Its rhyme scheme is typically ABAABCCDDCDEEDCDEE. The form returned in the 1620s.';
   const { o } = withModel(() => invented, { reading: () => ({ task: 'craft', topic: '' }) });
   const project = projectWith();
-  const r = await say(o, project, 'What is a villanelle?');
-  assert.ok(!/ABAABCCDDCDEEDCDEE/.test(r.reply), 'the scheme no record has is gone');
-  assert.match(r.reply, /nineteen lines/, 'what is in the records stays');
+  await say(o, project, 'What is gothic fiction?');
+  const r = await say(o, project, 'why did it start in Britain?');
+  assert.equal(r.route, 'local');
+  assert.ok(!/ABAABCCDDCDEEDCDEE|1620s/.test(r.reply), 'the scheme and the decade no record has are gone');
+  assert.match(r.reply, /Otranto/, 'what is in the records stays');
   assert.match(r.reply, /left out part of that reply because it named something I couldn't find in my library/);
 });
 
 test('an answer from the library that names nothing the library holds is replaced by the library\'s own record, with the reason', async () => {
   const { o } = withModel(() => 'Anne Rice and Stephen King shaped it, along with Clive Barker and Poppy Brite.', { reading: () => ({ task: 'craft', topic: '' }) });
-  const r = await say(o, projectWith(), 'What is gothic fiction?');
+  const project = projectWith();
+  await say(o, project, 'What is gothic fiction?');
+  const r = await say(o, project, 'why did it start in Britain?');
   assert.equal(r.route, 'builtin');
   assert.match(r.reply, /couldn't find in my library|could not find in my library/);
   assert.match(r.reply, /Castle of Otranto/, 'the record itself is shown instead');
@@ -344,7 +352,8 @@ test('the model is told the library is NIE\'s own, to speak as NIE, to add no na
   const { o, calls } = withModel(() => 'Gothic fiction began in 1764 with The Castle of Otranto.', { reading: () => ({ task: 'craft', topic: '' }) });
   const project = projectWith();
   await say(o, project, 'What is gothic fiction?');
-  await say(o, project, 'tell me more');
+  await say(o, project, 'why did it start in Britain?');
+  assert.equal(calls.length, 1, 'only the pronoun question went to the model');
   const prompt = calls.map((c) => c.messages.map((m) => m.content).join('\n')).join('\n');
   assert.match(prompt, /NIE's built-in library, NIE's own reference; they are not something the writer wrote or sent/);
   assert.match(prompt, /never say "the notes you provided"/);
