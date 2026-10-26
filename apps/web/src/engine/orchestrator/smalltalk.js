@@ -1,6 +1,6 @@
 import { fnv1a, clip } from '../util/text.js';
 import { groundNames } from '../editor/ground.js';
-import { splitSentencesLite } from './variety.js';
+import { isFiller, similarity, splitSentencesLite } from './variety.js';
 
 /**
  * Small talk: "hey", "thanks!", "ok cool", "how are you?", "back again". A person answers these like a person, in a line or two, and does not go looking for something in the
@@ -25,6 +25,8 @@ const BYE = /\b(?:bye|goodbye|good night|goodnight|see you|see ya|talk later|tty
 const BACK = /\b(?:back again|i'?m back|im back|back for more|hello again|hi again|hey again)\b/i;
 // Remarks about the message itself (its tone, what it "signals") instead of an answer to it.
 const COMMENTARY = /\b(?:tone|signals?|indicates?|conveys?|implies|at the end|right from the start|your (?:message|greeting|opening)|this message|the message)\b/i;
+// NIE saying the writer's project is its own ("I'm writing a mystery set on a night train").
+const OWNS_THE_PROJECT = /^\s*(?:i'?m|i am|i was|i have been|i've been)\s+(?:writing|working on|building|making)\b|\bmy (?:story|novel|book|script|poem|premise|protagonist)\b/i;
 const FEELING_LOW = /\b(?:tired|exhausted|drained|burnt? ?out|stuck|blocked|stressed|overwhelmed|discouraged|frustrated|can'?t (?:write|think|do this)|no motivation|don'?t know where to (?:start|begin)|not sure where to start)\b/i;
 
 /** @returns {'back'|'thanks'|'bye'|'how-are-you'|'greeting'|'low'|'ack'} */
@@ -111,17 +113,26 @@ export function holdSmallTalk(reply, { project, text, past = [] } = {}) {
   let out = String(reply ?? '').trim();
   if (!out) return '';
   if (/^\s*(?:[-*•]|\d+[.)])\s/m.test(out) || (/\n\s*\n/.test(out) && wordCount(out) > 30)) return '';
+  const kind = kindOfSmallTalk(text);
+  const theirs = [text, ...past.filter((m) => m.role === 'user').map((m) => m.content)].flatMap((m) => splitSentencesLite(String(m ?? '')));
   const sentences = splitSentencesLite(out);
   const kept = [];
   let questions = 0;
   for (const s of sentences) {
     const isQuestion = /\?["')\]]*\s*$/.test(s);
+    if (isFiller(s)) continue; // "Sounds intriguing." is not an answer to "thanks!"
+    if (wordCount(s) >= 5 && theirs.some((e) => similarity(s, e) >= 0.8)) continue; // one of the writer's own sentences said back
+    if (OWNS_THE_PROJECT.test(s)) continue; // "I'm writing a mystery set on a night train": NIE is not the writer
+    // a thank-you, a goodbye or an "ok" is not followed by a question about the story (measured on the real model: "How does the train's atmosphere influence the passengers?")
+    if (isQuestion && ['thanks', 'bye', 'ack'].includes(kind) && wordCount(s) > 8) continue;
     if (isQuestion && ++questions > 1) continue;
     if (wordCount([...kept, s].join(' ')) > SMALL_TALK_MAX_WORDS) break;
     kept.push(s);
   }
   out = kept.join(' ').trim();
   if (!out || wordCount(out) < 2) return '';
+  // most of the reply is one of the writer's earlier messages said back (measured: a hello was answered with the writer's own two sentences)
+  for (const m of [text, ...past.filter((x) => x.role === 'user').map((x) => x.content)]) if (wordCount(m) >= 5 && similarity(out, String(m)) >= 0.6) return '';
   const writerSaid = [text, ...past.filter((m) => m.role === 'user').map((m) => m.content), ...whereWeWere(project, { limit: 6, chars: 260 })];
   // Talking ABOUT the message instead of answering it ("The 'thanks' at the end signals a warm tone"), or quoting words nobody said, is what a hello must never get.
   if (COMMENTARY.test(out)) return '';
@@ -136,6 +147,9 @@ export function holdSmallTalk(reply, { project, text, past = [] } = {}) {
  * A writer who says they are stuck, tired or discouraged while talking about their work is not making small talk, but a person would not skip past it either. One human sentence first, then the work.
  * '' when the message says nothing of the kind.
  */
+/** Does the message say the writer is stuck, tired or discouraged? (a short one: a long message that mentions it is about the work) */
+export const isLowMood = (text) => wordCount(text) <= 30 && FEELING_LOW.test(String(text ?? ''));
+
 export function feelingNote(text) {
   const t = String(text ?? '');
   if (wordCount(t) > 30 || !FEELING_LOW.test(t)) return '';

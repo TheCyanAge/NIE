@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
+import { Orchestrator, holdToPlan } from '../apps/web/src/engine/orchestrator/index.js';
 import { AIEngine } from '../apps/web/src/engine/ai/engine.js';
 import { DECLINE_WRITE, DECLINE_WRITE_AGAIN } from '../apps/web/src/engine/orchestrator/builtin.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
@@ -111,4 +111,25 @@ test('library notes in a story conversation are only craft that bears on it: no 
   }
   assert.deepEqual(o.storyNotes(project, 'hey'), []);
   assert.ok(names('heist twist').some((n) => /Heist structure/.test(n)), names('heist twist').join(' | '));
+});
+
+test('a sentence that credits the writer with NIE\'s own idea ("the second twist you mentioned") goes; one that quotes what they really said stays', () => {
+  const agentTurn = { enforce: (t) => t, grounded: () => true, ack: 'Noted.' };
+  const plan = { act: 'serve', reason: 'question' };
+  const said = 'the second one is interesting. why would that work?';
+  const writer = ['I have a heist story: four friends rob the museum where one of them works.'];
+  const bad = holdToPlan('The second twist you mentioned is interesting because it hands the vault to a hidden artifact with mind-control powers. It works because the friends no longer know who to trust.', plan, agentTurn, said, writer);
+  assert.doesNotMatch(bad, /you mentioned/);
+  assert.match(bad, /no longer know who to trust/);
+  const good = holdToPlan('You said four friends rob the museum where one of them works. That puts the betrayal inside the group, which is why a mole twist lands.', plan, agentTurn, said, writer);
+  assert.match(good, /You said four friends rob the museum/);
+});
+
+test('filler such as "Sounds intriguing." is not kept as an answer, and a hello is not answered with the writer\'s own sentences or with a question about the story after a thank-you', async () => {
+  const { holdSmallTalk } = await import('../apps/web/src/engine/orchestrator/smalltalk.js');
+  const project = projectWith();
+  const past = [{ role: 'user', content: "I'm writing a mystery set on a night train. The conductor vanishes between two stations." }];
+  assert.equal(holdSmallTalk("You're welcome. Sounds intriguing. How does the train's atmosphere influence the passengers' interactions?", { project, text: 'thanks!', past }), "You're welcome.");
+  assert.equal(holdSmallTalk("I'm writing a mystery set on a night train. The conductor vanishes between two stations.", { project, text: 'hey, back again', past }), '');
+  assert.equal(holdSmallTalk('Welcome back. Want to pick up the night train?', { project, text: 'hey, back again', past }), 'Welcome back. Want to pick up the night train?');
 });

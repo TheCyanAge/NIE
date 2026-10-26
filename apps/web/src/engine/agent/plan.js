@@ -133,7 +133,8 @@ export function planTurn({ state, info = {}, ctx, seed = '' }) {
   if (!askNow) return { act: 'reflect', slot: null, reason: 'gap', state: st };
 
   const kindTries = st.asked.filter((a) => a.slot === null).length;
-  if (!st.kind && kindTries < 2) {
+  // (asked once, and only while the idea is young: measured on the real model, "what are you making: a novel, a play, a documentary...?" came back in the middle of a conversation about a flooded city)
+  if (!st.kind && kindTries < 1 && st.turn <= 2) {
     const question = pickKindQuestion({ state: st, seed });
     if (question) return { act: 'ask', slot: null, question, reason: 'kind', easy, state: st };
   }

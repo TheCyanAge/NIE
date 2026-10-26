@@ -234,6 +234,17 @@ export function isPraiseOpener(sentence) {
   return opensWithPraise(s) && !hasContentTail(s);
 }
 
+// ── filler ───────────────────────────────────────────────────────────────────
+/**
+ * A sentence that says nothing but "I am listening and I liked that": "Sounds intriguing.", "Sounds like an interesting premise.", "That's really interesting.", "I understand.", "I see what you mean."
+ * Measured on the real model, these filled the place of an answer in small talk and in short replies. Whole short sentences only; one that carries anything else is not filler.
+ */
+const FILLER = /^(?:(?:that|it|this)\s+)?(?:sounds?|seems?|is|was)\s+(?:like\s+)?(?:an?\s+|really\s+|very\s+|so\s+)*(?:intriguing|interesting|fascinating|exciting|great|good|compelling|promising|intersting)(?:\s+(?:premise|idea|start|concept|story|setup|set-up|direction|twist|choice))?[\s!.]*$|^(?:i\s+(?:see|understand|hear)\b[^,;:]{0,25}|got it|i see|i understand|makes sense|fair enough|i like (?:that|it|this)(?: (?:one|idea|twist))?(?: as well| too)?)[\s!.]*$/i;
+export const isFiller = (sentence) => {
+  const t = tidyText(str(sentence).slice(0, 200));
+  return Boolean(t) && countWords(t) <= 9 && !endsWithQ(t) && FILLER.test(t);
+};
+
 // ── stock questions ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 // Steering questions that fit any story and say nothing about this one. Each pattern is anchored (start or end) so a specific question that
 // merely begins the same way ("What do you think the keeper hears?", "Which of those two do you want the closing image to be?") is NOT stock.

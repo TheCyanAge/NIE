@@ -9,7 +9,7 @@ import { scan, scanWithModel } from '../analysis/scan.js';
 import { composeMessages, ideaRequestBlock, indexFor, RETRY_TOKEN_LIMIT } from './prompt.js';
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_EDIT_AGAIN, DECLINE_WRITE, DECLINE_WRITE_AGAIN, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
-import { avoidBlock, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
+import { avoidBlock, isFiller, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
 import { isReaction, replyContext } from './replyto.js';
 import { feelingNote, holdSmallTalk, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
@@ -24,7 +24,7 @@ import { clip, estimateTokens, fnv1a, words } from '../util/text.js';
 import defaultAgent from '../agent/index.js';
 import { detectProject } from '../agent/detect.js';
 import { grasp as agentGrasp } from '../agent/sheet.js';
-import { filledIds, stemSet } from '../agent/state.js';
+import { filledIds, stemList, stemSet } from '../agent/state.js';
 import { isSuggestion } from '../agent/ask.js';
 import { parseKeepCommand } from '../agent/talk.js';
 import { clearTokenMemo, describeMind, mindOf, recall, rememberStatements } from '../mind/index.js';
@@ -87,8 +87,26 @@ export function withoutQuestionLists(text) {
  * to ask) can still come back as a question in one short sentence ("...but what secrets does she carry?"), which `enforce` cannot cut without leaving nothing. Then the question
  * sentences go, and if too little is left NIE's own acknowledgement of what was recorded stands in for the reply. Measured on the real model: without this every turn asked.
  */
-export function holdToPlan(text, plan, agentTurn, said = '') {
+/**
+ * "You mentioned ...", "what you're saying is ...": a sentence that credits the WRITER with something. Kept only when the words of the sentence are the writer's own (they did say it); when they are NIE's (its own
+ * twist, "the second twist you mentioned"), the sentence puts NIE's idea in the writer's mouth and goes. Measured on the real model: "The second twist you mentioned ... a hidden artifact with mind-control powers".
+ */
+const CREDITS_WRITER = /\b(?:you(?:'ve| have)?\s+(?:also\s+)?(?:said|mentioned|noted|told me|described|listed|suggested|wrote|brought up)|what you(?:'re| are) saying|as you(?:'ve| have)?\s+(?:said|mentioned|noted|told me|described))\b/i;
+function withoutFillerAndCredit(out, writerTexts) {
+  const parts = splitSentencesLite(out);
+  if (parts.length < 2) return out;
+  const known = new Set(writerTexts.flatMap((t) => stemList(String(t ?? ''))));
+  const own = (x) => {
+    const mine = [...new Set(stemList(x))];
+    return !mine.length || mine.filter((m) => known.has(m)).length / mine.length >= 0.6;
+  };
+  const kept = parts.filter((x) => !isFiller(x) && !(CREDITS_WRITER.test(x) && !own(x)));
+  const joined = kept.join(' ').trim();
+  return kept.length < parts.length && words(joined).length >= 6 ? joined : out;
+}
+export function holdToPlan(text, plan, agentTurn, said = '', writerTexts = []) {
   let out = agentTurn.enforce(text);
+  out = withoutFillerAndCredit(out, [said, ...writerTexts]);
   if (plan?.act === 'ask' && said) {
     // A model often opens by saying the writer's own sentence back to them; before a question that is only an echo, so it goes and the question stands.
     const sentences = splitSentencesLite(out);
@@ -819,6 +837,7 @@ export class Orchestrator {
       legacy: this.variety === 'legacy',
       extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, noAsk || aboutText || lib || libMiss ? '' : feelingNote(askText), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
+    const writerWords = past.filter((m) => m.role === 'user').slice(-12).map((m) => String(m.content ?? '').slice(0, 1200)); // (what the writer really said, for "you mentioned")
     const turnTokens = aboutText ? 320 : brief && plan.act !== 'serve' ? SHORT_TURN_TOKENS : 700;
     // An answer to a direct question the library answers well is the library's own text, put together by code, and no model is asked to retell it: measured on the real model (an audit
     // of 33 replies against the records they were built from), a 3B model that retold the notes got something wrong or credited the writer with something they never said in 13 of
@@ -842,12 +861,12 @@ export class Orchestrator {
     let ungrounded = '';
     if (res.text) {
       const guarded = got.polished.guarded;
-      reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn, askText) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
+      reply = brief ? holdToPlan(finishedSentences(guarded.text, turnTokens), plan, agentTurn, askText, writerWords) : guarded.text; // one question at most, the one planned, about THIS project and never one already asked
       // Every sentence the model gave stated something of its own about the story as if it were so, and none was a suggestion: ask once more, saying exactly that, before the canned acknowledgement stands in.
       if (brief && plan?.act === 'reflect' && agentTurn.ack && reply === agentTurn.ack && res.route !== 'builtin') {
         const again = await this.#askClean({ composeArgs: { ...composeArgs, extra: [composeArgs.extra, REFLECT_RETRY_NOTES[splitSentencesLite(guarded.text).some((x) => !/\?["')\]]*\s*$/.test(x)) ? 'invented' : 'question']].filter(Boolean).join('\n\n') }, history: past, known: [text, project.storyText], onToken, signal, temperature: 0.7, maxTokens: turnTokens, steered: true });
         if (again.asked.res.text) {
-          const second = holdToPlan(finishedSentences(again.polished.guarded.text, turnTokens), plan, agentTurn, askText);
+          const second = holdToPlan(finishedSentences(again.polished.guarded.text, turnTokens), plan, agentTurn, askText, writerWords);
           if (second && second !== agentTurn.ack) reply = second;
         }
       }

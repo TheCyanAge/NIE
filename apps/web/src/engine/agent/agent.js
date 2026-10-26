@@ -1,5 +1,6 @@
 import { EXPLICIT_ASK } from '../brainstorm/commands.js';
 import { isReaction } from '../orchestrator/replyto.js';
+import { isLowMood } from '../orchestrator/smalltalk.js';
 import { questionsIn, similarity } from '../orchestrator/variety.js';
 import { addToBoard } from '../project/board.js';
 import { pick } from '../util/text.js';
@@ -330,8 +331,8 @@ export function createAgent({ packs, config = {} } = {}) {
       if (askedKind && !s.kind && words <= 10 && stemList(text).length >= 1 && !looksLikeQuestion(text) && !looksLikeCommand(text)) s = { ...s, kind: 'other' };
       if ((words < 3 || shrug) && !learned.shown.length) s = { ...s, turn: st.turn }; // "ok", "hmm", "I don't know": nothing was told, so it is not a turn that told NIE something
     }
-    // a shrug is as short as an answer can be: the next question is an easier one
-    const plan = planTurn({ state: s, info: { act, updated: learned.updated, words: shrug ? Math.min(words, 3) : words, signalsDone: signalsDone(text) }, ctx, seed: `${sd}|${s.idea}` });
+    // (a shrug is as short as an answer can be, and so is a writer who says they are stuck or tired: the next question is an easier one)
+    const plan = planTurn({ state: s, info: { act, updated: learned.updated, words: shrug || isLowMood(text) ? Math.min(words, 3) : words, signalsDone: signalsDone(text) }, ctx, seed: `${sd}|${s.idea}` });
     s = plan.state;
 
     if (plan.act === 'offer') return finish({ state: s, plan, handled: { reply: recapText(s, ctx, { partial: plan.partial }), suggestions: offerChips(plan.partial), kind: 'offer' } });
