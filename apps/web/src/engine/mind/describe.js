@@ -71,8 +71,8 @@ function summaryOf(c) {
  * @returns {{ counts: object, items: { id, source, where, text, removable: boolean, removeWith: 'forgetSaid'|'removeFromBoard'|null, by?: 'nie' }[], summary: string }}
  *   `items` is the writer's material in the order of `passagesOf`; `removable` says whether `forgetItem` (record.js) can remove it.
  */
-export function describeMind(project) {
-  const passages = passagesOf(project);
+export function describeMind(project, { turn = null } = {}) {
+  const passages = passagesOf(project, { turn });
   const sections = sectionsIn(project?.storyText);
   const counts = { ...tally(passages, project), textSections: sections.n, ...(sections.approx ? { textSectionsApprox: true } : {}) };
   const items = passages.map((p) => {

@@ -408,8 +408,12 @@ export class Orchestrator {
 
   /** "What do you remember?": the real count and the newest, most deliberate things, in the writer's own words. */
   #memoryReply(project) {
-    const d = describeMind(project);
-    const pick = d.items.filter((i) => ['said', 'kept', 'character', 'theme', 'premise', 'rule', 'deliberate', 'sheet'].includes(i.source) && !i.by).slice(0, 8);
+    const d = describeMind(project, { turn: this.#turnOf(project) }); // (the writer's message numbers, so "in your last message" is the one before this question)
+    // A part of the idea sheet that only repeats a statement of the writer's ("Main character: girl" next to "I am writing about a girl who can hear the dead") is listed once, as the statement.
+    const norm = (t) => String(t ?? '').toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+    const said = d.items.filter((i) => i.source === 'said').map((i) => norm(i.text));
+    const repeats = (i) => (i.source === 'sheet' && said.some((t) => t.includes(norm(String(i.text).replace(/^[^:]*:\s*/, ''))))) || (i.source === 'premise' && (/^In your premise,/i.test(i.text) || said.some((t) => t.length > 20 && norm(i.text).includes(t))));
+    const pick = d.items.filter((i) => ['said', 'kept', 'character', 'theme', 'premise', 'rule', 'deliberate', 'sheet'].includes(i.source) && !i.by && !repeats(i)).slice(0, 8);
     return [
       pick.length ? `Here is what I have so far, in your own words:\n${pick.map((i) => `• ${clip(i.text, 140)} (${i.where})`).join('\n')}` : '',
       d.summary,

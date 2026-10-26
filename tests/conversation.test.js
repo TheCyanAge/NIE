@@ -213,3 +213,14 @@ test('an ask turn keeps one question, the planned one at the end, and drops "In 
   assert.equal((out.match(/\?/g) ?? []).length, 1, out);
   assert.match(out, new RegExp(t.plan.question.text.slice(0, 20).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 });
+
+test('the memory answer lists what the writer said once, and says which message it came from', async () => {
+  const { o } = setup({ reading: task('tell') });
+  const project = projectWith();
+  await o.brainstorm({ project, message: 'I am writing about a girl who can hear the dead.' });
+  await o.brainstorm({ project, message: 'she hides it from her mother' });
+  const r = await o.brainstorm({ project, message: 'do you remember what my story is about?' });
+  assert.equal((r.reply.match(/girl who can hear the dead/g) ?? []).length, 1, r.reply);
+  assert.match(r.reply, /you said, one message ago|you said, 2 messages ago/);
+  assert.doesNotMatch(r.reply, /Main character: girl/);
+});
