@@ -28,7 +28,7 @@ const BACK = /\b(?:back again|i'?m back|im back|back for more|hello again|hi aga
 const COMMENTARY = /\b(?:tone|signals?|indicates?|conveys?|implies|at the end|right from the start|your (?:message|greeting|opening)|this message|the message)\b/i;
 // NIE saying the writer's project is its own ("I'm writing a mystery set on a night train").
 const OWNS_THE_PROJECT = /^\s*(?:i'?m|i am|i was|i have been|i've been)\s+(?:writing|working on|building|making)\b|\bmy (?:story|novel|book|script|poem|premise|protagonist)\b|^\s*(?:got it[.,]?\s+)?you(?:'re| are| have been|'ve been)\s+(?:writing|crafting|working on|building|making|telling|developing|exploring)\b/i;
-const FEELING_LOW = /\b(?:tired|exhausted|drained|burnt? ?out|stuck|blocked|stressed|overwhelmed|discouraged|frustrated|can'?t (?:write|think|do this)|no motivation|don'?t know where to (?:start|begin)|not sure where to start|rejection|rejected|not (?:any |that |very )?good (?:at|enough)|(?:don'?t|do not) think i'?m (?:any )?good|i (?:suck|give up)|give up|want to quit|waste of time|hopeless)\b/i;
+const FEELING_LOW = /\b(?:tired|exhausted|drained|burnt? ?out|stuck|blocked|stressed|overwhelmed|discouraged|frustrated|can'?t (?:write|think|do this)|no motivation|don'?t know where to (?:start|begin)|not sure where to start|rejection|rejected|not (?:any |that |very )?good (?:at|enough)|(?:don'?t|do not) think i'?m (?:any )?good|i (?:suck|give up)|give up|want to quit|waste of time|hopeless|hate (?:my|this|the|it)\b)/i;
 
 /** @returns {'back'|'thanks'|'bye'|'how-are-you'|'greeting'|'low'|'ack'} */
 export function kindOfSmallTalk(text) {

@@ -14,6 +14,10 @@ on:
         description: 'Model-server threads (empty = what the app picks: half the cores)'
         type: string
         default: ''
+      engine_commit:
+        description: 'A commit whose engine (apps/web/src/engine) replaces this one for the run, to measure an earlier version on the same conversations (empty = this commit)'
+        type: string
+        default: ''
 
 jobs:
   lab:
@@ -42,6 +46,13 @@ jobs:
 
       - name: Fetch the real model (about 1.9 GB, resumable)
         run: node scripts/fetch-runtime.mjs --no-runtime
+
+      - name: Use an earlier engine (only when asked)
+        if: ${{ inputs.engine_commit != '' }}
+        run: |
+          git fetch --depth=1 origin "${{ inputs.engine_commit }}"
+          git checkout FETCH_HEAD -- apps/web/src/engine
+          echo "engine of ${{ inputs.engine_commit }} in place"
 
       - name: Run the lab
         env:

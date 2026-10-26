@@ -112,3 +112,7 @@ export function replyContext({ text, past }) {
 const CHOICE = /\bwhich\b[^?]*\b(?:better|best|stronger|weaker|more interesting|would you (?:pick|choose|go with)|should i (?:pick|choose|go with|use|write))\b|\bwhat do you think (?:of|about)\b|\bdo you (?:like|prefer)\b|\byour (?:view|opinion|pick|take)\b/i;
 /** "Which is better?", "what do you think of the name Elias?": they want NIE's view, not a description of both options (measured: "Let's consider which one better ties into your narrative direction..."). */
 export const opinionNote = (text) => (CHOICE.test(String(text ?? '')) ? "They are asking what YOU think. Give your honest view in plain words with one reason for it; if it is a matter of taste, say so and still lean one way. Do not just describe both options." : '');
+
+const NAMING = /\bwhat should (?:i|we) (?:call|name|title)\b|\b(?:suggest|give me|come up with|think of|need)\s+(?:a |some |a few |another )?(?:names?|titles?)\b|\bname (?:for|of) (?:the|my|a|her|his)\b|\bwhat (?:would|could) (?:i|we) (?:call|name)\b/i;
+/** A name or a title is the writer's to choose: NIE offers the directions one could take, not a name to use. */
+export const namingNote = (text) => (NAMING.test(String(text ?? '')) ? "They want a name. Do not make one up for them. Describe two or three directions a name could take (what it could sound like, what it could point to, what it could hide) and let them pick." : '');

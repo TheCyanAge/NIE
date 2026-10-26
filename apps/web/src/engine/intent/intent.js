@@ -87,7 +87,7 @@ const RULES = [
     // "thanks, that helps a lot", "thank you, this is perfect": thanks with a word on how it landed, and nothing asked
     /^\s*(?:thanks|thank you|thx|cheers)(?: (?:so much|a lot|very much|again|nie|a bunch))*[\s,!.]+(?:(?:that|this|it)(?:'s| is| was| has)?\s+)?(?:really |so |very |been )?(?:help(?:s|ed|ful)?|great|good|perfect|useful|awesome|nice|wonderful|brilliant|exactly what i needed|just what i needed|works?)(?:\s+(?:a lot|so much|a ton|loads|lot))?[\s!.]*$/i,
     // a short message with a thank-you in it and nothing asked: "ok i'll try it, thanks", "thanks that's all for today", "thanks for the help"
-    /^(?=[^?\n]{1,70}$)(?!.*\b(?:give|write|tell|show|help me|what|how|why|can you|could you|would you|more|another|next|now|please|suggest|ideas?|twists?|rewrite|edit|check|scan|keep|remember|add)\b).*\b(?:thanks|thank you|thx|cheers)\b.*$/i,
+    /^(?=[^?\n]{1,70}$)(?!.*\b(?:give|write|tell|show|help me|what|how|why|can you|could you|would you|more|another|next|now (?:give|write|tell|show|help|let|can|could)|please|suggest|ideas?|twists?|rewrite|edit|check|scan|keep|remember|add)\b).*\b(?:thanks|thank you|thx|cheers)\b.*$/i,
     // discouragement with nothing about the work in it: "just got another rejection letter", "i dont think i'm any good at this", "i want to give up"
     /^(?!.*\b(?:story|plot|chapter|scene|character|characters|idea|draft|novel|poem|script|ending|opening)\b)(?=[^?\n]{1,70}$).*\b(?:rejection|rejected|(?:don'?t|dont|do not) think i'?m (?:any )?good|not (?:any |that |very )?good (?:at|enough)|i suck|give up|want to quit|waste of time|hopeless)\b.*$/i,
     // plain tiredness, with nothing about the work in it: a person answers it as a person

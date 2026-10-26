@@ -59,7 +59,7 @@ const report = { threads: service.threads, sessions: {} };
 async function runSession(session) {
   const trace = [];
   const o = new Orchestrator({ engine, variety: 'full', trace });
-  const project = createProjectData({ title: `Talk ${session.id}` });
+  const project = createProjectData({ title: 'Untitled project' });
   const turns = [];
   for (const step of session.steps) {
     const from = calls.length;

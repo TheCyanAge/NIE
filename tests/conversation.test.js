@@ -266,3 +266,30 @@ test('a thank-you, a goodbye or "ok cool" is not answered with a remark on the s
   assert.equal(holdSmallTalk('The mystery deepens without the conductor.', { project, text: 'ok cool', past }), '');
   assert.equal(holdSmallTalk('Glad to help. Come back whenever you like.', { project, text: 'thanks', past }), 'Glad to help. Come back whenever you like.');
 });
+
+// ── from the second held-out set (nobody had tuned on it) ─────────────────────
+
+test('"no, not a romance please" is a boundary, not an edit request; a trailing please asks for nothing, a real request with please still does', async () => {
+  const { looksLikeARequest } = await import('../apps/web/src/engine/orchestrator/understand.js');
+  for (const t of ['no, not a romance please', 'not so dark please']) assert.equal(looksLikeARequest(t), false, t);
+  for (const t of ['please write chapter 3', 'write it please', 'Could you tighten this, please?', 'shorten it please']) assert.equal(looksLikeARequest(t), true, t);
+  const { o, calls } = setup({ reading: task('edit'), reply: 'No romance, then. What if they have to trust each other because the snow leaves no choice?' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'no, not a romance please' });
+  assert.equal(r.declined, false);
+  assert.ok(calls.length >= 1);
+});
+
+test('"thanks, bye for now" is a goodbye; a name is asked for and gets directions, not a coined name; a repeated sentence is said once; "i hate my protagonist" is met as a feeling', async () => {
+  const { detectIntent } = await import('../apps/web/src/engine/intent/intent.js');
+  assert.equal(detectIntent('thanks, bye for now', { hasHistory: true }).type, 'greeting');
+  const { namingNote } = await import('../apps/web/src/engine/orchestrator/replyto.js');
+  assert.match(namingNote('what should I call the port?'), /Do not make one up/);
+  assert.equal(namingNote('the first one is a trading port'), '');
+  const agentTurn = { enforce: (t) => t, grounded: () => true, ack: 'Noted.' };
+  const named = holdToPlan('A name can lean on the trade or on the river. How about "Port Luminaire"? Which direction feels closer?', { act: 'serve', reason: 'question' }, agentTurn, 'what should I call the port?', []);
+  assert.doesNotMatch(named, /Port Luminaire/);
+  const twice = holdToPlan('Say what you would lose. What if you had never written about this: what would stay unsaid? What if you had never written about this: what would stay unsaid?', { act: 'serve', reason: 'question' }, agentTurn, 'x', []);
+  assert.equal((twice.match(/what would stay unsaid/g) ?? []).length, 1, twice);
+  const { isLowMood } = await import('../apps/web/src/engine/orchestrator/smalltalk.js');
+  assert.ok(isLowMood('i hate my protagonist'));
+});

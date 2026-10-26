@@ -123,7 +123,8 @@ const REQUEST_MARKER = new RegExp(
  * keeper…", "just finished chapter nine") or a fragment as "write" or "edit". Declining those would turn a writer's own words into an
  * accusation, so a model reading of write/edit is only believed when the message has a visible request in it.
  */
-export const looksLikeARequest = (text) => REQUEST_MARKER.test(String(text ?? ''));
+// ("please" alone asks for nothing: measured on the real model, "no, not a romance please" was read as an edit request and got "I don't rewrite or edit your text". A request still needs more than politeness.)
+export const looksLikeARequest = (text) => REQUEST_MARKER.test(String(text ?? '').replace(/,?\s*\b(?:please|pls|plz)\b\s*(?=[.!?]*\s*$)/gi, ''));
 
 const COMPOSE_WORDS = /\b(?:write|draft|compose|continue|finish|complete|expand|create|generate|produce|ghost-?write|extend|flesh)\b/i;
 const CHANGE_WORDS = /\b(?:rewrite|rephrase|reword|redo|edit|proofread|fix|polish|tighten|improve|correct|revise|smooth|shorten|trim|rework|simplify|paraphrase|punch|swap|replace|cut|change|clean\s+up|better\s+way)\b/i;

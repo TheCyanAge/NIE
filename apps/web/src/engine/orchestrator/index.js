@@ -10,7 +10,7 @@ import { composeMessages, ideaRequestBlock, indexFor, RETRY_TOKEN_LIMIT } from '
 import { aboutNieReply, builtinReply, DECLINE_EDIT, DECLINE_EDIT_AGAIN, DECLINE_WRITE, DECLINE_WRITE_AGAIN, libraryMissReply, libraryReply } from './builtin.js';
 import { guardReply, LEFT_OUT_NOTICE } from './guard.js';
 import { avoidBlock, isFiller, refine, shapeFor, similarity, splitSentencesLite } from './variety.js';
-import { isReaction, opinionNote, replyContext } from './replyto.js';
+import { isReaction, namingNote, opinionNote, replyContext } from './replyto.js';
 import { feelingNote, holdSmallTalk, isLowMood, isSmallTalk, smallTalkFallback, smallTalkNote } from './smalltalk.js';
 import { applyReading, readingNote, rulesReading, understandMessage } from './understand.js';
 import { describeReading, describeSending, isLookupQuestion, search as searchText } from '../reading/context.js';
@@ -99,6 +99,8 @@ export function withoutQuestionLists(text) {
 const CREDITS_WRITER = /\b(?:you(?:'ve| have)?\s+(?:also\s+)?(?:said|mention(?:ed)?|noted|told me|describ(?:e|ed)|listed|suggested|wrote|brought up|state[ds]?)|what you(?:'re| are) saying|as you(?:'ve| have)?\s+(?:said|mentioned|noted|told me|described))\b/i;
 // The prompt's own labels said back to the writer ("From the notes, it seems you're exploring writing techniques").
 const LEAKS_NOTES = /\b(?:from|in|per|according to|based on|using) the (?:reference |library |idea )?notes\b|\breference notes\b|\bthe notes (?:say|suggest|show|mention)\b|\bwhat you understand so far\b/i;
+// A name coined for them, ready to use ("how about naming it \"Port Luminaire\"?"): NIE gives directions a name could take, not the name.
+const COINED_NAME = /\b(?:call(?:ing)?|nam(?:e|ing)|titl(?:e|ing)|label(?:l?ing)?)\s+(?:it|them|her|him|the \w+|this)\s+["“][^"”]{2,40}["”]|\bhow about\s+["“][^"”]{2,40}["”]/i;
 const IN_YOUR_WORDS = /^\s*(?:in|from) your (?:description|message|note|premise|summary|text|words)[,:]?\s*/i;
 function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxSentences = 0 } = {}) {
   out = out.replace(/\(\s*(?:you might ask|question|for example)\s*:\s*/gi, '').replace(/^\s*\((?=[^)]*$)/, ''); // "(You might ask: ...": a coaching aside, with its bracket left open
@@ -120,7 +122,7 @@ function withoutFillerAndCredit(out, writerTexts, { said = '', recent = [], maxS
     return mine.length > 0 && mine.filter((m) => saidStems.has(m)).length / mine.length >= 0.6;
   };
   const echo = (x) => (isQ(x) && said && similarity(x, said) >= 0.6) || sayingItBack(x);
-  let kept = parts.filter((x) => !isFiller(x) && !LEAKS_NOTES.test(x) && !(CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
+  let kept = parts.filter((x) => !isFiller(x) && !LEAKS_NOTES.test(x) && !COINED_NAME.test(x) && !(CREDITS_WRITER.test(x) && !own(x)) && !again(x) && !echo(x));
   if (maxSentences && kept.length > maxSentences) kept = kept.slice(0, maxSentences); // (a reply to a short reaction is short)
   const joined = kept.join(' ').trim();
   return kept.length < parts.length && words(joined).length >= 6 ? joined : out;
@@ -174,6 +176,12 @@ export function holdToPlan(text, plan, agentTurn, said = '', writerTexts = [], {
       const kept = splitSentencesLite(out).filter((x) => !isQ(x)).join(' ').trim();
       out = words(kept).length >= 4 ? kept : agentTurn.ack || kept || out;
     }
+  }
+  // The same sentence twice (measured: "What if you had never written about this: what would stay unsaid?" printed two times when the model's copy of the planned question met the planned question): the last one stays.
+  const finalParts = splitSentencesLite(out);
+  if (finalParts.length > 1) {
+    const unique = finalParts.filter((x, i) => !finalParts.slice(i + 1).some((y) => similarity(x, y) >= 0.85));
+    if (unique.length < finalParts.length) out = unique.join(' ').trim();
   }
   return out || text;
 }
@@ -876,7 +884,7 @@ export class Orchestrator {
       history: aboutText ? [] : past,
       retrieved,
       legacy: this.variety === 'legacy',
-      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, noAsk || aboutText || lib || libMiss ? '' : feelingNote(askText), noAsk || aboutText || lib || libMiss ? '' : opinionNote(askText), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
+      extra: [shape ? `How to build this reply: ${shape.text}` : '', this.variety === 'full' ? avoidBlock(past) : '', noAsk || aboutText ? '' : readingNote(reading, text, { ownProject }), replyTo, noAsk || aboutText || lib || libMiss ? '' : feelingNote(askText), noAsk || aboutText || lib || libMiss ? '' : opinionNote(askText), noAsk || aboutText || lib || libMiss ? '' : namingNote(askText), lib || libMiss ? '' : evidence?.block ?? '', lib || libMiss || noAsk ? '' : recalled?.block ?? '', brief, report ? `The writer's rules and offline checks found: ${report.headline}` : lib ? LIBRARY_NOTE : libMiss ? LIBRARY_MISS_NOTE : ''].filter(Boolean).join('\n\n'),
     };
     const writerWords = past.filter((m) => m.role === 'user').slice(-12).map((m) => String(m.content ?? '').slice(0, 1200)); // (what the writer really said, for "you mentioned")
     const holdOpts = { recent: past.filter((m) => m.role === 'assistant').slice(-3).flatMap((m) => splitSentencesLite(String(m.content ?? ''))), maxSentences: replyTo ? 4 : 0 };
