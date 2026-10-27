@@ -1,0 +1,677 @@
+[
+ {
+  "title": "Macbeth",
+  "author": "William Shakespeare",
+  "libraryYear": "c. 1606, 1606",
+  "status": "year_differs",
+  "sourceYear": "1623 (first printed); c. 1606 (first performed)",
+  "sourceAuthor": "William Shakespeare",
+  "note": "Wikipedia: first printed in the 1623 First Folio; generally dated/first performed 1606 (written 1599-1606 per one publisher blurb). Library's 1606 is performance/writing date, not print.",
+  "resolution": "The library gives the usual date of first performance (1606); the first printing is the 1623 First Folio. Plays are dated by performance or composition; see the README.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Great Expectations",
+  "author": "Charles Dickens",
+  "libraryYear": "1861",
+  "status": "year_differs",
+  "sourceYear": "1860 (serial began 1 Dec 1860); 1861 (book)",
+  "sourceAuthor": "Charles Dickens",
+  "note": "Wikipedia: serialised in All the Year Round 1 Dec 1860-Aug 1861; 3-vol book (Chapman & Hall) 1861 (Oct, or Jul per title page). Library's 1861 = book edition; first appearance was 1860.",
+  "resolution": "The library gives the book edition (1861); the serial began in December 1860. Left as is; see the README note on serials.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Iliad",
+  "author": "Homer",
+  "libraryYear": "c. 750 BCE",
+  "status": "confirmed",
+  "sourceYear": "8th century BCE (consensus); 7th c. minority view",
+  "note": "Articles (History News Network, The Collector): 8th c. BCE consensus; a genetic study gives c. 762 BCE +/-50; a minority argue 7th c. c. 750 BCE sits in the range. Composition date; oral first.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Jonathan Strange & Mr Norrell",
+  "author": "Susanna Clarke",
+  "libraryYear": "2004",
+  "status": "confirmed",
+  "sourceYear": "2004",
+  "note": "Wikipedia and bookseller first-edition listings: Bloomsbury, 2004 (US 8 Sep, UK 30 Sep 2004); Clarke's debut novel.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Metamorphoses",
+  "author": "Ovid",
+  "libraryYear": "c. 8 CE",
+  "status": "confirmed",
+  "sourceYear": "8 CE",
+  "note": "Wikipedia infobox 'First published in: 8 CE' (traditional dating of composition/circulation); first printed edition 1471, first English translation 1480.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Odyssey",
+  "author": "Homer",
+  "libraryYear": "c. 700 BCE",
+  "status": "confirmed",
+  "sourceYear": "8th or 7th century BCE",
+  "note": "Wikipedia: composed around the 8th or 7th century BCE, after the Iliad; Taplin dates Homer c. 750-650 BCE. c. 700 BCE sits in the stated range.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Romeo and Juliet",
+  "author": "William Shakespeare",
+  "libraryYear": "1595, c. 1595",
+  "status": "year_differs",
+  "sourceYear": "1597 (first quarto); written c. 1591-1596",
+  "sourceAuthor": "William Shakespeare",
+  "note": "Search results: first quarto 1597 (John Danter, 'bad' quarto), 2nd quarto 1599; written early 1590s (1591-96). Library's 1595 is a composition date, consistent; first publication was 1597.",
+  "resolution": "The library gives a composition date (about 1595); the first quarto is 1597. Plays are dated by performance or composition; see the README.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Solaris",
+  "author": "Stanisław Lem",
+  "libraryYear": "1961",
+  "status": "confirmed",
+  "sourceYear": "1961",
+  "note": "Wikipedia and a dealer listing: Polish original, Warsaw, MON, 1961; English translation (via French) 1970.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Lion, the Witch and the Wardrobe",
+  "author": "C. S. Lewis",
+  "libraryYear": "1950",
+  "status": "confirmed",
+  "sourceYear": "1950",
+  "note": "Wikipedia: first published UK 16 Oct 1950 by Geoffrey Bles, illustrated by Pauline Baynes; US edition (Macmillan) later in 1950.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "A Christmas Carol",
+  "author": "Charles Dickens",
+  "libraryYear": "1843",
+  "status": "confirmed",
+  "sourceYear": "1843",
+  "note": "Several encyclopedia/library pages: first published 19 Dec 1843 by Chapman & Hall, illustrated by John Leech; written Oct-Nov 1843.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "A Tale of Two Cities",
+  "author": "Charles Dickens",
+  "libraryYear": "1859",
+  "status": "confirmed",
+  "sourceYear": "1859",
+  "note": "History.com and bibliographic pages: serialised in All the Year Round 30 Apr-26 Nov 1859; Chapman & Hall book edition 1859 (one source: 21 Nov).",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Aeneid",
+  "author": "Virgil",
+  "libraryYear": "c. 19 BCE",
+  "status": "confirmed",
+  "sourceYear": "composed c. 30/29-19 BCE; published posthumously",
+  "note": "Univ. and publisher pages: Virgil worked on it from c. 29/30 BCE until his death in 19 BCE; published after his death by his executors. c. 19 BCE is death/publication point, not composition.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Heimskringla",
+  "author": "Snorri Sturluson",
+  "libraryYear": "c. 1230 CE",
+  "status": "author_differs",
+  "sourceYear": "c. 1230 (EBSCO: c. 1230-1235)",
+  "sourceAuthor": "Snorri Sturluson (attributed; not named in the manuscripts)",
+  "note": "Wikipedia: authorship nowhere stated; scholars assume Snorri, c. 1230. Gutenberg c. 1230; EBSCO 1230-1235. Year consistent; author is a scholarly attribution. Oldest manuscript c. 1260.",
+  "resolution": "The record already says \"traditional attribution\"; the author is a scholarly assumption.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Khamsa of Navoi",
+  "author": "Ali-Shir Navoi",
+  "libraryYear": "(none given)",
+  "status": "confirmed",
+  "sourceYear": "1483-1485 (composed)",
+  "note": "Library gives no year, so nothing to contradict. UN Uzbekistan, Royal Collection Trust and BL pages: five masnavis composed 1483-85 in Chagatai; Royal Collection copy dated 1492.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Moving Mars",
+  "author": "Greg Bear",
+  "libraryYear": "1993",
+  "status": "confirmed",
+  "sourceYear": "1993",
+  "note": "Wikipedia and EBSCO: Tor Books, 1993 (BookBrainz: November 1993); won the 1994 Nebula Award for Best Novel.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Pursuit of Love",
+  "author": "Nancy Mitford",
+  "libraryYear": "1945",
+  "status": "confirmed",
+  "sourceYear": "1945",
+  "note": "Wikipedia and first-edition dealer listings: Hamish Hamilton, London, 1945 (10 Dec 1945 per Airmail); first of a trilogy.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Condorito",
+  "author": "Pepo (René Ríos Boettiger)",
+  "libraryYear": "1949",
+  "status": "confirmed",
+  "sourceYear": "1949 (strip, in Okey); 1955 (standalone magazine)",
+  "note": "Tebeosfera and El Nuevo Diario: character first appeared 6 Aug 1949 in Chilean magazine Okey (Zig-Zag). Condorito magazine began 1955. Real name not shown in the results I saw.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Colossus and Other Poems",
+  "author": "Sylvia Plath",
+  "libraryYear": "1960",
+  "status": "confirmed",
+  "sourceYear": "1960",
+  "note": "Wikipedia and rare-book dealers: UK, Heinemann, 31 Oct 1960 (500 copies); US edition Knopf 14 May 1962.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Arcadia",
+  "author": "Christopher Reid",
+  "libraryYear": "1979",
+  "status": "confirmed",
+  "sourceYear": "1979",
+  "note": "Encyclopedia.com: Arcadia, London and New York, Oxford University Press, 1979; British Council and T. S. Eliot Prize site call it his first collection (1979).",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Beautiful Ones Are Not Yet Born",
+  "author": "Ayi Kwei Armah",
+  "libraryYear": "1968",
+  "status": "confirmed",
+  "sourceYear": "1968",
+  "note": "Wikipedia/Oxford podcast: first published 1968 (Houghton Mifflin), Heinemann AWS 1969. NOTE: the real title is spelled 'The Beautyful Ones Are Not Yet Born'; the library's spelling differs.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Not I",
+  "author": "Samuel Beckett",
+  "libraryYear": "1972",
+  "status": "confirmed",
+  "sourceYear": "1972 (written and first performed)",
+  "note": "Wikipedia: written 1972, premiered Lincoln Center, New York, Nov 1972 (22 Nov per Knowlson; sources vary). Publication year not shown in results, so 1972 is writing/performance.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Mémoires d'Hadrien (Memoirs of Hadrian)",
+  "author": "Marguerite Yourcenar",
+  "libraryYear": "1951",
+  "status": "confirmed",
+  "sourceYear": "1951",
+  "note": "Wikipedia/Britannica-type pages: first published in France 1951 by Plon; English edition 1954 (US FSG edition 1963 per one source; unresolved).",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Bilgames and Huwawa (Sumerian Gilgamesh poems)",
+  "author": "Anonymous",
+  "libraryYear": "(none given)",
+  "status": "unsure",
+  "sourceYear": "oral origin c. 2100 BCE (Ur III); surviving copies 1900-1600 BCE",
+  "note": "Met essay and Penn Museum tablets show 'Gilgamesh and Huwawa' copies, Old Babylonian 1900-1600 BCE. No result used the title 'Bilgames' or stated anonymity (my inference). Library gives no year.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Welcome to Our Hillbrow",
+  "author": "Phaswane Mpe",
+  "libraryYear": "2001",
+  "status": "confirmed",
+  "sourceYear": "2001",
+  "note": "Wikipedia and a library catalogue: first published 2001 by University of Natal Press, South Africa; Mpe's only published novel. Ohio University Press edition 2011.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Berlin Alexanderplatz",
+  "author": "Alfred Döblin",
+  "libraryYear": "1929",
+  "status": "confirmed",
+  "sourceYear": "1929",
+  "note": "Britannica entry names Döblin and 1929; Goodreads (1 Oct 1929) and BookBrainz also say first published 1929. Encyclopedia plus catalogue sites.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "House of Leaves",
+  "author": "Mark Z. Danielewski",
+  "libraryYear": "2000",
+  "status": "confirmed",
+  "sourceYear": "2000",
+  "note": "Wikipedia/BookBrowse/Goodreads: Pantheon, debut novel, 2000 (Goodreads 29 Feb 2000; Wikipedia and BookBrowse 7 Mar 2000). Sources differ only on the day.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Lazarillo de Tormes",
+  "author": "Anonymous",
+  "libraryYear": "1554",
+  "status": "confirmed",
+  "sourceYear": "1554",
+  "note": "Wikipedia/PRH/Gutenberg: anonymous 1554 editions (Alcalá, Burgos, Medina del Campo, Antwerp; one source puts Antwerp in 1555). Authorship disputed (Ortega, Hurtado de Mendoza guesses).",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Hatchet",
+  "author": "Gary Paulsen",
+  "libraryYear": "1987",
+  "status": "confirmed",
+  "sourceYear": "1987",
+  "note": "Wikipedia summary: first published September 1987 by Bradbury Press; rare-book dealer listing also gives first printing Sept 1987.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Le Morte d'Arthur",
+  "author": "Thomas Malory",
+  "libraryYear": "1485",
+  "status": "confirmed",
+  "sourceYear": "1485",
+  "note": "Reference pages: Caxton printed it 1485 (first publication, posthumous); Malory finished text c.1469-70. 1485 = printing, not writing. Author identity debated.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Little Women",
+  "author": "Louisa May Alcott",
+  "libraryYear": "1868",
+  "status": "confirmed",
+  "sourceYear": "1868",
+  "note": "History.com and Wikipedia: vol. 1 published 30 Sept 1868 by Roberts Brothers; vol. 2 (Good Wives in UK) followed in 1869.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Ramcharitmanas",
+  "author": "Tulsidas",
+  "libraryYear": "c. 1575, c. 1574 CE, c. 1575 CE",
+  "status": "confirmed",
+  "sourceYear": "1574-1576/77",
+  "note": "Britannica: written 1574-1576/77; most sources say begun 1574 (VS 1631), one essay says 1575. Library's c.1574/c.1575 fits; sources disagree on start year.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Book Thief",
+  "author": "Markus Zusak",
+  "libraryYear": "2005",
+  "status": "confirmed",
+  "sourceYear": "2005",
+  "note": "Wikipedia: first published in Australia 2005 (Picador); US edition (Knopf) 2006, UK 2007. Library year is the Australian first edition.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Picture of Dorian Gray",
+  "author": "Oscar Wilde",
+  "libraryYear": "1890",
+  "status": "confirmed",
+  "sourceYear": "1890",
+  "note": "Search summary (Wikipedia-derived, dealer): first appeared in Lippincott's Monthly Magazine, June/July 1890; revised book edition (Ward, Lock) 1891. Library year is the magazine debut.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Rape of the Lock",
+  "author": "Alexander Pope",
+  "libraryYear": "1712",
+  "status": "confirmed",
+  "sourceYear": "1712",
+  "note": "Wikisource/Britannica-based results: first appeared May 1712 as two cantos in Lintot's Miscellany; five-canto separate edition March 1714; final text 1717.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Sparrow",
+  "author": "Mary Doria Russell",
+  "libraryYear": "1996",
+  "status": "confirmed",
+  "sourceYear": "1996",
+  "note": "Wikipedia and Goodreads: debut novel, Villard, New York, first published 9 Sept 1996.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Temple",
+  "author": "George Herbert",
+  "libraryYear": "1633",
+  "status": "confirmed",
+  "sourceYear": "1633",
+  "note": "Several pages (Penguin, university and Herbert society pages): published by Cambridge University 1633, shortly after Herbert's death, arranged by Nicholas Ferrar.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The War of the Worlds",
+  "author": "H. G. Wells",
+  "libraryYear": "1898",
+  "status": "confirmed",
+  "sourceYear": "1898 (book); serial 1897",
+  "note": "Wikipedia/Britannica: serialised in Pearson's and Cosmopolitan 1897; book by Heinemann Jan 1898. Library 1898 = book edition; strictly first publication was the 1897 serial.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Wonderful Wizard of Oz",
+  "author": "L. Frank Baum",
+  "libraryYear": "1900",
+  "status": "confirmed",
+  "sourceYear": "1900",
+  "note": "Wikipedia and others: George M. Hill, Chicago, 1900 (17 May first copy off press; official release 1 Sept 1900). Only an audiobook listing says 1901.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Things Fall Apart",
+  "author": "Chinua Achebe",
+  "libraryYear": "1958",
+  "status": "confirmed",
+  "sourceYear": "1958",
+  "note": "Wikipedia and Britannica: Heinemann, London, 17 June 1958. Some pages say 1962, which is the African Writers Series edition, not the first.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Uncle Tom's Cabin",
+  "author": "Harriet Beecher Stowe",
+  "libraryYear": "1852",
+  "status": "confirmed",
+  "sourceYear": "1852 (book); serial 1851",
+  "note": "Wikipedia/History.com: book by John P. Jewett 20 March 1852; first ran as a serial in The National Era from 5 June 1851. Library 1852 = book edition.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Winesburg, Ohio",
+  "author": "Sherwood Anderson",
+  "libraryYear": "1919",
+  "status": "confirmed",
+  "sourceYear": "1919",
+  "note": "Wikipedia and Library of America: B. W. Huebsch, New York, 8 May 1919; some stories had appeared earlier in magazines.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "A Book of Nonsense",
+  "author": "Edward Lear",
+  "libraryYear": "1846",
+  "status": "confirmed",
+  "sourceYear": "1846",
+  "note": "EBSCO/Britannica summaries: first appeared 1846 under the name 'Old Derry down Derry'; expanded edition 1861.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "A Canticle for Leibowitz",
+  "author": "Walter M. Miller Jr.",
+  "libraryYear": "1959",
+  "status": "confirmed",
+  "sourceYear": "1959",
+  "note": "Wikipedia and library records: J. B. Lippincott, October 1959 (fix-up of magazine stories). Some Bookmate pages say 1960; treated as outliers.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "A Dictionary of the English Language",
+  "author": "Samuel Johnson",
+  "libraryYear": "1755",
+  "status": "confirmed",
+  "sourceYear": "1755",
+  "note": "Wikipedia, History Today, EBSCO: first edition 1755 (15 April per most; a dealer says on sale 14 June 1755).",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Les Trois Mousquetaires (The Three Musketeers)",
+  "author": "Alexandre Dumas",
+  "libraryYear": "1844",
+  "status": "confirmed",
+  "sourceYear": "1844",
+  "note": "Wikipedia: serialised in Le Siecle March-July 1844, book form July 1844. Co-written with ghostwriter Auguste Maquet.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Tango",
+  "author": "Sławomir Mrożek",
+  "libraryYear": "1964",
+  "status": "confirmed",
+  "sourceYear": "1964",
+  "note": "Wikipedia and Slovenian pages: published 1964 in the magazine Dialog. Premiere 21 April 1965 (Bydgoszcz per Wikipedia; Belgrade per others). Library year = publication.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Motif-Index of Folk-Literature",
+  "author": "Stith Thompson",
+  "libraryYear": "1932",
+  "status": "confirmed",
+  "sourceYear": "1932-1936",
+  "note": "Wikipedia: original edition 1932-1936, revised and enlarged six volumes 1955-1958. Library 1932 = start of the first edition; Goodreads dates 1958 are the revised edition.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Poems",
+  "author": "Dante Gabriel Rossetti",
+  "libraryYear": "1870",
+  "status": "confirmed",
+  "sourceYear": "1870",
+  "note": "Rossetti Archive (University of Virginia): Poems, F. S. Ellis, London, April 1870, his first collection of original poetry; privately printed trial editions 1869-70 preceded it.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Nothing",
+  "author": "Henry Green",
+  "libraryYear": "1950",
+  "status": "confirmed",
+  "sourceYear": "1950",
+  "note": "EBSCO summary and Goodreads/review blogs: Henry Green's penultimate novel, published 1950 (Viking Press US edition listed); UK first-edition publisher not shown in results.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Sarada kinenbi (Salad Anniversary)",
+  "author": "Machi Tawara",
+  "libraryYear": "1987",
+  "status": "confirmed",
+  "sourceYear": "1987",
+  "note": "French-language biography and the Pushkin Press edition's author note: first collection Sarada Kinenbi published 1987, a bestseller. Month and Japanese publisher not shown.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Los ríos profundos",
+  "author": "José María Arguedas",
+  "libraryYear": "1958",
+  "status": "confirmed",
+  "sourceYear": "1958",
+  "note": "Wikipedia (Deep Rivers) and Goodreads: Editorial Losada, Buenos Aires, 1958. Two low-quality pages say 1953; disregarded.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Encyclopedia Brown, Boy Detective",
+  "author": "Donald J. Sobol",
+  "libraryYear": "1963",
+  "status": "confirmed",
+  "sourceYear": "1963",
+  "note": "Wikipedia, Encyclopedia.com and a blog: Sobol's first Encyclopedia Brown book, 1963. Original publisher is reported inconsistently (Thomas Nelson vs Penguin); not checked.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Taxi Driver",
+  "author": "Paul Schrader",
+  "libraryYear": "1976",
+  "status": "confirmed",
+  "sourceYear": "1976 (film); script written 1972",
+  "note": "AFI/Wikipedia/MoMA: Schrader wrote the screenplay of the 1976 Scorsese film; script written 1972, optioned 1973. Library 1976 = film release; no screenplay-book date shown.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Così fan tutte (libretto)",
+  "author": "Lorenzo Da Ponte",
+  "libraryYear": "1790",
+  "status": "confirmed",
+  "sourceYear": "1790",
+  "note": "Wikipedia: Da Ponte's libretto, Mozart opera premiered 26 Jan 1790, Burgtheater; Mozarteum catalogue records a printed 1790 Vienna libretto.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Menaechmi",
+  "author": "Plautus",
+  "libraryYear": "c. 200 BCE",
+  "status": "confirmed",
+  "sourceYear": "c. 215-186 BCE (undated)",
+  "note": "Wikipedia and classics abstracts: never securely dated; late 3rd c. BCE, proposals 215-186 BCE, some favour just after 201 BCE. c. 200 BCE sits inside this range, accepted per brief.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Façade",
+  "author": "Michael Mateas and Andrew Stern",
+  "libraryYear": "2005",
+  "status": "confirmed",
+  "sourceYear": "2005",
+  "note": "Wikipedia and eliterature.org: interactive drama released as freeware 5 July 2005 by Procedural Arts; AIIDE 2005 paper; about five years in development.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "A Farewell to Arms",
+  "author": "Ernest Hemingway",
+  "libraryYear": "1929",
+  "status": "confirmed",
+  "sourceYear": "1929",
+  "note": "Search summary (bookseller/library listings): serialized in Scribner's Magazine May-Oct 1929, book from Scribner's Sept 1929. Consistent with 1929.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "A Princess of Mars",
+  "author": "Edgar Rice Burroughs",
+  "libraryYear": "1912",
+  "status": "confirmed",
+  "sourceYear": "1912 (serial, All-Story, Feb-Jul as 'Under the Moons of Mars'); 1917 (first book)",
+  "note": "Search summary: 1912 six-part serial in All-Story under the title Under the Moons of Mars; first book edition McClurg Oct 1917. Library 1912 matches first publication (serial), not the book.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "A Study in Scarlet",
+  "author": "Arthur Conan Doyle",
+  "libraryYear": "1887",
+  "status": "confirmed",
+  "sourceYear": "1887 (Beeton's Christmas Annual); 1888 (book)",
+  "note": "Wikipedia via search: first published Dec 1887 in Beeton's Christmas Annual; Ward Lock book edition July 1888. 1887 is magazine first publication; a 1888 book date is also common.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Incidents in the Life of a Slave Girl",
+  "author": "Harriet Jacobs",
+  "libraryYear": "1861",
+  "status": "unsure",
+  "sourceYear": "1861",
+  "sourceAuthor": "Linda Brent (pseudonym), ed. Lydia Maria Child",
+  "note": "Search summary (Wikipedia/Encyclopedia.com) confirms 1861, 'under the pseudonym Linda Brent'; the text I saw did not name Jacobs. From memory: Jacobs is the author. Year not in doubt.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Island of the Blue Dolphins",
+  "author": "Scott O'Dell",
+  "libraryYear": "1960",
+  "status": "confirmed",
+  "sourceYear": "1960",
+  "note": "Wikipedia and a rare-book dealer (o-dell-scott listing) give Houghton Mifflin, Boston, 1960; Goodreads gives 9 Sept 1960. Newbery Medal 1961.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Kitchen Confidential",
+  "author": "Anthony Bourdain",
+  "libraryYear": "2000",
+  "status": "confirmed",
+  "sourceYear": "2000",
+  "note": "Wikipedia and bookseller first-edition listings: Bloomsbury, 2000 (Aug 2000 per Wikipedia; 22 May 2000 per a seller). Grew from his 1999 New Yorker article.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Poetics",
+  "author": "Aristotle",
+  "libraryYear": "c. 335 BCE",
+  "status": "confirmed",
+  "sourceYear": "c. 335 BCE",
+  "note": "Search summary (Wikipedia-derived, Pressbooks/Gutenberg hits): c. 335 BCE is the standard composition date; a writing date, not a publication date.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Possession",
+  "author": "A. S. Byatt",
+  "libraryYear": "1990",
+  "status": "confirmed",
+  "sourceYear": "1990",
+  "note": "Wikipedia plus bookseller and library listings: first published 1990 by Chatto & Windus (London); US edition Random House 1990; won 1990 Booker Prize.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Psycho",
+  "author": "Robert Bloch",
+  "libraryYear": "1959",
+  "status": "confirmed",
+  "sourceYear": "1959",
+  "note": "Wikipedia: US edition Simon & Schuster (Inner Sanctum) 10 April 1959. Booksellers differ on UK Robert Hale edition (1959 or 1960); US 1959 undisputed.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Red Mars",
+  "author": "Kim Stanley Robinson",
+  "libraryYear": "1992",
+  "status": "confirmed",
+  "sourceYear": "1992",
+  "note": "Wikipedia infobox: Sept 1992; booksellers: UK HarperCollins 1992, US Spectra edition listed as 1993. Won BSFA 1992, Nebula 1993.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Songs and Sonnets",
+  "author": "John Donne",
+  "libraryYear": "1633",
+  "status": "confirmed",
+  "sourceYear": "1633",
+  "note": "Britannica, Glasgow Univ. Library: poems first collected and printed 1633, posthumously. Memory, not in results: 1633 volume titled 'Poems'; 'Songs and Sonnets' is a later grouping.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "Station Eleven",
+  "author": "Emily St. John Mandel",
+  "libraryYear": "2014",
+  "status": "confirmed",
+  "sourceYear": "2014",
+  "note": "Wikipedia: published 9 Sept 2014 (Canada/US), 10 Sept UK. One dealer claims the UK Picador edition came first; that is the only source saying so.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Frogs",
+  "author": "Aristophanes",
+  "libraryYear": "c. 405 BCE",
+  "status": "confirmed",
+  "sourceYear": "405 BCE",
+  "note": "Wikipedia and other pages: staged at the Lenaia in Athens in 405 BC, won first prize. Consistent with c. 405 BCE (first performance).",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Grapes of Wrath",
+  "author": "John Steinbeck",
+  "libraryYear": "1939",
+  "status": "confirmed",
+  "sourceYear": "1939",
+  "note": "Wikipedia, UVA bibliographic record, rare-book dealers: Viking Press, April 1939 (copyright page 'First Published in April 1939'). One NCTE blog says March; likely error.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Lies of Locke Lamora",
+  "author": "Scott Lynch",
+  "libraryYear": "2006",
+  "status": "confirmed",
+  "sourceYear": "2006",
+  "note": "Wikipedia: first published 27 June 2006 (Bantam Spectra US, Gollancz UK). Goodreads work page says June 2006. Consistent.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Lottery",
+  "author": "Shirley Jackson",
+  "libraryYear": "1948",
+  "status": "confirmed",
+  "sourceYear": "1948",
+  "note": "Wikipedia, EBSCO research starter, CSMonitor: first published in The New Yorker, 26 June 1948. One Goodreads page says June 28; most agree on 26 June.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Man of Mode",
+  "author": "George Etherege",
+  "libraryYear": "1676",
+  "status": "confirmed",
+  "sourceYear": "1676",
+  "note": "Cambridge Orlando, Wikipedia, EMBTA record, Morgan Library: first staged probably 11 March 1676 at the Duke's Theatre; first edition printed 1676 (licensed 3 June). Performance and print same year.",
+  "checked": "web search summaries, 2026-10-27"
+ },
+ {
+  "title": "The Martian",
+  "author": "Andy Weir",
+  "libraryYear": "2011",
+  "status": "confirmed",
+  "sourceYear": "2011",
+  "note": "Wikipedia infobox: Sept 2011 self-published (blog serial, then Kindle); Crown print edition Feb 2014. Library's 2011 matches first publication, not the 2014 print edition.",
+  "checked": "web search summaries, 2026-10-27"
+ }
+]

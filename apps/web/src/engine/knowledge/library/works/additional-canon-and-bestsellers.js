@@ -1909,14 +1909,14 @@ export default [
   {
     id: 'work-gap-the-beautiful-ones-are-not-yet-born',
     kind: 'work',
-    name: 'The Beautiful Ones Are Not Yet Born',
+    name: 'The Beautyful Ones Are Not Yet Born',
     author: 'Ayi Kwei Armah',
     year: 1968,
     language: 'English',
     region: 'Ghana',
     summary: 'An honest, low-paid railway clerk in Accra resists the corruption that surrounds him in the years after independence. A bleak, vivid novel of disillusion.',
     genres: ['literary fiction', 'african literature'],
-    kw: ['the beautiful ones are not yet born', 'ayi kwei armah', 'armah', 'ghanaian novel', 'who wrote the beautiful ones are not yet born'],
+    kw: ['the beautyful ones are not yet born', 'the beautiful ones are not yet born', 'ayi kwei armah', 'armah', 'ghanaian novel', 'who wrote the beautyful ones are not yet born', 'who wrote the beautiful ones are not yet born'],
     confidence: 'established',
   },
   {
