@@ -1617,7 +1617,7 @@ export default [
     works: [
       { title: "The Castle of Perseverance", author: "Anonymous", year: "c. 1425" },
       { title: "Mankind", author: "Anonymous", year: "c. 1470" },
-      { title: "Everyman", author: "Anonymous", year: "c. 1500" },
+      { title: "Everyman", author: "Anonymous", year: "c. 1510" },
     ],
     refs: ["The Cambridge Companion to Medieval English Theatre"],
   },

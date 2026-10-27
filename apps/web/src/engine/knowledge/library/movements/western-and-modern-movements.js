@@ -443,7 +443,7 @@ export default [
     region: "England and Europe",
     confidence: "established",
     works: [
-      { title: "Everyman", author: "Anonymous", year: "c. 1500 CE" },
+      { title: "Everyman", author: "Anonymous", year: "c. 1510" },
       { title: "The Second Shepherds' Play", author: "Anonymous" },
       { title: "The York Plays", author: "Anonymous" },
     ],

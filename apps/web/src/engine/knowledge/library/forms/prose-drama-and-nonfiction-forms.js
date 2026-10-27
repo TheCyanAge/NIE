@@ -2108,7 +2108,7 @@ export default [
     kw: ['morality play', 'everyman', 'allegorical play', 'personified virtues vices', 'medieval allegory drama', 'vice figure', 'moral allegory'],
     works: [
       { title: 'The Castle of Perseverance', author: 'Anonymous', year: 'c. 1425' },
-      { title: 'Everyman', author: 'Anonymous', year: 'c. 1500' },
+      { title: 'Everyman', author: 'Anonymous', year: 'c. 1510' },
     ],
   },
   {
