@@ -212,6 +212,10 @@ jobs:
 
           **The model's licence:** the offline model (Qwen2.5-3B-Instruct) is made by Alibaba Cloud under the Qwen Research License (research and non-commercial use). It is downloaded from its official page, not included here. See NOTICE.md.
 
+          **What NIE is and is not:** NIE never writes or edits your text. It finds where your own rules are broken, and in Brainstorm it offers ideas, never manuscript lines.
+
+          **The reference library:** the built-in library of writing guidance and literary knowledge (about 13,000 entries) was written with AI assistance. The genre and form profiles were each checked by a second AI with web search, and a part of the works lists has been checked against search results; most of the rest has not. It is reference only, never exhaustive, and Settings shows what it holds and how it was checked.
+
           Built and tested on a real Windows machine: unit tests, a first-run model download, an answer from the real model, install and clean uninstall.
           EOF
           FILES="dist-release/Narrative-Integrity-Engine-Setup.exe dist-release/Narrative-Integrity-Engine-Portable.exe dist-release/SHA256SUMS.txt dist-release/READ-ME-FIRST.txt"
