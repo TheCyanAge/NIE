@@ -168,6 +168,15 @@ test('asked to search while it is switched off, NIE says that instead', async ()
   assert.match(r.reply, /switched off/);
 });
 
+test('asked to search before agreeing to the built-in search, NIE says what to do and sends nothing', async () => {
+  const { o, web, calls } = setup({ web: fakeWeb({ enabled: false, provider: 'nie' }) });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search the web for the Eiffel Tower height' });
+  assert.equal(web.searches.length, 0);
+  assert.equal(calls.length, 0);
+  assert.match(r.reply, /built-in search is ready as soon as you agree to it/);
+  assert.equal(r.web.note, "You have not agreed to NIE's built-in search yet.");
+});
+
 test('"with sources" alone does not turn a plain question into a web search when there is no web search', async () => {
   const { o, web } = setup({ web: fakeWeb({ configured: false }), reply: () => 'A sonnet is a fourteen-line poem.' });
   const r = await o.brainstorm({ project: projectWith(), message: 'What is a sonnet, with sources', web: false });

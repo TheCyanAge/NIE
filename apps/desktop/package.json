@@ -35,6 +35,7 @@
       "preload.cjs",
       "package.json",
       "updater-config.json",
+      "search-gateway.json",
       "src/**/*",
       "!**/dist-desktop/**",
       "!**/*.gguf",

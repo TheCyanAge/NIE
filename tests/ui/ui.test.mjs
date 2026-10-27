@@ -1352,11 +1352,15 @@ test('a conversation about the library: its answer offers the next questions as 
 
 // ── Web search (optional): Settings, the Web switch and numbered sources ─────
 
-/** Pretend to be the preload's web search bridge (window.NIE_WEB). The "main process" keeps the key; the page only ever learns that one is saved. */
+/**
+ * Pretend to be the preload's web search bridge (window.NIE_WEB). The "main process" keeps the key; the page only ever learns that one is saved.
+ * With `?gateway=1` in the address it is a build that carries NIE's built-in search: with no key it runs that, but only after the writer agreed (`builtin`).
+ */
 const WEB_BRIDGE = () => {
-  const NAMES = { tavily: 'Tavily', brave: 'Brave Search' };
+  const gateway = new URLSearchParams(location.search).has('gateway');
+  const NAMES = { tavily: 'Tavily', brave: 'Brave Search', nie: 'NIE search' };
   const detect = (k) => (/^tvly-/.test(k) ? 'tavily' : /^BSA/.test(k) ? 'brave' : null);
-  const saved = JSON.parse(localStorage.getItem('__web') ?? 'null') ?? { enabled: false, provider: 'auto', baseUrl: '', key: '', custom: { method: 'GET', url: '', headerName: 'Authorization', headerPrefix: 'Bearer ', bodyTemplate: '', resultsPath: 'results', titleKey: 'title', urlKey: 'url', snippetKey: 'snippet' } };
+  const saved = JSON.parse(localStorage.getItem('__web') ?? 'null') ?? { enabled: false, provider: 'auto', baseUrl: '', key: '', builtin: false, custom: { method: 'GET', url: '', headerName: 'Authorization', headerPrefix: 'Bearer ', bodyTemplate: '', resultsPath: 'results', titleKey: 'title', urlKey: 'url', snippetKey: 'snippet' } };
   const W = (window.__web = {
     sets: [], searches: [], reads: [], opened: [], delay: 0,
     results: [
@@ -1364,8 +1368,9 @@ const WEB_BRIDGE = () => {
       { title: 'Pudding Lane', url: 'https://museum.example.com/pudding-lane', snippet: 'Thomas Farriner baked for the navy.' },
     ],
   });
-  const publicConfig = () => ({ enabled: saved.enabled, provider: saved.provider, detected: detect(saved.key), baseUrl: saved.baseUrl, custom: saved.custom, hasKey: Boolean(saved.key), keyStoredSecurely: true });
-  const service = () => (saved.provider === 'auto' ? detect(saved.key) : saved.provider);
+  const service = () => (saved.provider === 'auto' ? detect(saved.key) ?? (gateway && !saved.key ? 'nie' : null) : saved.provider);
+  const publicConfig = () => ({ enabled: saved.enabled, provider: saved.provider, detected: detect(saved.key), baseUrl: saved.baseUrl, custom: saved.custom, hasKey: Boolean(saved.key), keyStoredSecurely: true, gateway, builtin: Boolean(saved.builtin), usingBuiltin: service() === 'nie' });
+  const allowed = () => saved.enabled && (service() === 'nie' ? saved.builtin : Boolean(saved.key)); // the main process runs the built-in search only after the writer agreed
   const wait = () => (W.delay ? new Promise((r) => setTimeout(r, W.delay)) : null);
   window.NIE_DESKTOP = { isDesktop: true, info: async () => ({ version: '0.1.0', platform: 'win32', electron: '44.0.0' }), openFile: async () => null, onMenu: () => () => {}, openExternal: async (u) => (W.opened.push(u), true) };
   window.NIE_WEB = {
@@ -1375,19 +1380,22 @@ const WEB_BRIDGE = () => {
       Object.assign(saved, { enabled: cfg.enabled, provider: cfg.provider, baseUrl: cfg.baseUrl, custom: cfg.custom });
       if (cfg.apiKey) saved.key = cfg.apiKey;
       if (cfg.clearKey) saved.key = '';
+      if (typeof cfg.builtin === 'boolean') saved.builtin = cfg.builtin;
+      if (service() === 'nie' && !saved.builtin) saved.enabled = false;
       localStorage.setItem('__web', JSON.stringify(saved));
       return publicConfig();
     },
     status: async () => {
       const id = service();
-      const configured = Boolean(id && saved.key);
-      return { configured, enabled: saved.enabled, provider: configured ? id : null, label: configured ? `${NAMES[id]}${saved.enabled ? '' : ' (switched off)'}` : 'NIE can not tell which search service this key is for. Choose the service in Settings.' };
+      const configured = Boolean(id && (saved.key || id === 'nie'));
+      const enabled = configured && allowed();
+      return { configured, enabled: saved.enabled && (id !== 'nie' || saved.builtin), provider: configured ? id : null, label: configured ? `${NAMES[id]}${enabled ? '' : ' (switched off)'}` : 'NIE can not tell which search service this key is for. Choose the service in Settings.' };
     },
-    test: async () => (service() && saved.key ? { ok: true, provider: service(), message: `${NAMES[service()]} answered with 1 result.` } : { ok: false, provider: null, message: 'Web search is not set up.' }),
+    test: async () => (service() === 'nie' && !saved.builtin ? { ok: false, provider: 'nie', message: "Agree to use NIE's built-in search first." } : service() && (saved.key || service() === 'nie') ? { ok: true, provider: service(), message: `${NAMES[service()]} answered with 1 result.` } : { ok: false, provider: null, message: 'Web search is not set up.' }),
     search: async (query, opts) => {
       W.searches.push([query, opts]);
       await wait();
-      return saved.enabled && saved.key ? { provider: service(), results: W.results } : { error: { kind: 'not-configured', message: 'Web search is switched off in Settings.' } };
+      return service() && allowed() ? { provider: service(), results: W.results } : { error: { kind: 'not-configured', message: 'Web search is switched off in Settings.' } };
     },
     read: async (url) => (W.reads.push(url), { url, title: 'A page', text: 'The fire began in a bakery on Pudding Lane in September 1666 and burned for four days.' }),
   };
@@ -1617,5 +1625,234 @@ test('a reply from the web is shown honestly when the search did not happen, fai
     assert.match(await last.locator('.web-source >> nth=1').textContent(), /Script/);
     assert.equal(await last.locator('.web-read').count(), 0, 'no model read anything, so no source claims to have been read');
     assert.equal(await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).web.sources[1].url), '', 'and it is not kept either');
+  });
+});
+
+// ── NIE's built-in search (a build that carries one): the text the writer is told, Settings, and the Web switch's dialog ──
+
+const BUILTIN_TEXT = "Ready to use: NIE can look things up for you without any setup. When you use it, the words of your question are sent to a search service run by the NIE developers, which asks a search provider for them and sends the results back. Your manuscript, your project and your earlier messages are never sent. A random install code (not your name, not an account) is sent so the service can limit abuse. The service is built not to keep your questions.";
+const WITH_GATEWAY = '?gateway=1';
+const webSets = (page) => page.evaluate(() => window.__web.sets.length);
+const dialogOpen = (page) => page.evaluate(() => Boolean(document.querySelector('#web-consent')?.open));
+
+test('Settings → web search: a build without a built-in search is exactly as it was, with no trace of one', async () => {
+  await run({ init: WEB_BRIDGE }, async ({ page }) => {
+    await page.click('.nav-btn[data-view=settings]');
+    await page.waitForFunction(() => document.querySelector('#web-detected').textContent !== '');
+    assert.equal(await page.isHidden('#web-builtin-box'), true);
+    assert.equal(await page.isHidden('#web-own'), true);
+    assert.equal((await page.textContent('.settings-section:has(#web-enabled) > p.muted')).trim(), WEB_EXPLANATION);
+    assert.ok(!/built-in search|install code/i.test(await page.innerText('.settings-section:has(#web-enabled)')), 'nothing about it is on the page');
+    assert.match(await page.textContent('#web-detected'), /^Automatic picks the service from what you give it: .*\(https:\/\/\.\.\.\)\.$/);
+  });
+});
+
+test('Settings → web search: the built-in search is shown with the whole disclosure above the own-key controls, and nothing runs until the writer ticks the box', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await page.click('.nav-btn[data-view=settings]');
+    await page.waitForSelector('#web-builtin-box:not([hidden])');
+    assert.equal((await page.textContent('#web-builtin-text')).trim(), BUILTIN_TEXT);
+    assert.equal((await page.textContent('#web-builtin-box h3')).trim(), "NIE's built-in search");
+    assert.equal((await page.textContent('label.check:has(#web-builtin)')).trim(), "Use NIE's built-in search");
+    assert.equal(await page.isChecked('#web-builtin'), false);
+    assert.equal(await page.isChecked('#web-enabled'), false);
+    assert.equal((await page.textContent('#web-own h3')).trim(), 'Or use your own search key (optional)');
+    assert.equal(await page.isVisible('#web-own'), true);
+    // the block comes first, then the heading of the own-key controls, then the controls themselves
+    assert.deepEqual(await page.evaluate(() => {
+      const before = (a, b) => Boolean(document.querySelector(a).compareDocumentPosition(document.querySelector(b)) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return [before('#web-builtin-box', '#web-own'), before('#web-own', '#web-provider'), before('#web-own', '#web-key')];
+    }), [true, true, true]);
+    // the paragraph above no longer says a key is needed
+    const intro = (await page.textContent('.settings-section:has(#web-enabled) > p.muted')).trim();
+    assert.ok(WEB_EXPLANATION.startsWith(intro) && intro.length < WEB_EXPLANATION.length && !/You need a key/.test(intro), intro);
+    assert.match(await page.textContent('#web-own'), /use it here: the words of your question then go to that service, and NIE's built-in search is not used/);
+    assert.match(await page.textContent('#web-detected'), /With none of these it uses NIE's built-in search\.$/);
+    assert.equal(await page.textContent('#web-status'), "Web search is off. NIE's built-in search is ready once you agree to it below.");
+    assert.equal((await page.textContent('#web-builtin-note')).trim(), 'Web search stays off until you agree here.');
+
+    // turning web search on without agreeing is not enough
+    await page.check('#web-enabled');
+    await page.click('#web-save');
+    await page.waitForFunction(() => /^Saved\. Web search stays off/.test(document.querySelector('#web-msg').textContent));
+    assert.equal(await page.textContent('#web-msg'), "Saved. Web search stays off until you agree to NIE's built-in search.");
+    assert.equal(await page.isChecked('#web-enabled'), false);
+    assert.equal(await page.evaluate(() => window.__web.searches.length), 0);
+    await page.click('#web-test');
+    await page.waitForFunction(() => /did not work/.test(document.querySelector('#web-msg').textContent));
+    assert.equal(await page.textContent('#web-msg'), "The test did not work: Agree to use NIE's built-in search first.");
+
+    // the agreement: saved at once, and it turns web search on
+    await page.check('#web-builtin');
+    await page.waitForFunction(() => document.querySelector('#web-msg').textContent === "You agreed to NIE's built-in search.");
+    const sent = await page.evaluate(() => window.__web.sets.at(-1));
+    assert.deepEqual([sent.builtin, sent.enabled, sent.apiKey], [true, true, undefined]);
+    assert.equal(await page.isChecked('#web-builtin'), true);
+    assert.equal(await page.isChecked('#web-enabled'), true);
+    assert.equal(await page.textContent('#web-status'), 'Web search is on, using NIE search.');
+    assert.equal((await page.textContent('#web-builtin-note')).trim(), 'You agreed. Untick the box to take it back; web search then stops.');
+    await page.click('#web-test');
+    await page.waitForFunction(() => document.querySelector('#web-msg').textContent === 'NIE search answered with 1 result.');
+
+    // it survives a reload, and taking it back is saved at once and switches web search off
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await page.click('.nav-btn[data-view=settings]');
+    await page.waitForFunction(() => document.querySelector('#web-builtin').checked);
+    await page.uncheck('#web-builtin');
+    await page.waitForFunction(() => document.querySelector('#web-msg').textContent === "You took back your agreement to NIE's built-in search.");
+    assert.equal(await page.evaluate(() => window.__web.sets.at(-1).builtin), false);
+    assert.equal(await page.isChecked('#web-enabled'), false);
+    assert.equal(await page.textContent('#web-status'), "Web search is off. NIE's built-in search is ready once you agree to it below.");
+  });
+});
+
+test('Settings → web search: a key of their own is what runs, and the built-in block says so', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await saveWebSettings(page);
+    await page.waitForSelector('#web-builtin-box:not([hidden])');
+    assert.equal(await page.textContent('#web-status'), 'Web search is on, using Brave Search.');
+    assert.match(await page.textContent('#web-builtin-note'), /^You have your own search service set up below, so that is what runs and NIE's built-in search is not used\./);
+    assert.equal(await page.isChecked('#web-builtin'), false, 'no agreement was needed');
+    assert.equal(await page.evaluate(() => window.__web.sets.at(-1).builtin), undefined, 'and none was sent');
+    // the disclosure is still there to read
+    assert.equal((await page.textContent('#web-builtin-text')).trim(), BUILTIN_TEXT);
+    // without the key, the built-in search is what would run again, and is still not on until they agree
+    await page.click('#web-clear-key');
+    await page.waitForFunction(() => /^The saved key was removed\./.test(document.querySelector('#web-msg').textContent));
+    assert.equal(await page.textContent('#web-msg'), "The saved key was removed. Web search stays off until you agree to NIE's built-in search.");
+    assert.equal(await page.isChecked('#web-enabled'), false);
+    assert.equal((await page.textContent('#web-builtin-note')).trim(), 'Web search stays off until you agree here.');
+  });
+});
+
+test('Settings → web search: the built-in block fits a narrow window', async () => {
+  await run({ viewport: { width: 700, height: 900 }, init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await page.click('.nav-btn[data-view=settings]');
+    await page.waitForSelector('#web-builtin-box:not([hidden])');
+    await page.selectOption('#web-provider', 'custom');
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    assert.ok(overflow <= 1, `settings overflows by ${overflow}px`);
+  });
+});
+
+test('the Web switch asks before NIE\'s built-in search is used: "Not now" and Escape change nothing, agreeing turns it on and keeps the agreement', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /^Search the web with NIE's built-in search\. You will be asked to agree to how it works first\.$/);
+
+    // the dialog: a real modal <dialog> with the whole disclosure and two buttons; "Not now" has the focus, so Enter can not agree by accident
+    await page.click('#web-toggle');
+    await page.waitForSelector('#web-consent[open]');
+    assert.equal(await page.evaluate(() => document.querySelector('#web-consent').matches(':modal')), true);
+    assert.equal((await page.textContent('#web-consent-text')).trim(), BUILTIN_TEXT);
+    assert.equal((await page.textContent('#web-consent-title')).trim(), "Use NIE's built-in search?");
+    assert.deepEqual(await page.$$eval('#web-consent button', (b) => b.map((x) => x.textContent.trim())), ["Use NIE's search", 'Not now']);
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'web-consent-later');
+
+    // "Not now"
+    await page.click('#web-consent-later');
+    assert.equal(await dialogOpen(page), false);
+    assert.equal(await page.$('#web-consent'), null, 'the dialog is removed, not just closed');
+    assert.equal(await webSets(page), 0, 'nothing was saved');
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+    assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), null);
+    assert.equal(await page.isDisabled('#web-toggle'), false, 'and it can be asked again');
+
+    // Escape is "Not now"
+    await page.click('#web-toggle');
+    await page.waitForSelector('#web-consent[open]');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.querySelector('#web-consent'));
+    assert.equal(await webSets(page), 0);
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+    assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), null);
+    // Enter on the focused button is "Not now" too
+    await page.click('#web-toggle');
+    await page.waitForSelector('#web-consent[open]');
+    await page.keyboard.press('Enter');
+    await page.waitForFunction(() => !document.querySelector('#web-consent'));
+    assert.equal(await webSets(page), 0);
+
+    // agreeing
+    await page.click('#web-toggle');
+    await page.waitForSelector('#web-consent[open]');
+    await page.click('#web-consent-agree');
+    await page.waitForFunction(() => document.querySelector('#web-toggle').getAttribute('aria-pressed') === 'true');
+    assert.equal(await page.$('#web-consent'), null);
+    assert.equal(await webSets(page), 1);
+    const sent = await page.evaluate(() => window.__web.sets.at(-1));
+    assert.deepEqual([sent.enabled, sent.builtin, sent.provider, sent.apiKey], [true, true, 'auto', undefined], 'the settings as they were, with web search on and the agreement');
+    assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), 'true');
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /^Web search is on: the words of your question are sent to NIE's search service, which asks a search provider for them\. Tap to turn it off\.$/);
+
+    // after that the switch is an ordinary switch: no dialog, however often it is turned on and off
+    await page.click('#web-toggle');
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+    await page.click('#web-toggle');
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'true');
+    assert.equal(await page.$('#web-consent'), null);
+    assert.equal(await webSets(page), 1);
+
+    // Settings agrees with what was done here, and the agreement is still there after a restart
+    await page.click('.nav-btn[data-view=settings]');
+    await page.waitForFunction(() => document.querySelector('#web-builtin').checked);
+    assert.equal(await page.isChecked('#web-enabled'), true);
+    assert.equal(await page.textContent('#web-status'), 'Web search is on, using NIE search.');
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await openBrainstorm(page);
+    await page.waitForFunction(() => document.querySelector('#web-toggle').getAttribute('aria-pressed') === 'true');
+  });
+});
+
+test('a question asked with the built-in search goes to the web and says so: the sources are listed under "NIE search"', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
+    await page.click('#web-toggle');
+    await page.click('#web-consent-agree');
+    await page.waitForFunction(() => document.querySelector('#web-toggle').getAttribute('aria-pressed') === 'true');
+    await say(page, 'search the web for the great fire of london');
+    assert.equal(await page.evaluate(() => window.__web.searches.length), 1);
+    const web = page.locator('.msg-assistant:not(.msg-pending) >> nth=-1').locator('.web-sources');
+    assert.match(await web.locator('.web-query').textContent(), /^Searched the web with NIE search for: ".*great fire of london.*"$/i);
+    assert.equal(await web.locator('.web-source a').first().getAttribute('href'), 'https://www.example.org/history/great-fire');
+  });
+});
+
+test('the Web switch never asks a writer who has a search key of their own, and without a built-in search it stays out of reach as before', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await saveWebSettings(page);
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /sent to Brave Search/);
+    await page.click('#web-toggle');
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'true');
+    assert.equal(await page.$('#web-consent'), null, 'no dialog');
+    await page.click('#web-toggle');
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+    assert.equal(await page.$('#web-consent'), null);
+  });
+  await run({ init: WEB_BRIDGE }, async ({ page }) => {
+    await openBrainstorm(page);
+    assert.equal(await page.isDisabled('#web-toggle'), true);
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /^Add a key in Settings and turn web search on/);
+    assert.equal(await page.$('#web-consent'), null);
+  });
+});
+
+test('the Web switch\'s dialog is not cut off in a narrow window', async () => {
+  await run({ viewport: { width: 500, height: 700 }, init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
+    await page.click('#web-toggle');
+    await page.waitForSelector('#web-consent[open]');
+    const box = await page.evaluate(() => { const r = document.querySelector('#web-consent').getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, w: innerWidth, h: innerHeight }; });
+    assert.ok(box.left >= 0 && box.right <= box.w && box.top >= 0 && box.bottom <= box.h, JSON.stringify(box));
+    assert.equal(await page.isVisible('#web-consent-agree'), true);
+    await page.click('#web-consent-later');
   });
 });

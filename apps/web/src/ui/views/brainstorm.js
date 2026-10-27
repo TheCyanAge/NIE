@@ -1,10 +1,11 @@
-import { h, $, $$, clear, mdLite, pageHead } from '../dom.js';
+import { h, $, $$, clear, mdLite, pageHead, toast } from '../dom.js';
 import { createThinking } from '../thinking.js';
 import { STARTER } from '../../engine/orchestrator/index.js';
 import { BUTTONS, KINDS, LENSES } from '../../engine/brainstorm/lenses.js';
 import { addToBoard, ideaId, isOnBoard, removeFromBoard } from '../../engine/project/board.js';
 import { resolveKind } from '../../engine/brainstorm/ideas.js';
 import { mountBoard } from './board.js';
+import { askBuiltinConsent } from '../web-consent.js';
 import { sanitizeWebRecord } from '../../engine/web/record.js';
 import { providerName } from '../../engine/web/bridge.js';
 
@@ -21,8 +22,9 @@ export function mountBrainstorm(root, app) {
   const input = h('textarea', { id: 'brainstorm-input', class: 'chat-input', rows: '2', 'data-tour': 'brainstorm-input', placeholder: 'Tell NIE what you\'re thinking about, or ask for ideas…', 'aria-label': 'Message to NIE' });
   const send = h('button', { class: 'btn btn-primary', id: 'brainstorm-send', type: 'submit' }, 'Send');
   const stop = h('button', { class: 'btn', id: 'brainstorm-stop', type: 'button', hidden: true, onclick: () => app.session.chatAbort?.abort() }, 'Stop');
-  // The Web switch: on, a factual question is looked up on the web and answered with numbered sources. It stays off unless the writer turned web search on in Settings.
-  const webBtn = h('button', { class: 'btn btn-sm web-toggle', id: 'web-toggle', type: 'button', 'aria-pressed': 'false', disabled: true, title: 'Checking web search…', onclick: () => { setWebWanted(!webWanted()); paintWeb(); } }, 'Web');
+  // The Web switch: on, a factual question is looked up on the web and answered with numbered sources. It stays off unless the writer turned web search on in Settings,
+  // or agrees to NIE's built-in search right here (the switch asks first; a writer with a search key of their own is never asked).
+  const webBtn = h('button', { class: 'btn btn-sm web-toggle', id: 'web-toggle', type: 'button', 'aria-pressed': 'false', disabled: true, title: 'Checking web search…', onclick: () => { if (needsAgreement()) return agreeToBuiltin(); setWebWanted(!webWanted()); paintWeb(); } }, 'Web');
   const form = h('form', { class: 'chat-form', onsubmit: (e) => { e.preventDefault(); submit(); } }, input, h('div', { class: 'chat-buttons' }, webBtn, send, stop));
   const board = mountBoard(app, { onDevelop: (text) => ask({ ask: `Let's develop this idea: ${text}`, lens: 'develop' }), onChange: () => refreshStars(), onAsk: (text) => ask({ ask: text }) });
 
@@ -57,13 +59,16 @@ export function mountBrainstorm(root, app) {
   let webState = null; // what web.status() last said
   const webUsable = () => Boolean(webState?.configured && webState.enabled);
   const webOn = () => webUsable() && webWanted();
+  // NIE's built-in search is there but the writer has not turned it on, which for it means has not agreed to how it works.
+  const needsAgreement = () => Boolean(webState?.configured && !webState.enabled && webState.provider === 'nie');
   function paintWeb() {
     const on = webOn();
-    webBtn.disabled = !webUsable();
+    webBtn.disabled = !webUsable() && !needsAgreement();
     webBtn.setAttribute('aria-pressed', String(on));
-    const where = providerName(webState?.provider);
+    const where = webState?.provider === 'nie' ? "NIE's search service, which asks a search provider for them" : providerName(webState?.provider);
     webBtn.title = app.web.kind === 'none' ? 'Web search needs the desktop app.'
       : !webState ? 'Checking web search…'
+      : needsAgreement() ? "Search the web with NIE's built-in search. You will be asked to agree to how it works first."
       : !webState.configured && !webState.enabled ? 'Add a key in Settings and turn web search on there to search the web.'
       : !webState.configured ? 'Add a key in Settings to search the web.'
       : !webState.enabled ? 'Turn web search on in Settings to search the web.'
@@ -73,6 +78,24 @@ export function mountBrainstorm(root, app) {
   async function refreshWeb() {
     webState = await app.web.status().catch(() => null);
     paintWeb();
+  }
+  /** The writer clicked the switch while the built-in search waits for their agreement: ask, and only on a yes save it (web search on, agreed) and turn the switch on. */
+  let asking = false;
+  async function agreeToBuiltin() {
+    if (asking) return;
+    asking = true;
+    try {
+      if (!(await askBuiltinConsent())) return;
+      const current = await app.web.refresh();
+      await app.web.save({ ...current, enabled: true, builtin: true });
+      await refreshWeb();
+      if (webUsable()) setWebWanted(true);
+      paintWeb();
+    } catch (err) {
+      toast(`Could not turn on web search: ${err?.message ?? err}`, { kind: 'warn' });
+    } finally {
+      asking = false;
+    }
   }
 
   // ── What are we brainstorming? ──────────────────────────────────────────────

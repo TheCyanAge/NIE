@@ -72,3 +72,7 @@ To go live: set `owner`/`repo`, publish releases with electron-builder (`publish
 `npm run icons` regenerates `assets\icon.ico` (256/128/64/48/32/16 px; the three small sizes use a bolder, text-free
 variant so they stay legible), `assets\icon.png` and the installer wizard bitmaps from `assets\logo.svg`.
 `python scripts/make-logo.py` regenerates the SVGs themselves (needs `pip install fonttools`).
+
+## Built-in web search (optional)
+
+A build can carry the public address of the search gateway (`services/search-gateway/`, deployed by the owner: see its README) so web search works with nothing for the writer to set up. The address is not a secret; **a search key must never go into an installer, this repository or a test**. The `windows-release` and `windows-package` workflows write the address into `apps/desktop/search-gateway.json` before packaging, from the repository variable `NIE_SEARCH_GATEWAY_URL` (Settings > Secrets and variables > Actions > Variables). With no variable, the file stays `{ "url": "" }` and the build has no built-in search; writers can still add their own key in Settings. The file must be `https://` (anything else is ignored at start-up).

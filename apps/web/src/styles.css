@@ -327,3 +327,6 @@ fieldset { border: 1px solid var(--line); border-radius: 20px; margin: 14px 0; p
 .web-read { margin-left: 6px; font-size: 0.68rem; }
 .web-custom { margin: 0.4rem 0; }
 #web-status, #web-detected, #web-unavailable { margin: 0.6rem 0; }
+.web-builtin { margin: 0.8rem 0; padding: 4px 16px 10px; background: var(--panel2); border-radius: 16px; border-left: 3px solid var(--accent); }
+.web-builtin h3 { margin-top: 0.6em; }
+#web-builtin-note { margin: 0.3rem 0 0; }

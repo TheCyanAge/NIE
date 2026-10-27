@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveLayout, DEFAULT_MODEL } from './src/runtime.js';
 import { LocalModelManager } from './src/local-manager.js';
 import { createUpdater, readUpdaterConfig } from './src/updater.js';
-import { createWebSettings } from './src/web-settings.js';
+import { createWebSettings, readGatewayUrl } from './src/web-settings.js';
 
 /**
  * NIE desktop shell. Responsibilities: the window, serving the web UI, the offline model service,
@@ -163,10 +163,12 @@ ipcMain.handle('nie:online:test', async () => {
   }
 });
 
-// ── web search (optional; off until the writer turns it on and gives a key) ──
+// ── web search (optional; off until the writer turns it on, with a key of their own or the built-in search they agree to) ──
 
 // The key is read, used and encrypted here, like the online key; the page only learns whether one is saved. The logic is in src/web-settings.js so it is tested without Electron.
-const web = createWebSettings({ readPrefs, writePrefs, safeStorage, createService: createWebService, fetch: globalThis.fetch });
+// The built-in search is a service the NIE developers run: the build carries only its address (search-gateway.json, empty in a build without one), never a search key.
+const gatewayUrl = readGatewayUrl(() => fs.readFileSync(path.join(here, 'search-gateway.json'), 'utf8'));
+const web = createWebSettings({ readPrefs, writePrefs, safeStorage, createService: createWebService, fetch: globalThis.fetch, gatewayUrl });
 ipcMain.handle('nie:web:get', () => web.get());
 ipcMain.handle('nie:web:set', (_e, cfg) => web.set(cfg));
 ipcMain.handle('nie:web:test', () => web.test());

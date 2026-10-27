@@ -1,13 +1,20 @@
+import { randomUUID } from 'node:crypto';
+
 /**
  * Web search settings, held by the main process (optional; it is off until the writer turns it on).
  * The key is encrypted with the operating system's store exactly like the online provider's key, and the page never receives it: it can only ask
  * whether one is saved. Everything the outside world provides (preferences, safeStorage, the search service, fetch) is passed in, so this is tested
  * without Electron, and the preload bridge, `main.js` and the tests all use the same code.
+ *
+ * Without a key of their own, a writer can use NIE's built-in search (a small service the NIE developers run; this build knows only its address).
+ * That is used only after the writer agreed to how it works (`builtin`), and their own key, when there is one, always runs instead.
  */
 
 export const WEB_PROVIDERS = ['auto', 'tavily', 'brave', 'serper', 'searxng', 'custom'];
 const KINDS = ['not-configured', 'auth', 'rate', 'network', 'bad-response', 'aborted']; // the only ways a search can fail, as the page is told
 const CUSTOM_DEFAULTS = Object.freeze({ method: 'GET', url: '', headerName: 'Authorization', headerPrefix: 'Bearer ', bodyTemplate: '', resultsPath: 'results', titleKey: 'title', urlKey: 'url', snippetKey: 'snippet' });
+
+const INSTALL_ID = /^[A-Za-z0-9-]{8,64}$/; // the shape the built-in search accepts
 
 const text = (v, fallback, max, trim = true) => (typeof v === 'string' ? (trim ? v.trim() : v).slice(0, max) : fallback);
 
@@ -27,6 +34,17 @@ function cleanCustom(c, cur) {
   };
 }
 
+/** The address of the built-in search service, from the build's `search-gateway.json` (`readText` returns the file). Only an https address counts; anything else means this build has none. */
+export function readGatewayUrl(readText) {
+  try {
+    const raw = String(JSON.parse(readText())?.url ?? '').trim();
+    const u = new URL(raw);
+    return u.protocol === 'https:' && !u.username && !u.password ? raw : '';
+  } catch {
+    return '';
+  }
+}
+
 /** A message that may have been written with the key in it never reaches the page with the key in it. */
 const redact = (message, key) => (key && key.length >= 8 ? String(message).split(key).join('…') : String(message));
 
@@ -37,8 +55,25 @@ const redact = (message, key) => (key && key.length >= 8 ? String(message).split
  * @param {{ isEncryptionAvailable(): boolean, encryptString(s: string): Buffer, decryptString(b: Buffer): string }} deps.safeStorage
  * @param {(opts: { fetch: Function, getConfig: () => object }) => object} deps.createService   `createWebService` from the engine
  * @param {Function} deps.fetch
+ * @param {string} [deps.gatewayUrl]                 the built-in search service's address (`readGatewayUrl`); '' when this build has none
+ * @param {() => string} [deps.makeId]               a new random install code
  */
-export function createWebSettings({ readPrefs, writePrefs, safeStorage, createService, fetch }) {
+export function createWebSettings({ readPrefs, writePrefs, safeStorage, createService, fetch, gatewayUrl = '', makeId = randomUUID }) {
+  /** The random code sent with a built-in search so the service can limit abuse (not a name, not an account). Made the first time it is wanted and then kept; only a request carries it. */
+  let made = null;
+  function installId() {
+    const stored = readPrefs().web;
+    const p = stored && typeof stored === 'object' ? stored : {};
+    if (typeof p.installId === 'string' && INSTALL_ID.test(p.installId)) return p.installId;
+    made ??= makeId();
+    try {
+      writePrefs({ web: { ...p, installId: made } });
+    } catch {
+      /* it lasts for this session and is made again next time */
+    }
+    return made;
+  }
+
   /** The plaintext configuration. It exists only inside the main process: the service reads it fresh on every call, so a saved change applies at once. */
   function read() {
     const stored = readPrefs().web;
@@ -57,23 +92,31 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
       key,
       baseUrl: typeof p.baseUrl === 'string' ? p.baseUrl : '',
       custom: cleanCustom(p.custom, CUSTOM_DEFAULTS),
+      builtin: Boolean(p.builtin),
+      gatewayUrl,
+      installId: installId(),
     };
   }
 
   const service = createService({ fetch, getConfig: read });
   const fail = (kind, message, key = '') => ({ error: { kind: KINDS.includes(kind) ? kind : 'network', message: redact(message, key) } });
+  /** Which service these settings stand for. The engine decides: a key or address of the writer's own first, the built-in search only when there is none. */
+  const describe = (c) => {
+    try {
+      return service.describe?.(c) ?? {};
+    } catch {
+      return {};
+    }
+  };
 
-  /** What the page may know: the settings without the key, and which service Automatic would pick. */
+  /** What the page may know: the settings without the key, which service Automatic would pick, and where the built-in search stands (never its address or the install code). */
   function get() {
     const c = read();
-    let detected = null;
-    try {
-      const d = service.describe?.(c)?.detected;
-      detected = typeof d === 'string' && d ? d : null;
-    } catch {
-      detected = null;
-    }
-    return { enabled: c.enabled, provider: c.provider, detected, baseUrl: c.baseUrl, custom: c.custom, hasKey: Boolean(c.key), keyStoredSecurely: safeStorage.isEncryptionAvailable() };
+    const d = describe(c);
+    return {
+      enabled: c.enabled, provider: c.provider, detected: typeof d.detected === 'string' && d.detected ? d.detected : null, baseUrl: c.baseUrl, custom: c.custom, hasKey: Boolean(c.key), keyStoredSecurely: safeStorage.isEncryptionAvailable(),
+      gateway: Boolean(gatewayUrl), builtin: c.builtin, usingBuiltin: Boolean(gatewayUrl) && d.provider === 'nie',
+    };
   }
 
   return {
@@ -89,12 +132,17 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
         custom: cleanCustom(cfg.custom, cur.custom),
         key: old.key,
         encrypted: old.encrypted,
+        installId: cur.installId,
+        builtin: typeof cfg.builtin === 'boolean' ? cfg.builtin : cur.builtin,
       };
       if (typeof cfg.apiKey === 'string' && cfg.apiKey) {
         if (safeStorage.isEncryptionAvailable()) Object.assign(next, { key: safeStorage.encryptString(cfg.apiKey).toString('base64'), encrypted: true });
         else Object.assign(next, { key: cfg.apiKey, encrypted: false });
       }
       if (cfg.clearKey) Object.assign(next, { key: undefined, encrypted: undefined });
+      // The built-in search runs only for a writer who agreed to it: with no key or address of their own, "on" without that agreement (or after withdrawing it) is stored as off.
+      const key = cfg.clearKey ? '' : typeof cfg.apiKey === 'string' && cfg.apiKey ? cfg.apiKey : cur.key;
+      if (next.enabled && !next.builtin && Boolean(gatewayUrl) && describe({ ...cur, provider: next.provider, baseUrl: next.baseUrl, custom: next.custom, key }).provider === 'nie') next.enabled = false;
       writePrefs({ web: next });
       return get();
     },

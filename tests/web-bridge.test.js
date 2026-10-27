@@ -4,6 +4,7 @@ import { createBridgeWeb, createNoWeb, providerName, WEB_PROVIDER_CHOICES } from
 import { WebError } from '../apps/web/src/engine/web/errors.js';
 import * as service from '../apps/web/src/engine/web/service.js';
 import { sanitizeWebRecord, WEB_STATES, MAX_WEB_SOURCES } from '../apps/web/src/engine/web/record.js';
+import { BUILTIN_DISCLOSURE } from '../apps/web/src/ui/web-consent.js';
 import { ProjectStore, memoryStorage } from '../apps/web/src/engine/project/store.js';
 import { appendMessage } from '../apps/web/src/engine/project/memory.js';
 
@@ -125,6 +126,32 @@ test('providers have the names a writer sees', () => {
   assert.equal(providerName('Some Service'), 'Some Service');
   assert.equal(providerName(null), 'a search service');
   assert.equal(providerName(''), 'a search service');
+});
+
+test('NIE\'s built-in search has a name a writer sees, is not a choice in the list, and the page starts with it unavailable', async () => {
+  assert.equal(providerName('nie'), 'NIE search');
+  assert.ok(!WEB_PROVIDER_CHOICES.some(([id]) => id === 'nie'), 'it is used when the writer has no key of their own, not picked from the list');
+  for (const web of [createBridgeWeb(fakeBridge().bridge), createNoWeb()]) {
+    const c = web.config();
+    assert.deepEqual([c.gateway, c.builtin, c.usingBuiltin], [false, false, false]);
+  }
+});
+
+test('the page reads where the built-in search stands from the main process, and sends the writer\'s agreement back with the rest', async () => {
+  const { bridge, calls } = fakeBridge({ getConfig: async () => ({ enabled: false, provider: 'auto', detected: null, baseUrl: '', custom: {}, hasKey: false, keyStoredSecurely: true, gateway: true, builtin: false, usingBuiltin: true }) });
+  const web = createBridgeWeb(bridge);
+  const cfg = await web.refresh();
+  assert.deepEqual([cfg.gateway, cfg.builtin, cfg.usingBuiltin], [true, false, true]);
+  assert.deepEqual(web.describe(), { provider: 'nie', detected: null, label: 'NIE search' }, 'with nothing of their own, Automatic means the built-in search');
+  await web.save({ ...cfg, enabled: true, builtin: true });
+  assert.deepEqual(calls.at(-1)[1].builtin, true);
+  assert.equal(calls.at(-1)[1].enabled, true);
+});
+
+// ── what the writer is told before the built-in search is used ───────────────
+
+test('the disclosure is the promise to the writer, word for word', () => {
+  assert.equal(BUILTIN_DISCLOSURE, 'Ready to use: NIE can look things up for you without any setup. When you use it, the words of your question are sent to a search service run by the NIE developers, which asks a search provider for them and sends the results back. Your manuscript, your project and your earlier messages are never sent. A random install code (not your name, not an account) is sent so the service can limit abuse. The service is built not to keep your questions.');
 });
 
 // ── what a reply keeps of a search ───────────────────────────────────────────
