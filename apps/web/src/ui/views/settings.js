@@ -1,5 +1,6 @@
 import { h, $, clear, toast, pageHead } from '../dom.js';
 import { KIND_LABELS, answerFromLibrary, libraryStats, libraryStatus, loadLibrary, searchScored } from '../../engine/knowledge/index.js';
+import { WEB_PROVIDER_CHOICES, providerName } from '../../engine/web/bridge.js';
 
 /**
  * Settings: where the writer chooses NIE's model, checks for updates, controls the tour and manages data.
@@ -21,6 +22,34 @@ export function mountSettings(root, app, { startTour }) {
   const onModel = h('input', { class: 'input', id: 'online-model', placeholder: 'model name', 'aria-label': 'Online model name' });
   const onKey = h('input', { class: 'input', id: 'online-key', type: 'password', placeholder: 'API key (stored only on this computer)', autocomplete: 'off', 'aria-label': 'API key' });
   const onMsg = h('p', { class: 'muted small', id: 'online-msg', 'aria-live': 'polite' });
+
+  // ── Web search (optional; off until the writer turns it on) ────────────────
+  const webOn = h('input', { type: 'checkbox', id: 'web-enabled' });
+  const webProvider = h('select', { class: 'select', id: 'web-provider', 'aria-label': 'Search service', onchange: () => paintWebFields() }, ...WEB_PROVIDER_CHOICES.map(([id, label]) => h('option', { value: id }, label)));
+  const webKey = h('input', { class: 'input', id: 'web-key', type: 'password', placeholder: 'Search key (stored only on this computer)', autocomplete: 'off', 'aria-label': 'Search service key' });
+  const webAddress = h('input', { class: 'input', id: 'web-address', placeholder: 'https://search.example.org', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'SearXNG address' });
+  const webAddressField = h('label', { class: 'field', id: 'web-address-field' }, h('span', { class: 'field-label' }, 'SearXNG address'), webAddress);
+  const webMethod = h('select', { class: 'select', id: 'web-custom-method', 'aria-label': 'Request method', onchange: () => paintWebFields() }, h('option', { value: 'GET' }, 'GET'), h('option', { value: 'POST' }, 'POST'));
+  const webCustom = {}; // the Custom service's description, one box per field
+  const customField = (name, label, placeholder, { area = false } = {}) => {
+    webCustom[name] = h(area ? 'textarea' : 'input', { class: 'input', id: `web-custom-${name}`, placeholder, rows: area ? '3' : null, autocomplete: 'off', spellcheck: 'false', 'aria-label': label });
+    return h('label', { class: 'field', id: `web-custom-${name}-field` }, h('span', { class: 'field-label' }, label), webCustom[name]);
+  };
+  const webCustomBox = h('div', { class: 'web-custom', id: 'web-custom', hidden: true },
+    h('p', { class: 'muted small' }, 'Describe any JSON search API. Put {query} in the address where the search words go (and {key} or {limit} if the service needs them).'),
+    customField('url', 'Address', 'https://example.com/search?q={query}'),
+    h('div', { class: 'grid2' }, h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Method'), webMethod), customField('resultsPath', 'Where the results are in the reply', 'results')),
+    h('div', { class: 'grid2' }, customField('headerName', 'Header that carries the key', 'Authorization'), customField('headerPrefix', 'Text before the key in that header', 'Bearer ')),
+    h('div', { class: 'grid2' }, customField('titleKey', 'Title field of a result', 'title'), customField('urlKey', 'Link field of a result', 'url')),
+    customField('snippetKey', 'Text field of a result', 'snippet'),
+    customField('bodyTemplate', 'Body to send (POST only)', '{"q":"{query}"}', { area: true }));
+  const webDetected = h('p', { id: 'web-detected', class: 'status-line', 'aria-live': 'polite' });
+  const webStatus = h('p', { id: 'web-status', class: 'status-line', 'aria-live': 'polite' });
+  const webMsg = h('p', { class: 'muted small', id: 'web-msg', 'aria-live': 'polite' });
+  const webSave = h('button', { class: 'btn btn-primary', id: 'web-save', onclick: () => saveWeb() }, 'Save');
+  const webTest = h('button', { class: 'btn', id: 'web-test', title: 'Sends one search for the word "test" to the service you chose.', onclick: testWeb }, 'Test');
+  const webClearKey = h('button', { class: 'btn btn-quiet', id: 'web-clear-key', hidden: true, onclick: () => saveWeb({ clearKey: true }, 'The saved key was removed.') }, 'Remove the saved key');
+  const webControls = [webOn, webProvider, webKey, webAddress, webMethod, ...Object.values(webCustom), webSave, webTest, webClearKey];
 
   // ── Updates ───────────────────────────────────────────────────────────────
   const upMsg = h('p', { id: 'update-status', class: 'status-line', 'aria-live': 'polite' }, 'Checking…');
@@ -87,6 +116,14 @@ export function mountSettings(root, app, { startTour }) {
       h('div', { class: 'grid2' }, h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Base URL (OpenAI-compatible)'), onUrl), h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Model'), onModel)),
       h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'API key'), onKey),
       h('div', { class: 'row' }, h('button', { class: 'btn btn-primary', id: 'online-save', onclick: saveOnline }, 'Save'), h('button', { class: 'btn', id: 'online-test', onclick: testOnline }, 'Test connection'), onMsg)),
+    section('Web search',
+      h('p', { class: 'muted' }, "Web search is off until you turn it on. When it is on and you ask NIE to look something up (the Web switch next to the message box, or 'search the web for ...'), the words of that question are sent to the search service you chose, and NIE fetches some of the pages it finds. Your manuscript, your project and your earlier messages are never sent. NIE's offline model, or your online model, reads what comes back and answers with numbered sources. You need a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or any JSON search API you describe under Custom. The key is stored only on this computer."),
+      window.NIE_WEB ? null : h('p', { class: 'status-line', id: 'web-unavailable' }, 'Web search needs the desktop app.'),
+      webStatus,
+      h('label', { class: 'check' }, webOn, ' Use web search when I ask NIE to look something up'),
+      h('div', { class: 'grid2' }, h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Search service'), webProvider), h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Key'), webKey)),
+      webDetected, webAddressField, webCustomBox,
+      h('div', { class: 'row' }, webSave, webTest, webClearKey, webMsg)),
     section("NIE's library", h('p', { class: 'muted' }, 'Style guides and rules, usage, manuscript formats, genres with example works, forms, devices, movements, traditions and publishing norms. It is built in, so NIE can answer from it with no internet. It is reference material: NIE explains it, and only ever enforces your own rules.'),
       libSummary, libCoverage, h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Look something up'), libInput), libResults),
     section('Updates', upMsg, h('div', { class: 'row' }, upCheck, upInstall)),
@@ -125,6 +162,60 @@ export function mountSettings(root, app, { startTour }) {
     onEnabled.checked = c.enabled; onUrl.value = c.baseUrl; onModel.value = c.model;
     onKey.placeholder = c.hasKey ? 'A key is saved. Type to replace it.' : 'API key (stored only on this computer)';
     if (c.hasKey && c.keyStoredSecurely === false) onMsg.textContent = 'This key is stored unencrypted on this computer.';
+  }
+
+  // The service chosen decides which boxes are shown: Automatic and SearXNG take an address, only Custom takes a description of its API.
+  function paintWebFields() {
+    const p = webProvider.value;
+    webAddressField.hidden = p !== 'auto' && p !== 'searxng';
+    webCustomBox.hidden = p !== 'custom';
+    webDetected.hidden = p !== 'auto';
+    $('#web-custom-bodyTemplate-field', root).hidden = webMethod.value !== 'POST';
+    webKey.placeholder = webKey.dataset.saved ? 'A key is saved. Type to replace it.' : p === 'auto' ? 'Search key (stored only on this computer)' : 'Search key, if the service needs one (stored only on this computer)';
+  }
+  function webForm() {
+    return {
+      enabled: webOn.checked, provider: webProvider.value, baseUrl: webAddress.value.trim(),
+      custom: { method: webMethod.value, ...Object.fromEntries(Object.entries(webCustom).map(([k, el]) => [k, el.value])) },
+    };
+  }
+  async function refreshWeb() {
+    if (!window.NIE_WEB) { for (const el of webControls) el.disabled = true; paintWebFields(); webStatus.hidden = true; webDetected.hidden = true; return; }
+    const [c, st] = await Promise.all([app.web.refresh(), app.web.status()]).catch(() => []);
+    if (!c) return void (webStatus.textContent = 'NIE could not read the web search settings.');
+    webOn.checked = c.enabled; webProvider.value = c.provider; webAddress.value = c.baseUrl;
+    webMethod.value = c.custom?.method === 'POST' ? 'POST' : 'GET';
+    for (const [k, el] of Object.entries(webCustom)) el.value = c.custom?.[k] ?? '';
+    webKey.dataset.saved = c.hasKey ? '1' : '';
+    webClearKey.hidden = !c.hasKey;
+    if (c.hasKey && c.keyStoredSecurely === false && !webMsg.textContent) webMsg.textContent = 'This key is stored unencrypted on this computer.';
+    paintWebFields();
+    // What Automatic made of what was saved (it can not know about a key that is only typed, not saved yet), and what is ready.
+    webDetected.textContent = c.detected ? `Automatic detected ${providerName(c.detected)}.`
+      : c.hasKey || c.baseUrl ? 'Automatic could not tell which service this is. Choose it from the list.'
+      : 'Automatic picks the service from what you give it: a Tavily key (starts with tvly-), a Brave Search key (starts with BSA), a Serper key (40 letters and digits) or a SearXNG address (https://...).';
+    const reason = String(st?.label ?? '').trim();
+    webStatus.dataset.state = st?.configured && st.enabled ? 'ready' : st?.configured ? 'starting' : 'failed';
+    webStatus.textContent = st?.configured && st.enabled ? `Web search is on, using ${providerName(st.provider)}.`
+      : st?.configured ? `Web search is off. ${providerName(st.provider)} is set up.`
+      : `Web search is not set up yet.${reason ? ` ${/[.!?]$/.test(reason) ? reason : `${reason}.`}` : ''}`;
+  }
+  async function saveWeb(extra = {}, done = 'Saved.') {
+    try {
+      await app.web.save({ ...webForm(), apiKey: webKey.value || undefined, ...extra });
+      webKey.value = '';
+      webMsg.textContent = done;
+    } catch (err) {
+      webMsg.textContent = `Could not save: ${err?.message ?? err}`;
+    }
+    await refreshWeb();
+    app.emit('web'); // the Web switch next to the message box follows what was saved
+  }
+  async function testWeb() {
+    webMsg.textContent = 'Testing…';
+    await saveWeb(); // the test uses what is saved
+    const r = await app.web.test();
+    webMsg.textContent = r.ok ? r.message : `The test did not work: ${r.message}`;
   }
 
   async function refreshModel() {
@@ -170,7 +261,7 @@ export function mountSettings(root, app, { startTour }) {
   app.on('library', paintLibrary);
   paintLibrary();
   loadLibrary().then(paintLibrary);
-  app.on('view', (v) => { if (v === 'settings') { refreshModel(); refreshOnline(); syncPrefs(); } });
+  app.on('view', (v) => { if (v === 'settings') { refreshModel(); refreshOnline(); refreshWeb(); syncPrefs(); } });
   if (window.NIE_UPDATER) {
     window.NIE_UPDATER.onStatus(paintUpdate);
     window.NIE_UPDATER.status().then(paintUpdate);
@@ -178,6 +269,6 @@ export function mountSettings(root, app, { startTour }) {
     upMsg.textContent = 'Updates are available in the installed desktop app.';
     upCheck.disabled = true;
   }
-  syncPrefs(); refreshModel(); refreshOnline(); refreshAbout();
+  syncPrefs(); refreshModel(); refreshOnline(); refreshWeb(); refreshAbout();
   return { focus: () => {}, primaryInput: () => null };
 }

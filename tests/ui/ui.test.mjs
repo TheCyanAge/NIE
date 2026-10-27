@@ -1349,3 +1349,273 @@ test('a conversation about the library: its answer offers the next questions as 
     assert.ok(!/Gothic/.test(await page.textContent('.msg-assistant >> nth=-1')), 'the new project has no subject to be told more about');
   });
 });
+
+// ── Web search (optional): Settings, the Web switch and numbered sources ─────
+
+/** Pretend to be the preload's web search bridge (window.NIE_WEB). The "main process" keeps the key; the page only ever learns that one is saved. */
+const WEB_BRIDGE = () => {
+  const NAMES = { tavily: 'Tavily', brave: 'Brave Search' };
+  const detect = (k) => (/^tvly-/.test(k) ? 'tavily' : /^BSA/.test(k) ? 'brave' : null);
+  const saved = JSON.parse(localStorage.getItem('__web') ?? 'null') ?? { enabled: false, provider: 'auto', baseUrl: '', key: '', custom: { method: 'GET', url: '', headerName: 'Authorization', headerPrefix: 'Bearer ', bodyTemplate: '', resultsPath: 'results', titleKey: 'title', urlKey: 'url', snippetKey: 'snippet' } };
+  const W = (window.__web = {
+    sets: [], searches: [], reads: [], opened: [], delay: 0,
+    results: [
+      { title: 'The Great Fire of London', url: 'https://www.example.org/history/great-fire', snippet: 'The fire began in a bakery on Pudding Lane in September 1666.' },
+      { title: 'Pudding Lane', url: 'https://museum.example.com/pudding-lane', snippet: 'Thomas Farriner baked for the navy.' },
+    ],
+  });
+  const publicConfig = () => ({ enabled: saved.enabled, provider: saved.provider, detected: detect(saved.key), baseUrl: saved.baseUrl, custom: saved.custom, hasKey: Boolean(saved.key), keyStoredSecurely: true });
+  const service = () => (saved.provider === 'auto' ? detect(saved.key) : saved.provider);
+  const wait = () => (W.delay ? new Promise((r) => setTimeout(r, W.delay)) : null);
+  window.NIE_DESKTOP = { isDesktop: true, info: async () => ({ version: '0.1.0', platform: 'win32', electron: '44.0.0' }), openFile: async () => null, onMenu: () => () => {}, openExternal: async (u) => (W.opened.push(u), true) };
+  window.NIE_WEB = {
+    getConfig: async () => publicConfig(),
+    setConfig: async (cfg) => {
+      W.sets.push(cfg);
+      Object.assign(saved, { enabled: cfg.enabled, provider: cfg.provider, baseUrl: cfg.baseUrl, custom: cfg.custom });
+      if (cfg.apiKey) saved.key = cfg.apiKey;
+      if (cfg.clearKey) saved.key = '';
+      localStorage.setItem('__web', JSON.stringify(saved));
+      return publicConfig();
+    },
+    status: async () => {
+      const id = service();
+      const configured = Boolean(id && saved.key);
+      return { configured, enabled: saved.enabled, provider: configured ? id : null, label: configured ? `${NAMES[id]}${saved.enabled ? '' : ' (switched off)'}` : 'NIE can not tell which search service this key is for. Choose the service in Settings.' };
+    },
+    test: async () => (service() && saved.key ? { ok: true, provider: service(), message: `${NAMES[service()]} answered with 1 result.` } : { ok: false, provider: null, message: 'Web search is not set up.' }),
+    search: async (query, opts) => {
+      W.searches.push([query, opts]);
+      await wait();
+      return saved.enabled && saved.key ? { provider: service(), results: W.results } : { error: { kind: 'not-configured', message: 'Web search is switched off in Settings.' } };
+    },
+    read: async (url) => (W.reads.push(url), { url, title: 'A page', text: 'The fire began in a bakery on Pudding Lane in September 1666 and burned for four days.' }),
+  };
+};
+
+const WEB_EXPLANATION = "Web search is off until you turn it on. When it is on and you ask NIE to look something up (the Web switch next to the message box, or 'search the web for ...'), the words of that question are sent to the search service you chose, and NIE fetches some of the pages it finds. Your manuscript, your project and your earlier messages are never sent. NIE's offline model, or your online model, reads what comes back and answers with numbered sources. You need a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or any JSON search API you describe under Custom. The key is stored only on this computer.";
+const WEB_KEY_TEXT = 'BSA-the-secret-key-4242';
+const saveWebSettings = async (page, { enabled = true, key = WEB_KEY_TEXT } = {}) => {
+  await page.click('.nav-btn[data-view=settings]');
+  await (enabled ? page.check('#web-enabled') : page.uncheck('#web-enabled'));
+  if (key) await page.fill('#web-key', key);
+  await page.click('#web-save');
+  await page.waitForFunction(() => document.querySelector('#web-msg').textContent === 'Saved.');
+};
+
+test('Settings → web search: a browser says it needs the desktop app and cannot be switched on; the Web switch is off and says why', async () => {
+  await run({}, async ({ page }) => {
+    await page.click('.nav-btn[data-view=settings]');
+    assert.equal((await page.textContent('#web-unavailable')).trim(), 'Web search needs the desktop app.');
+    assert.equal((await page.textContent('.settings-section:has(#web-enabled) > p.muted')).trim(), WEB_EXPLANATION);
+    for (const id of ['#web-enabled', '#web-provider', '#web-key', '#web-save', '#web-test']) assert.equal(await page.isDisabled(id), true, `${id} is disabled`);
+    await openBrainstorm(page);
+    assert.equal(await page.isDisabled('#web-toggle'), true);
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /needs the desktop app/);
+  });
+});
+
+test('Settings → web search: off until turned on, the key goes in and never comes back, each service shows its own boxes, and Test says what happened', async () => {
+  await run({ init: WEB_BRIDGE }, async ({ page }) => {
+    await page.click('.nav-btn[data-view=settings]');
+    assert.equal((await page.textContent('.settings-section:has(#web-enabled) > p.muted')).trim(), WEB_EXPLANATION);
+    assert.equal(await page.isChecked('#web-enabled'), false, 'off by default');
+    assert.equal(await page.$('#web-unavailable'), null);
+    assert.match(await page.textContent('#web-status'), /not set up yet/i);
+    assert.deepEqual(await page.$$eval('#web-provider option', (o) => o.map((x) => x.textContent)), ['Automatic', 'Tavily', 'Brave Search', 'Serper', 'SearXNG', 'Custom']);
+    assert.equal(await page.getAttribute('#web-key', 'type'), 'password');
+    assert.match(await page.getAttribute('#web-key', 'placeholder'), /stored only on this computer/);
+
+    // each service shows only what it needs
+    assert.equal(await page.isVisible('#web-address'), true, 'Automatic can take a SearXNG address');
+    assert.equal(await page.isHidden('#web-custom'), true);
+    await page.selectOption('#web-provider', 'tavily');
+    assert.equal(await page.isHidden('#web-address'), true);
+    assert.equal(await page.isHidden('#web-custom'), true);
+    await page.selectOption('#web-provider', 'searxng');
+    assert.equal(await page.isVisible('#web-address'), true);
+    await page.selectOption('#web-provider', 'custom');
+    assert.equal(await page.isVisible('#web-custom'), true);
+    assert.equal(await page.isHidden('#web-address'), true);
+    assert.equal(await page.isHidden('#web-custom-bodyTemplate'), true, 'a body is only for POST');
+    await page.selectOption('#web-custom-method', 'POST');
+    assert.equal(await page.isVisible('#web-custom-bodyTemplate'), true);
+    await page.fill('#web-custom-url', 'https://api.example.com/s?q={query}');
+    await page.selectOption('#web-provider', 'auto');
+
+    // Test with nothing saved says so honestly
+    await page.click('#web-test');
+    await page.waitForFunction(() => /did not work/.test(document.querySelector('#web-msg').textContent));
+
+    // the key goes in...
+    await saveWebSettings(page);
+    assert.equal(await page.inputValue('#web-key'), '', 'the box is emptied once it is saved');
+    assert.equal(await page.getAttribute('#web-key', 'placeholder'), 'A key is saved. Type to replace it.');
+    assert.equal(await page.isVisible('#web-clear-key'), true);
+    assert.equal(await page.textContent('#web-detected'), 'Automatic detected Brave Search.');
+    assert.equal(await page.textContent('#web-status'), 'Web search is on, using Brave Search.');
+    const sent = await page.evaluate(() => window.__web.sets.at(-1));
+    assert.equal(sent.apiKey, WEB_KEY_TEXT);
+    assert.deepEqual([sent.enabled, sent.provider], [true, 'auto']);
+    assert.equal(sent.custom.method, 'POST');
+    assert.equal(sent.custom.url, 'https://api.example.com/s?q={query}', 'the Custom description is saved with the rest');
+    // ...and nothing the page holds afterwards contains it
+    const held = await page.evaluate(() => document.documentElement.outerHTML + JSON.stringify(window.NIE_APP.web.config()) + JSON.stringify({ ...localStorage, __web: '' }));
+    assert.ok(!held.includes(WEB_KEY_TEXT), 'the key never comes back to the page');
+
+    // saving again without typing a key keeps it
+    await page.click('#web-save');
+    await page.waitForFunction(() => window.__web.sets.length >= 3);
+    assert.equal(await page.evaluate(() => window.__web.sets.at(-1).apiKey), undefined);
+    assert.equal(await page.isVisible('#web-clear-key'), true);
+
+    await page.click('#web-test');
+    await page.waitForFunction(() => document.querySelector('#web-msg').textContent === 'Brave Search answered with 1 result.');
+    assert.match(await page.getAttribute('#web-test', 'title'), /one search/);
+
+    // it can be taken away
+    await page.click('#web-clear-key');
+    await page.waitForFunction(() => document.querySelector('#web-msg').textContent === 'The saved key was removed.');
+    assert.equal(await page.isHidden('#web-clear-key'), true);
+    assert.match(await page.textContent('#web-status'), /not set up yet/i);
+
+    // and the settings survive a reload
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await page.click('.nav-btn[data-view=settings]');
+    await page.waitForFunction(() => document.querySelector('#web-enabled').checked);
+    assert.equal(await page.inputValue('#web-provider'), 'auto');
+  });
+});
+
+test('Settings → web search: the section fits a narrow window', async () => {
+  await run({ viewport: { width: 700, height: 900 }, init: WEB_BRIDGE }, async ({ page }) => {
+    await page.click('.nav-btn[data-view=settings]');
+    await page.selectOption('#web-provider', 'custom');
+    await page.selectOption('#web-custom-method', 'POST');
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    assert.ok(overflow <= 1, `settings overflows by ${overflow}px`);
+  });
+});
+
+test('the Web switch follows Settings: off and explained until a key is saved and web search is on, then it remembers its position', async () => {
+  await run({ init: WEB_BRIDGE }, async ({ page }) => {
+    await openBrainstorm(page);
+    assert.equal(await page.isDisabled('#web-toggle'), true);
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /^Add a key in Settings and turn web search on/);
+
+    await saveWebSettings(page, { enabled: false });
+    await openBrainstorm(page);
+    assert.equal(await page.isDisabled('#web-toggle'), true);
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /^Turn web search on in Settings/);
+
+    await saveWebSettings(page, { enabled: true, key: '' });
+    await openBrainstorm(page);
+    assert.equal(await page.isDisabled('#web-toggle'), false);
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false', 'usable, but off until the writer turns it on');
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /words of your question are sent to Brave Search/);
+
+    await page.click('#web-toggle');
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'true');
+    assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), 'true');
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await openBrainstorm(page);
+    await page.waitForFunction(() => document.querySelector('#web-toggle').getAttribute('aria-pressed') === 'true');
+
+    // turning web search off in Settings puts the switch out of reach, without forgetting where it was
+    await saveWebSettings(page, { enabled: false, key: '' });
+    await openBrainstorm(page);
+    await page.waitForFunction(() => document.querySelector('#web-toggle').disabled);
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+    assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), 'true');
+  });
+});
+
+test('with the Web switch on, the question goes to the web and comes back with numbered sources that are links, kept with the project', async () => {
+  await run({ init: WEB_BRIDGE }, async ({ page }) => {
+    await saveWebSettings(page);
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
+    // the page tells the orchestrator whether the switch is on
+    await page.evaluate(() => {
+      const o = window.NIE_APP.orchestrator;
+      const orig = o.brainstorm.bind(o);
+      window.__asked = [];
+      o.brainstorm = (opts) => (window.__asked.push(opts.web), orig(opts));
+    });
+    await say(page, 'I want to write a cozy mystery set in a small fishing village.');
+    await page.click('#web-toggle');
+    await page.evaluate(() => { window.__web.delay = 700; });
+    const before = await page.$$eval('.msg-assistant:not(.msg-pending)', (m) => m.length);
+    await page.fill('#brainstorm-input', 'search the web for the great fire of london');
+    await page.press('#brainstorm-input', 'Enter');
+    await page.waitForFunction(() => /Searching the web/.test(document.querySelector('#read-progress')?.textContent ?? ''));
+    await page.waitForFunction((n) => document.querySelectorAll('.msg-assistant:not(.msg-pending)').length > n, before);
+    assert.deepEqual(await page.evaluate(() => window.__asked), [false, true]);
+    assert.equal(await page.evaluate(() => window.__web.searches.length), 1);
+    assert.match(await page.evaluate(() => window.__web.searches[0][0]), /great fire of london/i);
+
+    const box = '.msg-assistant:not(.msg-pending) >> nth=-1';
+    const web = page.locator('.msg-assistant:not(.msg-pending) >> nth=-1').locator('.web-sources');
+    assert.match(await web.locator('.web-query').textContent(), /^Searched the web with Brave Search for: ".*great fire of london.*"$/i);
+    const sources = await web.locator('.web-source').evaluateAll((li) => li.map((x) => ({ n: x.value, text: x.textContent, href: x.querySelector('a')?.href, rel: x.querySelector('a')?.rel })));
+    assert.ok(sources.length >= 1 && sources.length <= 6, JSON.stringify(sources));
+    assert.deepEqual(sources.map((s) => s.n), sources.map((_, i) => i + 1), 'numbered 1, 2, ...');
+    assert.equal(sources[0].href, 'https://www.example.org/history/great-fire');
+    assert.match(sources[0].text, /The Great Fire of London/);
+    assert.match(sources[0].text, /· example\.org/);
+    assert.match(sources[0].rel, /noopener/);
+    assert.ok((await web.locator('.web-note').textContent()).trim().length > 0, 'a plain sentence says what happened');
+    assert.ok(!/<|&lt;/.test(await page.textContent(box)), 'text only');
+
+    // a link opens in the system browser through the desktop bridge, and the page itself does not navigate
+    const url = page.url();
+    await web.locator('.web-source a').first().click();
+    assert.deepEqual(await page.evaluate(() => window.__web.opened), ['https://www.example.org/history/great-fire']);
+    assert.equal(page.url(), url);
+
+    // it is part of the project: after a reload the sources are still there, as links
+    const reply = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1));
+    assert.equal(reply.web.state === 'answered' || reply.web.state === 'results-only', true, reply.web.state);
+    assert.ok(reply.web.sources.every((s) => s.url.startsWith('https://')));
+    await page.waitForTimeout(700);
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await openBrainstorm(page);
+    const again = page.locator('.msg-assistant >> nth=-1').locator('.web-source a');
+    assert.equal(await again.first().getAttribute('href'), 'https://www.example.org/history/great-fire');
+  });
+});
+
+test('a reply from the web is shown honestly when the search did not happen, failed or found nothing, and a link that is not https is never a link', async () => {
+  await run({ init: WEB_BRIDGE }, async ({ page }) => {
+    await openBrainstorm(page);
+    // records as the engine would have saved them
+    await page.evaluate(() => {
+      const base = { provider: 'brave', sources: [], answeredBy: 'none' };
+      const msgs = window.NIE_APP.project.conversation.messages;
+      msgs.push({ role: 'user', content: 'search the web for a', at: 1 }, { role: 'assistant', content: 'Web search is not set up.', at: 2, web: { ...base, query: '', state: 'not-configured', note: 'Web search is not set up.' } });
+      msgs.push({ role: 'user', content: 'search the web for b', at: 3 }, { role: 'assistant', content: 'I could not search just now.', at: 4, web: { ...base, query: 'b words', state: 'failed', note: 'Brave Search did not answer in time.' } });
+      msgs.push({ role: 'user', content: 'search the web for c', at: 5 }, { role: 'assistant', content: 'The search found nothing.', at: 6, web: { ...base, query: 'c words', state: 'none-found', note: 'The search service returned no results.' } });
+      msgs.push({ role: 'user', content: 'search the web for d', at: 7 }, { role: 'assistant', content: 'Here is what came back [1] [2].', at: 8, web: { ...base, query: 'd words', state: 'results-only', note: 'No model ran, so these are the results as they came.', sources: [{ n: 1, title: 'Fine', url: 'https://example.org/fine', host: 'example.org', read: false }, { n: 2, title: 'Script', url: 'javascript:alert(1)', host: 'evil' }] } });
+      window.NIE_APP.saveNow();
+    });
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await openBrainstorm(page);
+    const blocks = await page.$$eval('.web-sources', (b) => b.map((x) => ({ state: x.dataset.state, text: x.textContent })));
+    assert.deepEqual(blocks.map((b) => b.state), ['not-configured', 'failed', 'none-found', 'results-only']);
+    assert.ok(!/Searched the web/.test(blocks[0].text), 'nothing was sent, so nothing is claimed');
+    assert.match(blocks[0].text, /Web search is not set up/);
+    assert.match(blocks[1].text, /^Tried to search the web with Brave Search for: "b words"/);
+    assert.match(blocks[2].text, /^Searched the web with Brave Search for: "c words"/);
+    const last = page.locator('.web-sources >> nth=3');
+    assert.equal(await last.locator('a').count(), 1, 'only the https source is a link');
+    assert.equal(await last.locator('.web-source').count(), 2);
+    assert.match(await last.locator('.web-source >> nth=1').textContent(), /Script/);
+    assert.equal(await last.locator('.web-read').count(), 0, 'no model read anything, so no source claims to have been read');
+    assert.equal(await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).web.sources[1].url), '', 'and it is not kept either');
+  });
+});

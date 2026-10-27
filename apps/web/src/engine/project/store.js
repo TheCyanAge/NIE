@@ -7,6 +7,7 @@ import { emptyAgentState, sanitizeAgentState } from '../agent/state.js';
 import { emptyThread, sanitizeThread } from '../knowledge/thread-state.js';
 import { emptyMind, sanitizeMind } from '../mind/state.js';
 import { rememberStatements } from '../mind/record.js';
+import { sanitizeWebRecord } from '../web/record.js';
 
 /**
  * Project storage with hard isolation.
@@ -118,6 +119,14 @@ function backfillMind(project) {
   }
 }
 
+/** A reply's record of a web search (its sources and the words sent) is checked on the way in: short strings, at most 8 sources, https links only. Nothing else on a message is touched. */
+function sanitizeMessage(m) {
+  if (!m || typeof m !== 'object' || !('web' in m)) return m;
+  const { web, ...rest } = m;
+  const clean = m.role === 'assistant' ? sanitizeWebRecord(web) : null;
+  return clean ? { ...rest, web: clean } : rest;
+}
+
 function migrate(raw) {
   if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string') return null;
   const base = createProjectData({ title: raw.title || 'Untitled project' });
@@ -133,7 +142,7 @@ function migrate(raw) {
     rules: Array.isArray(raw.rules) ? raw.rules.filter((r) => r && typeof r.text === 'string').map(sanitizeRule) : [],
     memory: { ...base.memory, ...(raw.memory && typeof raw.memory === 'object' ? raw.memory : {}) },
     conversation: {
-      messages: Array.isArray(raw.conversation?.messages) ? raw.conversation.messages.slice(-MAX_MESSAGES) : [],
+      messages: Array.isArray(raw.conversation?.messages) ? raw.conversation.messages.slice(-MAX_MESSAGES).map(sanitizeMessage) : [],
       workingPremise: { ...emptyWorkingPremise(), ...(raw.conversation?.workingPremise ?? {}) },
       suggestionShown: Boolean(raw.conversation?.suggestionShown),
       agent: sanitizeAgentState(raw.conversation?.agent),

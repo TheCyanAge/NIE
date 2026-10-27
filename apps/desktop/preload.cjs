@@ -41,6 +41,16 @@ contextBridge.exposeInMainWorld('NIE_ONLINE', {
   onChunk: (cb) => on('nie:online:chunk', cb),
 });
 
+// Web search (optional). The key goes in through setConfig and never comes back out: getConfig only says whether one is saved.
+contextBridge.exposeInMainWorld('NIE_WEB', {
+  getConfig: () => ipcRenderer.invoke('nie:web:get'),
+  setConfig: (cfg) => ipcRenderer.invoke('nie:web:set', cfg),
+  test: () => ipcRenderer.invoke('nie:web:test'),
+  status: () => ipcRenderer.invoke('nie:web:status'),
+  search: (query, { limit } = {}) => ipcRenderer.invoke('nie:web:search', query, { limit }),
+  read: (url) => ipcRenderer.invoke('nie:web:read', url),
+});
+
 contextBridge.exposeInMainWorld('NIE_UPDATER', {
   check: () => ipcRenderer.invoke('nie:updater:check'),
   status: () => ipcRenderer.invoke('nie:updater:status'),

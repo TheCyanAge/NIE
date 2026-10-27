@@ -312,3 +312,18 @@ fieldset { border: 1px solid var(--line); border-radius: 20px; margin: 14px 0; p
 .looked summary { cursor: pointer; color: var(--muted); font-size: 0.82rem; }
 .looked p { margin: 6px 0 0; }
 .nie-progress { margin-left: 8px; font-size: 0.85rem; }
+
+/* web search: the Web switch next to the message box, the sources under a reply, and the Settings section */
+.web-toggle { justify-content: center; color: var(--muted); }
+.web-toggle::before { content: ''; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid currentColor; }
+.web-toggle[aria-pressed='true'], .web-toggle[aria-pressed='true']:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); color: var(--text); }
+.web-toggle[aria-pressed='true']::before { background: var(--ok); border-color: var(--ok); }
+.bubble-body .web-sources { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 0.88rem; }
+.bubble-body .web-sources p { margin: 0 0 4px; overflow-wrap: anywhere; }
+.bubble-body .web-source-list { margin: 4px 0 6px; padding-left: 2.2em; display: grid; gap: 3px; }
+.web-source { overflow-wrap: anywhere; }
+.web-source::marker { content: '[' counter(list-item) '] '; color: var(--muted); font-size: 0.82rem; }
+.web-source a { color: var(--eyebrow); }
+.web-read { margin-left: 6px; font-size: 0.68rem; }
+.web-custom { margin: 0.4rem 0; }
+#web-status, #web-detected, #web-unavailable { margin: 0.6rem 0; }

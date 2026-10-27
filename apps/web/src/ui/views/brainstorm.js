@@ -5,6 +5,8 @@ import { BUTTONS, KINDS, LENSES } from '../../engine/brainstorm/lenses.js';
 import { addToBoard, ideaId, isOnBoard, removeFromBoard } from '../../engine/project/board.js';
 import { resolveKind } from '../../engine/brainstorm/ideas.js';
 import { mountBoard } from './board.js';
+import { sanitizeWebRecord } from '../../engine/web/record.js';
+import { providerName } from '../../engine/web/bridge.js';
 
 /**
  * Brainstorm: NIE as an idea partner for any literary project (stories, characters, worlds, articles, essays, poems, scripts).
@@ -19,7 +21,9 @@ export function mountBrainstorm(root, app) {
   const input = h('textarea', { id: 'brainstorm-input', class: 'chat-input', rows: '2', 'data-tour': 'brainstorm-input', placeholder: 'Tell NIE what you\'re thinking about, or ask for ideas…', 'aria-label': 'Message to NIE' });
   const send = h('button', { class: 'btn btn-primary', id: 'brainstorm-send', type: 'submit' }, 'Send');
   const stop = h('button', { class: 'btn', id: 'brainstorm-stop', type: 'button', hidden: true, onclick: () => app.session.chatAbort?.abort() }, 'Stop');
-  const form = h('form', { class: 'chat-form', onsubmit: (e) => { e.preventDefault(); submit(); } }, input, h('div', { class: 'chat-buttons' }, send, stop));
+  // The Web switch: on, a factual question is looked up on the web and answered with numbered sources. It stays off unless the writer turned web search on in Settings.
+  const webBtn = h('button', { class: 'btn btn-sm web-toggle', id: 'web-toggle', type: 'button', 'aria-pressed': 'false', disabled: true, title: 'Checking web search…', onclick: () => { setWebWanted(!webWanted()); paintWeb(); } }, 'Web');
+  const form = h('form', { class: 'chat-form', onsubmit: (e) => { e.preventDefault(); submit(); } }, input, h('div', { class: 'chat-buttons' }, webBtn, send, stop));
   const board = mountBoard(app, { onDevelop: (text) => ask({ ask: `Let's develop this idea: ${text}`, lens: 'develop' }), onChange: () => refreshStars(), onAsk: (text) => ask({ ask: text }) });
 
   root.append(
@@ -31,6 +35,45 @@ export function mountBrainstorm(root, app) {
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); submit(); }
   });
+
+  // ── The Web switch ──────────────────────────────────────────────────────────
+  // The choice is a per-person convenience kept in this browser; the switch only works while web search is set up AND turned on in Settings.
+  const WEB_KEY = 'nie.v1.webOn';
+  const webWanted = () => {
+    try {
+      const v = window.localStorage.getItem(WEB_KEY);
+      return v === 'true' || v === '1';
+    } catch {
+      return false;
+    }
+  };
+  const setWebWanted = (on) => {
+    try {
+      window.localStorage.setItem(WEB_KEY, String(on));
+    } catch {
+      /* the choice is simply not remembered */
+    }
+  };
+  let webState = null; // what web.status() last said
+  const webUsable = () => Boolean(webState?.configured && webState.enabled);
+  const webOn = () => webUsable() && webWanted();
+  function paintWeb() {
+    const on = webOn();
+    webBtn.disabled = !webUsable();
+    webBtn.setAttribute('aria-pressed', String(on));
+    const where = providerName(webState?.provider);
+    webBtn.title = app.web.kind === 'none' ? 'Web search needs the desktop app.'
+      : !webState ? 'Checking web search…'
+      : !webState.configured && !webState.enabled ? 'Add a key in Settings and turn web search on there to search the web.'
+      : !webState.configured ? 'Add a key in Settings to search the web.'
+      : !webState.enabled ? 'Turn web search on in Settings to search the web.'
+      : on ? `Web search is on: the words of your question are sent to ${where}. Tap to turn it off.`
+      : `Search the web, with numbered sources (the words of your question are sent to ${where}). Tap to turn it on.`;
+  }
+  async function refreshWeb() {
+    webState = await app.web.status().catch(() => null);
+    paintWeb();
+  }
 
   // ── What are we brainstorming? ──────────────────────────────────────────────
   const kindChoice = () => app.project.brainstorm.kind;
@@ -79,6 +122,26 @@ export function mountBrainstorm(root, app) {
       h('div', { class: 'idea-actions' }, keep, h('button', { class: 'link idea-develop', type: 'button', onclick: () => ask({ ask: `Let's develop this idea: ${idea.text}`, lens: 'develop' }) }, 'Develop')));
   }
 
+  /** Where a web answer came from: the words that were searched for, the numbered sources (the same numbers as the [1] marks in the reply), and one plain sentence. */
+  function webSources(raw) {
+    const w = sanitizeWebRecord(raw); // the record is checked again here, so a link is only ever an https one
+    if (!w) return null;
+    const searched = w.state === 'answered' || w.state === 'results-only' || w.state === 'none-found';
+    const query = w.query && (searched || w.state === 'failed') ? h('p', { class: 'web-query muted' }, `${searched ? 'Searched' : 'Tried to search'} the web with ${providerName(w.provider)} for: "${w.query}"`) : null;
+    const open = (url) => (e) => {
+      if (!window.NIE_DESKTOP?.openExternal) return; // a browser follows the link itself
+      e.preventDefault();
+      window.NIE_DESKTOP.openExternal(url);
+    };
+    const list = w.sources.length ? h('ol', { class: 'web-source-list', 'aria-label': 'Sources' }, ...w.sources.map((s) =>
+      h('li', { class: 'web-source', value: String(s.n), dataset: { n: String(s.n) } },
+        s.url ? h('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer', onclick: open(s.url) }, s.title) : h('span', {}, s.title),
+        s.host ? h('span', { class: 'muted web-host' }, ` · ${s.host}`) : null,
+        w.answeredBy !== 'none' ? h('span', { class: 'tag web-read' }, s.read ? 'page read' : 'snippet only') : null))) : null;
+    const note = w.note ? h('p', { class: 'web-note muted' }, w.note) : null;
+    return query || list || note ? h('div', { class: 'web-sources', dataset: { state: w.state } }, query, list, note) : null;
+  }
+
   function bubble(role, text, meta = {}) {
     const body = h('div', { class: 'bubble-body' });
     if (role === 'assistant' && meta.ideas?.length) {
@@ -88,6 +151,8 @@ export function mountBrainstorm(root, app) {
     } else {
       body.append(mdLite(text));
     }
+    const web = role === 'assistant' && meta.web ? webSources(meta.web) : null;
+    if (web) body.append(web);
     // What NIE looked at is part of the message's record, shown under it (open it to read): written into the reply it made every reply end the same way.
     if (role === 'assistant' && meta.looked) body.append(h('details', { class: 'looked' }, h('summary', {}, 'What I looked at'), h('p', { class: 'muted small' }, meta.looked)));
     // What NIE drew on from earlier in the project for this reply: the writer's own words and where each came from, so nothing it "remembers" is hidden.
@@ -140,9 +205,11 @@ export function mountBrainstorm(root, app) {
 
   /** "about 6 min left": honest, rounded, and only said once there is a measured speed behind it. */
   const eta = (ms) => (ms == null ? '' : ms < 45000 ? ' · under a minute left' : ` · about ${Math.max(1, Math.round(ms / 60000))} min left`);
-  const progressText = (p) => (p.stage === 'overview'
-    ? 'Putting what I read together…'
-    : `Reading your text, section ${Math.min(p.total, p.done + 1)} of ${p.total}${p.done === 0 && p.cached ? ` (${p.cached} already read earlier)` : ''}${eta(p.etaMs)}`);
+  const progressText = (p) => (p.stage === 'web'
+    ? String(p.message ?? '')
+    : p.stage === 'overview'
+      ? 'Putting what I read together…'
+      : `Reading your text, section ${Math.min(p.total, p.done + 1)} of ${p.total}${p.done === 0 && p.cached ? ` (${p.cached} already read earlier)` : ''}${eta(p.etaMs)}`);
 
   async function submit(override = null, { lens = null } = {}) {
     const text = (override ?? input.value).trim();
@@ -164,7 +231,7 @@ export function mountBrainstorm(root, app) {
     const progress = h('span', { class: 'muted nie-progress', id: 'read-progress', 'aria-hidden': 'true' });
     try {
       const res = await app.orchestrator.brainstorm({
-        project, message: text, lens, kind: kindChoice() === 'auto' ? null : kindChoice(), signal: sess.chatAbort.signal,
+        project, message: text, lens, kind: kindChoice() === 'auto' ? null : kindChoice(), web: webOn(), signal: sess.chatAbort.signal,
         onProgress: (p) => {
           if (app.session !== sess || streamed) return;
           lastProgress = p;
@@ -192,7 +259,7 @@ export function mountBrainstorm(root, app) {
       board.refresh();
     } catch (err) {
       if (app.session !== sess) return;
-      const stopped = err?.kind === 'abort'
+      const stopped = err?.kind === 'abort' || err?.kind === 'aborted'
         ? (lastProgress?.stage === 'reading' && lastProgress.modelRead > 0 ? `Stopped. I had read ${lastProgress.modelRead} of ${lastProgress.total} sections of your text and kept notes on them; ask again and I'll carry on from there.` : 'Stopped.')
         : `Something went wrong: ${err?.message ?? err}`;
       holder.replaceWith(h('div', { class: 'msg msg-assistant msg-note' }, stopped));
@@ -204,6 +271,9 @@ export function mountBrainstorm(root, app) {
   }
 
   app.on('project', render);
+  app.on('web', refreshWeb);
+  app.on('view', (v) => { if (v === 'brainstorm') refreshWeb(); });
   render();
+  refreshWeb();
   return { focus: () => input.focus(), primaryInput: () => input };
 }

@@ -2,6 +2,7 @@ import { ProjectStore, webStorage, memoryStorage } from '../engine/project/store
 import { AIEngine } from '../engine/ai/engine.js';
 import { createDesktopLocal, createHttpLocal } from '../engine/ai/local.js';
 import { createBridgeOnline, createDirectOnline } from '../engine/ai/online.js';
+import { createBridgeWeb, createNoWeb } from '../engine/web/bridge.js';
 import { Orchestrator } from '../engine/orchestrator/index.js';
 import { clearIndexes } from '../engine/orchestrator/prompt.js';
 import { createIngestClient } from '../engine/ingest/client.js';
@@ -59,7 +60,9 @@ export function createApp() {
         },
       });
   const engine = new AIEngine({ local: localProvider, online });
-  const orchestrator = new Orchestrator({ engine });
+  // Web search (optional, off until the writer turns it on in Settings): the desktop app's main process holds the key and makes the request; a browser has no web search.
+  const web = window.NIE_WEB ? createBridgeWeb(window.NIE_WEB) : createNoWeb();
+  const orchestrator = new Orchestrator({ engine, web });
   const ingest = createIngestClient();
 
   const listeners = new Map();
@@ -73,6 +76,7 @@ export function createApp() {
   const app = {
     store,
     engine,
+    web,
     orchestrator,
     ingest,
     isDesktop,

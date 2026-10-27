@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveLayout, DEFAULT_MODEL } from './src/runtime.js';
 import { LocalModelManager } from './src/local-manager.js';
 import { createUpdater, readUpdaterConfig } from './src/updater.js';
+import { createWebSettings } from './src/web-settings.js';
 
 /**
  * NIE desktop shell. Responsibilities: the window, serving the web UI, the offline model service,
@@ -41,7 +42,7 @@ const log = (...a) => {
   if (!app.isPackaged) console.log(...a);
 };
 
-// ── preferences (main-process owned: model choice, online provider) ──────────
+// ── preferences (main-process owned: model choice, online provider, web search) ──
 
 const prefsFile = path.join(app.getPath('userData'), 'desktop-prefs.json');
 const readPrefs = () => {
@@ -62,6 +63,7 @@ const writePrefs = (patch) => {
 
 const engineUrl = (rel) => pathToFileURL(path.join(layout.webRoot, 'src', 'engine', rel)).href;
 const { OpenAICompatClient } = await import(engineUrl('ai/openai-client.js'));
+const { createWebService } = await import(engineUrl('web/service.js'));
 
 // ── offline model ────────────────────────────────────────────────────────────
 
@@ -160,6 +162,17 @@ ipcMain.handle('nie:online:test', async () => {
     return { ok: false, error: err?.message ?? String(err) };
   }
 });
+
+// ── web search (optional; off until the writer turns it on and gives a key) ──
+
+// The key is read, used and encrypted here, like the online key; the page only learns whether one is saved. The logic is in src/web-settings.js so it is tested without Electron.
+const web = createWebSettings({ readPrefs, writePrefs, safeStorage, createService: createWebService, fetch: globalThis.fetch });
+ipcMain.handle('nie:web:get', () => web.get());
+ipcMain.handle('nie:web:set', (_e, cfg) => web.set(cfg));
+ipcMain.handle('nie:web:test', () => web.test());
+ipcMain.handle('nie:web:status', () => web.status());
+ipcMain.handle('nie:web:search', (_e, query, opts) => web.search(query, opts));
+ipcMain.handle('nie:web:read', (_e, url) => web.read(url));
 
 // ── updater ──────────────────────────────────────────────────────────────────
 
