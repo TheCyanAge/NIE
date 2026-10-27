@@ -1736,7 +1736,8 @@ test('Settings → web search: the built-in block fits a narrow window', async (
   });
 });
 
-test('the Web switch asks before NIE\'s built-in search is used: "Not now" and Escape change nothing, agreeing turns it on and keeps the agreement', async () => {
+// (One long test became five short ones that make the same checks: when something goes wrong in a browser we can not run here, the last test CI printed says which step it was.)
+test('the Web switch asks before NIE\'s built-in search is used: a real modal dialog with the whole disclosure, and "Not now" changes nothing', async () => {
   await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
     await openBrainstorm(page);
     await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
@@ -1760,8 +1761,13 @@ test('the Web switch asks before NIE\'s built-in search is used: "Not now" and E
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
     assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), null);
     assert.equal(await page.isDisabled('#web-toggle'), false, 'and it can be asked again');
+  });
+});
 
-    // Escape is "Not now"
+test('the Web switch\'s dialog: Escape is "Not now"', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
     await page.click('#web-toggle');
     await page.waitForSelector('#web-consent[open]');
     await page.keyboard.press('Escape');
@@ -1769,14 +1775,26 @@ test('the Web switch asks before NIE\'s built-in search is used: "Not now" and E
     assert.equal(await webSets(page), 0);
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
     assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), null);
-    // Enter on the focused button is "Not now" too
+  });
+});
+
+test('the Web switch\'s dialog: Enter on the focused button is "Not now" too', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
     await page.click('#web-toggle');
     await page.waitForSelector('#web-consent[open]');
     await page.keyboard.press('Enter');
     await page.waitForFunction(() => !document.querySelector('#web-consent'));
     assert.equal(await webSets(page), 0);
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+  });
+});
 
-    // agreeing
+test('the Web switch\'s dialog: agreeing turns web search on with the agreement, and after that the switch is an ordinary switch', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
     await page.click('#web-toggle');
     await page.waitForSelector('#web-consent[open]');
     await page.click('#web-consent-agree');
@@ -1788,15 +1806,24 @@ test('the Web switch asks before NIE\'s built-in search is used: "Not now" and E
     assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), 'true');
     assert.match(await page.getAttribute('#web-toggle', 'title'), /^Web search is on: the words of your question are sent to NIE's search service, which asks a search provider for them\. Tap to turn it off\.$/);
 
-    // after that the switch is an ordinary switch: no dialog, however often it is turned on and off
+    // no dialog, however often it is turned on and off
     await page.click('#web-toggle');
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
     await page.click('#web-toggle');
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'true');
     assert.equal(await page.$('#web-consent'), null);
     assert.equal(await webSets(page), 1);
+  });
+});
 
-    // Settings agrees with what was done here, and the agreement is still there after a restart
+test('the Web switch\'s dialog: Settings agrees with what was agreed, and the agreement is still there after a restart', async () => {
+  await run({ init: WEB_BRIDGE, query: WITH_GATEWAY }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
+    await page.click('#web-toggle');
+    await page.waitForSelector('#web-consent[open]');
+    await page.click('#web-consent-agree');
+    await page.waitForFunction(() => document.querySelector('#web-toggle').getAttribute('aria-pressed') === 'true');
     await page.click('.nav-btn[data-view=settings]');
     await page.waitForFunction(() => document.querySelector('#web-builtin').checked);
     assert.equal(await page.isChecked('#web-enabled'), true);
