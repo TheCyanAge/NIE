@@ -30,6 +30,9 @@ import { parseKeepCommand } from '../agent/talk.js';
 import { clearTokenMemo, describeMind, mindOf, recall, rememberStatements } from '../mind/index.js';
 import { analyseText, analysisKey, clearGroundingCache, editorialEvidence, findThirdPerson, groundNames, measuredAnswer, readbackFrame } from '../editor/index.js';
 import { profileCorpus } from '../profile/profile.js';
+import { AIError } from '../ai/openai-client.js';
+import { explicitWebAsk, joinFollowUp, looksFactual, needsContext, previousWebQuery, queryProblem } from '../web/ask.js';
+import { buildSources, resultsOnly, verifyAnswer, webMessages } from '../web/answer.js';
 
 export { STARTER };
 
@@ -232,6 +235,7 @@ function echoesRecentStory(text, past) {
   return earlier.some((m) => [...stemSet(plain(m.content.slice(0, 800)))].some((st) => mine.has(st)));
 }
 const UNGROUNDED_NOTE = "My offline model answered, but everything it said named something I could not find in your text, so I've left it out. Here is built-in guidance instead.";
+const LEFT_OUT_WEB = "(I left out part of that reply because it named something the sources don't hold.)";
 const LEFT_OUT_UNGROUNDED = "(I left out part of that reply because it named something I couldn't find in your text.)";
 const BARE_REPLY = /^\W*(?:yes|yeah|yep|yup|sure|ok|okay|no|nope|nah|maybe|perhaps|please|thanks|thank you|right|true|false|hm+|um+)\W*$/i;
 const OWN_PROJECT = /\b(?:my|our)\s+(?:story|stories|novel|novella|manuscript|draft|screenplay|script|poem|essay|article|book|memoir|characters?|protagonist|antagonist|villain|hero|heroine|plot|scene|chapter|ending|opening|narrator)\b/i;
@@ -357,8 +361,9 @@ export class Orchestrator {
    *   `agent: null` turns the idea agent off (agent/: the sheet of the writer's own words, the paced questions, the offer to keep an idea), for the lab's A/B runs.
    *   `mind: false` stops NIE recalling what the writer said earlier (mind/), `editor: false` stops the measured facts about a long text (editor/): both only for A/B runs.
    */
-  constructor({ engine, readNotes = true, variety = 'full', agent = defaultAgent, mind = true, editor = true, trace = null }) {
+  constructor({ engine, readNotes = true, variety = 'full', agent = defaultAgent, mind = true, editor = true, trace = null, web = null }) {
     this.engine = engine;
+    this.web = web; // the one door to the web (engine/web/service.js); null where there is none. Off unless the writer turned it on in Settings.
     this.trace = trace; // (an array, only for the labs: what the model first said on a steered turn, and what it was held to)
     this.readNotes = readNotes;
     this.variety = variety;
@@ -627,7 +632,7 @@ export class Orchestrator {
    * @returns {Promise<{ reply: string, intent: object, route: string, suggestions: object[], declined: boolean,
    *   ideas: {id:string,kind:string,lens:string,lensLabel:string,text:string}[], lead: string, tail: string, kind: string|null, lens: string|null }>}
    */
-  async brainstorm({ project, message, onToken, onProgress, signal, kind: kindOpt = null, lens: lensOpt = null }) {
+  async brainstorm({ project, message, onToken, onProgress, signal, kind: kindOpt = null, lens: lensOpt = null, web: webOn = false }) {
     const text = String(message ?? '').trim();
     project.brainstorm ??= emptyBrainstorm();
     const bs = project.brainstorm;
@@ -710,6 +715,11 @@ export class Orchestrator {
     const turnNow = this.#turnOf(project);
     const thread = project.conversation.library;
     const follow = !paste && !aboutText && !lensOpt && intent.type !== 'develop-idea' ? resolveFollowUp(askText, thread, { turn: turnNow, model: byModel }) : null;
+
+    // A question to look up on the web: the writer said so ("search the web for ..."), or turned the Web switch on and asked a factual question. It is answered from numbered sources and is
+    // never recorded as part of the idea or as something the writer told NIE, so it is settled before the idea agent sees the message. (A request to write was declined above, web or not.)
+    const webAsk = !paste && !lensOpt && this.web ? await this.#webAsk({ text: askText, webOn, reading, aboutText, follow }) : null;
+    if (webAsk) return this.#web({ project, intent, text: askText, ask: webAsk, past: history.slice(0, -1), onToken, onProgress, signal });
 
     // The idea agent: what is being made, what the writer has said about it (in their own words), whether this turn asks something, and whether it is time to offer
     // to keep the idea. A question, a request or a pasted text is served, never recorded as part of the idea.
@@ -1266,6 +1276,147 @@ export class Orchestrator {
    * not a model is running: a small model asked to describe its own app invents abilities and rambles (measured on the real model), and what NIE says
    * about itself, above all about its own state, has to be exact. The model's part is recognising that this is what the writer asked.
    */
+  /** Is this message a web request, and what are its search words? null when it is not (or when the web can not be used and the writer only asked for sources). */
+  async #webAsk({ text, webOn, reading, aboutText, follow }) {
+    const said = explicitWebAsk(text);
+    let st = null;
+    try {
+      st = await this.web.status();
+    } catch {
+      st = null;
+    }
+    const usable = Boolean(st?.configured && st?.enabled);
+    if (said && (said.strength === 'search' || usable)) return { query: said.query, explicit: true };
+    if (!webOn || !usable || aboutText || follow) return null;
+    // with the Web switch on, a factual question goes to the web; talk about the writer's own story, ideas, feedback and small talk never does
+    if (!['craft', 'unclear'].includes(reading?.task) || STORY_TALK.test(text) || !looksFactual(text, GENERAL_Q)) return null;
+    return { query: text.replace(/[?!.\s]+$/, '').trim(), explicit: false };
+  }
+
+  /** A short follow-up ("and when was it built?") made into a search of its own, using the last web question. A model rewrites it when one is running; otherwise the words are joined. */
+  async #standaloneQuery(query, previous, signal) {
+    const joined = joinFollowUp(previous, query);
+    if (this.engine.route?.() === 'builtin') return joined;
+    try {
+      const res = await this.engine.chat(
+        [
+          { role: 'system', content: 'Rewrite the follow-up question as one short standalone web search query of at most 12 words. Reply with the query only, no quotes and no explanation.' },
+          { role: 'user', content: `Earlier search: ${previous}\nFollow-up: ${query}` },
+        ],
+        { signal, maxTokens: 40, temperature: 0 },
+      );
+      const line = String(res?.text ?? '').split('\n')[0].replace(/["“”`]/g, '').replace(/^(?:query|search)\s*:\s*/i, '').trim();
+      const shared = (a, b) => { const bs = new Set(words(b).map((w) => w.toLowerCase())); return words(a).some((w) => w.length > 3 && bs.has(w.toLowerCase())); };
+      if (line && words(line).length >= 2 && words(line).length <= 14 && (shared(line, previous) || shared(line, query))) return line;
+    } catch (err) {
+      if (err?.kind === 'abort') throw err;
+    }
+    return joined;
+  }
+
+  /**
+   * Search the web, read the best pages, and have whichever model is running (offline, online, or none) answer from numbered sources. Only the writer's question leaves the computer for the
+   * search service: never a pasted text, never the project. The answer is checked in code (a citation that points at no source goes; a sentence naming or numbering something no source holds
+   * goes) and the sources are listed so the writer can check them. With no model, or nothing left after the check, the results are shown as they came. Nothing here writes for the writer.
+   */
+  async #web({ project, intent, text, ask, past, onToken, onProgress, signal }) {
+    const stop = () => new AIError('Stopped', { kind: 'abort' });
+    const meta = { provider: null, query: '', sources: [], answeredBy: 'none', state: 'failed', note: '' };
+    const finish = (reply, route, over) => {
+      onToken?.(reply, reply);
+      return this.#finish(project, intent, reply, route, false, { web: { ...meta, ...over } });
+    };
+    let st = null;
+    try {
+      st = await this.web.status();
+    } catch {
+      st = null;
+    }
+    meta.provider = st?.provider ?? null;
+    if (!st?.configured) {
+      const reply = "Web search isn't set up, so I can't look that up. You can add a key for a search service under Web search in Settings; until then I can answer from my library and my model, but I can't see the live web.";
+      return finish(reply, 'builtin', { state: 'not-configured', note: 'Web search is not set up.' });
+    }
+    if (!st.enabled) {
+      const reply = 'Web search is switched off. Turn it on under Web search in Settings if you want me to look things up; until then I answer from my library and my model.';
+      return finish(reply, 'builtin', { state: 'not-configured', note: 'Web search is switched off.' });
+    }
+
+    let query = ask.query;
+    const prior = previousWebQuery(past);
+    if (needsContext(query) && prior) query = await this.#standaloneQuery(query, prior, signal);
+    const problem = queryProblem(query);
+    if (problem) {
+      const reply = problem === 'long' ? "That's more than I should send to a search service. Ask it in a sentence or two (the search words are the only thing that leaves your computer) and I'll look it up." : 'What should I look up?';
+      return finish(reply, 'builtin', { state: 'failed', note: 'Nothing was sent to the search service.' });
+    }
+    meta.query = query;
+
+    onProgress?.({ stage: 'web', message: 'Searching the web…' });
+    let found;
+    try {
+      found = await this.web.search(query, { signal, limit: 6 });
+    } catch (err) {
+      if (signal?.aborted || err?.kind === 'aborted') throw stop();
+      const why = String(err?.message ?? 'The search did not work.');
+      return finish(`I couldn't search the web just now. ${why}`, 'builtin', { state: 'failed', note: why });
+    }
+    meta.provider = found.provider ?? meta.provider;
+    if (!found.results.length) {
+      return finish(`The search found nothing for "${query}". Try other words, or turn the Web switch off and I'll answer from what I know, without sources.`, 'builtin', { state: 'none-found', note: 'The search service returned no results.' });
+    }
+
+    const online = this.engine.route?.() === 'online';
+    const top = found.results.slice(0, 3);
+    onProgress?.({ stage: 'web', message: `Reading ${top.length} page${top.length === 1 ? '' : 's'}…` });
+    const pages = new Map();
+    await Promise.all(
+      top.map(async (r) => {
+        try {
+          const page = await this.web.read(r.url, { signal, maxChars: online ? 4000 : 2600 });
+          if (page?.text) pages.set(r.url, page);
+        } catch {
+          /* a page that can not be read is simply not used: its search snippet still is */
+        }
+      }),
+    );
+    if (signal?.aborted) throw stop();
+    const sources = buildSources(found.results, pages, online ? { totalChars: 14000, perSourceChars: 4000 } : {});
+    meta.sources = sources.map(({ n, title, url, host, read }) => ({ n, title, url, host, read }));
+    const readCount = sources.filter((s) => s.read).length;
+    const counted = `${sources.length} source${sources.length === 1 ? '' : 's'} (${readCount === 0 ? 'search snippets only' : `${readCount} page${readCount === 1 ? '' : 's'} read, the rest search snippets`})`;
+
+    onProgress?.({ stage: 'web', message: 'Writing the answer from the sources…' });
+    const messages = webMessages({ question: ask.explicit ? query : text, sources, history: past });
+    let res = null;
+    try {
+      res = await this.engine.chat(messages, { signal, maxTokens: 420, temperature: 0.2 });
+    } catch (err) {
+      if (err?.kind === 'abort') throw err;
+    }
+    const modelReady = this.engine.route?.() !== 'builtin';
+    const asResults = (intro, over) => finish(resultsOnly(sources, intro), 'builtin', { state: 'results-only', answeredBy: 'none', note: `No summary was written. These are ${counted} as the search returned them.`, ...over });
+    if (!res?.text) {
+      return asResults(modelReady ? "My model couldn't answer from these just now. Here is what the search returned:" : "No language model is running, so I can't summarise. Here is what the search returned:");
+    }
+    const guarded = guardReply(res.text, [text]);
+    const checked = verifyAnswer(guarded.remaining, sources, { question: text });
+    if (checked.emptied || words(checked.text).length < 6) {
+      return asResults("I left out what my model wrote because it named things the sources don't hold. Here is what the search returned:");
+    }
+    const answeredBy = res.route === 'online' ? 'online model' : 'offline model';
+    const sent = res.route === 'online' ? Math.max(50, Math.round(words(messages.map((m) => m.content).join(' ')).length / 50) * 50) : 0;
+    const uncited = checked.cited.length === 0;
+    const note =
+      `Written by the ${answeredBy} from ${counted}.` +
+      (uncited ? ' It did not say which source each statement came from, so check the list.' : '') +
+      (sent ? ` About ${sent} words (your question and the web text) were sent to your online provider.` : '');
+    let reply = checked.text;
+    if (checked.removed) reply += `\n\n${LEFT_OUT_WEB}`;
+    if (guarded.removed) reply += `\n\n${LEFT_OUT_NOTICE}`;
+    return finish(reply, res.route ?? 'local', { state: 'answered', answeredBy, note });
+  }
+
   #about({ project, intent, text, onToken }) {
     const reply = aboutNieReply(this.engine.status?.() ?? null, text);
     onToken?.(reply, reply);
@@ -1318,6 +1469,7 @@ export class Orchestrator {
     if (extra.recalled?.length) meta.recalled = extra.recalled; // what was recalled from earlier in the project for this reply
     if (extra.agent) meta.agent = extra.agent; // what the idea agent did this turn (asked, offered, kept...), for the panel and for tests
     if (extra.library) meta.library = extra.library; // which subject a conversation about the library is on, and which follow-up this reply was
+    if (extra.web) meta.web = extra.web; // a reply from the web: what was searched, the numbered sources, who wrote the answer
     if (ideas.length) project.conversation.library = emptyThread(); // idea cards take over "more" and "tell me more": the library thread ends
     if (ideas.length) Object.assign(meta, { ideas, lead: extra.lead ?? '', tail: extra.tail ?? '', kind: extra.kind ?? null, lens: extra.lens ?? null });
     appendMessage(project, 'assistant', reply, meta);
@@ -1337,6 +1489,7 @@ export class Orchestrator {
       agent: extra.agent ?? null,
       recalled: extra.recalled ?? [],
       library: extra.library ?? null,
+      web: extra.web ?? null,
       suggestions: extra.suggestions ?? (ideas.length && extra.lens !== 'develop' ? ideaSuggestions({ lens: extra.lens ?? null, ideas }) : nextSuggestions({ intent, project })),
     };
   }

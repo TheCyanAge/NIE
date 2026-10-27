@@ -84,6 +84,8 @@
 - `tests/`: `npm test` (node:test; engine + desktop services against a fake llama-server), `npm run test:ui` (Playwright, real UI).
 - `scripts/`: runtime fetch, icon/logo generation, dev server. `docs/`: building, signing, architecture, status.
 
+- Web search (optional): `engine/web/` (see docs/ARCHITECTURE.md "Looking things up on the web"). One door (`createWebService`: status / search / read / test), one setting for any search service (`providers.js`: Tavily, Brave, Serper, SearXNG, `custom`), pages read only over https from public names (`page.js`), a cited answer built and checked in code (`answer.js`), explicit requests and the Web switch read by rules (`ask.js`), and `orchestrator#web`, which runs BEFORE the idea agent. It is off by default; only the writer's question (at most 24 words, shown under the reply) leaves for the search service, never the manuscript or the project; a request to write is still declined first. The user decided: NIE can answer like a general assistant and search with sources, but it NEVER writes text to be used inside a literary project (rule 1 is unchanged); it may brainstorm deeper. Tests fake the network (`tests/web-*.test.js`); do not call a live search service from a test, and never claim the live services were exercised when they were not.
+
 ## The offline library (`engine/knowledge/`)
 - Core entries (~180, `genres.js` etc.) load instantly; the large library (`knowledge/library/**`, thousands of records) loads in the background
   with `loadLibrary()` so first paint is never slowed. Records are plain data written to `library/README.md`'s spec and linted by
