@@ -41,7 +41,7 @@ export default [
       "Horatian satire, named for Horace: amused, urbane and gently corrective, it laughs at folly in the hope of improving it.",
       "Juvenalian satire, named for Juvenal: angry and scornful, it attacks vice and corruption with indignation rather than amusement.",
       "Menippean satire: a mixed, often fantastic form that attacks attitudes and systems of thought rather than single persons, using digression, parody and imaginary worlds; Gulliver's Travels and Candide are often put here.",
-      "Verse satire: satire in rhymed verse, especially the heroic couplet of Dryden and Pope, as in Absalom and Achitophel and The Dunciad.",
+      "Verse satire: satire written in verse, from the Latin hexameters of Horace and Juvenal to the heroic couplets of Dryden and Pope, as in Absalom and Achitophel and The Dunciad.",
       "Political satire: attacks on governments, leaders and ideologies, from Aristophanes to Animal Farm and modern satirical news.",
       "Social and institutional satire: the target is a class, a profession or an institution, such as the university in the campus novel, the film business in Hollywood fiction, or the army in Catch-22.",
       "Allegorical and fantastic satire: invented lands, talking animals and future societies stand in for real ones, as in Gulliver's Travels and Animal Farm; dystopian novels often carry a satirical purpose.",
@@ -150,10 +150,10 @@ export default [
     summary: "Satire overlaps with comedy, parody, dark comedy, absurdist fiction, verse satire and the political novel; it is set apart by a target and a standard, with laughter used as a weapon.",
     conv: [
       "Satire versus comedy: comedy aims at laughter and usually ends in restoration or celebration; satire uses laughter to attack a target and may end in bitterness. Many works are both, and the difference is where the weight falls.",
-      "Satire versus parody and pastiche: parody imitates a style, genre or work to mock it, and its target is literary; satire attacks human folly or institutions and may use parody as one of its tools.",
+      "Satire versus parody and pastiche: parody imitates a style, genre or work to mock it, and its target is that style or work; satire attacks human folly or institutions and may use parody as one of its tools.",
       "Satire versus dark comedy: dark comedy finds humour in grim subjects such as death or war and needs no corrective aim; satire may be mild in subject but always has a target.",
       "Satire versus absurdist fiction: absurdist work presents a world without meaning or logic that characters cannot escape, whereas satire assumes standards by which the world is found wanting.",
-      "Satire versus verse satire: verse satire is satire in a particular form, rhymed and often in couplets, where prose satire (novel, essay, sketch) is the more common modern form.",
+      "Satire versus verse satire: verse satire is satire in a particular form, written in verse and, in English, often in rhymed couplets, where prose satire (novel, essay, sketch) is the more common modern form.",
       "Satire versus the political novel: a political novel is about politics, power or ideology and may be earnest, realist or a thriller; it becomes satire only when it ridicules its subject.",
     ],
     watch: [
@@ -218,7 +218,7 @@ export default [
       "Fresh angles writers use: let the narrator be complicit, satirise your own side, shrink the scale to one office or one family, or let the target be right about something.",
     ],
     watch: [
-      "Satire that is only parody of a style, with no target beyond the style, is closer to pastiche and may not read as satire at all.",
+      "Satire that is only parody of a style, with no target beyond the style, is closer to parody or pastiche and may not read as satire at all.",
     ],
     intent: ["Pure invective is a legitimate tradition when it is aware of itself, but then it should read as invective, not as reasoned argument."],
     q: ["What would the target say in its own defence, and does my satire answer it?"],

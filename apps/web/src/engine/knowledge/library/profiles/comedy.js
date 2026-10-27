@@ -11,7 +11,7 @@ export default [
     summary: "Comedy as a written and staged form is first documented in ancient Athens; it passed through Rome, the Renaissance stage and the eighteenth-century novel, and moved onto film, radio and television in the twentieth century.",
     conv: [
       "Comedy as a staged form is first well documented in ancient Athens, where comic plays competed at religious festivals in the fifth century BCE; the word is usually traced to Greek terms for a revel and a song.",
-      "Aristophanes wrote the surviving Old Comedy of the fifth century BCE: fantastic plots, a singing chorus and open mockery of real politicians. Menander and New Comedy, in the late fourth century BCE, turned to households, lovers and misunderstandings.",
+      "Aristophanes wrote the only complete Old Comedies that survive, in the late fifth century BCE: fantastic plots, a singing chorus and open mockery of real politicians. Menander and New Comedy, in the late fourth century BCE, turned to households, lovers and misunderstandings.",
       "Aristotle's Poetics, from the fourth century BCE, set comedy beside tragedy as a form dealing with people of a lower sort, but the surviving text is mostly about tragedy, so later writers built their own theories of the comic.",
       "Plautus and Terence adapted Greek New Comedy for Roman audiences in the third and second centuries BCE, passing on the clever slave, the stern father, the braggart soldier and the love plot resolved by recognition.",
       "In the Middle Ages the word also meant any story that moves from trouble to a happy ending, which is why Dante called his great poem a Commedia in the early fourteenth century; popular comic tales ran alongside, from French fabliaux to Chaucer's Canterbury Tales.",
@@ -102,8 +102,8 @@ export default [
       "Stakes still matter: readers want a character who wants something and fails comically on the way, and jokes with nothing at risk are read as filler.",
       "Readers expect the comedy to play fair: a reversal or punchline should make sense in hindsight, and in farce above all the book must keep track of who knows what.",
       "Cruelty disappoints: sharp humour is welcome, but a joke that seems to enjoy hurting someone who has done nothing to deserve it loses readers, and most expect to understand who the butt of the joke is and why.",
-      "Shelving varies: comic novels usually sit in general or literary fiction, or in crime, romance or fantasy when they share those plots, while a bookshop humour section, where one exists, tends more toward collections, essays and gift books than novels.",
-      "Length is flexible; a sustained comic voice can tire over a very long book, so many comic novels are of ordinary length or shorter, and sketches, columns and short stories are common forms.",
+      "Shelving varies: comic novels usually sit in general or literary fiction, or in crime, romance or fantasy when they share those plots, and some bookshops also keep a separate humour section.",
+      "Length is flexible; a sustained comic voice can tire over a very long book, and sketches, columns and short stories are common comic forms, so there is no standard word count.",
     ],
     watch: [
       "Promising comedy and delivering only wry observation, or a comic premise that cannot sustain a whole book, is the usual complaint.",

@@ -1,0 +1,85 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch worked (about 21 searches, summaries only). WebFetch was not tried because the earlier notes say hosts do not resolve. The per-turn search budget ran out after the 21st search, so the final checks (Foote's three volumes, Macaulay 1848 and Carlyle 1837, which an earlier search had returned nothing for) rest on solid recall. Search confirmed: Wolfe's four devices, Kapuscinski's Cesarz 1978, Walsh 1957, Sims 1984, IALJS founded 14 July 2006 and the journal from 2009, Mayhew 1849, Tarbell's book 1904, Hersey in the New Yorker of 31 August 1946, Agee and Evans (Fortune assignment 1936, book 1941), Wolfe and Johnson 1973, Sketches by Boz Feb 1836, Hume 1754-1762, Tuchman's Pulitzer 1963, Stone's essay 1979, Annales journal 1929, Prescott 1843, Butterfield 1931, HBS case method under Donham (1919 onward, dates vary by source), Fayol 1916 in the society bulletin, Hawthorne studies 1924-1932/33, The One Minute Manager (1981 original, Morrow 1982), The Goal 1984, The Halo Effect 2007, Crossing the Chasm 1991. Everything else counted as confirmed rests on solid knowledge of well-documented titles and dates, listed under remainingDoubts where a search did not back it. The installed copies of these three profiles share ids with the files in this folder, so `library-profile-check.mjs --staging` reports only 'duplicate id / duplicate profile' lint lines for them (18, 18 and 18) and never reaches the retrieval step; I ran the same lint (with those duplicate lines filtered out; no other problem) and the same one-question-per-facet retrieval check with a throwaway script and all three files pass: 9 records each, every facet found.",
+  "files": {
+    "literary-journalism.js": {
+      "claimsChecked": 74,
+      "confirmed": 74,
+      "corrected": [],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Sims's The Literary Journalists (1984) is 'often credited' with giving the name currency; one critic (D. G. Myers in Commentary) disputes that and dates the current sense of the term to about 1992. The wording is already hedged and the facet is 'contested', so it was left.",
+        "Wolfe's second device is written as 'full dialogue'. Wolfe's own text uses both 'the recording of dialogue in full' and 'realistic dialogue', and secondary sources say 'real' or 'realistic' dialogue; the third device 'third-person point of view' is confirmed by a 1974 Partisan Review piece, though one source says 'multiple points of view'.",
+        "Treating Walsh, Garcia Marquez and Poniatowska as crónica writers rests on general usage, not a checked source (as the first checker also noted).",
+        "Steffens's The Shame of the Cities (1904) was not returned by search (Tarbell's 1904 book was); it rests on solid recall. So do Orwell 1933 and 1937, Jack London 1903, Reed 1919, Capote 1966, Mitchell 1965, Didion 1968, Terkel 1974, Talese's 1966 Esquire profile, Ehrenreich 2001, Filkins 2008, LeBlanc 2003, Boo 2012, Poniatowska 1971 and Alexievich's 2015 Nobel.",
+        "'Muckraking magazines ... from about 1900 to 1920' and 'reportage was a recognised form in Europe and America in the 1930s' are broad period statements, not single checkable facts; left as written."
+      ]
+    },
+    "narrative-history.js": {
+      "claimsChecked": 78,
+      "confirmed": 74,
+      "corrected": [
+        {
+          "where": "history facet, conv 5 (early twentieth century)",
+          "was": "the Annales group (founded 1929 by Marc Bloch and Lucien Febvre)",
+          "now": "the Annales school (journal founded in 1929 by Marc Bloch and Lucien Febvre); 'general audience' became 'the public' to stay inside the 300-character limit",
+          "why": "What Bloch and Febvre founded in 1929 was the journal Annales d'histoire economique et sociale; the 'school' grew out of it, so the founding date belongs to the journal."
+        }
+      ],
+      "softened": [
+        {
+          "where": "terms facet, Teleology",
+          "was": "the historian's chief danger when the outcome is famous",
+          "now": "a standing danger for the historian when the outcome is famous",
+          "why": "'Chief danger' ranks it above every other risk, which no source supports; the point (reading the past as heading to a known end) is unchanged."
+        },
+        {
+          "where": "terms facet, Whig history",
+          "was": "a term from Herbert Butterfield's The Whig Interpretation of History (1931)",
+          "now": "a label made familiar by Herbert Butterfield's The Whig Interpretation of History (1931)",
+          "why": "Butterfield's title says 'Whig interpretation'; 'Whig history' as a label was in use in the same sense and he made it familiar, so 'a term from' over-claims the coinage."
+        },
+        {
+          "where": "history facet, confidence",
+          "was": "established",
+          "now": "contested",
+          "why": "The record's own watch note says where narrative history starts depends on the definition and that historians disagree about how far academic history ever left narrative; the README says disputed origins are 'contested', and the sibling literary-journalism history facet is already 'contested'."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Hume's History of England: 1754 to 1762 is the span of the volumes' first publication (confirmed), but the first complete set is dated 1763; the text keeps 1754 to 1762.",
+        "Macaulay 1848 and Carlyle 1837 were not returned by search; they are standard dates from solid recall (Macaulay's first two volumes appeared in December 1848). The same applies to Foote's 1958 to 1974 span, Shirer 1960, Ryan 1959, Schama 1989, Beevor 1998, Sobel 1995, Davis 1983, Philbrick 2000, Larson 2003 and 2015, McCullough 1977 and 1992 and 2001, Holland 2003, Clark 2012, Beard 2015, Wilkerson 2010, Burns 1990 and Tuchman 1978.",
+        "Herodotus and Thucydides 'in the fifth century BCE' is the usual shorthand; Thucydides's work belongs to the late fifth century and was left unfinished."
+      ]
+    },
+    "business-book.js": {
+      "claimsChecked": 80,
+      "confirmed": 78,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "terms facet, Case study",
+          "was": "Harvard Business School's use of the case method from the 1920s helped make it a standard way of teaching management",
+          "now": "Harvard Business School's adoption of the case method in its early decades helped make it a standard way of teaching management",
+          "why": "Sources date HBS's firm commitment to the case method to Dean Donham's years (from 1919) and give 1920s dates that differ (an 1922 article, 1924 as the settled primary method); 'early decades' is true under all of them."
+        },
+        {
+          "where": "history facet, confidence",
+          "was": "established",
+          "now": "contested",
+          "why": "The record's own watch note says the genre's starting point is traced to Taylor, Fayol or Drucker and depends on the definition; the README says disputed origins are 'contested'."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Fayol's Administration industrielle et generale is dated 1916 because the first two parts appeared in the Bulletin de la Societe de l'Industrie Minerale that year (confirmed); sources give conflicting dates for the book edition (1917, 1925, 1931), so the text's bare '(1916)' is the bulletin date.",
+        "Drucker's Concept of the Corporation is kept at 1946 (one reference mirror said 1945). 'Knowledge worker' is credited to Drucker without a date; sources give 1959 or 1969 and none was confirmed.",
+        "Minimum viable product was coined earlier (Frank Robinson, 2001) and is 'popularised by' Ries, which holds; the origin of 'pivot' was not searched.",
+        "Not returned by search, so they rest on solid recall: Blue Ocean Strategy 2005, Who Moved My Cheese? 1998, The Five Dysfunctions of a Team 2002, Getting to Yes 1981, Schein 1985, Covey 1989, Senge 1990, Built to Last 1994, Christensen 1997, Good to Great 2001, Horowitz 2014, Carnegie 1936, Smiles 1859, Taylor 1911, Barnard 1938, McGregor 1960, Chandler 1962, Porter 1980, Grove 1983, Peters and Waterman 1982, HBS 1908 and HBR 1922.",
+        "'Some celebrated firms later lost their standing' (pitfalls) is a general observation about the excellence studies, not a single checkable fact; left as written."
+      ]
+    }
+  }
+}

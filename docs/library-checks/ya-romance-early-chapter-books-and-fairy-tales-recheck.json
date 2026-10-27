@@ -1,0 +1,82 @@
+{
+  "batch": "ya-romance-early-chapter-books-and-fairy-tales",
+  "searchUsed": true,
+  "searchNote": "About 28 WebSearch queries (standard mode) ran, covering every work with author and year in the three works lists, the 'first/coined' claims (d'Aulnoy and conte de fees, Beginner Books and I Can Read in 1957, Annie on My Mind, Straparola and Basile dates, the 2016 da Silva and Tehrani study, Grimm editions and the 1825 small edition, Galland, Villeneuve and Beaumont) and the film status of Anna and the French Kiss and Eleanor & Park. WebFetch failed (getaddrinfo ENOTFOUND en.wikipedia.org), so no page was read directly; everything rests on search summaries. The per-turn search budget (200, shared by every agent in the turn) then ran out, so the last queries I wanted for fairy-tale were not made: Lang's twelve coloured books by 1910 and Jacobs 1890, Marian Roalfe Cox's 345 Cinderella variants (1893), Luthi's one-dimensionality and Olrik's epic laws, the claim that many Grimm informants were educated and middle class, and the Aarne-Thompson-Uther category names. Those, plus Aarne 1910, Propp 1928, Tolkien 1939, Calvino 1956, Wilde 1888, Carter 1979, Afanasyev 1855, Asbjornsen and Moe 1841 and Andersen 1835, are counted as confirmed from solid knowledge only. I did not try to get round the limit. Process note: the staging check reports duplicate ids against the installed profiles when run on these copies, so I ran it from a private copy of scripts/ and the engine in the scratchpad (chk-ya-ecb-ft) with the three installed profile files and their index lines removed; the repo itself was not edited. I also ran one read-only 'git status --short' (empty output) before noticing the brief said no git.",
+  "files": {
+    "ya-romance.js": {
+      "claimsChecked": 32,
+      "confirmed": 30,
+      "corrected": [
+        {
+          "where": "readers facet, conv 1 (lead age)",
+          "was": "the lead is usually about fifteen to eighteen",
+          "now": "the lead is usually sixteen to eighteen",
+          "why": "Not a factual error, but the library's own genre entry (genre-age-ya-romance) says teen protagonists are 'usually sixteen to eighteen'; aligned so the library does not give two ranges."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "The readers-facet length range (about fifty to ninety thousand words) is widely repeated trade guidance, not a published statistic; I could not source it, so it stays hedged by 'commonly', 'with exceptions', confidence 'varies' and asOf.",
+        "'At least three of them were adapted as films' is true (The Fault in Our Stars 2014, To All the Boys I've Loved Before 2018, Love, Simon 2018); search found no film of Anna and the French Kiss and none released for Eleanor & Park (status last seen 2019), so 'at least' is kept in case later adaptations exist.",
+        "Wildfire's exact launch year is unsettled; a 1980 newspaper says four titles came out the year before, which fits 'late 1970s' as written. Sweet Dreams is 1981 to about 1996, so 'shrank through the 1990s' holds.",
+        "Seventeenth Summer was first marketed to adults (sources say so); the text calls it an 'often named early example' of a teen romance, which is fair, but its place in the category is debated, as the 'contested' confidence already says.",
+        "Confirmed with search: Seventeenth Summer 1942, Going on Sixteen 1946 (Kirkus May 1946; one bibliography says 1945), Annie on My Mind 1982 and its 'happy ending' standing, Sweet Valley High 1983 from Bantam, Heartstopper webcomic 2016, Cart's book (first edition 1996, later editions 2010 onward). The other dates (Forever 1975, Dessen 1996, Rennison 1999, Cabot 2000, Twilight 2005, Hunger Games 2008, Aristotle and Dante 2012, Everything, Everything 2015, the five 2010-2015 titles) are solid knowledge and agree with the library."
+      ]
+    },
+    "early-chapter-book.js": {
+      "claimsChecked": 30,
+      "confirmed": 26,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history facet, conv 8 (the 2010s)",
+          "was": "Since the 2010s the field has widened to fantasy, graphic and hybrid formats and more varied families and cultures, such as The Princess in Black (2014), while schools' use of reading levels and a stronger emphasis on phonics in several countries has shaped how books are chosen.",
+          "now": "Since the 2010s the field has widened to fantasy, as in The Princess in Black (2014), to graphic and hybrid formats and to more varied families and cultures; schools' use of reading levels, and in several countries a stronger emphasis on phonics, has also shaped how books are chosen.",
+          "why": "The Princess in Black (2014, Candlewick, Shannon and Dean Hale, illustrated by LeUyen Pham, confirmed) is an example of fantasy, not of 'more varied families and cultures', which the old wording implied. Reading levels in schools (Lexile, Fountas and Pinnell) long predate the 2010s, so the old wording tied them to the wrong period; the phonics remark is kept as a general statement and flagged as such."
+        },
+        {
+          "where": "subgenres facet, conv 9",
+          "was": "High-interest, low-demand books: publishers such as Barrington Stoke in the UK make short, accessible books ...",
+          "now": "High-low (hi-lo) books: high interest for the age with a low reading level; publishers such as Barrington Stoke in the UK make short, accessible books ...",
+          "why": "'High-interest, low-demand' is not the term in use; the trade and school term is high-low (hi-lo), high interest with a low reading level, and the terms facet already defines it that way. Barrington Stoke (a Scottish, UK publisher of books for dyslexic and reluctant readers) confirmed."
+        },
+        {
+          "where": "compare facet, conv 2 (lower middle grade length)",
+          "was": "often twenty to forty thousand words with few or no pictures",
+          "now": "often twenty thousand words or more with few or no pictures",
+          "why": "The twenty-to-forty-thousand band is a widely repeated trade figure I could not source; the weaker statement is true on any reading and still separates lower middle grade from the roughly fifteen-thousand-word ceiling for chapter books given in the library entry."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The length, page-count and picture-frequency norms (a few thousand to about fifteen thousand words, under about a hundred pages, a picture every few pages) are general trade practice, not published statistics; they match the library's genre entry and are hedged with 'commonly' and 'publishers differ'. A picture book of about thirty-two pages with a few hundred words is standard but also unsourced here.",
+        "'Publishers and booksellers increasingly treated the early chapter book as its own category' after 1992 is a general, defensible statement and the file already marks the history as 'varies'; I could not source a specific launch (for example a named imprint) and did not add one.",
+        "Frog and Toad Are Friends (1970, I Can Read) is correctly described as placed at either stage by different sources.",
+        "Confirmed with search: Henry Huggins 1950 (Morrow), Beginner Books 1957 with The Cat in the Hat as its first title, I Can Read with Little Bear 1957, Encyclopedia Brown 1963, Nate the Great 1972 (Sharmat, Coward-McCann), Frog and Toad Are Friends 1970, Cam Jansen 1980, The Stories Julian Tells 1981 (publisher listings differ, year does not), Henry and Mudge 1987 (Bradbury), Magic Tree House #1 1992 (Random House), Junie B. Jones and the Stupid Smelly Bus 1992, Judy Moody 2000, Mercy Watson to the Rescue 2005, Ivy + Bean 2006, The Princess in Black 2014, Lexile by MetaMetrics."
+      ]
+    },
+    "fairy-tale.js": {
+      "claimsChecked": 34,
+      "confirmed": 33,
+      "corrected": [
+        {
+          "where": "pitfalls facet, conv 7 (misconceptions)",
+          "was": "and a smaller family edition of the Grimms' collection came only in 1825",
+          "now": "and the Grimms' selected edition for young readers came only in 1825",
+          "why": "The 1825 Kleine Ausgabe (small edition) was a selection of fifty tales aimed at child readers, with the scholarly apparatus dropped; 'family edition' was a loose description. The date is confirmed."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Not re-searched in this pass because the search budget ran out (solid knowledge only): Lang's twelve coloured fairy books by 1910 (Blue 1889 to Lilac 1910) and Jacobs 1890; Marian Roalfe Cox's 345 variants in 1893; Luthi's one-dimensionality and Olrik's law of repetition, law of three and two to a scene; the Aarne-Thompson-Uther group names for animal tales, tales of magic and formula tales; Calvino 1956; Wilde 1888; Carter 1979. I am confident of each but a source was not read this time.",
+        "'Many of the Grimms' informants were educated and middle class' (Wild, Hassenpflug, with Dorothea Viehmann the best-known exception of a tailor's wife) was flagged by the earlier checker as resting on one museum source; I believe it is sound (Rolleke and Tatar make the point) but did not re-source it, and the wording 'many' is already hedged.",
+        "d'Aulnoy and conte de fees: most sources credit her; one French study argues the phrase first appears in her 1690 novel rather than the 1697 tales. The text says 'generally credited' and 'in the 1690s', which holds either way.",
+        "Straparola's first volume is dated 1550 or 1551 by different sources and the file says both; works[] keeps 1550 to match the library. Basile's 1634 and 1636 are the standard dates (one scholarly review gave 1664-66, which looks like a misprint). Grimm second volume: 1815 is standard, one source says 1814.",
+        "The 2016 da Silva and Tehrani study is confirmed (Royal Society Open Science; phylogenetic methods; Beauty and the Beast and Rumpelstiltskin traced to roughly 2,500 to 6,000 years). 'A claim that is debated' still rests on general knowledge of folklorists' objections, though search coverage did note later thinkers disagreeing.",
+        "Confirmed with search: Straparola and Basile (and the tales they hold), d'Aulnoy 1697-98, Galland 1704-1717, Villeneuve 1740, Beaumont 1756, the Grimm editions 1812/1815 to 1857, the 1825 small edition, the 2016 study."
+      ]
+    }
+  }
+}

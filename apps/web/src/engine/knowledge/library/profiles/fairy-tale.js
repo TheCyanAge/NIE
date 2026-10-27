@@ -220,7 +220,7 @@ export default [
       "Violence either scrubbed out or added for shock; in the tales it usually punishes, marks a limit or shows a cost, so decide what it is for in your version.",
       "Careless borrowing from living cultures: a tradition's tales are not free raw material, and naming the source, crediting the community and asking who tells these tales is part of the craft.",
       "Old prejudices carried forward: stock villains defined by ugliness, age, disability or foreignness, and some old collections include antisemitic or racist figures.",
-      "Common misconceptions: that fairy tales were always for children (many early authors wrote for adults, and a smaller family edition of the Grimms' collection came only in 1825), or that they came from unlettered peasants (many of the Grimms' informants were educated and middle class).",
+      "Common misconceptions: that fairy tales were always for children (many early authors wrote for adults, and the Grimms' selected edition for young readers came only in 1825), or that they came from unlettered peasants (many of the Grimms' informants were educated and middle class).",
       "Fresh angles: tell it from the villain, the helper or the overlooked sibling, change the lack that starts the plot, make the magic cost something specific, put the tale type in a place where it fits, or change the form to a comic, verse or picture-book telling.",
     ],
     watch: [

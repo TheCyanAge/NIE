@@ -12,7 +12,7 @@ export default [
     conv: [
       "War is in some of the oldest stories: Homer's Iliad, traditionally dated to about the eighth century BCE, and Virgil's Aeneid, unfinished at his death in 19 BCE, treat battle as heroic and costly, and the Old French Song of Roland (eleventh or twelfth century) continued the tradition.",
       "In the nineteenth century the novel began to show war from the ranks and from the margins: Stendhal's Waterloo scenes in The Charterhouse of Parma (1839), Tolstoy's Sevastopol Sketches (1855 to 1856) and his War and Peace (1869) set private lives against real campaigns.",
-      "Stephen Crane's The Red Badge of Courage (1895), about a young Union soldier in the American Civil War, written by an author too young to have fought in it, is often called the first modern war novel for its close attention to fear and confusion.",
+      "Stephen Crane's The Red Badge of Courage (1895), about a young Union soldier in the American Civil War, written by an author born years after the war ended, is often called the first modern war novel for its close attention to fear and confusion.",
       "The First World War produced the first great wave: Henri Barbusse's Under Fire (1916), Jaroslav Hašek's The Good Soldier Švejk (1921 to 1923), Ford Madox Ford's Parade's End (1924 to 1928), and in 1929 Remarque's All Quiet on the Western Front and Hemingway's A Farewell to Arms.",
       "The Second World War brought large American novels such as Norman Mailer's The Naked and the Dead (1948) and James Jones's From Here to Eternity (1951), and European work such as Vasily Grossman's Life and Fate, written in the Soviet Union and first published abroad in 1980.",
       "From the 1960s the absurd and the fragmentary took over: Joseph Heller's Catch-22 (1961) and Kurt Vonnegut's Slaughterhouse-Five (1969) used satire, dark comedy and time-shifts to attack the idea of a clean war story, and both found a large readership as opposition to the Vietnam War grew.",
@@ -40,7 +40,7 @@ export default [
     conv: [
       "Combat novel: stays with a fighting unit, from training to battle, and shows fear, comradeship and command from the ranks, as in The Naked and the Dead (1948) and James Jones's The Thin Red Line (1962).",
       "Anti-war novel: written to expose the cost, waste or absurdity of war; All Quiet on the Western Front, Catch-22 and Slaughterhouse-Five are standard examples, and the tone may be satirical or sombre.",
-      "First World War fiction: trench life, shell shock, class and the sense of a broken generation, written during the war and looking back at it, as in Parade's End and Birdsong.",
+      "First World War fiction: trench life, shell shock, class and the sense of a broken generation, written during the war and long after it, as in Under Fire, Parade's End and Birdsong.",
       "Second World War fiction: the largest strand, covering campaigns, the air and sea war, occupation, resistance and the home front; the persecution of civilians is treated by many writers as a subject of its own, with its own ethical weight.",
       "Vietnam War fiction: guerrilla war, moral ambiguity, memory and return, by American and Vietnamese writers, often in fragmentary or self-questioning forms.",
       "Historical battle and campaign fiction: a documented battle or campaign re-created through real and invented figures, as in Shaara's The Killer Angels and Tolstoy's War and Peace.",
@@ -245,7 +245,7 @@ export default [
       "Home front: the civilian side of a war, its work, rationing, news and grief, as opposed to the fighting front.",
       "Band of brothers: a phrase from Shakespeare's Henry V for the bond of a fighting unit, now a common label for comradeship in war stories.",
       "Catch-22: a phrase from Joseph Heller's 1961 novel for a no-win situation bound by contradictory rules, now used in everyday English.",
-      "Lost generation: a phrase for the young men and women whose lives were marked by the First World War, usually credited to Gertrude Stein and popularised by Hemingway, who used it as an epigraph to The Sun Also Rises (1926).",
+      "Lost generation: a phrase for the young men and women whose lives were marked by the First World War; it is popularly credited to Gertrude Stein, who said she took it from a Frenchman, and Hemingway used it as an epigraph to The Sun Also Rises (1926).",
       "Grunt: American slang for an infantry soldier, widely used in writing about Vietnam and later wars.",
     ],
     watch: [

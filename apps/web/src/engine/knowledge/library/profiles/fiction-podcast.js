@@ -10,13 +10,13 @@ export default [
     name: 'Scripted fiction podcast: history and origins',
     summary: "Scripted fiction podcasts grew from radio drama and the first years of podcasting in the mid-2000s, found a wide audience with Welcome to Night Vale in 2012, and after Serial (2014) turned to documentary-style mysteries that studios and platforms began to buy.",
     conv: [
-      "Radio drama is the root: the craft of voices, sound and music is a century old, and recorded audio drama on tape and disc, such as Big Finish's licensed plays from the late 1990s, kept the form alive between broadcasts.",
+      "Radio drama is the root: the craft of voices, sound and music is a century old, and recorded audio drama sold on disc, such as Big Finish's licensed plays from the late 1990s, kept the form alive between broadcasts.",
       "Podcasting took shape in the early 2000s and got its name in 2004, and Apple's iTunes added podcast support in 2005; early fiction was mostly short stories and novels read aloud, such as the magazine Escape Pod, launched in 2005.",
       "Through the late 2000s independent teams used cheap recording tools to make serials with casts and sound design, often horror, science fiction or comedy, and found listeners through directories, word of mouth and fan communities.",
-      "Welcome to Night Vale, from June 2012, is a mock community radio show from a strange desert town, made by Joseph Fink and Jeffrey Cranor; it drew a large audience, toured live and led to books, and its makers later founded the label Night Vale Presents in 2015.",
+      "Welcome to Night Vale, from June 2012, is a mock community radio show from a strange desert town, made by Joseph Fink and Jeffrey Cranor; it drew a large audience, toured live and led to books, and its makers later founded the label Night Vale Presents.",
       "Serial (2014), a true-story podcast, changed the market. Its documentary manner of a reporter-host, interviews and tape was echoed by fictions such as Limetown (2015), which presented an invented disappearance as an investigation.",
       "Studios moved in: Gimlet Media made Homecoming (2016), a star-cast psychological thriller adapted for Amazon television in 2018; Spotify bought Gimlet in 2019; and Limetown became a Facebook Watch series in 2019.",
-      "Long-running independent shows built communities: The Magnus Archives, written by Jonathan Sims, ran from 2016 to 2021 for 200 episodes, and Wolf 359, a science-fiction series by Gabriel Urbina, ran from 2014 to 2017.",
+      "Long-running independent shows built communities: The Magnus Archives, written by Jonathan Sims, ran from 2016 to 2021 for 200 episodes, and Wolf 359, a science-fiction series by Gabriel Urbina, began in 2014.",
       "From about 2020 audio companies, including subscription audiobook services, commissioned scripted audio at larger budgets, such as Audible's The Sandman (2020), adapted from the comics, while many independent makers continued on listener support; the field is both an art form and a route to screen.",
     ],
     watch: [
@@ -171,7 +171,7 @@ export default [
     summary: "The fiction podcast canon is young: Welcome to Night Vale (2012), Wolf 359, Limetown, Homecoming, The Magnus Archives and Alice Isn't Dead are the shows other makers answer, alongside the radio drama they descend from.",
     conv: [
       "Mock broadcast and the Night Vale Presents label: Welcome to Night Vale (2012) by Joseph Fink and Jeffrey Cranor, and Alice Isn't Dead (2016), Fink's horror serial narrated by a long-haul truck driver.",
-      "Science fiction: Wolf 359 (2014 to 2017) by Gabriel Urbina, a drama about the crew of a space station near a distant star that mixes workplace comedy with a darker plot.",
+      "Science fiction: Wolf 359 (from 2014) by Gabriel Urbina, a drama about the crew of a space station near a distant star that mixes workplace comedy with a darker plot.",
       "Fake documentary: Limetown (2015) by Zack Akers and Skip Bronkie, an investigation into a vanished research community, later made into a television series.",
       "Studio drama: Homecoming (2016) by Eli Horowitz and Micah Bloomberg, a psychological thriller told largely through conversations and calls, later adapted for television.",
       "Horror anthology with an arc: The Magnus Archives (2016 to 2021) by Jonathan Sims, built from statements about supernatural encounters over five seasons with a hidden story running through them.",

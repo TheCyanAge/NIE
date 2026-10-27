@@ -1,0 +1,111 @@
+{
+  "batch": "comedy-satire-and-magical-realism",
+  "searchUsed": true,
+  "searchNote": "WebSearch worked for about 17 queries (magical realism origins: Roh, Uslar Pietri, Flores, Bontempelli, Asturias; satire: Menippus/Varro/Lucian, satura etymology, Lucilius/Petronius, Master and Margarita first printing, Svejk, Brant/Erasmus, Dunciad/Absalom, Punch/Private Eye/TW3, The Onion, Soseki/Lu Xun/Qian, Gogol, Murata). Then the shared per-turn search budget ran out ('web search budget is used up'), so the remaining planned queries (Chekhov and The Cherry Orchard, Jonson's humours 1598, Hitchhiker's Guide and Pratchett dates, McOndo 1996 and the Zamora/Faris volume, the Mo Yan citation, Sterling's 'slipstream' 1989) were NOT run. WebFetch failed with ENOTFOUND for en.wikipedia.org, as the brief predicted, so no page was read directly; every web source was a search-result summary. All comedy claims and the remaining satire and magical-realism claims were checked against solid knowledge and the library's own agreeing records (the lint's work-year agreement check passed). The staging check cannot print OK as-is because these three profiles are already installed, so it reports 18 'duplicate id/name (staging/X.js, profiles/X.js)' lint problems per file; I ran an identical copy of scripts/library-profile-check.mjs (kept outside the repo, in scratchpad/tools/check-staged.mjs) that ignores only those duplicate-of-installed complaints. It printed OK for all three files: lint clean, every facet found by its own question.",
+  "files": {
+    "comedy.js": {
+      "claimsChecked": 78,
+      "confirmed": 75,
+      "corrected": [
+        {
+          "where": "profile-comedy-history conv[1]",
+          "was": "Aristophanes wrote the surviving Old Comedy of the fifth century BCE",
+          "now": "Aristophanes wrote the only complete Old Comedies that survive, in the late fifth century BCE",
+          "why": "Fragments of other Old Comedy poets survive, so 'the surviving Old Comedy' overstated; Aristophanes' complete plays are the ones we have, and his surviving Old Comedies date from 425 BCE on (his last two plays fall in the early fourth century and are not Old Comedy proper)."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-comedy-readers conv[6] (shelving)",
+          "was": "...while a bookshop humour section, where one exists, tends more toward collections, essays and gift books than novels.",
+          "now": "...and some bookshops also keep a separate humour section.",
+          "why": "The earlier checker could not confirm the content of humour sections and neither could I; kept the defensible part (comic novels sit in general or literary fiction, or in the genre they share), dropped the unverifiable generalisation."
+        },
+        {
+          "where": "profile-comedy-readers conv[7] (length)",
+          "was": "...a sustained comic voice can tire over a very long book, so many comic novels are of ordinary length or shorter, and sketches, columns and short stories are common forms.",
+          "now": "...a sustained comic voice can tire over a very long book, and sketches, columns and short stories are common comic forms, so there is no standard word count.",
+          "why": "'Many comic novels are of ordinary length or shorter' is a statistical claim nobody has published (and the canon includes long comic novels such as Don Quixote and Tom Jones); replaced by the safe 'no standard word count'."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "No comedy-specific web search was possible (budget ran out); dates and attributions rest on solid knowledge and agree with the library: Lysistrata c. 411 BCE, Midsummer c. 1595, Tartuffe 1664, Tom Jones 1749, Tristram Shandy from 1759, Pickwick serialised from 1836, Government Inspector 1836, Three Men in a Boat 1889, Earnest 1895, Right Ho Jeeves 1934, Lucky Jim 1954, Discworld from 1983, Hitchhiker's radio 1978 and novel 1979, Decline and Fall 1928.",
+        "Chekhov calling The Cherry Orchard a comedy (his own letters also say 'in places even a farce') and Ben Jonson's comedy of humours at the end of the sixteenth century (Every Man in His Humour, 1598) were not searched; both are standard and hedged ('associated with').",
+        "Etymology of 'comedy' from words for a revel and a song is the usual account (kome 'village' is an alternative some scholars give); the text says 'usually traced'.",
+        "Readers facet is 'varies' and rests on general publishing practice, not a published source; comic-novel shelving was not checked.",
+        "Conv[7] of history ('The nineteenth century ran from Austen and Pickwick to Gogol (1836), Jerome (1889), Wilde (1895)') is a list, not a strict chronology; left as is because no claim in it is false."
+      ]
+    },
+    "satire.js": {
+      "claimsChecked": 88,
+      "confirmed": 84,
+      "corrected": [
+        {
+          "where": "profile-satire-subgenres conv (Verse satire)",
+          "was": "Verse satire: satire in rhymed verse, especially the heroic couplet of Dryden and Pope",
+          "now": "Verse satire: satire written in verse, from the Latin hexameters of Horace and Juvenal to the heroic couplets of Dryden and Pope",
+          "why": "Roman verse satire (Lucilius, Horace, Juvenal) is in unrhymed dactylic hexameter; 'rhymed' is true only of the English couplet tradition."
+        },
+        {
+          "where": "profile-satire-compare conv (Satire versus verse satire)",
+          "was": "verse satire is satire in a particular form, rhymed and often in couplets",
+          "now": "verse satire is satire in a particular form, written in verse and, in English, often in rhymed couplets",
+          "why": "Same error: verse satire is not necessarily rhymed."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-satire-compare conv (Satire versus parody and pastiche)",
+          "was": "parody imitates a style, genre or work to mock it, and its target is literary",
+          "now": "parody imitates a style, genre or work to mock it, and its target is that style or work",
+          "why": "Parody can mock non-literary styles (speeches, films, journalism); 'literary' overclaimed."
+        },
+        {
+          "where": "profile-satire-pitfalls watch",
+          "was": "Satire that is only parody of a style, with no target beyond the style, is closer to pastiche",
+          "now": "...is closer to parody or pastiche",
+          "why": "The library defines pastiche as affectionate imitation and parody as mocking imitation, so a piece that only mocks a style is parody; the old wording also sat badly with the compare facet."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Confirmed by search this session: Menippus (third century BCE, mixed prose and verse), Varro as first to call his own work saturae menippeae, Lucian as avowed imitator, satura/lanx satura etymology and the later confusion with satyr, Lucilius c. 180 to 102 BCE, Petronius's Satyricon as prosimetrum (Neronian date), Master and Margarita printed cut in Moskva Nov 1966 and Jan 1967 (roughly 12 percent cut) with the uncut text abroad in 1967, Svejk issued 1921 to 1923, Brant 1494 (Basel), Dunciad 1728 (three books), Absalom and Achitophel 1681, Punch 17 July 1841, Private Eye 25 Oct 1961, The Onion 1988 (Madison), Government Inspector premiere 1836 and Dead Souls 1842, I Am a Cat from January 1905.",
+        "Erasmus's Praise of Folly 1511: one search result gave Paris 1511 as first print while Britannica dates the work 1509 (composition); 1511 is the usual first-printing date and matches the library, kept.",
+        "Fortress Besieged 1947: one source says it was written 1944 to 1946; 1947 is the book publication date (serialised 1946 to 1947) and matches the library, but this was not confirmed by search. Lu Xun's Ah Q: only 1921 appeared in results (serialised from December 1921), kept.",
+        "That Was the Week That Was 1962 and Saturday Night Live 1975: TW3 got only weak support from search (a 1962 to 1963 run); both rest on solid knowledge and the earlier checker's note.",
+        "Rabelais 'comic romances of the 1530s' (Pantagruel 1532, Gargantua 1534), Utopia 1516, Volpone around 1606, Thackeray, Beggar's Opera 1728, Cat's Cradle 1963, Earthlings 2018, White Tiger 2008 and The Sellout 2015 were not searched; Earthlings is hedged in the text and reviewers do call it satire and dark comedy.",
+        "Candide as Menippean satire is hedged ('often put'); the readers facet (shelving, defamation law differs by country) is general practice and unsourced, left under 'varies'."
+      ]
+    },
+    "magical-realism.js": {
+      "claimsChecked": 92,
+      "confirmed": 90,
+      "corrected": [
+        {
+          "where": "profile-magical-realism-terms conv (Realismo mágico and Magischer Realismus)",
+          "was": "Realismo mágico and Magischer Realismus: the Spanish, Italian and German forms of the name",
+          "now": "Realismo mágico (Spanish), realismo magico (Italian) and Magischer Realismus (German): the name in other languages",
+          "why": "The accented form is Spanish only; the Italian form (Bontempelli's) is realismo magico, as already written in the history facet. Only two forms were shown for three languages."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-magical-realism-history conv[5] (Angel Flores 1955)",
+          "was": "brought the label into literary criticism, tracing the mode to Borges in the 1930s",
+          "now": "brought the label into wide use in criticism of that fiction, tracing the mode to Borges in the 1930s",
+          "why": "The text itself says Bontempelli (1920s) and Uslar Pietri (1948, in a book of literary criticism) had used the phrase in literary contexts earlier, so 'brought the label into literary criticism' contradicted it. Flores's essay is, however, the one that made the label widespread for Spanish American fiction (search: Flores is credited as the first to apply it to Spanish American literature at length, and he named Borges's 1935 Historia universal de la infamia as the starting point)."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Roh: search confirmed the 1925 book Nach-Expressionismus: Magischer Realismus (Leipzig, Klinkhardt und Biermann) and found no source for the 1923 use that the earlier checker mentioned; the text still says 'the usual first use', which is the safe wording.",
+        "Uslar Pietri: search results give Letras y hombres de Venezuela as 1947 in some sources and 1948 in others; the text says 'usually dated 1948, sometimes 1947', which matches. The Venezuelan short story as his subject rests on my knowledge of the passage; search did not directly tie the term to the short story.",
+        "Bontempelli: search confirms his realismo magico and the journal 900 from 1926 and treats him as a precursor; the text's 'in the 1920s' is safe. Asturias Leyendas de Guatemala (Madrid, Oriente, 1930) and Hombres de maiz (Buenos Aires, Losada, 1949) confirmed.",
+        "Not searched because the budget ran out: McOndo 1996 (Fuguet and Gomez), the Zamora and Faris volume 1995 and Faris's Ordinary Enchantments (2004), Faris's 'irreducible element', Sterling's slipstream in 1989, the Mo Yan citation wording, Rabassa 1970, Nobel 1982, Okri 1991, Esquivel 1989, Allende 1982, Midnight's Children 1981 and Beloved 1987. All rest on solid knowledge and match the library's own years.",
+        "Whether Murakami, Mo Yan, Grass, Bulgakov and Morrison belong to the mode is argued by critics; each is hedged and the canon facet is 'contested'. The library's Latin American fantastic entry lists Pedro Páramo as an example of the fantastic while this profile lists it as magical realism; the profile's compare facet says critics disagree on where one ends, so the two do not contradict.",
+        "Readers facet (shelving, 'label used in marketing for any novel with a touch of the supernatural') is general market practice, unsourced, left under 'varies'."
+      ]
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "batch": "fan-fiction-webnovels-and-light-novels",
+  "searchUsed": true,
+  "searchNote": "WebSearch worked for roughly 40 queries (summaries only; WebFetch was not tried, so no page was read in full). The per-turn search budget then ran out (limit 200 shared across agents) before the last light-novel queries, so Fujimi Fantasia Bunko 1988, Kino's Journey 2000, Haruhi Suzumiya 2003/anime 2006, Spice and Wolf and Toradora 2006, Vampire Hunter D 1983 and the date of the first Kono Light Novel ga Sugoi were not searched this time; those were either softened or rest on solid recall and are listed under remainingDoubts. Sources were mostly Wikipedia, Fanlore, Kakao and press releases, Britannica-type summaries and some publisher or retail pages. `node scripts/library-profile-check.mjs --staging <file>` cannot print OK on these three copies because every record is reported as a duplicate of the installed profile (18 'duplicate id / duplicate profile' lines per file and nothing else). I ran an equivalent check from a throwaway script outside the project (scratchpad/recheck-tools/check-fl.mjs) that drops only the duplicate-of-installed lines and then runs the same lint and the same one-question-per-facet retrieval test: all three files are lint clean and every facet is found (OK, 9 records each). I also ran one read-only `git status` by mistake; it changed nothing.",
+  "files": {
+    "fan-fiction.js": {
+      "claimsChecked": 32,
+      "confirmed": 31,
+      "corrected": [
+        {
+          "where": "profile-fan-fiction-history, conv point 8 (published novels from fan fiction)",
+          "was": "In the 2010s some fan stories were rewritten as published novels: Fifty Shades of Grey (2011) ..., After (2014) ..., and Ali Hazelwood's The Love Hypothesis (2021) ...",
+          "now": "From 2011 onward some fan stories were rewritten as published novels: Fifty Shades of Grey (2011) ..., After (2014) ..., and Ali Hazelwood's The Love Hypothesis (2021) ...",
+          "why": "The list included a 2021 book under a '2010s' heading, so the sentence contradicted itself. All three titles and years were confirmed (Fifty Shades 2011 from Twilight fan fiction; After first printed by Gallery Books on 21 October 2014 after posting on Wattpad from 2013; The Love Hypothesis published 14 September 2021 after the Star Wars 'Head Over Feet' story)."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "Slash from K/S is stated as 'the usual explanation'; Fanlore treats it as fan tradition, not documented, and the watch note already says so.",
+        "Fifty Shades of Grey: the author's agent acknowledged it began as Twilight fan fiction, but the publisher's statement called the books original work. The text says 'began as' and the book's own title is a published novel, which is the common account; left as is.",
+        "AO3 open beta is given as 2009 only; sources differ on 14 or 15 November. The OTW's roots in 2007 and the archive's closed beta in 2008 are consistent across sources.",
+        "Sherlock Holmes pastiches and parodies in Conan Doyle's lifetime, the nijisōsaku and tongren terms, the AO3 rating and category names and the glossary definitions rest on solid knowledge, not on a search this time.",
+        "Legal remarks (selling fan fiction, archives that forbid it) are deliberately general and were not checked against any one site's current terms."
+      ]
+    },
+    "webnovel.js": {
+      "claimsChecked": 28,
+      "confirmed": 27,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "profile-webnovel-history, summary",
+          "was": "Japan (free-posting sites from 2004)",
+          "now": "Japan (the free site Shōsetsuka ni Narō from 2004)",
+          "why": "Free amateur posting sites existed in Japan before 2004; only Shōsetsuka ni Narō (launched 2 April 2004) is dated. The summary now says exactly what the dated fact is."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Platform start months differ between sources: Qidian (February or May 2002), Kakao Page (February per one Wikipedia article, 9 April 2013 per Kakao's own history), Naver's web-novel service (January 2013 per Wikipedia only). The text states only the years.",
+        "Qidian's pay-to-read VIP system is dated October 2003 by Wikipedia; other sources say 'late 2003' or just 2003. Left as October 2003 because the sources agree on the autumn, but the exact month rests on one source.",
+        "Webnovel (English platform): a May 2017 press release and a Chinese government page give May 2017 for the international site, which the text states as 2017. Sources vary on whether the brand was first 'Qidian International' or 'Webnovel'.",
+        "Omniscient Reader's Viewpoint: Wikipedia gives a Munpia start of 6 January 2018; several low-quality sites say 2015 and were ignored.",
+        "Mo Dao Zu Shi: the serial start (2015) is consistent across sources; print dates differ (2015 or 2016) and are not stated in the text.",
+        "Genre and slang terms (xuanhuan, chuanyue and chongsheng, the Korean abbreviation for regression, possession and reincarnation, murim, face-slapping, shuang, mentor in an object, late bloomer, Narō-kei) rest on widely used fan and platform usage and solid knowledge, not on a dictionary; golden finger was confirmed by the earlier check."
+      ]
+    },
+    "light-novel.js": {
+      "claimsChecked": 22,
+      "confirmed": 16,
+      "corrected": [
+        {
+          "where": "profile-light-novel-history, conv point 3 (origin of the term)",
+          "was": "The English words light novel (raito noberu, shortened to ranobe) are usually traced to a science-fiction and fantasy forum ... around 1990",
+          "now": "The term light novel (raito noberu in Japanese, shortened to ranobe) is usually traced to a science-fiction and fantasy forum ... around 1990",
+          "why": "The name is a Japanese coinage (from English words), so calling it 'the English words' misdescribed it. The Nifty-Serve forum and Kamikita Keita around 1990 were confirmed by two sources (a Wikipedia summary of an Anime News Network report and a 2020 journal article); the exact year is not firmly established, which the text already hedges."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-light-novel-history, conv point 2",
+          "was": "Fujimi Fantasia Bunko opened in 1988",
+          "now": "Fujimi Fantasia Bunko, an imprint of Fujimi Shobo, dates from the late 1980s",
+          "why": "The 1989 magazine serialisation and 1990 first volume of Slayers were confirmed, but no source found for 1988 and the search budget ran out before it could be rechecked."
+        },
+        {
+          "where": "profile-light-novel-history, conv point 5",
+          "was": "the annual guide Kono Light Novel ga Sugoi began in 2004 to rank the year's books",
+          "now": "the annual guide Kono Light Novel ga Sugoi began in the mid-2000s to rank the year's books",
+          "why": "Earlier checker flagged this as unsearched and the budget ran out before it could be searched; the first edition is from about 2004, but only the approximate date is kept."
+        },
+        {
+          "where": "profile-light-novel-canon, conv point 5",
+          "was": "has ranked the year's books since 2004",
+          "now": "has ranked the year's books since the mid-2000s",
+          "why": "Same reason as above."
+        },
+        {
+          "where": "profile-light-novel-subgenres, conv point 8 (light literature)",
+          "was": "some imprints aim at older or adult readers with quieter, more everyday stories, a shelf sometimes called light literature (raito bungei) in Japan",
+          "now": "quieter, more everyday stories sit on a neighbouring shelf sometimes called light literature (raito bungei) in Japan, and its border with the light novel is blurry",
+          "why": "The previous check kept only the existence and blurry border of raito bungei as confirmed and said the imprint and readership claims were removed, but the 'some imprints aim at older or adult readers' claim was still in the text; it is now gone."
+        },
+        {
+          "where": "profile-light-novel-pitfalls, conv point 6 (format limits)",
+          "was": "a manuscript far over the limit may be unable to enter, as one famous web novel could not before it was posted online and later printed",
+          "now": "a manuscript far over the limit may be unable to enter, as the first draft of one famous web-born series reportedly was before its writer posted it online",
+          "why": "Sources agree Sword Art Online's first volume ran over the Dengeki prize page limit and was posted on the author's own site, but they differ on whether it was turned away or never submitted; 'reportedly' and 'unable to enter' fit both accounts."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Not searched this turn because the search budget ran out: Kino's Journey (2000), Haruhi Suzumiya (2003; anime 2006), Spice and Wolf (2006), Toradora! (2006), Vampire Hunter D (1983). All rest on solid recall and the earlier checker's partial confirmation; one earlier source gave June 2006 for Spice and Wolf against February 2006 elsewhere, so the text states only 2006.",
+        "Haruhi Suzumiya in English from 2009 and 'a few light novels in English in the 2000s' rest on recall.",
+        "The Japanese industry terms (kuchi-e, atogaki, shinjin-shō, komikaraizu, media mix, label/rēberu) are standard but no search page defined them for light novels.",
+        "Boogiepop and Others: sources agree on a 1998 release and a Dengeki prize win (fourth Dengeki Game Novel Contest, awarded in 1997); the text says 'new-author prize' without naming the prize or year.",
+        "Re:Zero's works year 2012 is its web start (printed 2014 by MF Bunko J); Sword Art Online's works year 2009 is its print year (web from 2002). Both are explained in the text and match the library's work records.",
+        "The forty to sixty thousand word range and the A6 bunkobon size agree with the parent library entry but were not tied to a published statistic; the text says 'common'."
+      ]
+    }
+  }
+}

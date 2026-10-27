@@ -95,7 +95,7 @@ export default [
     name: 'Young adult romance: what readers expect',
     summary: "Readers of young adult romance expect a believable teenage voice, a love story that sits at the centre of the plot, a life outside the relationship, and an ending that feels earned and hopeful rather than a promise of forever.",
     conv: [
-      "A teen-true voice and teen-sized stakes: the lead is usually about fifteen to eighteen, and readers notice quickly when an adult's nostalgia or an out-of-date idea of dating is speaking.",
+      "A teen-true voice and teen-sized stakes: the lead is usually sixteen to eighteen, and readers notice quickly when an adult's nostalgia or an out-of-date idea of dating is speaking.",
       "The love story is the engine, but the lead also has friends, family, school or work and a goal of their own; readers dislike books in which the love interest is the only thing in the world.",
       "Chemistry and trust built on the page: readers want to see why these two people suit each other, in particular scenes and talk, not be told that they do.",
       "An ending that is emotionally satisfying and hopeful; adult romance as a genre promises a happy-ever-after or happy-for-now, while YA readers also accept bittersweet or open endings if the lead has grown.",

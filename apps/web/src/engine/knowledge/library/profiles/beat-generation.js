@@ -11,7 +11,7 @@ export default [
     name: 'The Beat Generation: history and origins',
     summary: "The Beat Generation began as a friendship among young writers in 1940s New York, became a public scene in San Francisco in the mid-1950s, reached a mass audience with Howl and On the Road in 1956 and 1957, and shaped the counterculture of the 1960s.",
     conv: [
-      "The 1940s: a circle formed in New York around Columbia University and Times Square, including Allen Ginsberg, Jack Kerouac, William Burroughs, Lucien Carr, Herbert Huncke and, from the late 1940s, Neal Cassady, bound by friendship, reading, jazz and an outsider's view of postwar America.",
+      "The 1940s: a circle formed in New York around Columbia University and Times Square, including Allen Ginsberg, Jack Kerouac, William Burroughs, Lucien Carr, Herbert Huncke and, from 1946, Neal Cassady, bound by friendship, reading, jazz and an outsider's view of postwar America.",
       "Naming, 1948 to 1952: Kerouac used the phrase Beat Generation in talk with the writer John Clellon Holmes in 1948, and Holmes's article This Is the Beat Generation (New York Times Magazine, 1952) and novel Go (1952) brought it into print. Kerouac's first novel, The Town and the City, came in 1950.",
       "1951 to 1953: Kerouac typed the first version of On the Road on a long scroll in April 1951, and Burroughs's Junkie appeared in 1953 under the name William Lee, while On the Road waited six years for publication.",
       "San Francisco, 1953 to 1955: Lawrence Ferlinghetti opened the City Lights bookshop in 1953 and began its Pocket Poets series in 1955. At the Six Gallery on 7 October 1955 Ginsberg first read Howl, with Kenneth Rexroth as host and Gary Snyder, Philip Whalen and Michael McClure among the readers.",
@@ -44,7 +44,7 @@ export default [
       "Jazz-and-poetry and performance: poems written to be read aloud, sometimes to music, in clubs, cafés and bookshops. Kerouac's Mexico City Blues (1959), a long sequence of poems he called choruses, takes the jazz solo as its model.",
       "The cut-up and the routine: Burroughs's Naked Lunch is built from loosely linked comic and nightmarish routines, and from the late 1950s he and Brion Gysin cut and rearranged texts, as in The Soft Machine (1961).",
       "Short, plain and Zen-influenced poems: Gary Snyder and Philip Whalen, and at times Kerouac, write brief poems of work, mountains and attention, shaped by Chinese and Japanese poetry and by Buddhism.",
-      "Women's poetry and memoir: Diane di Prima's poems and Memoirs of a Beatnik (1969), Joyce Johnson's Minor Characters (1983), Hettie Jones's How I Became Hettie Jones (1990) and Carolyn Cassady's Off the Road (1990) show the scene from the women's side.",
+      "Women's poetry and memoir: Diane di Prima's poems and Memoirs of a Beatnik (late 1960s), Joyce Johnson's Minor Characters (1983), Hettie Jones's How I Became Hettie Jones (1990) and Carolyn Cassady's Off the Road (1990) show the scene from the women's side.",
       "Black Beat writers: Bob Kaufman, Ted Joans and LeRoi Jones (later Amiri Baraka), whose magazine Yugen and Totem Press published many Beat writers, wrote jazz-driven poetry and essays; Kaufman's Solitudes Crowded with Loneliness appeared in 1965.",
       "Little magazines, small presses and film: City Lights, Evergreen Review (1957), Big Table (1959) and Yugen carried the work, and the short film Pull My Daisy (1959), narrated by Kerouac, gave the scene a visual form.",
     ],

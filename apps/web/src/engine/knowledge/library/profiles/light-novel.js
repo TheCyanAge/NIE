@@ -11,10 +11,10 @@ export default [
     summary: "The light novel took shape in 1980s and 1990s Japan, when paperback imprints began publishing illustrated, quick-reading novels for young readers; new-author prizes, anime adaptations and, from the late 2000s, web novels have fed it since.",
     conv: [
       "In the 1980s Japanese paperback (bunko) publishers built imprints for illustrated fantasy and science fiction aimed at young readers; Hideyuki Kikuchi's Vampire Hunter D (1983) is sometimes counted among the forerunners of the form.",
-      "Fujimi Fantasia Bunko opened in 1988, and Hajime Kanzaka's comic fantasy Slayers, serialised in a magazine from 1989 and issued as books from 1990, became one of its long-running series.",
-      "The English words light novel (raito noberu, shortened to ranobe) are usually traced to a science-fiction and fantasy forum on an early Japanese online service around 1990, and the label then spread through the decade.",
+      "Fujimi Fantasia Bunko, an imprint of Fujimi Shobo, dates from the late 1980s, and Hajime Kanzaka's comic fantasy Slayers, serialised in a magazine from 1989 and issued as books from 1990, became one of its long-running series.",
+      "The term light novel (raito noberu in Japanese, shortened to ranobe) is usually traced to a science-fiction and fantasy forum on an early Japanese online service around 1990, and the label then spread through the decade.",
       "Dengeki Bunko, launched by MediaWorks in June 1993, grew with its new-author prize; Kouhei Kadono's Boogiepop and Others appeared in 1998 and Keiichi Sigsawa's Kino's Journey in 2000, and Boogiepop is often credited with helping the category take off.",
-      "In the 2000s anime tie-ins made the form widely known: Nagaru Tanigawa's The Melancholy of Haruhi Suzumiya (2003, anime 2006) is a standard example, and the annual guide Kono Light Novel ga Sugoi began in 2004 to rank the year's books.",
+      "In the 2000s anime tie-ins made the form widely known: Nagaru Tanigawa's The Melancholy of Haruhi Suzumiya (2003, anime 2006) is a standard example, and the annual guide Kono Light Novel ga Sugoi began in the mid-2000s to rank the year's books.",
       "From around 2009 web novels became a major source: Reki Kawahara's Sword Art Online, posted on his own site from 2002, was printed by Dengeki Bunko in 2009, and sites such as Shōsetsuka ni Narō (opened 2004) supplied many later series, especially isekai.",
       "In the 2010s sentence-length titles that state the premise became a recognisable habit, especially for web-derived series; in English, a few light novels appeared in the 2000s, among them Haruhi Suzumiya from 2009, and many more followed after 2010.",
     ],
@@ -42,7 +42,7 @@ export default [
       "Mystery, horror and the supernatural: often urban, with episodic cases or hauntings, as in Boogiepop and Others, where short linked episodes build a larger picture.",
       "Game-world and virtual reality: stories set in online games or with game-like rules, of which Sword Art Online (2009) is the best known.",
       "Slice of life and workplace stories: quieter series about daily routines, food, shops or small communities, often in the same illustrated format.",
-      "Romance and light literary lines: some imprints aim at older or adult readers with quieter, more everyday stories, a shelf sometimes called light literature (raito bungei) in Japan, and its border with the light novel is blurry.",
+      "Romance and light literary lines: quieter, more everyday stories sit on a neighbouring shelf sometimes called light literature (raito bungei) in Japan, and its border with the light novel is blurry.",
       "By origin: prize-born books are written for a publisher's new-author contest, while web-born ones were first posted online; they tend to differ in length, title style and how the series is planned.",
     ],
     watch: [
@@ -171,7 +171,7 @@ export default [
       "Dengeki Bunko hits from writers its new-author prize brought in: Kouhei Kadono's Boogiepop and Others (1998) and Keiichi Sigsawa's Kino's Journey (2000), an episodic travel series.",
       "Anime-linked hits of the 2000s: Nagaru Tanigawa's The Melancholy of Haruhi Suzumiya (2003), Isuna Hasekura's Spice and Wolf (2006) and Yuyuko Takemiya's Toradora (2006).",
       "Web-born series: Reki Kawahara's Sword Art Online, posted online from 2002 and printed in 2009, and Tappei Nagatsuki's Re:Zero, begun on a web site in 2012 and printed in 2014.",
-      "Reference reading: the annual guide Kono Light Novel ga Sugoi has ranked the year's books since 2004, and the publishers' own prize pages list their winners.",
+      "Reference reading: the annual guide Kono Light Novel ga Sugoi has ranked the year's books since the mid-2000s, and the publishers' own prize pages list their winners.",
     ],
     watch: [
       "Years here usually mean the first volume in print; Re:Zero's year is its web start (printed 2014); lists differ by who is counting.",
@@ -205,7 +205,7 @@ export default [
       "Explaining the world in dialogue: long lectures slow the quick pace the form promises; show rules through events and cost.",
       "Repetition across volumes: the same joke, the same fight and bigger numbers; give each volume a different problem or a new angle on the cast.",
       "Treating the isekai set-up as the story: the transfer is a beginning, not a plot, so ask what this person wants in the new world.",
-      "Ignoring the format: prizes and imprints set length and format limits, and a manuscript far over the limit may be unable to enter, as one famous web novel could not before it was posted online and later printed.",
+      "Ignoring the format: prizes and imprints set length and format limits, and a manuscript far over the limit may be unable to enter, as the first draft of one famous web-born series reportedly was before its writer posted it online.",
       "Fresh angles: put quiet daily life in a fantastic setting, give a volume the structure of a mystery or a travel record, make the problem social instead of a fight, or tell the story from the antagonist's side.",
     ],
     watch: [

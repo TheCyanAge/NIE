@@ -189,7 +189,7 @@ export default [
     kw: ["elegy", "poem about death", "mourning poem", "lament poem", "grief poem", "pastoral elegy", "funeral poem", "poem for someone who died", "elegiac"],
     confidence: "established",
     works: [
-      { title: "Lycidas", author: "John Milton", year: 1637 },
+      { title: "Lycidas", author: "John Milton", year: 1638 },
       { title: "In Memoriam A.H.H.", author: "Alfred Tennyson", year: 1850 },
       { title: "Elegy Written in a Country Churchyard", author: "Thomas Gray", year: 1751 },
       { title: "When Lilacs Last in the Dooryard Bloom'd", author: "Walt Whitman", year: 1865 },

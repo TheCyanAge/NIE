@@ -1,0 +1,105 @@
+{
+  "searchUsed": true,
+  "searchNote": "WebSearch worked for about 20 queries, all spent on ode.js; the shared per-turn search budget then ran out (the tool refused further calls, and I did not try to get around it). WebFetch cannot resolve hosts (getaddrinfo ENOTFOUND), so search summaries were the only web source and no page was read in full. So: ode.js was checked with search; elegy.js and villanelle.js were NOT re-searched in this pass. For those two files, 'confirmed' rests on solid knowledge, on the earlier checkers' recorded search results (docs/library-checks/ode-elegy-and-villanelle.json for the villanelle) and on consistency with the library's own entries; I was stricter and softened or corrected the few wordings that overstated.",
+  "tooling": "scripts/library-profile-check.mjs --staging fails on these three files only because the installed profiles/ode.js, elegy.js, villanelle.js have the same ids and names (18 'duplicate id/profile' lint problems per file, nothing else). I ran an identical wrapper kept outside the repo (scratchpad/tools-ode-elegy-villanelle/check.mjs) that ignores only those installed-copy duplicates and runs the rest of the lint and the per-facet retrieval question. All three print OK: 9 records, lint clean, every facet found. The repo was not modified.",
+  "files": {
+    "ode.js": {
+      "method": "web search summaries for most dated and titled claims (about 20 queries); the rest from solid knowledge",
+      "claimsChecked": 56,
+      "confirmed": 54,
+      "confirmedBySearch": 33,
+      "confirmedByKnowledge": 21,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history, Cowley point",
+          "was": "Abraham Cowley's Pindarique Odes (1656) began the irregular English ode",
+          "now": "Abraham Cowley's Pindarique Odes (1656) set the fashion for the irregular English ode",
+          "why": "The 1656 Poems date is confirmed, but sources describe Cowley as reviving or popularising the Pindaric form in England and none confirms he began the irregular ode, so the 'began' claim was softened."
+        },
+        {
+          "where": "craft, Keats point",
+          "was": "each use a ten-line stanza, which shows how one stable stanza lets thought turn from stanza to stanza while the shape stays put",
+          "now": "each use a ten-line stanza (the rhyme of its last six lines varies a little between poems), which shows how a steady stanza lets thought turn while the shape stays put",
+          "why": "All three odes are in ten-line stanzas, but search summaries show the rhyme scheme of the last six lines differs between Nightingale, Urn and Melancholy (and within the Urn and Melancholy), so 'one stable stanza' overstated the sameness."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Pindar's works year 'c. 470 BCE' is only a midpoint of his datable odes (about 498 to 446 BCE); it is kept to match the library's own record.",
+        "Dryden's Alexander's Feast is called a famous irregular ode; search confirmed the 1697 St Cecilia's Day date and that its stanzas vary in length, but no source I saw used the word 'irregular' for it.",
+        "Shelley's West Wind: five sections of four tercets and a couplet is confirmed, and composition in October 1819 is confirmed; the 1820 publication year (Prometheus Unbound volume) rests on knowledge, not on a search result.",
+        "Keats's odes are dated 1819 by composition; the odes reached book form in 1820. The Nightingale works year 1819 matches the library.",
+        "Neruda's onion ode: a search result names the onion among the plain things sung in Odas elementales, but no result gave the poem's text or volume; the placement in the 1954 volume rests on knowledge.",
+        "Not searched: the qasida description (long poem on a single rhyme, praise among its uses), the Princeton Encyclopedia reference, the 'few dozen to a few hundred lines' range, and the Horace Odes 1.11 source of carpe diem.",
+        "Tennyson's Wellington ode: sources give 15 (the Times), 16, 17 or 18 November 1852 for first printing; the text says only 'in the week of' the 18 November funeral, which all of them fit."
+      ]
+    },
+    "elegy.js": {
+      "method": "solid knowledge only; the search budget was gone before this file (no web check in this pass). Earlier pass: also knowledge only.",
+      "claimsChecked": 50,
+      "confirmed": 50,
+      "confirmedBySearch": 0,
+      "confirmedByKnowledge": 50,
+      "corrected": [],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "No search in this pass: every title, author and year (Astrophel 1595, Lycidas printed 1638, Gray 1751, Adonais 1821, In Memoriam 1850, Whitman 1865, Thyrsis 1866, Satires of Circumstance 1914, Duino Elegies 1923, Auden 1939, Goethe's Roman Elegies 1795, Ó Laoghaire lament 1773, Sacks 1985, Ramazani 1994) rests on solid knowledge, which a later pass with working search should still confirm.",
+        "Lycidas is dated 1638 (printing) in this file and in the library's pastoral-elegy form, but 1637 (writing) in the library's elegy genre entry and its 'works' list. The lint accepts it; the library's own two records disagree and are outside this batch.",
+        "Ovid's exile from 8 CE, the Exeter Book copying date ('later tenth century') and the epicedium and threnody etymologies are from knowledge only.",
+        "The name 'elegiac stanza' (also 'heroic quatrain') follows handbook usage; handbooks differ.",
+        "Ruskin coined 'pathetic fallacy' in the 1850s; sources give 1854 or 1856, so only 'the nineteenth century' is stated.",
+        "Auden's In Memory of W. B. Yeats is dated 1939 (published in the New Republic that year, per the earlier check); a London Mercury printing was not confirmed and is not claimed.",
+        "'Lament for Bion ... traditionally credited to Moschus' keeps the hedge on purpose; the authorship is debated."
+      ]
+    },
+    "villanelle.js": {
+      "method": "solid knowledge, the library's own entries (pantoum, sestina, rondeau, ghazal, terzanelle, villanelle), and the earlier checker's recorded search results; no new search in this pass",
+      "claimsChecked": 45,
+      "confirmed": 41,
+      "confirmedBySearch": 0,
+      "confirmedByEarlierCheckSearch": 17,
+      "confirmedByKnowledge": 24,
+      "corrected": [
+        {
+          "where": "compare summary",
+          "was": "where the others repeat a chain of lines, end words, a half-line, a couplet refrain or nothing at all",
+          "now": "where the others repeat a chain of lines, end words, a half-line, a refrain in every couplet or nothing at all",
+          "why": "The ghazal's refrain closes the second line of every couplet; it is not a 'couplet refrain'. The compare point itself and the library's ghazal entry were already right."
+        }
+      ],
+      "softened": [
+        {
+          "where": "history, Wilde",
+          "was": "Oscar Wilde's Theocritus: A Villanelle (1881) belongs to the same fashion",
+          "now": "Oscar Wilde's Theocritus: A Villanelle, in his 1881 Poems, belongs to the same fashion",
+          "why": "1881 is the year of the book Poems; whether it had an earlier magazine printing could not be re-checked, so the date is tied to the book instead of presented as first publication."
+        },
+        {
+          "where": "canon, Bishop point",
+          "was": "the villanelle most often named for its varied refrains and its control of feeling",
+          "now": "a villanelle often praised for its varied refrains and its control of feeling",
+          "why": "'Most often named' is a ranking no source supports."
+        },
+        {
+          "where": "tropes, loss point",
+          "was": "celebrated villanelles are about death, losing, ageing and endurance",
+          "now": "several celebrated villanelles are about death, losing, ageing and endurance",
+          "why": "Roethke's The Waking and Plath's Mad Girl's Love Song are not mainly about death or loss, so 'celebrated villanelles are' was too general."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "No search in this pass. Passerat's dates (1534 to 1602) and the 1606 printing, Gosse's 1877 essay, Banville's 1872 handbook, Thomas written 1947 and first published 1951, Plath's poem in 1953, and Turco's credit for the terzanelle were confirmed by search in the earlier check (per its report); I did not re-run them.",
+        "Roethke's The Waking (1953): the date is the book; an earlier magazine printing was not ruled out. The library's own villanelle entry also says 1953.",
+        "Auden's If I Could Tell You is stated only as 'written 1940'; the first printing year was never settled from two sources.",
+        "Henley's villanelle has no date in the text on purpose; the 'early examples' wording for Dobson (1877) and Henley (1870s or 1880s) is a general statement.",
+        "Robinson's The House on the Hill is called 'often cited as an early American villanelle', not the first; written in the 1890s.",
+        "The terzanelle's date and exact rhyme and repeat scheme are not stated, and the text says handbooks differ; only the nineteen-line, five-tercets-and-a-quatrain shape is asserted, and the library's terzanelle entry agrees.",
+        "Rondeau, pantoum, sestina, ghazal and sonnet descriptions are standard textbook definitions and agree with the library's own entries for those forms.",
+        "One earlier source gives 1574 as the composition date of Passerat's poem; the text states only the 1606 printing."
+      ]
+    }
+  }
+}

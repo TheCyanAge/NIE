@@ -8,7 +8,7 @@ export default [
     topic: 'history',
     parent: PARENT,
     name: 'Radio drama: history and origins',
-    summary: "Radio drama began in the early 1920s, soon after regular broadcasting started, flourished from the 1930s to the 1950s in Britain, the United States and Germany, lost much of its mass audience to television, and continues on public broadcasters and online.",
+    summary: "Radio drama began in the early 1920s, soon after regular broadcasting started, flourished from the 1930s to the 1950s, above all in Britain and the United States, lost much of its mass audience to television, and continues on public broadcasters and online.",
     conv: [
       "Plays were among the first things broadcast in the early 1920s. Richard Hughes's A Comedy of Danger, written for the BBC and broadcast in January 1924, is often called the first play written specifically for radio, though other claims exist.",
       "Germany built its own tradition, the Hörspiel, from 1924; Hans Flesch's Zauberei auf dem Sender, broadcast from Frankfurt in October 1924, is often counted as the first German radio play, and serious writers took up the form.",
@@ -43,7 +43,7 @@ export default [
       "The dramatisation or classic serial: an existing novel or story adapted for voices, which asks the adapter to decide what speech and sound can carry; it needs the source's rights unless the work is out of copyright.",
       "Genre series: crime, western, science fiction, horror and comedy built to a repeatable formula; The Hitchhiker's Guide to the Galaxy is comic science fiction that was written for radio first.",
       "The play for voices: language-led work in which verse or heightened speech and the interplay of voices carry the piece; Dylan Thomas gave Under Milk Wood this subtitle.",
-      "The feature and the radio ballad: drama built partly from real recorded speech, as in the BBC Radio Ballads of 1958 to 1964, which joined recorded testimony, song and sound; it overlaps with documentary.",
+      "The feature and the radio ballad: work built partly from real recorded speech, as in the BBC Radio Ballads of 1958 to 1964, which joined recorded testimony, song and sound; it sits between drama and documentary.",
       "Experimental sound work: the German Hörspiel and the Neues Hörspiel from the late 1960s treated sound and language as material in themselves, with story and character optional.",
     ],
     watch: [
@@ -176,7 +176,7 @@ export default [
       "Britain in the 1940s and 1950s: Louis MacNeice's radio play The Dark Tower (1946), with music by Benjamin Britten, and from the Third Programme Dylan Thomas's Under Milk Wood (1954) and Samuel Beckett's All That Fall (1957).",
       "Harold Pinter's A Slight Ache (1959) was first broadcast on the BBC Third Programme before it reached the stage, and is a standard example of the radio play as a form for literary dramatists.",
       "Serials: The Archers (trialled 1950, national from 1951), created by Godfrey Baseley, is the model for the continuing rural and domestic drama.",
-      "Features: the Radio Ballads (1958 to 1964) by Ewan MacColl, Peggy Seeger and Charles Parker, beginning with The Ballad of John Axon, joined recorded testimony, song and sound into documentary-drama.",
+      "Features: the Radio Ballads (1958 to 1964) by Ewan MacColl, Peggy Seeger and Charles Parker, beginning with The Ballad of John Axon, joined recorded testimony, song and sound into a new kind of radio documentary.",
       "Comedy and science fiction: Douglas Adams's The Hitchhiker's Guide to the Galaxy (1978) began as a BBC Radio 4 series and later became novels and other versions.",
       "Germany: Günter Eich's Träume (1951) is a landmark of the postwar Hörspiel, and the Neues Hörspiel that followed, including work by Mauricio Kagel and Ferdinand Kriwet, pushed toward sound as material.",
     ],

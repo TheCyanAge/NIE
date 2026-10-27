@@ -70,7 +70,7 @@ export default [
       "The gunfighter or lawman with a private code: reputation is both burden and strength, and the story asks whether a code of honour can survive where law is thin.",
       "The showdown: the climax where the moral conflict is settled face to face, in a street, a saloon or across open ground; the pleasure is in the approach to it, and the best versions change the stakes or the price.",
       "The frontier town: saloon, jail, general store, church, rail depot and one main street, a stage small enough that the community, its leaders and its outsiders can all be seen at once.",
-      "Land, water and fences: range wars, cattle barons, homesteaders, railroad agents and speculators dramatise who owns the country; barbed wire, patented in 1874, is a common symbol of the end of the open range.",
+      "Land, water and fences: range wars, cattle barons, homesteaders, railroad agents and speculators dramatise who owns the country; barbed wire, in the form Joseph Glidden patented in 1874, is a common symbol of the end of the open range.",
       "The cattle drive or the trail: a journey across hard country with a crew and a herd, used to test a group under weather, river crossings, stampedes and quarrels; it is the western's version of the quest.",
       "The posse, the manhunt and the revenge quest: pursuit stories in which the chase exposes what the pursuer will do and what it costs, as in The Searchers (1954) and True Grit (1968).",
       "The outlaw and the bounty hunter: figures outside the law with their own codes, used to blur the line between law and crime; the sympathetic outlaw and the compromised lawman are standing reversals.",

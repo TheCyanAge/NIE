@@ -17,7 +17,7 @@ export default [
       "In Japan the Comic Market (Comiket), first held in December 1975, grew into a vast fair for self-published dōjinshi, many of them derived from existing manga, anime and games; the Japanese term for derivative creation is nijisōsaku.",
       "In the 1990s fandom moved online through newsgroups, mailing lists and personal sites; the large open archive FanFiction Net opened in 1998, and Harry Potter fandom drove a big wave of new writers in the 2000s.",
       "Fans founded the Organization for Transformative Works in 2007 to protect and preserve fan works, and its Archive of Our Own (AO3) entered open beta in 2009; the archive is nonprofit and volunteer-run, and it won a Hugo Award for Best Related Work in 2019.",
-      "In the 2010s some fan stories were rewritten as published novels: Fifty Shades of Grey (2011) began as Twilight fan fiction, After (2014) as One Direction fan fiction posted on Wattpad, and Ali Hazelwood's The Love Hypothesis (2021) as Star Wars fan fiction.",
+      "From 2011 onward some fan stories were rewritten as published novels: Fifty Shades of Grey (2011) began as Twilight fan fiction, After (2014) as One Direction fan fiction posted on Wattpad, and Ali Hazelwood's The Love Hypothesis (2021) as Star Wars fan fiction.",
       "Amazon's Kindle Worlds opened in 2013 and let writers sell fan fiction set in licensed worlds on the rights-holders' terms; Amazon closed it in 2018.",
     ],
     watch: [

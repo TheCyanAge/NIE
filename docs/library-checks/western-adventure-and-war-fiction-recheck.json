@@ -1,0 +1,93 @@
+{
+  "batch": "western-adventure-and-war-fiction",
+  "searchUsed": true,
+  "searchNote": "WebSearch worked for 35 queries (summaries only; WebFetch was not tried because the earlier checkers reported hosts do not resolve). The shared per-turn search budget then ran out, so five planned queries were refused (Haldeman/Heinlein/Clancy dates; Wouk/Buchheim; Jones/de Bernieres/Frazier; Barker/Faulks; Powers/Klay/Doerr). I did not work around the limit. Those titles and dates, and the many other well-known ones listed under remainingDoubts that no query returned, rest on solid knowledge only. Search confirmed: Western Story Magazine 1919; L'Amour's pulp career and Hondo 1953 (from Collier's story 1952); Warlock 1958 and its hired-marshal plot; The Shootist 1975; The Searchers 1954; Glidden's 1874 barbed-wire patents (and that earlier barbed-wire patents existed); Dime novels from June 1860 (Malaeska); Buffalo Bill's Wild West opening in Omaha on 19 May 1883; The Log of a Cowboy 1903; The Gunslinger 1982; Lonesome Dove 1985 and its 1986 Pulitzer; Welcome to Hard Times and Butcher's Crossing 1960; Gunsmoke 1955-75 and Bonanza 1959-73; Gunfighter Nation and West of Everything both 1992; Close Range 1999; the Colt Single Action Army adopted by the US Army in 1873; Dumas serials begun 1844; Verne's series begun 1863; Captains Courageous 1897; Tarzan in All-Story Oct 1912 and The Lost World in the Strand 1912; Green's Dreams of Adventure, Deeds of Empire (Basic Books, 1979); Boy's Own Paper January 1879; The Guns of Navarone 1957; Sharpe's Eagle 1981; The Princess Bride 1973; Hatchet 1987; Grossman's Life and Fate first published in Lausanne 1980; The Killer Angels 1974 and 1975 Pulitzer; Crane born 1871 and The Red Badge in 1895; Under Fire 1916 (Goncourt); Sevastopol Sketches 1855; Charterhouse of Parma 1839; PTSD in DSM-III 1980; Myers and shell shock 1915; moral injury (Shay 1994, Litz 2009, no agreed definition); the lost generation phrase and its disputed origin; Matterhorn 2010 (small-press 2009); Going After Cacciato 1978. The earlier checker's weak spots were looked at first: the Virginian-as-first-western point is already worded as a convention and the record is contested, so left; Master and Commander 1969, Matterhorn 2010, Coral Island 1857 and A Fistful of Dollars 1964 keep the dates the earlier checker chose. Note on the staging script: `scripts/library-profile-check.mjs --staging` prints 18 'duplicate id / duplicate profile' lint lines for each file only because the installed copy of the same profile already exists in the library; there are no other lint problems. I ran an equivalent wrapper (kept outside the recheck folder, in a scratch subfolder) that ignores exactly those duplicate lines and runs the same lint plus the same one-question-per-facet retrieval check: all three files print OK (9 records each, every facet found). Retrieval is unaffected by my edits because only conv text changed (no name, topic, kw or parent), but note the retrieval check answers from the installed copy for the same ids.",
+  "files": {
+    "western.js": {
+      "claimsChecked": 76,
+      "confirmed": 75,
+      "corrected": [
+        {
+          "where": "profile-western-tropes, conv 5 (Land, water and fences)",
+          "was": "barbed wire, patented in 1874, is a common symbol of the end of the open range.",
+          "now": "barbed wire, in the form Joseph Glidden patented in 1874, is a common symbol of the end of the open range.",
+          "why": "Barbed wire had earlier patents (Kelly 1868 and others); what Glidden patented in 1874 (in May, and the well-known No. 157,124 in November) was the design, the one that won in the courts and the market. The old wording implied barbed wire itself was first patented in 1874."
+        }
+      ],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "'The first western' is genuinely contested (Wister is convention; Emma Ghent Curtis's The Administratrix, about 1889, is cited by some). Record stays contested and the watch note already says so.",
+        "Search did not return anything for these, which rest on solid knowledge: Cooper's three Leatherstocking dates (1823, 1826, 1827); Turner 1893 and the 1890 census reading; The Great Train Robbery 1903; Riders of the Purple Sage 1912; Ox-Bow 1940; Shane 1949; Stagecoach 1939; The Searchers film 1956; Little Big Man 1964; True Grit 1968; A Fistful of Dollars 1964 (Italian release); The Wild Bunch 1969; Unforgiven 1992; Deadwood 2004-2006; The Sisters Brothers 2011; News of the World 2016; The Big Sky 1947 and The Way West 1949; Blood Meridian 1985; All the Pretty Horses 1992; The Son 2013; No Country for Old Men 2005 set in 1980; Hell or High Water 2016; Louis L'Amour's Sackett series; the film of Shane 1953.",
+        "Max Brand's first appearance in Western Story Magazine is dated Nov 1920 by the sources I saw (they disagree by ten days); the profile only says the pulps fed the form with writers such as Max Brand from 1919 onward, which holds.",
+        "Market remarks in the readers facet (short mass-market paperbacks, shelving in Western, general or historical sections) cannot be verified; the record is 'varies' with an asOf."
+      ]
+    },
+    "adventure-fiction.js": {
+      "claimsChecked": 56,
+      "confirmed": 53,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "profile-adventure-fiction-history, conv 4 (Scott, Cooper, Dumas)",
+          "was": "Alexandre Dumas's The Three Musketeers and The Count of Monte Cristo, both begun in 1844, added pace, swordplay and the serial instalment.",
+          "now": "Alexandre Dumas's The Three Musketeers and The Count of Monte Cristo, both begun as newspaper serials in 1844, added pace and swordplay.",
+          "why": "Both were begun as newspaper serials in 1844 (Le Siècle, Journal des Débats), which is confirmed; but Dumas did not 'add' the serial instalment, the newspaper roman-feuilleton already existed. The claim now says what is true and drops the invention credit."
+        },
+        {
+          "where": "profile-adventure-fiction-history, conv 7 (early twentieth century)",
+          "was": "In the early twentieth century the pulp magazines carried adventure to mass audiences: Edgar Rice Burroughs's Tarzan (first printed in a magazine in 1912), Arthur Conan Doyle's The Lost World (1912), Rafael Sabatini's Captain Blood (1922) and the hero-magazine serials of the 1930s.",
+          "now": "In the early twentieth century magazines and popular novels carried adventure to mass audiences: (same list)",
+          "why": "The Lost World ran in the Strand Magazine (April to November 1912), which was a mass-market monthly, not a pulp; Captain Blood was a novel in 1922. Tarzan (All-Story, October 1912) is the pulp case. The lead-in no longer labels all of them pulps."
+        },
+        {
+          "where": "profile-adventure-fiction-history, conv 6 (high point in Britain)",
+          "was": "The decades from the 1880s to the First World War were adventure's high point in Britain: ... Buchan's The Thirty-Nine Steps (1915)",
+          "now": "The decades from the 1880s into the First World War years were adventure's high point in Britain: ...",
+          "why": "The Thirty-Nine Steps (1915) was published during the war, so 'to the First World War' contradicted its own example."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "'The first adventure novel' is definition-dependent (Robinson Crusoe is the convention); the record is contested and the watch note says so.",
+        "No search result for these, which rest on solid knowledge: Odyssey date range; Argonautica in the third century BCE; Chretien de Troyes in the later twelfth century; Don Quixote 1605 and 1615; Robinson Crusoe 1719; Gulliver's Travels 1726; Ivanhoe 1819; Treasure Island 1883; King Solomon's Mines 1885; She 1887; Kidnapped 1886; The Prisoner of Zenda 1894; The Thirty-Nine Steps 1915 (the search returned only a catalogue listing); Scaramouche 1921; Captain Blood 1922; Twenty Thousand Leagues Under the Seas 1870; Master and Commander 1969 (US first edition; UK 1970); When the Lion Feeds 1964; Life of Pi 2001; Shogun 1975; The Hero with a Thousand Faces 1949; MacGuffin's Hitchcock association; Said 1993 (confirmed only as a 1993 book).",
+        "The Coral Island is dated 1857 (the usual date); one biography says 1858 and the title page may differ. It is left as 1857, as in the earlier check.",
+        "Around the World in Eighty Days is given as 'serialised 1872' (book 1873); the works field keeps 1872 to agree with the library's own adventure entry. I could not confirm the Le Temps serial detail by search, only that sources give 1872 or 1873.",
+        "Market remarks in the readers facet (shelving, series practice) cannot be verified; the record is 'varies' with an asOf."
+      ]
+    },
+    "war-fiction.js": {
+      "claimsChecked": 54,
+      "confirmed": 51,
+      "corrected": [
+        {
+          "where": "profile-war-fiction-history, conv 3 (The Red Badge of Courage)",
+          "was": "written by an author too young to have fought in it",
+          "now": "written by an author born years after the war ended",
+          "why": "Crane was born on 1 November 1871 and the Civil War ended in 1865, so he was not a young man who missed the fighting but was born after the war. Confirmed by search; the old wording misstated the situation."
+        },
+        {
+          "where": "profile-war-fiction-subgenres, conv 3 (First World War fiction)",
+          "was": "written during the war and looking back at it, as in Parade's End and Birdsong.",
+          "now": "written during the war and long after it, as in Under Fire, Parade's End and Birdsong.",
+          "why": "The old sentence said the books were written during the war but gave two examples written in the 1920s and in 1993. Under Fire (1916) is the during-the-war example, and the rest are after."
+        }
+      ],
+      "softened": [
+        {
+          "where": "profile-war-fiction-terms, conv 8 (Lost generation)",
+          "was": "usually credited to Gertrude Stein and popularised by Hemingway, who used it as an epigraph to The Sun Also Rises (1926).",
+          "now": "it is popularly credited to Gertrude Stein, who said she took it from a Frenchman, and Hemingway used it as an epigraph to The Sun Also Rises (1926).",
+          "why": "Sources agree Stein did not coin it: Hemingway's memoir says she took it from a French garage owner, her own account names a hotelier, and Hemingway's epigraph is the reason it is famous. The new wording keeps the usual credit and states what is known. This now matches the library's own Lost Generation entry ('popularly credited')."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "'First modern war novel' for The Red Badge is a critics' label; I found no source using that exact phrase. The text already presents it as 'often called' and the first-war-novel point is in the watch note as a convention, so it is left.",
+        "No search result (budget ran out) for these, which rest on solid knowledge: The Good Soldier Svejk 1921-1923; Parade's End 1924-1928; From Here to Eternity 1951; The Thin Red Line 1962; The Caine Mutiny 1951; Das Boot 1973; Captain Corelli's Mandolin 1994; Cold Mountain 1997; Birdsong 1993; Regeneration trilogy 1991-1995; The Yellow Birds 2012; Redeployment 2014; All the Light We Cannot See 2014; The Sympathizer 2015; The Hunt for Red October 1984; Starship Troopers 1959; The Forever War 1974; Fussell 1975 (OUP); Catch-22 1961; Slaughterhouse-Five 1969; Mailer 1948; the Song of Roland and Iliad dating; Aeneid unfinished at death in 19 BCE; the Henry V source of 'band of brothers'; 'grunt' as Vietnam-era slang.",
+        "Catch-22 and Slaughterhouse-Five finding a large readership as opposition to the Vietnam War grew is a standard literary-history account that I did not source individually.",
+        "Market remarks in the readers facet (a recurring strand of Second World War historical fiction centred on women and civilians; 'military fiction' shelving) cannot be verified; the record is 'varies' with an asOf."
+      ]
+    }
+  }
+}

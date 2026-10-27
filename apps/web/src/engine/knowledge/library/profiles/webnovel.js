@@ -8,7 +8,7 @@ export default [
     topic: 'history',
     parent: PARENT,
     name: 'Webnovel: history and origins',
-    summary: "Webnovels grew from amateur online fiction of the 1990s into a commercial industry in China (paid chapters from 2003), Japan (free-posting sites from 2004) and Korea (mobile platforms from 2013), and reached the wider world through translation and adaptation.",
+    summary: "Webnovels grew from amateur online fiction of the 1990s into a commercial industry in China (paid chapters from 2003), Japan (the free site Shōsetsuka ni Narō from 2004) and Korea (mobile platforms from 2013), and reached the wider world through translation and adaptation.",
     conv: [
       "From the late 1990s amateurs in China, Japan and Korea posted fiction on bulletin boards, personal sites and community networks; the three countries then developed different business models and genre habits.",
       "In Japan, mobile-phone novels of the early 2000s, such as Yoshi's Deep Love, which began on a mobile site and appeared in print, showed that a story with an online following could also sell as a book.",

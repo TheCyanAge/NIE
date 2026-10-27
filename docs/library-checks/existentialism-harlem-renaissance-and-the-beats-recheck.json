@@ -1,0 +1,94 @@
+{
+  "batch": "existentialism-harlem-renaissance-and-the-beats",
+  "searchUsed": true,
+  "searchNote": "WebSearch worked for 22 queries (summaries only; no primary pages read, WebFetch not attempted because the earlier checkers found it unusable). The per-turn WebSearch budget (200, shared by every agent in the turn) then ran out, so the remaining Beat Generation items I wanted to look up (Pull My Daisy year, Herb Caen and beatnik 1958, Evergreen Review 1957, Big Table 1959, Naked Lunch 1962 and 1966 trial, Essentials of Spontaneous Prose, Howl facsimile, Holmes 1952 article, Sterling Brown's Southern Road) were NOT searched; they rest on solid knowledge and on agreement with the library's own entries, and I changed none of them. Search confirmed: 1935 Harlem riot as a conventional end marker (Britannica, Lewis, Locke); Chicago Renaissance core dates (Britannica 1912-1925); Southern Renaissance start in the 1920s with no agreed end; Black Chicago Renaissance span (sources differ); Conjure-Man Dies as first/early Black American detective novel (hedge needed, already present); Cassady arriving in New York in December 1946; Esslin's contrast of Sartre and Camus (old conventions) with absurdist form; Sartre's 1948 'anti-novel' preface to Sarraute's Portrait of a Man Unknown; Robbe-Grillet's 1958 essay Nature, humanisme, tragedie (links Camus and Sartre to the 'tragic'); Beauvoir's Literature and Metaphysics (1946); Cain as an often-named model for The Stranger (Kaplan; the Camus quotation itself not found); Daoud 2013 (Barzakh) and 2015 English; Sartre's theatre of situations; Les Temps modernes founded 1945; Les Mots serialised Oct and Nov 1963 (book dated 1963 or 1964 by source); Murdoch's Sartre book 1953; Civic Club dinner 1924 and Survey Graphic March 1925; Hughes and Schuyler in The Nation June 1926; Fauset literary editor of The Crisis 1919-26; Cullen's Color 1925 with Heritage and The Black Christ 1929; Hughes's Mulatto (Broadway 24 Oct 1935) and The Ways of White Folks (1934); Nugent's story in Fire!! (Nov 1926); Alice Walker's 1975 Ms. essay; the Talented Tenth (Morehouse 1896, Du Bois 1903). Search was unstable on Plum Bun (1928 or 1929 by source).",
+  "files": {
+    "existentialism.js": {
+      "claimsChecked": 118,
+      "confirmed": 118,
+      "corrected": [],
+      "softened": [],
+      "removed": [],
+      "remainingDoubts": [
+        "The Words (Les Mots): serialised October and November 1963 is confirmed; 'as a book in 1964' follows the BnF and library dating, but one source dates the Gallimard book 1963 (printed end of 1963). Left as 1964.",
+        "Robbe-Grillet's essay is confirmed as 1958 and as tying Camus and Sartre to the 'tragic' view of things, but the passage was not read, so 'gave things human meanings through its imagery' is a paraphrase of the argument as summarised, not of the text.",
+        "Cain's Postman as a model for The Stranger is repeated by booksellers and by Kaplan's book; Camus's own words were not found. The text only says it is 'often named as a model', which holds.",
+        "Most work years (Kierkegaard 1843, Dostoevsky 1864, Kafka 1925 and 1926, Sartre 1938, 1939, 1943, 1944, Camus 1942, 1947, 1951, 1956, 1957, Beauvoir 1943, 1947, 1949, 1954, 1958, Wright 1953, Percy 1961, Abe 1962) and the death dates rest on solid knowledge and agree with the library entry; they were not individually searched.",
+        "The Esslin point is a paraphrase of a passage seen only in secondary quotation; the 1961 date is the usual first-edition date (one site says 1962)."
+      ]
+    },
+    "harlem-renaissance.js": {
+      "claimsChecked": 138,
+      "confirmed": 133,
+      "corrected": [
+        {
+          "where": "compare, Versus the Chicago Renaissance",
+          "was": "the earlier Midwestern movement (about 1890 to 1925)",
+          "now": "the earlier Midwestern movement (about 1910 to 1925)",
+          "why": "Britannica dates the Chicago literary renaissance to about 1912-1925 and the Chicago History Museum to about 1910 to the mid-1920s; the 1890s are a precursor period, not part of the movement proper."
+        }
+      ],
+      "softened": [
+        {
+          "where": "compare, Versus the Chicago Renaissance (Black Chicago Renaissance)",
+          "was": "a Black Chicago Renaissance from the 1930s to the 1950s",
+          "now": "a Black Chicago Renaissance, roughly the 1930s to the 1950s",
+          "why": "Sources give different spans (1930s-40s, Depression to early 1950s, 1930s to 1960s)."
+        },
+        {
+          "where": "compare, Versus the Southern Renaissance",
+          "was": "(about 1920 to 1960)",
+          "now": "(from the 1920s into the mid-twentieth century)",
+          "why": "Sources agree it began in the 1920s but give no agreed end date; 1960 was an unsupported round figure."
+        },
+        {
+          "where": "subgenres, Passing and middle-class novels",
+          "was": "Plum Bun (1928)",
+          "now": "Plum Bun (late 1920s)",
+          "why": "Sources split between 1928 (first publication, British edition) and 1929 (US Stokes edition); 'late 1920s' is true either way. Plum Bun is not in the works list."
+        },
+        {
+          "where": "history, watch",
+          "was": "the label Harlem Renaissance became standard later than New Negro Renaissance",
+          "now": "the movement was known at the time by other names, notably the New Negro movement",
+          "why": "The claim about which label became standard later was not confirmed; that the movement was called the New Negro movement at the time is supported and matches the summary."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "The Conjure-Man Dies as 'often called the first Black American detective novel' keeps its hedge ('depending on how earlier crime fiction is counted'); one source calls Fisher the second Black American to write a detective novel (serialised earlier work exists), so the hedge must stay.",
+        "The 1935 Harlem riot as an end marker is confirmed as a common convention (Britannica, Lewis, Locke) but not as settled; the text says 'often used as a marker' and the facet is 'contested'.",
+        "Sterling Brown's Southern Road (1932), God's Trombones (1927), Black Manhattan (1930), The Big Sea (1940), Caroling Dusk (1927), Mules and Men (1935) and several Fire!! contents rest on solid knowledge, not on a search that returned them.",
+        "'Many books first published in the 1920s are now in the public domain' is true for US works up to 1929 as of 2025 and later (the readers facet carries an asOf); it was not searched.",
+        "Négritude writers drawing on Harlem writers (McKay among them) rests on solid knowledge and general scholarship, not a returned source."
+      ]
+    },
+    "beat-generation.js": {
+      "claimsChecked": 130,
+      "confirmed": 128,
+      "corrected": [
+        {
+          "where": "history, 1940s circle",
+          "was": "and, from the late 1940s, Neal Cassady",
+          "now": "and, from 1946, Neal Cassady",
+          "why": "Cassady came to New York in late 1946 and met Kerouac and Ginsberg then (Wikipedia and other summaries); 'the late 1940s' was loose."
+        }
+      ],
+      "softened": [
+        {
+          "where": "subgenres, Women's poetry and memoir",
+          "was": "Memoirs of a Beatnik (1969)",
+          "now": "Memoirs of a Beatnik (late 1960s)",
+          "why": "The earlier checker already noted sources give 1968 or 1969; the Olympia Press edition is usually dated 1969, but 'late 1960s' is true either way and I could not search it again."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Search budget ran out before the Beat items could be searched, so these rest on solid knowledge and on agreement with the library entry and were left unchanged: Pull My Daisy 1959 (one filmography says 1958), beatnik coined by Herb Caen in 1958, Evergreen Review 1957, Big Table 1959, City Lights 1953 and Pocket Poets 1955, Six Gallery on 7 October 1955 and its readers, the Howl seizure and the autumn 1957 ruling, Viking On the Road in September 1957, Naked Lunch (Paris 1959, US 1962, Massachusetts ruling 1966), Naropa 1974, Kaufman 1965, Memoir years for Johnson 1983 and Hettie Jones and Carolyn Cassady 1990, The Soft Machine 1961, Mexico City Blues 1959, Essentials of Spontaneous Prose in 1958, the Howl original draft facsimile, and the death years.",
+        "Burroughs's advice that Naked Lunch can be entered anywhere is attributed to 'his own preface'; the line is in the book's closing 'Atrophied Preface', from memory.",
+        "'Beat' tracing to Times Square slang and Huncke is the standard account; the text already says the origin is disputed."
+      ]
+    }
+  },
+  "notes": "Staging check: running 'node scripts/library-profile-check.mjs --staging <file>' directly against the repo failed with duplicate-id lint problems only because the installed profiles (profiles/existentialism.js, harlem-renaissance.js, beat-generation.js) have the same ids. To get a real result I copied scripts/ and apps/web/src/engine to a scratch folder (scratchpad/chk), removed the three installed profile files and their index.js lines there, and ran the check on my three files; all three print OK (9 records each, lint clean, every facet found). Nothing in the repo was touched."
+}

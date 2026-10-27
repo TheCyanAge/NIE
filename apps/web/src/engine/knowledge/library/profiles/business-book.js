@@ -26,7 +26,7 @@ export default [
     q: ["Which tradition is my book in conversation with: the efficiency manual, the corporate-excellence study, the startup playbook or the research-led framework?"],
     kw: ['history of business books', 'business book history', 'origins of management books', 'when did management books begin', 'history of management literature', 'who started the management book', 'history of leadership books', 'how did business books start', 'timeline of management thinking', 'where did business books come from'],
     scope: ['trade nonfiction', 'professional and academic management writing'],
-    confidence: 'established',
+    confidence: 'contested',
     refs: ['The Practice of Management'],
   },
   {
@@ -236,7 +236,7 @@ export default [
     summary: "A short glossary of words authors, editors and critics use about business and management books, for reading about the genre and for naming what a book is doing.",
     conv: [
       "Framework: a structured way of thinking about a problem, often drawn as a model or a list of principles; the central product of many business books.",
-      "Case study: a detailed account of one organisation, decision or event used to teach or to support a claim; Harvard Business School's use of the case method from the 1920s helped make it a standard way of teaching management.",
+      "Case study: a detailed account of one organisation, decision or event used to teach or to support a claim; Harvard Business School's adoption of the case method in its early decades helped make it a standard way of teaching management.",
       "Thought leadership: a marketing term for being known as an originator of ideas in a field, which often explains why an author writes a book; it is sometimes used with irony.",
       "Survivorship bias: drawing conclusions from the successes that remain visible and ignoring the failures that did the same things and disappeared.",
       "Halo effect: judging a company's strategy, leadership or culture by its results, so that good performance makes everything about the firm look good; the central idea of Phil Rosenzweig's 2007 book of that name.",

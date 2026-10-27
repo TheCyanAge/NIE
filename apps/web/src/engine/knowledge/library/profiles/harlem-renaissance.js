@@ -21,7 +21,7 @@ export default [
       "Afterlife: Richard Wright's protest realism (Native Son, 1940) and Hughes's later work answered the period, scholars revived the movement and Hurston especially from the 1970s, and the Black Arts Movement of the 1960s took up its questions in a new key.",
     ],
     watch: [
-      "Dates and names are contested: some scholars put the start at 1919 and others earlier, the end anywhere from 1929 to the late 1930s, and the label Harlem Renaissance became standard later than New Negro Renaissance.",
+      "Dates and names are contested: some scholars put the start at 1919 and others earlier, the end anywhere from 1929 to the late 1930s, and the movement was known at the time by other names, notably the New Negro movement.",
       "The movement was national and Caribbean in reach; Washington, Chicago and Philadelphia were centres too, and not every key writer lived in Harlem.",
     ],
     intent: ["A writer setting a story in the period can choose which Harlem to show: the salon and publishing world, the cabaret, the church and tenement, or the migrant's first year in the city."],
@@ -42,7 +42,7 @@ export default [
       "Blues and jazz poetry: Langston Hughes adapts the blues stanza and the rhythms of jazz and speech to verse in The Weary Blues (1926) and later books, treating popular music as a source of poetic form.",
       "Formal lyric and protest sonnets: Claude McKay and Countee Cullen use the sonnet and other inherited forms for anger, beauty and desire, showing command of the tradition that had excluded Black poets.",
       "The Harlem novel: McKay's Home to Harlem (1928), Rudolph Fisher's The Walls of Jericho (1928) and Wallace Thurman's The Blacker the Berry (1929) set stories among cabarets, tenements, churches and the classes of the city.",
-      "Passing and middle-class novels: Jessie Fauset's There Is Confusion (1924) and Plum Bun (1928) and Nella Larsen's Quicksand (1928) and Passing (1929) follow educated Black women through questions of colour, class and belonging.",
+      "Passing and middle-class novels: Jessie Fauset's There Is Confusion (1924) and Plum Bun (late 1920s) and Nella Larsen's Quicksand (1928) and Passing (1929) follow educated Black women through questions of colour, class and belonging.",
       "Folk and rural fiction: Toomer's Cane (1923) mixes sketches, poems and a dramatic final section, with settings in Georgia and the northern cities, and Zora Neale Hurston draws on Southern Black speech in Mules and Men (1935) and Their Eyes Were Watching God (1937).",
       "Satire and the detective story: Schuyler's Black No More (1931) and Thurman's Infants of the Spring (1932) mock racial thinking and the movement itself; Fisher's The Conjure-Man Dies (1932) is often called the first Black American detective novel, depending on how earlier crime fiction is counted.",
       "Essays and manifestos: Locke's The New Negro, Hughes's essay on the racial mountain (1926), Schuyler's essay to which it replied, and Du Bois's pieces in The Crisis argued about what Black art should be and for whom.",
@@ -148,12 +148,12 @@ export default [
     name: 'Harlem Renaissance: how it differs from neighbouring genres',
     summary: "The Harlem Renaissance overlaps with the Chicago Renaissance, the wider African American tradition, Négritude, the Lost Generation, modernism and the Southern Renaissance, and it is distinguished by its time, its place and its aim of racial self-definition.",
     conv: [
-      "Versus the Chicago Renaissance: the earlier Midwestern movement (about 1890 to 1925) was mostly of white realist and free-verse writers, while later historians speak of a Black Chicago Renaissance from the 1930s to the 1950s with Richard Wright, Gwendolyn Brooks and Margaret Walker.",
+      "Versus the Chicago Renaissance: the earlier Midwestern movement (about 1910 to 1925) was mostly of white realist and free-verse writers, while later historians speak of a Black Chicago Renaissance, roughly the 1930s to the 1950s, with Richard Wright, Gwendolyn Brooks and Margaret Walker.",
       "Versus African American literature: the Harlem Renaissance is one period of a longer tradition that runs from the oral tradition and slave narratives to the present; it is distinctive for its cluster of new writers and magazines in the 1920s.",
       "Versus Négritude: Négritude began in the 1930s among Black francophone students and writers in Paris, such as Césaire and Senghor, with roots in colonial experience; the two movements are connected, since the Paris writers drew on the Harlem writers, McKay among them.",
       "Versus the Lost Generation: both belong to the 1920s and the Paris scene; the Lost Generation writers were mostly white Americans marked by the First World War, whereas the Harlem writers wrote of migration, racial pride and the colour line.",
       "Versus modernism: modernist methods appear in Cane and in Hughes's jazz poetry, and recent scholarship counts the Harlem Renaissance within modernism, but many of its writers also valued inherited forms and the aim of racial uplift.",
-      "Versus the Southern Renaissance: the Southern Renaissance (about 1920 to 1960) was a mainly white regional literature of the South, whereas the Harlem writers often came from the South and wrote of it as migrants and as heirs of Black folk life.",
+      "Versus the Southern Renaissance: the Southern Renaissance (from the 1920s into the mid-twentieth century) was a mainly white regional literature of the South, whereas the Harlem writers often came from the South and wrote of it as migrants and as heirs of Black folk life.",
       "Versus the Black Arts Movement: the later movement (1965 to the mid-1970s) called for a Black aesthetic made for Black audiences and was more openly political; its writers looked back on the 1920s movement with both debt and criticism.",
     ],
     watch: [

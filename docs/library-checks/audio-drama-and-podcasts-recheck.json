@@ -1,0 +1,104 @@
+{
+  "batch": "audio-drama-and-podcasts",
+  "searchUsed": true,
+  "searchNote": "WebSearch worked for the first ten queries, all on radio-drama (Hughes, Flesch, MacNeice, Beckett/Pinter, Thomas, Suspense/Johnny Dollar, CBS Radio Mystery Theater, The Archers, Radio Ballads, Eich, Neues Hoerspiel, Corwin, Fletcher, Welles panic, Hitchhiker's). The next six queries (Third Programme date, Wolf 359 run, Archive 81, Magnus Archives, Night Vale Presents/Alice Isn't Dead) were refused because the shared per-turn search budget (200) was already spent by other agents. WebFetch to Wikipedia failed with ENOTFOUND. I did not try to get round either limit. So radio-drama was checked against search results plus solid knowledge; fiction-podcast and nonfiction-podcast were checked from solid knowledge only, with the stricter rule applied (anything I could not be sure of was softened). The Third Programme opening (29 Sept 1946) was not searched; I am sure of it from knowledge. The command `library-profile-check.mjs --staging <file>` cannot print OK for these three files because the installed library already holds profiles/radio-drama.js, fiction-podcast.js and nonfiction-podcast.js, so its lint reports 18 'duplicate id / duplicate profile' problems per file (9 ids x 2) and nothing else. To get a real result I copied scripts/ and apps/web/src/engine/ into a sandbox under the scratchpad (sandbox-audio), put my three files in place of the installed profiles there, and ran the same script in normal mode: 'OK: 27 records, lint clean, every facet found'. The repo itself was not touched.",
+  "files": {
+    "radio-drama.js": {
+      "claimsChecked": 30,
+      "confirmed": 26,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history facet, summary",
+          "was": "flourished from the 1930s to the 1950s in Britain, the United States and Germany",
+          "now": "flourished from the 1930s to the 1950s, above all in Britain and the United States",
+          "why": "German radio drama's first flowering was the 1920s and early 1930s and its second the postwar 1950s; one blanket 1930s-1950s span for Germany is not defensible. Germany is still covered, with dates, in the history conv points."
+        },
+        {
+          "where": "subgenres facet, conv 'The feature and the radio ballad'",
+          "was": "drama built partly from real recorded speech ... it overlaps with documentary.",
+          "now": "work built partly from real recorded speech ... it sits between drama and documentary.",
+          "why": "Search sources describe the Radio Ballads as an audio documentary format that used recorded interviews rather than actors, so calling them 'drama' was too strong."
+        },
+        {
+          "where": "canon facet, conv 'Features: the Radio Ballads'",
+          "was": "joined recorded testimony, song and sound into documentary-drama.",
+          "now": "joined recorded testimony, song and sound into a new kind of radio documentary.",
+          "why": "Same reason: 'documentary-drama' implies dramatised reconstruction by actors, which is not how the Radio Ballads are described. The earlier checker had also flagged this label as resting on memory."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "'Scripted drama on radio today is largely the work of public-service broadcasters in several countries' is a general statement I could not source; it is hedged ('largely', 'several countries') and the facet is confidence 'varies'.",
+        "The Dark Tower first broadcast: sources give 21 January 1946 (Wikipedia) or 26 January 1946 (Otago archive). The text gives only 1946, which is safe. Search sources describe it as a BBC Home Service play, not Third Programme, and the text does not say Third Programme.",
+        "Under Milk Wood is dated 1954 (the BBC broadcast of 25 January 1954, confirmed). Its first public reading was in New York in May 1953; the text does not claim otherwise.",
+        "'First radio play' for A Comedy of Danger (15 January 1924, BBC, confirmed) and for Zauberei auf dem Sender (24 October 1924, Frankfurt, confirmed) are both disputed by sources (other earlier plays; Rolf Gunold's Spuk of January 1925 is also cited as a first German original). The text already hedges both ('often called', 'often counted', 'other claims exist')."
+      ]
+    },
+    "fiction-podcast.js": {
+      "claimsChecked": 27,
+      "confirmed": 22,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history facet, conv 'Welcome to Night Vale, from June 2012'",
+          "was": "its makers later founded the label Night Vale Presents in 2015.",
+          "now": "its makers later founded the label Night Vale Presents.",
+          "why": "I could not confirm the founding year of the label (it grew out of their earlier company); the year was removed rather than guessed."
+        },
+        {
+          "where": "history facet, conv 'Long-running independent shows'",
+          "was": "Wolf 359, a science-fiction series by Gabriel Urbina, ran from 2014 to 2017.",
+          "now": "Wolf 359, a science-fiction series by Gabriel Urbina, began in 2014.",
+          "why": "I am sure of the 2014 start but not of an end year; I believe the show continued past 2017 in later seasons, and the earlier checker did not list the end year as sourced. Only the start year is kept."
+        },
+        {
+          "where": "canon facet, conv 'Science fiction: Wolf 359'",
+          "was": "Wolf 359 (2014 to 2017) by Gabriel Urbina",
+          "now": "Wolf 359 (from 2014) by Gabriel Urbina",
+          "why": "Same as above. The works[] year 2014 already matched the start year."
+        },
+        {
+          "where": "history facet, conv 'Radio drama is the root'",
+          "was": "recorded audio drama on tape and disc, such as Big Finish's licensed plays",
+          "now": "recorded audio drama sold on disc, such as Big Finish's licensed plays",
+          "why": "Big Finish's licensed Doctor Who plays (from 1999) are known as disc releases; I could not confirm they were issued on tape, so 'tape' was dropped."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "Search budget ran out before any fiction-podcast query could be made, so every item here rests on solid knowledge only (plus what the first checker's note records: Facebook Watch Limetown premiere 16 October 2019 confirmed by them).",
+        "Archive 81: the 2016 start and the Dan Powell / Marc Sollinger credit are what I believe and what the first checker found best supported (Netflix Tudum and others), but no primary source settled it for either of us. If a later check finds another year, change the canon conv line and the works[] year together. This is the one claim in the file counted as neither confirmed nor changed.",
+        "Limetown first-episode date differs by source (July or August 2015 per the first checker); the text gives only 2015, which is safe.",
+        "Magnus Archives '2016 to 2021 for 200 episodes' and 'five seasons' (5 x 40) are from solid knowledge, not re-searched.",
+        "Wolf 359 start year 2014 is from knowledge, not re-searched."
+      ]
+    },
+    "nonfiction-podcast.js": {
+      "claimsChecked": 20,
+      "confirmed": 18,
+      "corrected": [],
+      "softened": [
+        {
+          "where": "history facet, conv 'Recorded voices of ordinary people'",
+          "was": "Studs Terkel's interview programme ran in Chicago from 1952 to 1997",
+          "now": "Studs Terkel's interview programme ran in Chicago for more than four decades from 1952",
+          "why": "End year differs by source (1997 per WFMT/Wikipedia, January 1998 per Britannica, as the first checker recorded). 'More than four decades from 1952' is true on either date. The canon facet already says only 'from 1952'."
+        },
+        {
+          "where": "history facet, conv 'Podcasting made such shows available on demand'",
+          "was": "a design show that grew from a short San Francisco radio feature",
+          "now": "a design show that grew from short radio pieces made in San Francisco",
+          "why": "99% Invisible began as a series of short public-radio pieces (San Francisco, 2010), not a single feature; the plural is the defensible form."
+        }
+      ],
+      "removed": [],
+      "remainingDoubts": [
+        "No nonfiction-podcast search could be run (budget exhausted), so these rest on solid knowledge: Murrow 1940 London broadcasts, NPR on air 1971, This American Life 1995 on WBEZ, The Moth 1997, Radiolab 2002 at WNYC, 99% Invisible 2010, Serial October 2014, In the Dark 2016, S-Town 28 March 2017 in seven chapters, Revisionist History 2016. The Radio Ballads (1958 to 1964, The Ballad of John Axon first, MacColl, Seeger and Parker) were confirmed by search while checking radio-drama.",
+        "Radiolab: the text says only 'later with Robert Krulwich', which is safe; the exact year he joined differs by page.",
+        "'Anecdote and reflection' as a description of public radio storytelling is attributed generally ('is often described as') and not to a named person, because I could not source the attribution.",
+        "In the Dark is credited to Madeleine Baran as lead; she is the host and lead reporter, but it was a team production by American Public Media. The canon text says 'from the reporting team ... and led by Madeleine Baran', which I judge accurate."
+      ]
+    }
+  }
+}

@@ -15,7 +15,7 @@ export default [
       "The roots in Latin America lie in the 1930s and 1940s: Miguel Ángel Asturias's Legends of Guatemala (1930) and Men of Maize (1949) drew on Maya myth, and the stories of Jorge Luis Borges influenced the generation that followed.",
       "The Venezuelan writer Arturo Uslar Pietri used the phrase realismo mágico, in his essay collection Letras y hombres de Venezuela (usually dated 1948, sometimes 1947), for a strain of Venezuelan short fiction.",
       "In the prologue to The Kingdom of This World (1949) the Cuban Alejo Carpentier described lo real maravilloso, the marvellous real, as found in Latin America's own history and beliefs, in contrast to the contrived marvels of the surrealists.",
-      "In 1955 the critic Angel Flores's essay on magical realism in Spanish American fiction brought the label into literary criticism, tracing the mode to Borges in the 1930s; the same year Juan Rulfo published Pedro Páramo, in which the dead and the living share a village.",
+      "In 1955 the critic Angel Flores's essay on magical realism in Spanish American fiction brought the label into wide use in criticism of that fiction, tracing the mode to Borges in the 1930s; the same year Juan Rulfo published Pedro Páramo, in which the dead and the living share a village.",
       "Gabriel García Márquez's One Hundred Years of Solitude (1967) made the mode famous worldwide as part of the Latin American Boom of the 1960s and 1970s; Gregory Rabassa's English translation appeared in 1970 and García Márquez received the Nobel Prize in 1982.",
       "From the 1980s the label spread: Salman Rushdie's Midnight's Children (1981), Isabel Allende's The House of the Spirits (1982), Toni Morrison's Beloved (1987), Laura Esquivel's Like Water for Chocolate (1989) and Ben Okri's The Famished Road (1991) were all discussed under it.",
       "In the 1990s some Latin American writers pushed back: the anthology McOndo (1996), edited by Alberto Fuguet and Sergio Gómez, rejected the idea that the continent's fiction must be magical, while the 1995 collection Magical Realism: Theory, History, Community kept the scholarly debate going.",
@@ -236,7 +236,7 @@ export default [
     conv: [
       "Magical realism: the usual English name for fiction that treats the impossible as ordinary within a realistic setting; some critics write magic realism, and art historians generally use that form for painting.",
       "Lo real maravilloso: Alejo Carpentier's phrase for the marvellous real, the idea that Latin America's history, nature and beliefs are themselves marvellous.",
-      "Realismo mágico and Magischer Realismus: the Spanish, Italian and German forms of the name; the German was Franz Roh's term for painting in 1925.",
+      "Realismo mágico (Spanish), realismo magico (Italian) and Magischer Realismus (German): the name in other languages; the German was Franz Roh's term for painting in 1925.",
       "The Boom: the surge of international attention in the 1960s and 1970s for Latin American novelists such as García Márquez, Cortázar, Vargas Llosa and Fuentes.",
       "Macondo: the invented town of One Hundred Years of Solitude, which has become a shorthand for the mode.",
       "Irreducible element: Wendy B. Faris's term for magic in a text that cannot be explained away by science or by a narrator's rational account.",

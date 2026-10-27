@@ -17,7 +17,7 @@ export default [
       "The 1980s added series and linked-story books written for children reading short chapters alone: David A. Adler's Cam Jansen (from 1980), Ann Cameron's The Stories Julian Tells (1981) and Cynthia Rylant's Henry and Mudge (from 1987).",
       "In 1992 Mary Pope Osborne's Magic Tree House and Barbara Park's Junie B. Jones began; both became very long-running bestselling series, and in the years after, publishers and booksellers increasingly treated the early chapter book as its own category.",
       "In the 2000s humorous, strongly illustrated series multiplied, including Megan McDonald's Judy Moody (2000), Kate DiCamillo's Mercy Watson books (from 2005) and Annie Barrows's Ivy + Bean (2006), and some authors known for older fiction began writing for this stage.",
-      "Since the 2010s the field has widened to fantasy, graphic and hybrid formats and more varied families and cultures, such as The Princess in Black (2014), while schools' use of reading levels and a stronger emphasis on phonics in several countries has shaped how books are chosen.",
+      "Since the 2010s the field has widened to fantasy, as in The Princess in Black (2014), to graphic and hybrid formats and to more varied families and cultures; schools' use of reading levels, and in several countries a stronger emphasis on phonics, has also shaped how books are chosen.",
     ],
     watch: [
       "The category was never founded on a single date or book, and its name and age range differ by country and publisher; the account above is mainly American.",
@@ -45,7 +45,7 @@ export default [
       "Comic and hybrid chapter books: silly humor with pictures that share the joke, sometimes mixing prose with comic panels, as in Captain Underpants.",
       "Linked-story chapter books: a handful of connected short stories, each complete in a chapter or two, as in The Stories Julian Tells.",
       "Graphic chapter books: panels carry much of the story, for children who are ready for more text than an easy reader but want a quick read.",
-      "High-interest, low-demand books: publishers such as Barrington Stoke in the UK make short, accessible books for reluctant and dyslexic readers, a practical category that cuts across the others.",
+      "High-low (hi-lo) books: high interest for the age with a low reading level; publishers such as Barrington Stoke in the UK make short, accessible books for reluctant and dyslexic readers, a practical category that cuts across the others.",
     ],
     watch: [
       "These types overlap and a series may move between them; the useful question is what the child is promised on page one.",
@@ -149,7 +149,7 @@ export default [
     summary: "An early chapter book sits between the easy reader and the middle-grade novel: longer than an early reader, shorter and more illustrated than lower middle grade, text-heavier than a picture book and made for a child to read alone.",
     conv: [
       "Versus early reader: an early reader has far fewer words, tightly controlled vocabulary and publisher levels; an early chapter book has real chapters, fuller sentences and a longer story.",
-      "Versus lower middle grade: lower middle grade is a novel for about eight to ten, often twenty to forty thousand words with few or no pictures; the early chapter book is shorter, more illustrated and sized to a younger reader.",
+      "Versus lower middle grade: lower middle grade is a novel for about eight to ten, often twenty thousand words or more with few or no pictures; the early chapter book is shorter, more illustrated and sized to a younger reader.",
       "Versus picture book: a picture book is about thirty-two pages with a few hundred words, usually read aloud to the child, and the pictures carry equal weight; the chapter book has more text and is meant for solo reading.",
       "Versus series fiction for young readers: series is a way of publishing, not an age range; most early chapter books are series, but many series, such as mysteries for older children, are written for other ages.",
       "Versus read-aloud novel: a read-aloud novel is written to be heard by a wide age span and may sit above a young reader's level; an early chapter book is pitched at what a child can read for themselves.",
