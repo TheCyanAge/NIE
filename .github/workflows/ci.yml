@@ -15,8 +15,4 @@ jobs:
       - name: UI tests (Chromium)
         run: |
           npx playwright-core install chromium
-          export CHROMIUM_PATH="$(node -e "console.log(require('playwright-core').chromium.executablePath())")"
-          # TEMPORARY diagnostics (a UI test kills the runner here and not on a developer machine): the browser version, memory and CPU every 2 seconds, every browser action
-          "$CHROMIUM_PATH" --version || true
-          ( while true; do echo "[mon $(date +%T)] $(free -m | awk 'NR==2{print "used "$3"MB free "$4"MB"}') top: $(ps -eo rss,pcpu,comm --sort=-rss | sed -n 2,4p | tr '\n' ';')"; sleep 2; done ) &
-          DEBUG=pw:api npm run test:ui
+          CHROMIUM_PATH="$(node -e "console.log(require('playwright-core').chromium.executablePath())")" npm run test:ui

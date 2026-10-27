@@ -67,6 +67,19 @@ async function run(opts, fn, { allow = null } = {}) {
 const TEXT =
   'Suddenly the door opened. She walked slowly into the room and sat down.\n\nHe spoke quietly, and suddenly the lights failed.';
 
+/**
+ * An element is not (or no longer) on the page. It waits a moment, because a closing dialog removes itself just after the click, and it never hands the element to the assertion
+ * library: when `assert.equal(await page.$(...), null)` failed on CI, printing the browser handle used about 15 GB of memory and took the whole runner down.
+ */
+async function absent(page, selector) {
+  try {
+    await page.waitForFunction((sel) => !document.querySelector(sel), selector, { timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function addRules(page, ...rules) {
   for (const r of rules) {
     const before = await page.evaluate(() => window.NIE_APP.project.rules.length);
@@ -1429,7 +1442,7 @@ test('Settings → web search: off until turned on, the key goes in and never co
     await page.click('.nav-btn[data-view=settings]');
     assert.equal((await page.textContent('.settings-section:has(#web-enabled) > p.muted')).trim(), WEB_EXPLANATION);
     assert.equal(await page.isChecked('#web-enabled'), false, 'off by default');
-    assert.equal(await page.$('#web-unavailable'), null);
+    assert.equal(await absent(page, '#web-unavailable'), true);
     assert.match(await page.textContent('#web-status'), /not set up yet/i);
     assert.deepEqual(await page.$$eval('#web-provider option', (o) => o.map((x) => x.textContent)), ['Automatic', 'Tavily', 'Brave Search', 'Serper', 'SearXNG', 'Custom']);
     assert.equal(await page.getAttribute('#web-key', 'type'), 'password');
@@ -1756,7 +1769,7 @@ test('the Web switch asks before NIE\'s built-in search is used: a real modal di
     // "Not now"
     await page.click('#web-consent-later');
     assert.equal(await dialogOpen(page), false);
-    assert.equal(await page.$('#web-consent'), null, 'the dialog is removed, not just closed');
+    assert.equal(await absent(page, '#web-consent'), true, 'the dialog is removed, not just closed');
     assert.equal(await webSets(page), 0, 'nothing was saved');
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
     assert.equal(await page.evaluate(() => localStorage.getItem('nie.v1.webOn')), null);
@@ -1799,7 +1812,7 @@ test('the Web switch\'s dialog: agreeing turns web search on with the agreement,
     await page.waitForSelector('#web-consent[open]');
     await page.click('#web-consent-agree');
     await page.waitForFunction(() => document.querySelector('#web-toggle').getAttribute('aria-pressed') === 'true');
-    assert.equal(await page.$('#web-consent'), null);
+    assert.equal(await absent(page, '#web-consent'), true);
     assert.equal(await webSets(page), 1);
     const sent = await page.evaluate(() => window.__web.sets.at(-1));
     assert.deepEqual([sent.enabled, sent.builtin, sent.provider, sent.apiKey], [true, true, 'auto', undefined], 'the settings as they were, with web search on and the agreement');
@@ -1811,7 +1824,7 @@ test('the Web switch\'s dialog: agreeing turns web search on with the agreement,
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
     await page.click('#web-toggle');
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'true');
-    assert.equal(await page.$('#web-consent'), null);
+    assert.equal(await absent(page, '#web-consent'), true);
     assert.equal(await webSets(page), 1);
   });
 });
@@ -1858,16 +1871,16 @@ test('the Web switch never asks a writer who has a search key of their own, and 
     assert.match(await page.getAttribute('#web-toggle', 'title'), /sent to Brave Search/);
     await page.click('#web-toggle');
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'true');
-    assert.equal(await page.$('#web-consent'), null, 'no dialog');
+    assert.equal(await absent(page, '#web-consent'), true, 'no dialog');
     await page.click('#web-toggle');
     assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
-    assert.equal(await page.$('#web-consent'), null);
+    assert.equal(await absent(page, '#web-consent'), true);
   });
   await run({ init: WEB_BRIDGE }, async ({ page }) => {
     await openBrainstorm(page);
     assert.equal(await page.isDisabled('#web-toggle'), true);
     assert.match(await page.getAttribute('#web-toggle', 'title'), /^Add a key in Settings and turn web search on/);
-    assert.equal(await page.$('#web-consent'), null);
+    assert.equal(await absent(page, '#web-consent'), true);
   });
 });
 
