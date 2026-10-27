@@ -1,0 +1,21 @@
+# Deploy with:  npx wrangler deploy      (see README.md; the search key is a secret, never put it in this file)
+name = "nie-search-gateway"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+SEARCH_PROVIDER = "brave"   # brave, tavily or serper: the service your SEARCH_API_KEY belongs to
+# DAILY_CAP = "3000"        # searches per day for the whole service: set this so the worst day costs what you accept
+# PER_INSTALL_PER_MIN = "6"
+# PER_INSTALL_PER_DAY = "60"
+# PER_IP_PER_MIN = "20"
+# PER_IP_PER_DAY = "200"
+# DISABLED = "1"            # switches the service off at once
+
+[[durable_objects.bindings]]
+name = "LIMITER"
+class_name = "Limiter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Limiter"]

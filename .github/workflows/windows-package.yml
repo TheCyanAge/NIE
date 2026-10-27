@@ -64,6 +64,19 @@ jobs:
           # downloadModel resumes from its .part file, so a retry continues instead of starting over.
           for i in 1 2 3; do node scripts/fetch-runtime.mjs --no-runtime && exit 0; echo "attempt $i failed; retrying"; sleep 20; done; exit 1
 
+      - name: Set the built-in search address (public, not a secret; skipped when the repository variable is empty)
+        shell: bash
+        env:
+          NIE_SEARCH_GATEWAY_URL: ${{ vars.NIE_SEARCH_GATEWAY_URL }}
+        run: |
+          if [ -n "$NIE_SEARCH_GATEWAY_URL" ]; then
+            case "$NIE_SEARCH_GATEWAY_URL" in https://*) ;; *) echo "NIE_SEARCH_GATEWAY_URL must start with https://"; exit 1 ;; esac
+            node -e "require('fs').writeFileSync('apps/desktop/search-gateway.json', JSON.stringify({ url: process.env.NIE_SEARCH_GATEWAY_URL }) + '\n')"
+            echo "This build has NIE's built-in search."
+          else
+            echo "No NIE_SEARCH_GATEWAY_URL variable: this build has no built-in search (writers can still add their own key)."
+          fi
+
       - name: Build the app (electron-builder, Windows x64)
         timeout-minutes: 15
         run: npm run build:desktop

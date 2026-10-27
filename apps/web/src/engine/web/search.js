@@ -85,7 +85,7 @@ export async function runSearch({ fetch: doFetch, cfg, query, limit = 6, signal,
   const n = Math.max(1, Math.min(SEARCH_LIMIT_MAX, Math.floor(limit) || 6));
   const key = String(cfg.key ?? '').trim();
   const keyIsAddress = /^https?:\/\//i.test(key);
-  const req = spec.build({ query: q, key: keyIsAddress ? '' : key, limit: n, baseUrl: keyIsAddress ? key : cfg.baseUrl, custom: cfg.custom });
+  const req = spec.build({ query: q, key: keyIsAddress ? '' : key, limit: n, baseUrl: keyIsAddress ? key : cfg.baseUrl, custom: cfg.custom, gatewayUrl: cfg.gatewayUrl, installId: cfg.installId });
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), timeoutMs);
   const onAbort = () => ctl.abort();
@@ -99,6 +99,8 @@ export async function runSearch({ fetch: doFetch, cfg, query, limit = 6, signal,
       if (signal?.aborted) throw new WebError('aborted', 'Stopped.');
       throw new WebError('network', ctl.signal.aborted ? `${spec.label} did not answer in time.` : `Could not reach ${spec.label}. Check the internet connection and the address.`);
     }
+    if (id === 'nie' && (res.status === 429 || res.status === 503)) throw new WebError('rate', "NIE's search is busy right now. Try again in a little while, or add your own search key in Settings.");
+    if (id === 'nie' && (res.status === 401 || res.status === 403)) throw new WebError('auth', "NIE's search refused the request. Try again later, or add your own search key in Settings.");
     if (res.status === 401 || res.status === 403) throw new WebError('auth', id === 'searxng' ? 'The SearXNG instance refused the request. JSON output must be switched on in its settings, and it must allow this address.' : `${spec.label} did not accept the key. Check it in Settings.`);
     if (res.status === 429) throw new WebError('rate', `${spec.label} says the limit for this key has been reached. Try again later.`);
     if (!res.ok) throw new WebError(res.status >= 500 ? 'network' : 'bad-response', `${spec.label} answered with an error (${res.status}).`);

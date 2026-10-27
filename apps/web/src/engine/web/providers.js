@@ -86,6 +86,22 @@ export const PROVIDERS = {
     },
     parse: (json) => (Array.isArray(json?.results) ? json.results : []).map((r) => ({ title: text(r?.title), url: text(r?.url), snippet: text(r?.content) })),
   },
+  // The built-in search: a small gateway the NIE developers run holds the real key, so no key ships in the installer. It takes the question words and a random install code
+  // (to limit abuse; not a name, not an account) and answers in the same shape as every other service.
+  nie: {
+    id: 'nie',
+    label: 'NIE search',
+    needsKey: false,
+    build: ({ query, limit, gatewayUrl, installId }) => {
+      const base = serviceUrl(gatewayUrl);
+      if (!base) throw new WebError('not-configured', 'This copy of NIE has no built-in search.');
+      if (!/^[A-Za-z0-9-]{8,64}$/.test(String(installId ?? ''))) throw new WebError('not-configured', 'The built-in search has no install code yet.');
+      const url = new URL('search', base.href.endsWith('/') ? base.href : `${base.href}/`);
+      url.search = new URLSearchParams({ q: query, n: String(Math.min(limit, 8)) }).toString();
+      return { url: url.href, method: 'GET', headers: { Accept: 'application/json', 'X-NIE-Install': installId } };
+    },
+    parse: (json) => (Array.isArray(json?.results) ? json.results : []).map((r) => ({ title: text(r?.title), url: text(r?.url), snippet: text(r?.snippet) })),
+  },
   custom: {
     id: 'custom',
     label: 'Custom search service',
@@ -131,12 +147,18 @@ export function detectProvider({ key = '', baseUrl = '' } = {}) {
   return null;
 }
 
-/** The provider a config stands for, and whether it has what it needs. */
+/**
+ * The provider a config stands for, and whether it has what it needs. The writer's own key or address always wins; with none, the built-in search is used when this build has one
+ * (`gatewayUrl`). A service the writer chose by name that is missing its key is reported as such and is never swapped for the built-in one.
+ */
 export function resolveProvider(cfg = {}) {
   const asked = String(cfg.provider ?? 'auto');
-  const id = asked === 'auto' || !PROVIDERS[asked] ? detectProvider({ key: cfg.key, baseUrl: cfg.baseUrl }) : asked;
+  const gateway = Boolean(serviceUrl(cfg.gatewayUrl));
+  let id = asked === 'auto' || !PROVIDERS[asked] ? detectProvider({ key: cfg.key, baseUrl: cfg.baseUrl }) : asked;
+  if (!id && (asked === 'auto' || asked === 'nie') && gateway && !String(cfg.key ?? '').trim()) id = 'nie';
   const spec = id ? PROVIDERS[id] : null;
   if (!spec) return { id: null, spec: null, ready: false, reason: 'NIE can not tell which search service this key is for. Choose the service in Settings.' };
+  if (id === 'nie') return gateway ? { id, spec, ready: true, reason: '' } : { id, spec, ready: false, reason: 'This copy of NIE has no built-in search.' };
   const key = String(cfg.key ?? '').trim();
   if (spec.needsKey && !key) return { id, spec, ready: false, reason: `${spec.label} needs a key.` };
   if (id === 'searxng' && !serviceUrl(/^https?:\/\//i.test(key) ? key : cfg.baseUrl)) return { id, spec, ready: false, reason: 'SearXNG needs the address of your instance.' };
