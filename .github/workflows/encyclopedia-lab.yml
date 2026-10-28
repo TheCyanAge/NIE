@@ -1,0 +1,75 @@
+name: encyclopedia-lab
+
+# Measures, with the REAL model (Qwen2.5-3B, the app's own llama-server arguments) and a REAL encyclopedia pack built from the dump in this job, how NIE answers a lookup with nothing
+# leaving the computer (scripts/encyclopedia-lab.mjs, tests/fixtures/encyclopedia-lab-questions.mjs): which questions are quoted from an article, which the model summarises from the
+# numbered articles, what it says next to the exact articles it was shown (AUDIT lines in the log: a reader that is not the model checks every claim against them).
+# Nothing here ships or publishes anything: it only reports.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Question ids to run (comma separated; empty = all, see tests/fixtures/encyclopedia-lab-questions.mjs)'
+        type: string
+        default: ''
+      dump_url:
+        description: 'CirrusSearch content dump to build the pack from (https)'
+        type: string
+        default: 'https://dumps.wikimedia.org/other/cirrussearch/20251229/simplewiki-20251229-cirrussearch-content.json.gz'
+      threads:
+        description: 'Model-server threads (empty = what the app picks: half the cores)'
+        type: string
+        default: ''
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the pack (the same way the build-encyclopedia workflow does)
+        env:
+          URL: ${{ inputs.dump_url }}
+        run: |
+          case "$URL" in https://*) ;; *) echo "::error::Not an https address: $URL"; exit 1;; esac
+          node --max-old-space-size=6144 scripts/build-encyclopedia.mjs --input "$URL" --out dist/encyclopedia --name simple-en --lang en --max-docs 120000 --max-lead 1200
+
+      - name: Fetch the llama.cpp runtime (Linux)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p rt apps/desktop/bin
+          gh release download b9085 --repo ggml-org/llama.cpp --pattern 'llama-*-bin-ubuntu-x64*' --dir rt
+          for f in rt/*; do
+            case "$f" in
+              *.zip) unzip -q -o "$f" -d rt/x ;;
+              *.tar.gz|*.tgz) mkdir -p rt/x && tar -xzf "$f" -C rt/x ;;
+            esac
+          done
+          find rt/x \( -type f -o -type l \) \( -name 'llama-server' -o -name '*.so' -o -name '*.so.*' \) -exec cp -P {} apps/desktop/bin/ \;
+          chmod +x apps/desktop/bin/llama-server
+
+      - name: Fetch the real model (about 1.9 GB, resumable)
+        run: node scripts/fetch-runtime.mjs --no-runtime
+
+      - name: Run the lab
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/apps/desktop/bin
+          ONLY: ${{ inputs.only }}
+          THREADS: ${{ inputs.threads }}
+        run: |
+          EXTRA=""
+          if [ -n "$THREADS" ]; then EXTRA="$EXTRA --threads $THREADS"; fi
+          if [ -n "$ONLY" ]; then EXTRA="$EXTRA --only $ONLY"; fi
+          node scripts/encyclopedia-lab.mjs --pack dist/encyclopedia/simple-en.niepack $EXTRA --out encyclopedia-lab-report.json
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: encyclopedia-lab-report
+          path: encyclopedia-lab-report.json
+          if-no-files-found: ignore
