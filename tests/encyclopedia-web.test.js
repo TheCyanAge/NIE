@@ -99,7 +99,8 @@ test('"What is Veldhaven?" is answered with the article\'s own opening sentences
   assert.match(r.web.note, /Quoted from the offline encyclopedia article "Veldhaven"/);
   assert.match(r.web.note, /No model wrote this, and nothing left your computer/);
   assert.equal(r.web.sources[0].url, 'https://en.wikipedia.org/wiki/Veldhaven');
-  assert.deepEqual(steps.slice(0, 2), ['Looking in the offline encyclopedia…', 'Reading 3 articles…']);
+  assert.equal(steps[0], 'Looking in the offline encyclopedia…');
+  assert.match(steps[1], /^Reading \d+ articles?…$/, 'only the articles close to the best match are read');
   assert.equal(calls.length, 0, 'the answering model was not asked');
   assert.equal(net.calls.length, 0);
   assert.deepEqual(sanitizeWebRecord(r.web).answeredBy, 'encyclopedia', 'and the record survives being saved');

@@ -37,6 +37,19 @@ Wikipedia's text is **CC BY-SA 4.0** (Simple English Wikipedia too). A pack is a
 - **Share-alike:** the pack file itself should be offered under CC BY-SA 4.0 (or a compatible licence). NIE's program code is separate from the pack and is not a derivative of the text, but **whether and how this affects NIE's own licence and the way you distribute the pack is for you (and a lawyer, if it matters to you) to decide.** This is not legal advice. No pack has been published.
 - Images and other Wikimedia content are not included.
 
+## Measured on a real pack (Simple English Wikipedia, dump of 29 December 2025)
+
+The first real build read 278,283 documents, kept the 120,000 most-read articles and wrote a 39.2 MB pack (240,084 terms) in about two minutes on a GitHub runner; a question is answered in 2 to 100 ms. `scripts/encyclopedia-eval.mjs` asks it 60 common-knowledge questions (`tests/fixtures/encyclopedia-questions.json`) with several ranking settings, and 39 further questions written before any result was seen and never used to choose:
+
+| Ranking | Right article in the top 3 (60 tuning questions) | Average rank score | Right article in the top 3 (39 unseen) | Average rank score |
+| --- | --- | --- | --- | --- |
+| first guess (b 0.75, prominence 0.2 to the 1) | 83% | 0.804 | 90% | 0.905 |
+| now (b 0.15, prominence 1 to the 8) | 90% | 0.851 | 92% | 0.906 |
+
+Read the second pair as "no worse, one question better": the larger gain is on the questions the setting was chosen on. Every setting that gave the most-read articles a stronger boost did better on the tuning questions, but several lost ground on the unseen ones and were not taken.
+
+**What it cannot do:** find an article for a question whose answer is not named in it. "Capital of France" finds the article "Capital of France" and towns of France, not Paris; "capital of Italy" finds Italian regions, not Rome; "largest planet", "who wrote 1984", "tallest building", "who discovered America" miss the same way. No ranking setting tried fixed this; it is how searching article openings works. NIE then has sources that do not hold the answer and says so; where a source does name it (the "Capital of France" article says "see Paris"), a model can answer from it. `scripts/encyclopedia-probe.mjs --canary` reports "capital of France" as a known gap, not as a pass and not as a failure.
+
 ## What has and has not been verified
 
 - ✅ The format, builder, parser, top-N selection, search, exact-name lookup, quoting of definitions, the provider order, "never touches the network", the wording in each state and the failure modes are covered by `tests/encyclopedia.test.js` and `tests/encyclopedia-web.test.js` against an **invented dump in the CirrusSearch shape**.
