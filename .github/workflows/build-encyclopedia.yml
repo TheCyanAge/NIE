@@ -15,6 +15,10 @@ on:
         description: 'Pack name, used in the file name (for example simple-en)'
         type: string
         default: 'simple-en'
+      title:
+        description: 'What the writer sees it called (for example Simple English Wikipedia)'
+        type: string
+        default: 'Simple English Wikipedia'
       lang:
         description: 'Language code of that Wikipedia (simple English uses en)'
         type: string
@@ -66,11 +70,12 @@ jobs:
         env:
           URL: ${{ steps.dump.outputs.url }}
           NAME: ${{ inputs.name }}
+          TITLE: ${{ inputs.title }}
           LANGUAGE: ${{ inputs.lang }}
           MAX_DOCS: ${{ inputs.max_docs }}
           MAX_LEAD: ${{ inputs.max_lead }}
         run: |
-          node --max-old-space-size=6144 scripts/build-encyclopedia.mjs --input "$URL" --out dist/encyclopedia --name "$NAME" --lang "$LANGUAGE" --max-docs "$MAX_DOCS" --max-lead "$MAX_LEAD"
+          node --max-old-space-size=6144 scripts/build-encyclopedia.mjs --input "$URL" --out dist/encyclopedia --name "$NAME" --title "$TITLE" --lang "$LANGUAGE" --max-docs "$MAX_DOCS" --max-lead "$MAX_LEAD"
           cat dist/encyclopedia/manifest.json
 
       - name: Keep the pack

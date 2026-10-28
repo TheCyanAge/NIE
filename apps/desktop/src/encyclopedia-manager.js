@@ -42,6 +42,7 @@ export function readEncyclopediaManifest(readText) {
       sha256,
       bytes: raw.bytes,
       name: stem(raw.name) || 'encyclopedia',
+      title: typeof raw.title === 'string' ? raw.title.replace(/\s+/g, ' ').trim().slice(0, 80) : '',
       builtAt: typeof raw.builtAt === 'string' ? raw.builtAt.trim().slice(0, 40) : '',
       docs: Number.isSafeInteger(raw.docs) && raw.docs > 0 ? raw.docs : 0,
     };
@@ -129,6 +130,8 @@ export function createEncyclopediaManager({ dir, readManifest = () => null, down
       state,
       available: Boolean(m),
       name: info?.name ?? m?.name ?? '',
+      // what to call it: the pack's own title, or this build's title for it when the open file is that very pack (a file the writer added is never given the build's name)
+      title: info?.title || (m && (!info || info.name === m.name) ? m.title : '') || '',
       docs: info?.docs ?? m?.docs ?? 0,
       bytes: info?.bytes ?? m?.bytes ?? 0,
       builtAt: info?.builtAt ?? m?.builtAt ?? '',

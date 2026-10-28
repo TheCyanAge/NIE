@@ -7,10 +7,10 @@ import { TopN } from './select.js';
  * A Wikipedia CirrusSearch dump (an async stream of text, already unzipped) → the bytes of an encyclopedia pack holding the `maxDocs` most prominent articles.
  * Memory is bounded by `maxDocs`, not by the dump.
  * @param {AsyncIterable<string|Buffer>|import('node:stream').Readable} stream
- * @param {{ name: string, lang?: string, source?: string, builtAt?: string, maxDocs?: number, maxLead?: number, rankBy?: 'auto'|'popularity_score'|'incoming_links', onProgress?: (p: { read: number, kept: number }) => void }} o
+ * @param {{ name: string, title?: string, lang?: string, source?: string, builtAt?: string, maxDocs?: number, maxLead?: number, rankBy?: 'auto'|'popularity_score'|'incoming_links', onProgress?: (p: { read: number, kept: number }) => void }} o
  * @returns {Promise<{ bytes: Buffer, docs: number, read: number, rankBy: string }>}
  */
-export async function buildFromDump(stream, { name, lang = 'en', source = '', builtAt = '', maxDocs = 120000, maxLead = 1200, rankBy = 'auto', onProgress } = {}) {
+export async function buildFromDump(stream, { name, title = '', lang = 'en', source = '', builtAt = '', maxDocs = 120000, maxLead = 1200, rankBy = 'auto', onProgress } = {}) {
   const top = new TopN(maxDocs);
   const head = [];
   let field = rankBy === 'auto' ? null : rankBy;
@@ -40,6 +40,6 @@ export async function buildFromDump(stream, { name, lang = 'en', source = '', bu
   }
   const entries = top.result();
   if (!entries.length) throw new Error('The dump held no articles NIE could use. Check that it is a CirrusSearch content dump.');
-  const bytes = buildPack(entries, { name, lang, source, builtAt });
+  const bytes = buildPack(entries, { name, title, lang, source, builtAt });
   return { bytes, docs: entries.length, read, rankBy: field };
 }

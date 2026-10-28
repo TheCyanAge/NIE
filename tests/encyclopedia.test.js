@@ -261,3 +261,11 @@ test('a pack file that cannot be opened leaves no file handle behind (it can be 
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('a pack carries the name a writer knows it by, and a built one says which Wikipedia it is', async () => {
+  const p = await Pack.open(buildPack([{ title: 'Sonnet', text: 'A sonnet is a poem of fourteen lines that follows a set rhyme scheme.', rank: 1 }], { name: 'x', title: 'Simple English Wikipedia' }));
+  assert.equal(p.info.title, 'Simple English Wikipedia');
+  assert.equal((await Pack.open(buildPack([{ title: 'Sonnet', text: 'A sonnet is a poem of fourteen lines that follows a set rhyme scheme.', rank: 1 }], { name: 'x' }))).info.title, '', 'an older or untitled pack has none');
+  assert.equal((await dump({ title: 'Simple English Wikipedia' })).bytes.length > 0, true);
+  assert.equal((await Pack.open((await dump({ title: 'Simple English Wikipedia' })).bytes)).info.title, 'Simple English Wikipedia');
+});

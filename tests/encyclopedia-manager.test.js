@@ -57,7 +57,7 @@ const put = (dir, name, data) => { fs.mkdirSync(dir, { recursive: true }); fs.wr
 test('the manifest of a build is read tolerantly: only a complete one with an https address counts, anything else means the download is not offered', () => {
   const good = { url: 'https://example.org/wiki.niepack', sha256: 'A'.repeat(64), bytes: 1234, name: 'Wikipedia en/2026!', builtAt: '2026-01-01', docs: 50000 };
   const read = (o) => readEncyclopediaManifest(() => (typeof o === 'string' ? o : JSON.stringify(o)));
-  assert.deepEqual(read(good), { url: 'https://example.org/wiki.niepack', sha256: 'a'.repeat(64), bytes: 1234, name: 'Wikipedia-en-2026', builtAt: '2026-01-01', docs: 50000 }, 'the name becomes a safe file name, the checksum lower case');
+  assert.deepEqual(read(good), { url: 'https://example.org/wiki.niepack', sha256: 'a'.repeat(64), bytes: 1234, name: 'Wikipedia-en-2026', title: '', builtAt: '2026-01-01', docs: 50000 }, 'the name becomes a safe file name, the checksum lower case');
   assert.equal(read({ ...good, name: '' }).name, 'encyclopedia');
   assert.equal(read({ ...good, name: '../../evil' }).name, 'evil', 'a name never becomes a path');
   assert.equal(read({ ...good, docs: 'many', builtAt: 5 }).docs, 0);
@@ -495,4 +495,22 @@ test('the downloader with no new options says what it always said about a model'
     await assert.rejects(downloadModel({ url: srv.url, destPath: path.join(dir, 'm.gguf'), minBytes: 100 }), /^Error: The downloaded model is not usable: The offline model file is not a valid GGUF model \(bad header\)\.$/);
     await assert.rejects(downloadModel({ url: srv.url, destPath: path.join(dir, 'm.gguf'), minBytes: 100, freeBytes: () => 1000 }), /^Error: There is not enough free disk space for the offline model: it needs about 300 MB and only 1 MB is free\.$/);
   } finally { srv.close(); }
+});
+
+// ── what the writer sees it called ───────────────────────────────────────────
+
+test('the status names which Wikipedia it is: the pack\'s own title, else this build\'s title for that very pack, never a build\'s title for a file the writer added', async () => {
+  assert.equal(readEncyclopediaManifest(() => JSON.stringify(manifestFor('https://example.org/p.niepack', PACK, { title: '  Simple   English Wikipedia ' }))).title, 'Simple English Wikipedia');
+  assert.equal(readEncyclopediaManifest(() => JSON.stringify(manifestFor('https://example.org/p.niepack', PACK))).title, '');
+  // not installed: the build's title
+  const absent = desk({ manifest: manifestFor('https://example.org/p.niepack', PACK, { name: 'sample', title: 'Simple English Wikipedia' }) });
+  assert.equal((await absent.manager.init()).title, 'Simple English Wikipedia');
+  // installed, and it is the pack this build offers (same name): the build's title, because that pack's header has none
+  const same = desk({ manifest: manifestFor('https://example.org/p.niepack', PACK, { name: 'sample', title: 'Simple English Wikipedia' }) });
+  put(same.dir, 'sample.niepack', PACK);
+  assert.equal((await same.manager.init()).title, 'Simple English Wikipedia');
+  // installed, but it is some other file the writer added (another name): not called by the build's title
+  const other = desk({ manifest: manifestFor('https://example.org/p.niepack', PACK, { name: 'sample', title: 'Simple English Wikipedia' }) });
+  put(other.dir, 'other.niepack', OTHER);
+  assert.equal((await other.manager.init()).title, '');
 });

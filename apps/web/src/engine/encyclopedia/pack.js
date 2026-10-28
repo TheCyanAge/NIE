@@ -68,7 +68,7 @@ const deflate = (s) => zlib.deflateSync(Buffer.isBuffer(s) ? s : Buffer.from(s, 
  * @param {{ name: string, lang?: string, source?: string, builtAt?: string, blockDocs?: number }} o
  * @returns {Buffer}
  */
-export function buildPack(docs, { name, lang = 'en', source = '', builtAt = '', blockDocs = 128 } = {}) {
+export function buildPack(docs, { name, lang = 'en', source = '', builtAt = '', blockDocs = 128, title = '' } = {}) {
   const list = [...docs].sort((a, b) => b.rank - a.rank || (a.title < b.title ? -1 : 1));
   const N = list.length;
   if (!N) throw new Error('A pack needs at least one article.');
@@ -141,7 +141,7 @@ export function buildPack(docs, { name, lang = 'en', source = '', builtAt = '', 
     keys: deflate(keys.join('\n')),
     keyIds: u32(keys.map((k) => keyMap.get(k))),
   };
-  const header = { magic: MAGIC, version: PACK_VERSION, name, lang, source, builtAt, docs: N, terms: dictTerms.length, blockDocs, avgLen: totalLen / N, license: 'CC BY-SA 4.0', attribution: `Text from Wikipedia (https://${lang}.wikipedia.org), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Each article's authors are listed in its page history on Wikipedia.`, sections: {} };
+  const header = { magic: MAGIC, version: PACK_VERSION, name, title: String(title ?? '').slice(0, 80), lang, source, builtAt, docs: N, terms: dictTerms.length, blockDocs, avgLen: totalLen / N, license: 'CC BY-SA 4.0', attribution: `Text from Wikipedia (https://${lang}.wikipedia.org), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Each article's authors are listed in its page history on Wikipedia.`, sections: {} };
   // offsets are absolute and the header's own length depends on them (digits): write it until its length stops changing
   const place = (base) => {
     let off = base;
@@ -246,8 +246,8 @@ export class Pack {
   }
 
   get info() {
-    const { name, lang, docs, terms: t, source, builtAt, license, attribution } = this.header;
-    return { name, lang, docs, terms: t, source, builtAt, license, attribution, bytes: this.reader.size };
+    const { name, title, lang, docs, terms: t, source, builtAt, license, attribution } = this.header;
+    return { name, title: typeof title === 'string' ? title : '', lang, docs, terms: t, source, builtAt, license, attribution, bytes: this.reader.size };
   }
 
   async close() {

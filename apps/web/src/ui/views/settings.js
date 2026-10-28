@@ -11,7 +11,7 @@ const WEB_PACK_RUNS = "The offline encyclopedia on this computer answers your lo
 const WEB_OWN = 'If you have a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or a JSON search API you describe under Custom, use it here: the words of your question then go to that service, and the built-in search above is not used. The key is stored only on this computer.';
 
 // The offline encyclopedia: what it is, in the words the writer is told (the status line, the buttons and the attribution are filled in from the desktop app's status).
-const ENC_INTRO = 'A copy of the opening of tens of thousands of Wikipedia articles, stored on this computer. With it NIE can look things up with no internet and no account, and nothing you ask leaves your computer. It holds the introductions of the most-read articles only, not all of Wikipedia, and it is as old as the date shown.';
+const ENC_INTRO = 'A copy of the opening paragraphs of the most-read articles of a Wikipedia, stored on this computer. With it NIE can look things up with no internet and no account, and nothing you ask leaves your computer. It is not all of Wikipedia, and it is as old as the date shown.';
 const ENC_UNAVAILABLE = 'The encyclopedia is not offered in this build yet. You can still add a file you already have.';
 const ENC_NEEDS_DESKTOP = 'The offline encyclopedia needs the desktop app.';
 const ENC_FIRST = 'NIE uses it first when you have not added a search key of your own; a key you add still takes over.';
@@ -340,11 +340,11 @@ export function mountSettings(root, app, { startTour }) {
       return total ? `Downloading… ${Math.min(100, Math.floor((got / total) * 100))}% (${encMb(got)} of ${encMb(total)})` : `Downloading… ${encMb(got)}`;
     }
     if (s.state === 'ready') {
-      const bits = [s.docs ? `${s.docs.toLocaleString('en-US')} articles` : '', built ? `built ${built}` : '', s.bytes ? encMb(s.bytes) : ''].filter(Boolean);
+      const bits = [s.title, s.docs ? `${s.docs.toLocaleString('en-US')} articles` : '', built ? `built ${built}` : '', s.bytes ? encMb(s.bytes) : ''].filter(Boolean);
       return `Installed${bits.length ? `: ${bits.join(', ')}` : ''}.`;
     }
     if (s.state === 'error') return s.error || 'The offline encyclopedia could not be used.';
-    if (s.state === 'absent') return `Not installed.${s.bytes ? ` The download is about ${encMb(s.bytes)}${built ? ` and was built ${built}` : ''}.` : ''}`;
+    if (s.state === 'absent') return `Not installed.${s.title ? ` ${s.title}.` : ''}${s.bytes ? ` The download is about ${encMb(s.bytes)}${built ? ` and was built ${built}` : ''}.` : ''}`;
     return ENC_UNAVAILABLE;
   }
   let encLast = ''; // the state last painted

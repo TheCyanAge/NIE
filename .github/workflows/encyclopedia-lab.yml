@@ -35,7 +35,7 @@ jobs:
           URL: ${{ inputs.dump_url }}
         run: |
           case "$URL" in https://*) ;; *) echo "::error::Not an https address: $URL"; exit 1;; esac
-          node --max-old-space-size=6144 scripts/build-encyclopedia.mjs --input "$URL" --out dist/encyclopedia --name simple-en --lang en --max-docs 120000 --max-lead 1200
+          node --max-old-space-size=6144 scripts/build-encyclopedia.mjs --input "$URL" --out dist/encyclopedia --name simple-en --title 'Simple English Wikipedia' --lang en --max-docs 120000 --max-lead 1200
 
       - name: Fetch the llama.cpp runtime (Linux)
         env:

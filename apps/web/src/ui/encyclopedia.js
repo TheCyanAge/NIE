@@ -21,6 +21,7 @@ export function cleanEncyclopediaStatus(raw) {
     state: STATES.includes(o.state) ? o.state : 'unavailable',
     available: o.available === true,
     name: text(o.name, 120),
+    title: text(o.title, 80),
     docs: count(o.docs),
     bytes: count(o.bytes),
     builtAt: text(o.builtAt, 40),

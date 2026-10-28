@@ -1,6 +1,6 @@
 # The offline encyclopedia
 
-NIE can look a question up with **no internet, no account and no search key**, in a copy of the opening of tens of thousands of Wikipedia articles that lives on the writer's computer. Nothing the writer asks leaves the computer. It is optional: the writer downloads it once in Settings (like the language model), or adds a pack file they already have.
+NIE can look a question up with **no internet, no account and no search key**, in a copy of the opening of the most-read articles of one Wikipedia (the first pack: 120,000 articles of the Simple English Wikipedia, whose wording is deliberately simple and whose articles are fewer and shorter than the full English one) that lives on the writer's computer. Nothing the writer asks leaves the computer. It is optional: the writer downloads it once in Settings (like the language model), or adds a pack file they already have.
 
 ## What it is, and is not
 

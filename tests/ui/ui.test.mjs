@@ -2034,7 +2034,7 @@ const ENC_BRIDGE = () => {
   };
 };
 const encQuery = (status) => `?enc=${encodeURIComponent(JSON.stringify(status))}`;
-const ENC_INTRO = 'A copy of the opening of tens of thousands of Wikipedia articles, stored on this computer. With it NIE can look things up with no internet and no account, and nothing you ask leaves your computer. It holds the introductions of the most-read articles only, not all of Wikipedia, and it is as old as the date shown.';
+const ENC_INTRO = 'A copy of the opening paragraphs of the most-read articles of a Wikipedia, stored on this computer. With it NIE can look things up with no internet and no account, and nothing you ask leaves your computer. It is not all of Wikipedia, and it is as old as the date shown.';
 const openSettings = (page) => page.click('.nav-btn[data-view=settings]');
 const encText = async (page, sel = '#enc-status') => (await page.textContent(sel)).trim();
 const encPush = (page, patch) => page.evaluate((p) => window.__enc.push(p), patch);
@@ -2281,5 +2281,16 @@ test('records of a lookup in the encyclopedia, as stored, are shown honestly: qu
     assert.equal(blocks[0].note, 'Quoted from the offline encyclopedia article "Marlowe Bridge" (Wikipedia, CC BY-SA 4.0). No model wrote this, and nothing left your computer.', 'the note as written');
     assert.equal(await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-7).web.answeredBy), 'encyclopedia', 'kept as a valid value');
     assert.ok(!(await page.textContent('#chat-log')).includes('Searched the web'));
+  });
+});
+
+test('Settings → offline encyclopedia: the status says which Wikipedia it is when it is known', async () => {
+  await run({ init: ENC_BRIDGE, query: encQuery({ state: 'absent', title: 'Simple English Wikipedia' }) }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForFunction(() => document.querySelector('#enc-status').textContent !== 'Checking…');
+    assert.match(await encText(page), /^Not installed\. Simple English Wikipedia\./);
+    await encPush(page, { state: 'ready', title: 'Simple English Wikipedia', docs: 120000, bytes: 41137602, builtAt: '2026-10-28T14:46:51.567Z', license: 'CC BY-SA 4.0', hasFile: true });
+    await page.waitForFunction(() => /^Installed/.test(document.querySelector('#enc-status').textContent));
+    assert.equal(await encText(page), 'Installed: Simple English Wikipedia, 120,000 articles, built 2026-10-28, 39 MB.');
   });
 });

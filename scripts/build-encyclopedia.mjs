@@ -22,6 +22,7 @@ function args(argv) {
     if (a === '--input') o.input = next();
     else if (a === '--out') o.out = next();
     else if (a === '--name') o.name = next();
+    else if (a === '--title') o.title = next();
     else if (a === '--lang') o.lang = next();
     else if (a === '--max-docs') o.maxDocs = Number(next());
     else if (a === '--max-lead') o.maxLead = Number(next());
@@ -48,7 +49,7 @@ async function open(input) {
 
 const o = args(process.argv.slice(2));
 if (o.help || !o.input) {
-  console.log('Usage: node scripts/build-encyclopedia.mjs --input <dump.json.gz | https://...> [--out dir] [--name simple-en] [--lang en] [--max-docs 120000] [--max-lead 1200] [--rank auto|popularity_score|incoming_links]');
+  console.log('Usage: node scripts/build-encyclopedia.mjs --input <dump.json.gz | https://...> [--out dir] [--name simple-en] [--title "Simple English Wikipedia"] [--lang en] [--max-docs 120000] [--max-lead 1200] [--rank auto|popularity_score|incoming_links]');
   process.exit(o.help ? 0 : 1);
 }
 if (!/^[a-z0-9][a-z0-9._-]{0,60}$/i.test(o.name)) throw new Error('--name may hold letters, digits, dots, dashes and underscores only.');
@@ -58,7 +59,7 @@ const builtAt = o.builtAt || new Date().toISOString();
 const t0 = Date.now();
 const stream = await open(o.input);
 const built = await buildFromDump(stream, {
-  name: o.name, lang: o.lang, source: o.input.replace(/\?.*$/, ''), builtAt, maxDocs: o.maxDocs, maxLead: o.maxLead, rankBy: o.rank,
+  name: o.name, title: o.title ?? '', lang: o.lang, source: o.input.replace(/\?.*$/, ''), builtAt, maxDocs: o.maxDocs, maxLead: o.maxLead, rankBy: o.rank,
   onProgress: ({ read, kept }) => console.log(`  read ${read.toLocaleString('en-US')} documents, ${kept.toLocaleString('en-US')} kept so far`),
 });
 
@@ -76,7 +77,7 @@ if (!probe.length) throw new Error('The pack was written but a search for its ow
 
 const { terms } = pack.info;
 const manifest = {
-  name: o.name, file, bytes: built.bytes.length, sha256, docs: built.docs, terms, built: builtAt, version: 1, lang: o.lang,
+  name: o.name, title: o.title ?? '', file, bytes: built.bytes.length, sha256, docs: built.docs, terms, built: builtAt, version: 1, lang: o.lang,
   rankedBy: built.rankBy, maxLead: o.maxLead, source: o.input.replace(/\?.*$/, ''), license: 'CC BY-SA 4.0',
   attribution: pack.info.attribution,
 };

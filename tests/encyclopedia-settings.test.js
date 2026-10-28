@@ -124,7 +124,7 @@ test('the manager and the settings together: a file added makes the encyclopedia
 
 test('the page trusts no status as it arrives: every field is there, short and of the right kind', () => {
   const bare = cleanEncyclopediaStatus(undefined);
-  assert.deepEqual(bare, { state: 'unavailable', available: false, name: '', docs: 0, bytes: 0, builtAt: '', license: '', attribution: '', source: null, progress: null, error: '', busy: '', hasFile: false });
+  assert.deepEqual(bare, { state: 'unavailable', available: false, name: '', title: '', docs: 0, bytes: 0, builtAt: '', license: '', attribution: '', source: null, progress: null, error: '', busy: '', hasFile: false });
   const odd = cleanEncyclopediaStatus({ state: 'exploding', available: 'yes', docs: -3, bytes: NaN, name: 5, builtAt: 'x'.repeat(100), source: 'cloud', progress: { received: -1, total: 'lots' }, error: 'e'.repeat(1000), busy: 'rebooting', hasFile: 1 });
   assert.deepEqual([odd.state, odd.available, odd.docs, odd.bytes, odd.name, odd.builtAt.length, odd.source, odd.progress, odd.error.length, odd.busy, odd.hasFile], ['unavailable', false, 0, 0, '', 40, null, { received: 0, total: 0 }, 400, '', false]);
   const fine = cleanEncyclopediaStatus({ state: 'downloading', available: true, docs: 5, bytes: 9, progress: { received: 3, total: 9 }, source: 'file', busy: 'importing', hasFile: true });
