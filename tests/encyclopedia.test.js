@@ -269,3 +269,28 @@ test('a pack carries the name a writer knows it by, and a built one says which W
   assert.equal((await dump({ title: 'Simple English Wikipedia' })).bytes.length > 0, true);
   assert.equal((await Pack.open((await dump({ title: 'Simple English Wikipedia' })).bytes)).info.title, 'Simple English Wikipedia');
 });
+
+test('Wikipedia\'s leftovers never reach a reader: taken out when a pack is built, and when an older pack is read', async () => {
+  const junk = "Lua error in package.lua at line 80: module 'Module:Pagetype/setindex' not found. The speed of light, usually denoted by c {\\displaystyle c}, is a physical constant that every observer measures the same. This short article can be made longer. You can help Wikipedia by adding to it.";
+  const entry = toEntry({ title: 'Speed of light', namespace: 0, opening_text: junk, popularity_score: 1 });
+  assert.equal(entry.text, 'The speed of light, usually denoted by c, is a physical constant that every observer measures the same.');
+  // an older pack, built before the cleaning, still reads clean
+  const old = await Pack.open(buildPack([{ title: 'Speed of light', text: junk, rank: 1 }], { name: 'old' }));
+  assert.equal((await old.get(0)).text, entry.text);
+  assert.doesNotMatch((await old.search('speed of light'))[0].snippet, /displaystyle|Lua error|made longer/);
+});
+
+test('an article named by words of the question comes before generic articles that merely share a word (when the search is asked to look for names)', async () => {
+  // (on a real pack the generic articles win on prominence; scripts/encyclopedia-eval.mjs measures whether asking for names helps there)
+  const docs = [
+    { title: 'Fire', text: 'Fire is a chemical reaction that gives off light and heat. Fire can start in many ways and fire is very dangerous to forests and homes.', rank: 900 },
+    { title: 'London', text: 'London is the capital and largest city of England and the United Kingdom, on the Thames.', rank: 800 },
+    { title: 'Great Fire of London', text: 'The Great Fire of London happened in 1666. It lasted for just under five days.', rank: 5 },
+    { title: 'Death', text: 'Death is the end of a life. People die of age, disease and accidents. Death comes to every living thing.', rank: 700 },
+    { title: 'Black Death', text: 'The Black Death was a pandemic in Europe in the 14th century that killed millions.', rank: 4 },
+  ];
+  const p = await Pack.open(buildPack(docs, { name: 'names' }));
+  const first = async (q, tune) => (await p.search(q, { limit: 3, tune }))[0].title;
+  assert.equal(await first('what caused the Great Fire of London', { titles: true }), 'Great Fire of London');
+  assert.equal(await first('what was the Black Death and how many died', { titles: true }), 'Black Death');
+});

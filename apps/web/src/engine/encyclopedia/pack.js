@@ -3,6 +3,7 @@ import zlib from 'node:zlib';
 import { pushVarint, readVarint } from './varint.js';
 import { terms, titleKey, titleKeys } from './tokens.js';
 import { definitionSubject } from './define.js';
+import { tidyLead } from './grounding.js';
 import { articleUrl, wikipediaTarget } from '../web/wikipedia.js';
 
 /**
@@ -28,7 +29,7 @@ export const PACK_VERSION = 1;
 // Now: 90% (0.851) and 92% (0.906). Length normalisation is almost off because every lead is clipped to one window, so a long lead is not a wordier article;
 // the prominence boost is concentrated on the most-read articles (a power of 8), which is where a short question about a famous thing most likely points.
 // What it cannot do: a question whose answer is not named in it ("capital of Italy") finds articles about Italy, not Rome.
-export const TUNING = Object.freeze({ k1: 1.2, b: 0.15, priorWeight: 1, priorPower: 8 });
+export const TUNING = Object.freeze({ k1: 1.2, b: 0.15, priorWeight: 1, priorPower: 8, titles: false });
 const TITLE_WEIGHT = 3;
 
 const u32 = (arr) => Buffer.from(Uint32Array.from(arr).buffer);
@@ -275,7 +276,8 @@ export class Pack {
     if (!Number.isInteger(id) || id < 0 || id >= this.header.docs) return null;
     const rows = await this.#block(Math.floor(id / this.header.blockDocs));
     const row = rows[id % this.header.blockDocs];
-    return row ? { id, title: row[0], text: row[1], url: articleUrl(row[0], this.header.lang) } : null;
+    // (an older pack still has Wikipedia's leftovers in its leads: "{\displaystyle c}", "Lua error ...", "This short article can be made longer"; they are taken out as it is read)
+    return row ? { id, title: row[0], text: tidyLead(row[1]), url: articleUrl(row[0], this.header.lang) } : null;
   }
 
   /** The article known by exactly this name (its title, the title without brackets, a redirect to it), or null. */
@@ -304,13 +306,18 @@ export class Pack {
    */
   async search(query, { limit = 6, tune = null } = {}) {
     const n = Math.max(1, Math.min(20, Math.floor(limit) || 6));
-    const ranked = await this.#bm25(query, { ...TUNING, ...(tune ?? {}) });
+    const t = { ...TUNING, ...(tune ?? {}) };
+    let ranked = await this.#bm25(query, t);
+    const named = t.titles ? this.#titlesIn(query) : { long: [], short: [] };
+    if (named.short.length) ranked = this.#liftNamed(ranked, named.short);
     const exact = [];
     for (const name of [query, definitionSubject(query, { bare: true })]) {
       const id = name ? this.findTitle(name) : null;
       if (id !== null && !exact.includes(id)) exact.push(id);
     }
     const top = ranked[0]?.score ?? 1;
+    // an article whose name is words of the question ("Great Fire of London" in "what caused the Great Fire of London") comes right after one named exactly like the whole question
+    for (const id of named.long) if (!exact.includes(id)) exact.push(id);
     const merged = [...exact.map((id, i) => ({ id, score: top * (1.5 - i * 0.1) })), ...ranked.filter((r) => !exact.includes(r.id))].slice(0, n);
     const out = [];
     for (const r of merged) {
@@ -318,6 +325,36 @@ export class Pack {
       if (d) out.push({ id: d.id, title: d.title, url: d.url, snippet: d.text.length > 300 ? `${d.text.slice(0, 299).replace(/\s+\S*$/, '')}…` : d.text, score: r.score });
     }
     return out;
+  }
+
+  /**
+   * The articles named by words of the question: the longest names first and not overlapping ("Great Fire of London" and not also "Fire" and "London"); a name of one word only lifts an article
+   * the search found or adds one (a one-word name is too often a generic article: Death, Fire, Revolution).
+   */
+  #titlesIn(query) {
+    const ws = String(query).match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? [];
+    const used = new Set();
+    const long = [];
+    const short = [];
+    for (let n = Math.min(6, ws.length); n >= 1; n--) {
+      for (let i = 0; i + n <= ws.length; i++) {
+        if ([...Array(n).keys()].some((k) => used.has(i + k))) continue;
+        const gram = ws.slice(i, i + n).join(' ');
+        if (!terms(gram, { question: true }).length || (n === 1 && gram.length < 4)) continue;
+        const id = this.findTitle(gram);
+        if (id === null) continue;
+        for (let k = 0; k < n; k++) used.add(i + k);
+        (n >= 2 ? long : short).push(id);
+      }
+    }
+    return { long: long.slice(0, 2), short: short.slice(0, 2) };
+  }
+
+  #liftNamed(ranked, ids) {
+    const top = ranked[0]?.score ?? 1;
+    const out = ranked.map((r) => (ids.includes(r.id) ? { ...r, score: r.score * 1.6 } : r));
+    for (const id of ids) if (!out.some((r) => r.id === id)) out.push({ id, score: top * 0.5 });
+    return out.sort((a, b) => b.score - a.score || a.id - b.id);
   }
 
   async #bm25(query, { k1, b, priorWeight, priorPower }) {

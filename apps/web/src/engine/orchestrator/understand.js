@@ -138,6 +138,12 @@ export function declineKind(text, modelSaid) {
 }
 
 const ADDRESSED = /\b(?:you|your|yours|yourself|nie|u)\b|\bthis\s+(?:app|tool|program|thing|software)\b|\?\s*$|^\s*(?:help|is|are|does|do|did|where|how|what|can|could|which|why|who|when|will|would)\b/i;
+// Words that make a question one about NIE or its app: the ones a writer uses to ask what it does, where it keeps things, which model it is, whether it needs the internet.
+const NIE_VOCAB = /\b(?:you|your|yours|yourself|nie|u|app|tool|program|software|assistant|bot|ai|chatbot|gpt|chatgpt|llm|qwen|model|models|offline|online|internet|wi-?fi|connection|connected|install|installed|download|downloaded|update|updates|settings?|setup|account|login|sign\s*up|free|price|cost|pay|privacy|private|store|stored|save|saved|saves|upload|laptop|computer|device|memory|remember|learn|scan|full\s+scan|brainstorm|idea\s+board|library|project|projects|my\s+(?:text|chapter|chapters|manuscript|document|notes|novel|draft|story|writing|file|files)|pdf|docx|this)\b/i;
+const OPENS_LIKE_A_QUESTION = /^\s*(?:who|whom|whose|what|what's|whats|when|where|why|how|which|tell\s+me|explain|define|describe)\b/i;
+/** A question that opens like a general one and has nothing in it about NIE, its model, its settings or the writer's own text: "How tall is Mount Everest?" is not a question about NIE, whatever a small model said. */
+export const isGeneralKnowledgeQuestion = (text) => OPENS_LIKE_A_QUESTION.test(String(text ?? '')) && !NIE_VOCAB.test(String(text ?? ''));
+
 /** Is the message put TO NIE (a question or a "you")? A model that reads "My novel is about…" as a question about NIE is not believed. */
 export const looksAddressedToNie = (text) => ADDRESSED.test(String(text ?? ''));
 
@@ -183,6 +189,11 @@ export function applyReading(intent, reading, text) {
   } else if (task === 'about-nie' && !looksAddressedToNie(text)) {
     overruled = task; // "My novel is about…" is a statement, not a question about NIE
     task = wc < 3 ? 'unclear' : 'tell';
+  } else if (task === 'about-nie' && wc >= 4 && isGeneralKnowledgeQuestion(text)) {
+    // measured on the real model with a lookup on: "How tall is Mount Everest?", "When did World War II start and end?" and "Who wrote Pride and Prejudice and what is it about?" were read as
+    // questions about NIE and answered with what NIE can do. A question that opens like a general one and has nothing in it about NIE, its model, its settings or the writer's text is a general question.
+    overruled = task;
+    task = 'craft';
   }
   intent.reading = { by: 'model', task, topic: reading.topic, rules: intent.type, ...(overruled ? { overruled } : {}) };
   if (task === taskOfIntent(intent.type)) return intent;

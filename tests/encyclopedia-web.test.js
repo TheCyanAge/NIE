@@ -125,9 +125,12 @@ test('a question that is not a plain definition goes to the model, which sees ar
   assert.match(r.web.note, /of the offline encyclopedia \(Wikipedia, the opening of each, as of 2026-03-04\)/);
   assert.match(r.web.note, /Nothing left your computer\./);
   const prompt = calls.at(-1).messages;
-  assert.match(prompt[0].content, /offline encyclopedia/);
+  assert.match(prompt[0].content, /ONLY the numbered passages below, which come from an encyclopedia/);
+  assert.match(prompt[0].content, /reply with exactly: The passages do not say\./);
   assert.doesNotMatch(prompt[0].content, /untrusted web/);
-  assert.match(prompt.at(-1).content, /ARTICLES \(offline encyclopedia\)/);
+  assert.match(prompt.at(-1).content, /PASSAGES \(offline encyclopedia\)/);
+  assert.equal((prompt.at(-1).content.match(/^\[\d\] /gm) ?? []).length <= 3, true, 'at most three articles are shown to the model');
+  assert.equal(calls.at(-1).opts.maxTokens, 220, 'a short answer');
   assert.equal(net.calls.length, 0);
 });
 
@@ -203,4 +206,76 @@ test('a direct craft question the library holds is answered by the library even 
   const other = await o.brainstorm({ project: projectWith(), message: 'Who is Ilse Quarrel?', web: true });
   assert.equal(other.web.provider, 'pack');
   assert.match(other.reply, /^Ilse Quarrel \(born 1950\) is an Orsland novelist/);
+});
+
+// ── what the model is allowed to keep of its own answer ──────────────────────
+
+test('when the model says the passages do not answer, NIE says so with the articles it looked at, and does not guess', async () => {
+  const { o } = setup({ reply: () => 'The passages do not say.' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search for who designed the Marlowe Bridge' });
+  assert.match(r.reply, /^The articles I found don't answer that\. The closest are .*Marlowe Bridge/);
+  assert.equal(r.web.state, 'answered');
+  assert.match(r.web.note, /found no answer .* did not guess/);
+});
+
+test('a sentence the articles do not back up is left out, and the reply says so; one that follows them stays', async () => {
+  const { o } = setup({ reply: () => 'The Marlowe Bridge is a suspension bridge across the River Tamsin [1]. Its keepers must regularly inspect the cables and respond to storms [1].' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search for what kind of bridge the Marlowe Bridge is' });
+  assert.match(r.reply, /^The Marlowe Bridge is a suspension bridge across the River Tamsin \[1\]\./);
+  assert.doesNotMatch(r.reply, /keepers|storms/);
+  assert.match(r.reply, /I left out part of that reply because the articles don't back it up/);
+});
+
+test('a figure no article holds is left out even when every word around it is in the articles', async () => {
+  const { o } = setup({ reply: () => 'The Marlowe Bridge is 500 metres long [1]. It carries four lanes of traffic [1].' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search for how long the Marlowe Bridge is' });
+  assert.doesNotMatch(r.reply, /500/);
+  assert.match(r.reply, /four lanes/);
+});
+
+test('a reply that repeats itself, with its marks at the front, is said once', async () => {
+  const { o } = setup({ reply: () => '[1] The Marlowe Bridge opened in 1931. [1] The Marlowe Bridge opened in 1931. The Marlowe Bridge opened in 1931.' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search for when the Marlowe Bridge opened' });
+  assert.equal(r.reply.match(/The Marlowe Bridge opened in 1931/g).length, 1);
+});
+
+test('when nothing of the model\'s answer is backed up, the closest articles are shown by their first sentences, not whole', async () => {
+  const { o } = setup({ reply: () => 'The bridge was painted green by the engineer in 1935 and is famous for its haunted tower.' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search for what the Marlowe Bridge is famous for' });
+  assert.equal(r.web.state, 'results-only');
+  assert.match(r.reply, /the articles don't (?:back it up|hold)/);
+  assert.match(r.reply, /\[1\] The Marlowe Bridge is a suspension bridge across the River Tamsin in the invented city of Veldhaven\. It opened in 1931 and carries four lanes of traffic and a footpath\./);
+  assert.doesNotMatch(r.reply, /412 metres/, 'only the first two sentences');
+});
+
+// ── choosing a lookup when a small model misreads the question ───────────────
+
+test('a small model that calls "How long is the Marlowe Bridge?" a question about NIE is not believed: it is looked up', async () => {
+  const calls = [];
+  const chat = modelWithReading(() => 'The Marlowe Bridge is 412 metres long [1].', { calls, reading: () => ({ task: 'about-nie', topic: '' }) });
+  const engine = new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat }, online: null, isOnline: () => false });
+  const o = new Orchestrator({ engine, web: serviceWith().web });
+  const r = await o.brainstorm({ project: projectWith(), message: 'How long is the Marlowe Bridge?', web: true });
+  assert.equal(r.web?.provider, 'pack');
+  assert.match(r.reply, /412 metres/);
+  assert.equal(r.understood.overruled, 'about-nie');
+  // while a real question about NIE is still answered about NIE
+  const about = await o.brainstorm({ project: projectWith(), message: 'Does this work without wifi?', web: true });
+  assert.equal(about.web, null);
+  assert.match(about.reply, /no internet|offline/i);
+});
+
+test('"Who was Ilse Quarrel?" and "Tell me about Veldhaven." are looked up whatever a small model called them; the writer\'s own character is not', async () => {
+  const chat = modelWithReading(() => 'unused', { reading: () => ({ task: 'tell', topic: '' }) });
+  const engine = new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat }, online: null, isOnline: () => false });
+  const o = new Orchestrator({ engine, web: serviceWith().web });
+  const who = await o.brainstorm({ project: projectWith(), message: 'Who was Ilse Quarrel?', web: true });
+  assert.match(who.reply, /^Ilse Quarrel \(born 1950\) is an Orsland novelist/);
+  const about = await o.brainstorm({ project: projectWith(), message: 'Tell me about Veldhaven.', web: true });
+  assert.match(about.reply, /^Veldhaven is the largest port city of Orsland/);
+  // a character of the writer's own: "Tell me about Mara" is about the story
+  const project = projectWith();
+  project.memory.characters = [{ name: 'Mara' }];
+  const mine = await o.brainstorm({ project, message: 'Tell me about Mara.', web: true });
+  assert.equal(mine.web, null, 'not sent to a lookup');
 });

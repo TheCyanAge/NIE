@@ -1,3 +1,5 @@
+import { tidyLead } from './grounding.js';
+
 /**
  * Reading a Wikipedia CirrusSearch content dump (the search index Wikipedia itself builds from every article). One article is two lines of JSON: an `index` line, then the document.
  * The fields used: title, namespace, opening_text (the lead, plain text), text (the whole article, plain text), redirect (titles that lead here), popularity_score or incoming_links.
@@ -33,7 +35,7 @@ export function clipLead(text, max = MAX_LEAD_DEFAULT) {
 
 /** The lead as plain readable text: whitespace collapsed, the empty brackets that pronunciations and dates leave behind removed, nothing else changed. */
 export function cleanLead(text) {
-  return String(text ?? '')
+  return tidyLead(String(text ?? ''))
     .replace(/\r/g, '')
     .replace(/\s*\n+\s*/g, ' ')
     .replace(/\(\s*(?:[;,]\s*)*\)/g, '')

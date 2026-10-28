@@ -24,9 +24,12 @@ const pack = await Pack.open(file);
 console.log(`${pack.info.name}: ${pack.info.docs.toLocaleString('en-US')} articles; ${questions.length} tuning questions, ${validation.length} validation questions (not tuned on)`);
 
 // the shipped setting first, then the alternatives worth trying (the leads are all clipped to one window, so length normalisation may only add noise: b goes down to 0)
-const variants = [{ name: 'shipped', tune: {} }, { name: 'earlier default (b=0.75 prior=0.2^1)', tune: { b: 0.75, priorWeight: 0.2, priorPower: 1 } }];
-for (const b of [0.5, 0.3, 0.15, 0]) {
-  for (const [w, p] of [[1.0, 4], [1.0, 8], [1.5, 8], [2.0, 12]]) variants.push({ name: `b=${b} prior=${w}^${p}`, tune: { b, priorWeight: w, priorPower: p } });
+const variants = [{ name: 'shipped', tune: {} }, { name: 'shipped + names in the question', tune: { titles: true } }, { name: 'earlier default (b=0.75 prior=0.2^1)', tune: { b: 0.75, priorWeight: 0.2, priorPower: 1 } }];
+for (const b of [0.3, 0.15]) {
+  for (const [w, p] of [[1.0, 4], [1.0, 8], [1.5, 8]]) {
+    variants.push({ name: `b=${b} prior=${w}^${p}`, tune: { b, priorWeight: w, priorPower: p } });
+    variants.push({ name: `b=${b} prior=${w}^${p} + names`, tune: { b, priorWeight: w, priorPower: p, titles: true } });
+  }
 }
 
 async function run(tune, set = questions) {
