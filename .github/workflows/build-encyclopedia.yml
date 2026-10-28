@@ -80,6 +80,11 @@ jobs:
           path: dist/encyclopedia/
           retention-days: 30
 
+      - name: Measure retrieval on common-knowledge questions, and try other ranking settings (information; the shipped setting is judged by the check below)
+        env:
+          NAME: ${{ inputs.name }}
+        run: node scripts/encyclopedia-eval.mjs "dist/encyclopedia/$NAME.niepack"
+
       - name: Check the pack answers (the pack is kept above even if this fails, so it can be looked at) (common-knowledge questions)
         env:
           NAME: ${{ inputs.name }}

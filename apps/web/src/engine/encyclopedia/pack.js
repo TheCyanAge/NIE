@@ -23,8 +23,7 @@ import { articleUrl, wikipediaTarget } from '../web/wikipedia.js';
 
 const MAGIC = 'NIEPACK1';
 export const PACK_VERSION = 1;
-const K1 = 1.2;
-const B = 0.75;
+export const TUNING = Object.freeze({ k1: 1.2, b: 0.75, priorWeight: 0.2, priorPower: 1 });
 const TITLE_WEIGHT = 3;
 
 const u32 = (arr) => Buffer.from(Uint32Array.from(arr).buffer);
@@ -295,12 +294,12 @@ export class Pack {
 
   /**
    * An article whose name is exactly the question ("Eiffel Tower") or exactly the thing a "what is X" question asks about comes first; then BM25 over title (weighted three times) and lead,
-   * the more prominent article winning ties, with a bonus for an article that has every word of the question.
+   * the more prominent article winning ties, with a bonus for an article that has every word of the question. `tune` overrides `TUNING` (the evaluation script tries several).
    * @returns {Promise<{ id: number, title: string, url: string, snippet: string, score: number }[]>}
    */
-  async search(query, { limit = 6 } = {}) {
+  async search(query, { limit = 6, tune = null } = {}) {
     const n = Math.max(1, Math.min(20, Math.floor(limit) || 6));
-    const ranked = await this.#bm25(query);
+    const ranked = await this.#bm25(query, { ...TUNING, ...(tune ?? {}) });
     const exact = [];
     for (const name of [query, definitionSubject(query, { bare: true })]) {
       const id = name ? this.findTitle(name) : null;
@@ -316,7 +315,7 @@ export class Pack {
     return out;
   }
 
-  async #bm25(query) {
+  async #bm25(query, { k1, b, priorWeight, priorPower }) {
     const wanted = [...new Set(terms(query, { question: true }))];
     const N = this.header.docs;
     const entries = wanted.map((t) => ({ t, i: this.termIndex.get(t) })).filter((e) => e.i !== undefined).map((e) => ({ ...e, df: this.dictMeta[e.i * 3] }));
@@ -340,13 +339,13 @@ export class Pack {
         const tf = r.value;
         at = r.next;
         if (id >= N) throw new Error('This encyclopedia pack is damaged (index).');
-        const norm = tf + K1 * (1 - B + (B * this.lens[id]) / this.header.avgLen);
-        scores.set(id, (scores.get(id) ?? 0) + (idf * tf * (K1 + 1)) / norm);
+        const norm = tf + k1 * (1 - b + (b * this.lens[id]) / this.header.avgLen);
+        scores.set(id, (scores.get(id) ?? 0) + (idf * tf * (k1 + 1)) / norm);
         matched.set(id, (matched.get(id) ?? 0) + 1);
       }
     }
     return [...scores]
-      .map(([id, sc]) => ({ id, score: sc * (0.4 + 0.6 * (matched.get(id) / use.length)) * (1 + 0.2 * (this.ranks[id] / 255)) }))
+      .map(([id, sc]) => ({ id, score: sc * (0.4 + 0.6 * (matched.get(id) / use.length)) * (1 + priorWeight * (this.ranks[id] / 255) ** priorPower) }))
       .sort((a, b) => b.score - a.score || a.id - b.id)
       .slice(0, 40);
   }
