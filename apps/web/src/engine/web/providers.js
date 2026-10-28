@@ -1,4 +1,5 @@
 import { WebError } from './errors.js';
+import { parseWikipediaSearch, wikipediaSearchRequest } from './wikipedia.js';
 
 /**
  * Search services NIE can talk to. Every one is "a request out, a list of { title, url, snippet } back"; nothing else about a service leaks into the rest of NIE.
@@ -102,6 +103,14 @@ export const PROVIDERS = {
     },
     parse: (json) => (Array.isArray(json?.results) ? json.results : []).map((r) => ({ title: text(r?.title), url: text(r?.url), snippet: text(r?.snippet) })),
   },
+  // Wikipedia: nothing to set up, no key. The search NIE has out of the box; an encyclopedia, not the web.
+  wikipedia: {
+    id: 'wikipedia',
+    label: 'Wikipedia',
+    needsKey: false,
+    build: ({ query, limit }) => wikipediaSearchRequest({ query, limit }),
+    parse: (json) => parseWikipediaSearch(json),
+  },
   custom: {
     id: 'custom',
     label: 'Custom search service',
@@ -135,6 +144,10 @@ export const PROVIDERS = {
   },
 };
 
+/** The services that need nothing from the writer: they run only after the writer has agreed to them once, and each agreement is for that one service. */
+export const BUILTIN = Object.freeze(['nie', 'wikipedia']);
+export const isBuiltin = (id) => BUILTIN.includes(id);
+
 /** What a pasted key (or address) is, so one box serves every service. null when it can not be told. */
 export function detectProvider({ key = '', baseUrl = '' } = {}) {
   const k = String(key ?? '').trim();
@@ -155,10 +168,12 @@ export function resolveProvider(cfg = {}) {
   const asked = String(cfg.provider ?? 'auto');
   const gateway = Boolean(serviceUrl(cfg.gatewayUrl));
   let id = asked === 'auto' || !PROVIDERS[asked] ? detectProvider({ key: cfg.key, baseUrl: cfg.baseUrl }) : asked;
-  if (!id && (asked === 'auto' || asked === 'nie') && gateway && !String(cfg.key ?? '').trim()) id = 'nie';
+  // with nothing of their own: the owner's gateway when this build has one, otherwise Wikipedia
+  if (!id && asked === 'auto' && !String(cfg.key ?? '').trim()) id = gateway ? 'nie' : 'wikipedia';
   const spec = id ? PROVIDERS[id] : null;
   if (!spec) return { id: null, spec: null, ready: false, reason: 'NIE can not tell which search service this key is for. Choose the service in Settings.' };
   if (id === 'nie') return gateway ? { id, spec, ready: true, reason: '' } : { id, spec, ready: false, reason: 'This copy of NIE has no built-in search.' };
+  if (id === 'wikipedia') return { id, spec, ready: true, reason: '' };
   const key = String(cfg.key ?? '').trim();
   if (spec.needsKey && !key) return { id, spec, ready: false, reason: `${spec.label} needs a key.` };
   if (id === 'searxng' && !serviceUrl(/^https?:\/\//i.test(key) ? key : cfg.baseUrl)) return { id, spec, ready: false, reason: 'SearXNG needs the address of your instance.' };

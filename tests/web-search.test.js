@@ -23,7 +23,7 @@ test('one box serves every service: a pasted key or address is told apart by its
 });
 
 test('a service is ready only when it has what it needs, and says what is missing', () => {
-  assert.equal(resolveProvider({ provider: 'auto', key: '' }).ready, false);
+  assert.equal(resolveProvider({ provider: 'auto', key: '' }).id, 'wikipedia', 'with nothing of their own a writer has the keyless Wikipedia search');
   assert.match(resolveProvider({ provider: 'auto', key: 'plain' }).reason, /choose the service/i);
   assert.match(resolveProvider({ provider: 'brave', key: '' }).reason, /needs a key/);
   assert.equal(resolveProvider({ provider: 'brave', key: 'anything' }).ready, true);
@@ -301,9 +301,13 @@ test('the service reports what is set up, refuses when switched off, and tests a
   const t = await svc.test();
   assert.deepEqual([t.ok, t.provider, calls], [true, 'tavily', 1]);
   assert.match(t.message, /Tavily answered with 1 result/);
-  cfg = { enabled: true, provider: 'auto', key: '' };
+  cfg = { enabled: true, provider: 'auto', key: '' }; // (no key: Wikipedia, which runs only after the writer has agreed to it)
+  assert.deepEqual(svc.status(), { configured: true, enabled: false, provider: 'wikipedia', label: 'Wikipedia (switched off)' });
+  const noKey = await svc.test();
+  assert.equal(noKey.ok, false);
+  assert.match(noKey.message, /Agree to look things up on Wikipedia first/);
+  cfg = { enabled: true, provider: 'brave', key: '' }; // a service they chose by name that is missing its key is reported, never swapped for Wikipedia
   assert.equal(svc.status().configured, false);
-  assert.equal((await svc.test()).ok, false);
   cfg = { enabled: true, provider: 'auto', key: 'tvly-abc' };
   assert.equal((await svc.search('x')).results.length, 1);
   assert.deepEqual(svc.describe({ key: 'BSAx' }), { provider: 'brave', detected: 'brave', label: 'Brave Search' });

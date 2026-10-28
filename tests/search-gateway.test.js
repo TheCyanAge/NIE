@@ -171,22 +171,22 @@ test('the built-in search is used only when the writer has no key of their own, 
   assert.equal(resolveProvider({ ...base, provider: 'auto', key: '' }).id, 'nie');
   assert.equal(resolveProvider({ ...base, provider: 'auto', key: 'tvly-own' }).id, 'tavily', 'their own key always wins');
   assert.equal(resolveProvider({ ...base, provider: 'brave', key: '' }).ready, false, 'a service they chose by name is never swapped for the built-in one');
-  assert.equal(resolveProvider({ provider: 'auto', key: '' }).ready, false, 'a build with no gateway has no built-in search');
-  assert.equal(resolveProvider({ provider: 'auto', gatewayUrl: 'http://gw.example', installId: INSTALL }).ready, false, 'not over plain http');
+  assert.equal(resolveProvider({ provider: 'auto', key: '' }).id, 'wikipedia', 'a build with no gateway has the keyless Wikipedia search');
+  assert.equal(resolveProvider({ provider: 'auto', gatewayUrl: 'http://gw.example', installId: INSTALL }).id, 'wikipedia', 'a gateway over plain http is not used');
   assert.equal(PROVIDERS.nie.needsKey, false);
 
   let calls = 0;
-  let cfg = { ...base, provider: 'auto', key: '', enabled: true, builtin: false };
+  let cfg = { ...base, provider: 'auto', key: '', enabled: true, builtin: '' };
   const svc = createWebService({ fetch: async () => (calls++, new Response(JSON.stringify({ results: [{ title: 'T', url: 'https://t.example/a', snippet: 's' }] }), { status: 200 })), getConfig: () => cfg });
   assert.deepEqual(svc.status(), { configured: true, enabled: false, provider: 'nie', label: 'NIE search (switched off)' }); // (on, but not agreed)
   await assert.rejects(svc.search('hello there'), (e) => e.kind === 'not-configured');
   assert.equal(await svc.read('https://t.example/a'), null);
   assert.match((await svc.test()).message, /Agree to use NIE's built-in search first/);
   assert.equal(calls, 0, 'nothing leaves before the writer agrees');
-  cfg = { ...cfg, builtin: true };
+  cfg = { ...cfg, builtin: 'nie' };
   assert.deepEqual(svc.status(), { configured: true, enabled: true, provider: 'nie', label: 'NIE search' });
   assert.equal((await svc.search('hello there')).results.length, 1);
-  cfg = { ...cfg, key: 'tvly-own', builtin: false }; // their own key needs no agreement to the built-in service
+  cfg = { ...cfg, key: 'tvly-own', builtin: '' }; // their own key needs no agreement to a built-in service
   assert.deepEqual(svc.status(), { configured: true, enabled: true, provider: 'tavily', label: 'Tavily' });
 });
 

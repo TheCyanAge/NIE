@@ -33,6 +33,7 @@ import { profileCorpus } from '../profile/profile.js';
 import { AIError } from '../ai/openai-client.js';
 import { explicitWebAsk, joinFollowUp, looksFactual, needsContext, previousWebQuery, queryProblem } from '../web/ask.js';
 import { buildSources, resultsOnly, verifyAnswer, webMessages } from '../web/answer.js';
+import { isBuiltin } from '../web/providers.js';
 
 export { STARTER };
 
@@ -1338,12 +1339,14 @@ export class Orchestrator {
       return finish(reply, 'builtin', { state: 'not-configured', note: 'Web search is not set up.' });
     }
     if (!st.enabled) {
-      // (the built-in search is used only after the writer has agreed to it once, so "switched off" is not the whole story for it)
-      const reply =
-        st.provider === 'nie'
-          ? "Web search is off. NIE's built-in search is ready as soon as you agree to it: press the Web switch next to the message box, or tick it under Web search in Settings. Until then I answer from my library and my model."
-          : 'Web search is switched off. Turn it on under Web search in Settings if you want me to look things up; until then I answer from my library and my model.';
-      return finish(reply, 'builtin', { state: 'not-configured', note: st.provider === 'nie' ? "You have not agreed to NIE's built-in search yet." : 'Web search is switched off.' });
+      // (a built-in search is used only after the writer has agreed to it once, so "switched off" is not the whole story for it)
+      const builtin = isBuiltin(st.provider);
+      const reply = !builtin
+        ? 'Web search is switched off. Turn it on under Web search in Settings if you want me to look things up; until then I answer from my library and my model.'
+        : st.provider === 'wikipedia'
+          ? 'Looking things up on Wikipedia is ready as soon as you agree to it: press the Web switch next to the message box, or tick it under Web search in Settings. Until then I answer from my library and my model.'
+          : "Web search is off. NIE's built-in search is ready as soon as you agree to it: press the Web switch next to the message box, or tick it under Web search in Settings. Until then I answer from my library and my model.";
+      return finish(reply, 'builtin', { state: 'not-configured', note: builtin ? (st.provider === 'wikipedia' ? 'You have not agreed to look things up on Wikipedia yet.' : "You have not agreed to NIE's built-in search yet.") : 'Web search is switched off.' });
     }
 
     let query = ask.query;

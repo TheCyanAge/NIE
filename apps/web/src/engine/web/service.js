@@ -1,6 +1,7 @@
 import { WebError } from './errors.js';
-import { detectProvider, resolveProvider } from './providers.js';
+import { detectProvider, isBuiltin, resolveProvider } from './providers.js';
 import { readPage } from './page.js';
+import { readWikipediaPage, wikipediaTarget } from './wikipedia.js';
 import { cleanQuery, runSearch } from './search.js';
 
 export { WebError };
@@ -24,8 +25,8 @@ export function createWebService({ fetch: doFetch = globalThis.fetch, getConfig 
     }
   };
   const off = () => new WebError('not-configured', 'Web search is switched off in Settings.');
-  // On means the writer turned it on, and, for the built-in search, that they agreed to it (their own key needs no such agreement).
-  const live = (c, r) => Boolean(c.enabled && (r.id !== 'nie' || c.builtin));
+  // On means the writer turned it on, and, for a built-in search, that they agreed to THAT service (`builtin` holds its id; their own key needs no such agreement).
+  const live = (c, r) => Boolean(c.enabled && (!isBuiltin(r.id) || c.builtin === r.id));
   return {
     status() {
       const c = cfg();
@@ -41,13 +42,13 @@ export function createWebService({ fetch: doFetch = globalThis.fetch, getConfig 
     async read(url, { signal, maxChars = 6000 } = {}) {
       const c = cfg();
       if (!live(c, resolveProvider(c))) return null;
-      return readPage(url, { fetch: doFetch, signal, maxChars });
+      return wikipediaTarget(url) ? readWikipediaPage(url, { fetch: doFetch, signal, maxChars }) : readPage(url, { fetch: doFetch, signal, maxChars });
     },
     async test() {
       const c = cfg();
       const r = resolveProvider(c);
       if (!r.ready) return { ok: false, provider: r.id, message: r.reason || 'Web search is not set up.' };
-      if (r.id === 'nie' && !c.builtin) return { ok: false, provider: r.id, message: "Agree to use NIE's built-in search first." };
+      if (isBuiltin(r.id) && c.builtin !== r.id) return { ok: false, provider: r.id, message: r.id === 'wikipedia' ? 'Agree to look things up on Wikipedia first.' : "Agree to use NIE's built-in search first." };
       try {
         const { results } = await runSearch({ fetch: doFetch, cfg: c, query: cleanQuery('test'), limit: 1 });
         return { ok: true, provider: r.id, message: `${r.spec.label} answered with ${results.length} result${results.length === 1 ? '' : 's'}.` };
