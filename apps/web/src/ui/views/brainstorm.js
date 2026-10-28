@@ -8,7 +8,7 @@ import { mountBoard } from './board.js';
 import { askBuiltinConsent } from '../web-consent.js';
 import { sanitizeWebRecord } from '../../engine/web/record.js';
 import { providerName } from '../../engine/web/bridge.js';
-import { isBuiltin } from '../../engine/web/providers.js';
+import { isBuiltin, isLocal } from '../../engine/web/providers.js';
 
 /**
  * Brainstorm: NIE as an idea partner for any literary project (stories, characters, worlds, articles, essays, poems, scripts).
@@ -61,15 +61,18 @@ export function mountBrainstorm(root, app) {
   const webUsable = () => Boolean(webState?.configured && webState.enabled);
   const webOn = () => webUsable() && webWanted();
   // A built-in search (Wikipedia, or NIE's own service) is what would run but the writer has not turned it on, which for it means has not agreed to how that service works.
-  const needsAgreement = () => Boolean(webState?.configured && !webState.enabled && isBuiltin(webState.provider));
+  // The offline encyclopedia on this computer never asks: nothing leaves the machine, and having downloaded it was the choice.
+  const needsAgreement = () => Boolean(webState?.configured && !webState.enabled && isBuiltin(webState.provider) && !isLocal(webState.provider));
   function paintWeb() {
     const on = webOn();
     webBtn.disabled = !webUsable() && !needsAgreement();
     webBtn.setAttribute('aria-pressed', String(on));
     const where = webState?.provider === 'nie' ? "NIE's search service, which asks a search provider for them" : providerName(webState?.provider);
     const wiki = webState?.provider === 'wikipedia'; // Wikipedia is an encyclopedia, not the web: the switch says what it does
+    const pack = isLocal(webState?.provider); // the encyclopedia on this computer: not the web at all, and nothing is sent
     webBtn.title = app.web.kind === 'none' ? 'Web search needs the desktop app.'
       : !webState ? 'Checking web search…'
+      : pack && webUsable() ? 'Look things up in the offline encyclopedia on this computer. Nothing you ask leaves it.'
       : needsAgreement() ? (wiki ? 'Look things up on Wikipedia. You will be asked to agree to how it works first.' : "Search the web with NIE's built-in search. You will be asked to agree to how it works first.")
       : !webState.configured && !webState.enabled ? 'Add a key in Settings and turn web search on there to search the web.'
       : !webState.configured ? 'Add a key in Settings to search the web.'
@@ -155,7 +158,10 @@ export function mountBrainstorm(root, app) {
     if (!w) return null;
     const searched = w.state === 'answered' || w.state === 'results-only' || w.state === 'none-found';
     // (Wikipedia is not "the web": a reply from it says what was done)
-    const did = w.provider === 'wikipedia' ? `${searched ? 'Looked it up' : 'Tried to look it up'} on Wikipedia` : `${searched ? 'Searched' : 'Tried to search'} the web with ${providerName(w.provider)}`;
+    // (the offline encyclopedia is not the web either: a reply from it says it was looked up there)
+    const did = w.provider === 'wikipedia' ? `${searched ? 'Looked it up' : 'Tried to look it up'} on Wikipedia`
+      : isLocal(w.provider) ? `${searched ? 'Looked it up' : 'Tried to look it up'} in the offline encyclopedia`
+      : `${searched ? 'Searched' : 'Tried to search'} the web with ${providerName(w.provider)}`;
     const query = w.query && (searched || w.state === 'failed') ? h('p', { class: 'web-query muted' }, `${did} for: "${w.query}"`) : null;
     const open = (url) => (e) => {
       if (!window.NIE_DESKTOP?.openExternal) return; // a browser follows the link itself
@@ -166,7 +172,7 @@ export function mountBrainstorm(root, app) {
       h('li', { class: 'web-source', value: String(s.n), dataset: { n: String(s.n) } },
         s.url ? h('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer', onclick: open(s.url) }, s.title) : h('span', {}, s.title),
         s.host ? h('span', { class: 'muted web-host' }, ` · ${s.host}`) : null,
-        w.answeredBy !== 'none' ? h('span', { class: 'tag web-read' }, s.read ? 'page read' : 'snippet only') : null))) : null;
+        w.answeredBy !== 'none' ? h('span', { class: 'tag web-read' }, isLocal(w.provider) ? 'opening read' : s.read ? 'page read' : 'snippet only') : null))) : null;
     const note = w.note ? h('p', { class: 'web-note muted' }, w.note) : null;
     return query || list || note ? h('div', { class: 'web-sources', dataset: { state: w.state } }, query, list, note) : null;
   }

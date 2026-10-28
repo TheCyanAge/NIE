@@ -4,7 +4,7 @@
  */
 
 export const WEB_STATES = ['answered', 'results-only', 'not-configured', 'failed', 'none-found'];
-const ANSWERED_BY = ['offline model', 'online model', 'none'];
+const ANSWERED_BY = ['offline model', 'online model', 'encyclopedia', 'none'];
 export const MAX_WEB_SOURCES = 8;
 
 const short = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');

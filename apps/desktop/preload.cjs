@@ -51,6 +51,17 @@ contextBridge.exposeInMainWorld('NIE_WEB', {
   read: (url) => ipcRenderer.invoke('nie:web:read', url),
 });
 
+// The offline encyclopedia. Only its status crosses (never its contents or a path); a failure comes back as { error: { message } }.
+contextBridge.exposeInMainWorld('NIE_ENCYCLOPEDIA', {
+  status: () => ipcRenderer.invoke('nie:enc:status'),
+  download: () => ipcRenderer.invoke('nie:enc:download'),
+  cancel: () => ipcRenderer.invoke('nie:enc:cancel'),
+  remove: () => ipcRenderer.invoke('nie:enc:remove'),
+  /** Opens the native file dialog in the main process → the status, or { cancelled: true }. */
+  importFile: () => ipcRenderer.invoke('nie:enc:import'),
+  onChanged: (cb) => on('nie:enc:changed', cb),
+});
+
 contextBridge.exposeInMainWorld('NIE_UPDATER', {
   check: () => ipcRenderer.invoke('nie:updater:check'),
   status: () => ipcRenderer.invoke('nie:updater:status'),

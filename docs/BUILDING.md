@@ -76,3 +76,7 @@ variant so they stay legible), `assets\icon.png` and the installer wizard bitmap
 ## Built-in web search (optional)
 
 A build can carry the public address of the search gateway (`services/search-gateway/`, deployed by the owner: see its README) so web search works with nothing for the writer to set up. The address is not a secret; **a search key must never go into an installer, this repository or a test**. The `windows-release` and `windows-package` workflows write the address into `apps/desktop/search-gateway.json` before packaging, from the repository variable `NIE_SEARCH_GATEWAY_URL` (Settings > Secrets and variables > Actions > Variables). With no variable, the file stays `{ "url": "" }` and the build has no built-in search; writers can still add their own key in Settings. The file must be `https://` (anything else is ignored at start-up).
+
+## The offline encyclopedia download
+
+The app can download an offline encyclopedia pack (see `docs/ENCYCLOPEDIA.md`). A build offers the download only when `apps/desktop/encyclopedia.json` has an `https` `url` and the pack's `sha256` and `bytes`; with the file as committed (empty values) the app says the encyclopedia is not offered in this build, and the writer can still add a pack file they have. To offer one: run the `build-encyclopedia` workflow (with a `draft_tag`), publish that draft release yourself, copy the address, `sha256`, `bytes`, `name`, `builtAt` and `docs` from its `manifest.json` into `apps/desktop/encyclopedia.json`, and run `windows-release`. The pack is never inside the installer.

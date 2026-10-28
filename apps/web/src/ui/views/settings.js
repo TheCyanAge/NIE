@@ -6,7 +6,22 @@ import { BUILTIN_SEARCH } from '../web-consent.js';
 // What Web search is, in two parts: in the browser build, which has no built-in search, they are one paragraph; in the desktop app the second part is worded for "Or use your own search key" instead.
 const WEB_HOW = "Web search is off until you turn it on. When it is on and you ask NIE to look something up (the Web switch next to the message box, or 'search the web for ...'), the words of that question are sent to the search service you chose, and NIE fetches some of the pages it finds. Your manuscript, your project and your earlier messages are never sent. NIE's offline model, or your online model, reads what comes back and answers with numbered sources.";
 const WEB_KEYS = 'You need a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or any JSON search API you describe under Custom. The key is stored only on this computer.';
+const WEB_OWN_PACK = 'If you have a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or a JSON search API you describe under Custom, use it here: the words of your question then go to that service instead of the offline encyclopedia. The key is stored only on this computer.';
+const WEB_PACK_RUNS = "The offline encyclopedia on this computer answers your lookups, so nothing you ask is sent anywhere and there is nothing to agree to. NIE's built-in search is not used while it is installed.";
 const WEB_OWN = 'If you have a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or a JSON search API you describe under Custom, use it here: the words of your question then go to that service, and the built-in search above is not used. The key is stored only on this computer.';
+
+// The offline encyclopedia: what it is, in the words the writer is told (the status line, the buttons and the attribution are filled in from the desktop app's status).
+const ENC_INTRO = 'A copy of the opening of tens of thousands of Wikipedia articles, stored on this computer. With it NIE can look things up with no internet and no account, and nothing you ask leaves your computer. It holds the introductions of the most-read articles only, not all of Wikipedia, and it is as old as the date shown.';
+const ENC_UNAVAILABLE = 'The encyclopedia is not offered in this build yet. You can still add a file you already have.';
+const ENC_NEEDS_DESKTOP = 'The offline encyclopedia needs the desktop app.';
+const ENC_FIRST = 'NIE uses it first when you have not added a search key of your own; a key you add still takes over.';
+const CC_BY_SA = 'https://creativecommons.org/licenses/by-sa/4.0/';
+const encMb = (bytes) => `${bytes > 0 ? Math.max(1, Math.round(bytes / 1048576)).toLocaleString('en-US') : 0} MB`;
+
+/** A link that opens in the system browser in the desktop app (the page itself never navigates away), and as an ordinary new-tab link in a browser. */
+function externalLink(label, url) {
+  return h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', onclick: (e) => { if (!window.NIE_DESKTOP?.openExternal) return; e.preventDefault(); window.NIE_DESKTOP.openExternal(url); } }, label);
+}
 
 /**
  * Settings: where the writer chooses NIE's model, checks for updates, controls the tour and manages data.
@@ -39,9 +54,11 @@ export function mountSettings(root, app, { startTour }) {
   const webBuiltinText = h('p', { id: 'web-builtin-text' });
   const webBuiltinLabel = h('span', { id: 'web-builtin-label' });
   const webBuiltinNote = h('p', { class: 'muted small', id: 'web-builtin-note', 'aria-live': 'polite' });
-  const webBuiltinBox = h('div', { class: 'web-builtin', id: 'web-builtin-box', hidden: true }, webBuiltinHead, webBuiltinText, h('label', { class: 'check' }, webBuiltin, webBuiltinLabel), webBuiltinNote);
+  const webBuiltinCheck = h('label', { class: 'check' }, webBuiltin, webBuiltinLabel);
+  const webBuiltinBox = h('div', { class: 'web-builtin', id: 'web-builtin-box', hidden: true }, webBuiltinHead, webBuiltinText, webBuiltinCheck, webBuiltinNote);
   let builtinShown = 'wikipedia'; // the built-in service the block is about
-  const webOwn = h('div', { id: 'web-own', hidden: true }, h('h3', {}, 'Or use your own search key (optional)'), h('p', { class: 'muted' }, WEB_OWN));
+  const webOwnText = h('p', { class: 'muted', id: 'web-own-text' }, WEB_OWN);
+  const webOwn = h('div', { id: 'web-own', hidden: true }, h('h3', {}, 'Or use your own search key (optional)'), webOwnText);
   const webProvider = h('select', { class: 'select', id: 'web-provider', 'aria-label': 'Search service', onchange: () => paintWebFields() }, ...WEB_PROVIDER_CHOICES.map(([id, label]) => h('option', { value: id }, label)));
   const webKey = h('input', { class: 'input', id: 'web-key', type: 'password', placeholder: 'Search key (stored only on this computer)', autocomplete: 'off', 'aria-label': 'Search service key' });
   const webAddress = h('input', { class: 'input', id: 'web-address', placeholder: 'https://search.example.org', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'SearXNG address' });
@@ -67,6 +84,22 @@ export function mountSettings(root, app, { startTour }) {
   const webTest = h('button', { class: 'btn', id: 'web-test', title: 'Sends one search for the word "test" to the service you chose.', onclick: testWeb }, 'Test');
   const webClearKey = h('button', { class: 'btn btn-quiet', id: 'web-clear-key', hidden: true, onclick: () => saveWeb({ clearKey: true }, 'The saved key was removed.') }, 'Remove the saved key');
   const webControls = [webOn, webBuiltin, webProvider, webKey, webAddress, webMethod, ...Object.values(webCustom), webSave, webTest, webClearKey];
+
+  // ── Offline encyclopedia (optional; a file on this computer that web search reads first) ──────────────
+  const encNeedsDesktop = app.encyclopedia.kind === 'none' ? h('p', { class: 'status-line', id: 'enc-needs-desktop' }, ENC_NEEDS_DESKTOP) : null;
+  const encStatus = h('p', { id: 'enc-status', class: 'status-line', 'aria-live': 'polite' }, 'Checking…');
+  const encProgress = h('progress', { id: 'enc-progress', max: '100', value: '0', 'aria-label': 'Encyclopedia download progress', hidden: true });
+  const encAnnounce = h('p', { id: 'enc-announce', class: 'sr-only', 'aria-live': 'polite' }); // (heard every tenth of the download; the line above is seen at every percent)
+  const encDownload = h('button', { class: 'btn btn-primary', id: 'enc-download', type: 'button', hidden: true, onclick: () => encAct(() => app.encyclopedia.download()) }, 'Download');
+  const encCancel = h('button', { class: 'btn', id: 'enc-cancel', type: 'button', hidden: true, onclick: () => encAct(() => app.encyclopedia.cancel()) }, 'Cancel');
+  const encRemove = h('button', { class: 'btn btn-danger', id: 'enc-remove', type: 'button', hidden: true, onclick: confirmRemoveEncyclopedia }, 'Remove…');
+  const encImport = h('button', { class: 'btn', id: 'enc-import', type: 'button', onclick: () => encAct(() => app.encyclopedia.importFile(), 'The file was added.') }, 'Use a file I already have…');
+  const encMsg = h('p', { class: 'muted small', id: 'enc-msg', 'aria-live': 'polite' });
+  const encAttribution = h('p', { class: 'muted small', id: 'enc-attribution', hidden: true }, 'Text from Wikipedia, available under ', externalLink('CC BY-SA 4.0', CC_BY_SA), ". Each article's authors are listed in its page history on Wikipedia.");
+  const encFirst = h('p', { class: 'muted', id: 'enc-first', hidden: true }, ENC_FIRST);
+  let encNote = ''; // what the last action wants said (an error from the desktop app is said from its status)
+  let encPending = false; // a call to the desktop app is out: nothing else can be pressed meanwhile
+  let encAnnounced = -1;
 
   // ── Updates ───────────────────────────────────────────────────────────────
   const upMsg = h('p', { id: 'update-status', class: 'status-line', 'aria-live': 'polite' }, 'Checking…');
@@ -142,6 +175,11 @@ export function mountSettings(root, app, { startTour }) {
       h('div', { class: 'grid2' }, h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Search service'), webProvider), h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Key'), webKey)),
       webDetected, webAddressField, webCustomBox,
       h('div', { class: 'row' }, webSave, webTest, webClearKey, webMsg)),
+    section('Offline encyclopedia',
+      h('p', { class: 'muted', id: 'enc-explain' }, ENC_INTRO),
+      encNeedsDesktop, encStatus, encProgress, encAnnounce,
+      h('div', { class: 'row' }, encDownload, encCancel, encRemove, encImport),
+      encMsg, encAttribution, encFirst),
     section("NIE's library", h('p', { class: 'muted' }, 'Style guides and rules, usage, manuscript formats, genres with example works, forms, devices, movements, traditions and publishing norms. It is built in, so NIE can answer from it with no internet. It is reference material: NIE explains it, and only ever enforces your own rules.'),
       libSummary, libCoverage, h('label', { class: 'field' }, h('span', { class: 'field-label' }, 'Look something up'), libInput), libResults),
     section('Updates', upMsg, h('div', { class: 'row' }, upCheck, upInstall)),
@@ -206,31 +244,51 @@ export function mountSettings(root, app, { startTour }) {
     for (const [k, el] of Object.entries(webCustom)) el.value = c.custom?.[k] ?? '';
     webKey.dataset.saved = c.hasKey ? '1' : '';
     webClearKey.hidden = !c.hasKey;
-    paintBuiltin(c);
     if (c.hasKey && c.keyStoredSecurely === false && !webMsg.textContent) webMsg.textContent = 'This key is stored unencrypted on this computer.';
     paintWebFields();
+    paintWebState(c, st);
+  }
+  /** The explanations that follow from what is saved and what is installed (never the boxes the writer may be typing in). */
+  function paintWebState(c, st) {
+    const packRuns = st?.provider === 'pack'; // the encyclopedia on this computer answers lookups: nothing to agree to, no web
+    paintBuiltin(c, packRuns);
+    webTest.title = packRuns ? 'Checks that the offline encyclopedia opens. Nothing is sent anywhere.' : 'Sends one search for the word "test" to the service you chose.';
     // What Automatic made of what was saved (it can not know about a key that is only typed, not saved yet), and what is ready.
     webDetected.textContent = c.detected ? `Automatic detected ${providerName(c.detected)}.`
       : c.hasKey || c.baseUrl ? 'Automatic could not tell which service this is. Choose it from the list.'
-      : `Automatic picks the service from what you give it: a Tavily key (starts with tvly-), a Brave Search key (starts with BSA), a Serper key (40 letters and digits) or a SearXNG address (https://...).${shownService(c) ? ` With none of these it uses ${BUILTIN_SEARCH[shownService(c)].name}.` : ''}`;
+      : `Automatic picks the service from what you give it: a Tavily key (starts with tvly-), a Brave Search key (starts with BSA), a Serper key (40 letters and digits) or a SearXNG address (https://...).${packRuns ? ' With none of these it uses the offline encyclopedia on this computer.' : shownService(c) ? ` With none of these it uses ${BUILTIN_SEARCH[shownService(c)].name}.` : ''}`;
     const reason = String(st?.label ?? '').trim();
     webStatus.dataset.state = st?.configured && st.enabled ? 'ready' : st?.configured ? 'starting' : 'failed';
-    webStatus.textContent = st?.configured && st.enabled ? `Web search is on, using ${providerName(st.provider)}.`
+    webStatus.textContent = st?.configured && st.enabled ? (packRuns ? 'Lookups use the offline encyclopedia on this computer.' : `Web search is on, using ${providerName(st.provider)}.`)
       : st?.configured && c.usingBuiltin && c.builtin !== c.builtinService ? `Web search is off. ${BUILTIN_SEARCH[c.builtinService].ready}`
       : st?.configured ? `Web search is off. ${providerName(st.provider)} is set up.`
       : `Web search is not set up yet.${reason ? ` ${/[.!?]$/.test(reason) ? reason : `${reason}.`}` : ''}`;
+  }
+  /** The encyclopedia was installed or removed while Settings is open: the web search explanations follow, the boxes are left as they are. */
+  async function refreshWebState() {
+    if (!window.NIE_WEB) return;
+    const [c, st] = await Promise.all([app.web.refresh(), app.web.status()]).catch(() => []);
+    if (c) paintWebState(c, st);
   }
   // The built-in search that would run with no key of the writer's own (they may have chosen their own service, and then it is the one they would get back): the desktop app has
   // one in every build, the browser build none.
   const shownService = (c) => (window.NIE_WEB ? c.builtinService || (c.gateway ? 'nie' : 'wikipedia') : null);
   // The block shows the agreement as saved, and which service runs: the writer's own, when they have set one up, always wins. An agreement is to one service: Wikipedia's is not NIE's.
-  function paintBuiltin(c) {
+  function paintBuiltin(c, packRuns = false) {
     const service = shownService(c);
     const words = BUILTIN_SEARCH[service];
     webBuiltinBox.hidden = !words;
     webOwn.hidden = !words;
     webExplain.textContent = words ? WEB_HOW : `${WEB_HOW} ${WEB_KEYS}`;
+    webOwnText.textContent = packRuns ? WEB_OWN_PACK : WEB_OWN;
+    webBuiltinCheck.hidden = packRuns;
     if (!words) return;
+    if (packRuns) { // with the encyclopedia installed, the built-in search is not what runs: it is not offered, and nothing is asked
+      webBuiltinHead.textContent = 'Offline encyclopedia (installed)';
+      webBuiltinText.textContent = WEB_PACK_RUNS;
+      webBuiltinNote.textContent = '';
+      return;
+    }
     builtinShown = service;
     const agreed = c.builtin === service;
     webBuiltinHead.textContent = words.heading;
@@ -269,6 +327,88 @@ export function mountSettings(root, app, { startTour }) {
     const r = await app.web.test();
     webMsg.textContent = r.ok ? r.message : `The test did not work: ${r.message}`;
   }
+
+  // ── Offline encyclopedia ───────────────────────────────────────────────────
+  function encStatusText(s) {
+    if (!s) return 'Checking…';
+    if (s.busy === 'importing') return 'Adding the file…';
+    if (s.busy === 'removing') return 'Removing the offline encyclopedia…';
+    const built = s.builtAt ? s.builtAt.slice(0, 10) : '';
+    if (s.state === 'downloading') {
+      const total = s.progress?.total || s.bytes;
+      const got = s.progress?.received ?? 0;
+      return total ? `Downloading… ${Math.min(100, Math.floor((got / total) * 100))}% (${encMb(got)} of ${encMb(total)})` : `Downloading… ${encMb(got)}`;
+    }
+    if (s.state === 'ready') {
+      const bits = [s.docs ? `${s.docs.toLocaleString('en-US')} articles` : '', built ? `built ${built}` : '', s.bytes ? encMb(s.bytes) : ''].filter(Boolean);
+      return `Installed${bits.length ? `: ${bits.join(', ')}` : ''}.`;
+    }
+    if (s.state === 'error') return s.error || 'The offline encyclopedia could not be used.';
+    if (s.state === 'absent') return `Not installed.${s.bytes ? ` The download is about ${encMb(s.bytes)}${built ? ` and was built ${built}` : ''}.` : ''}`;
+    return ENC_UNAVAILABLE;
+  }
+  let encLast = ''; // the state last painted
+  function paintEnc(s = app.encyclopedia.current()) {
+    const none = app.encyclopedia.kind === 'none';
+    const state = s?.state ?? '';
+    const downloading = state === 'downloading';
+    const ready = state === 'ready';
+    const idle = !encPending && !s?.busy;
+    encStatus.hidden = none;
+    encStatus.textContent = encStatusText(s);
+    encStatus.dataset.state = ready ? 'ready' : downloading ? 'starting' : state === 'error' ? 'failed' : '';
+    encStatus.setAttribute('aria-live', downloading ? 'off' : 'polite'); // (a download is announced by encAnnounce, a tenth at a time)
+    const total = s?.progress?.total || s?.bytes || 0;
+    const pct = downloading && total ? Math.min(100, Math.floor(((s.progress?.received ?? 0) / total) * 100)) : null;
+    encProgress.hidden = !downloading;
+    if (pct == null) encProgress.removeAttribute('value'); else encProgress.value = pct;
+    if (pct != null && Math.floor(pct / 10) !== encAnnounced) { encAnnounced = Math.floor(pct / 10); encAnnounce.textContent = `Downloading the offline encyclopedia, ${pct} percent.`; }
+    if (encLast === 'downloading' && !downloading) encAnnounce.textContent = ready ? 'The offline encyclopedia finished downloading.' : state === 'error' ? 'The download stopped with a problem.' : 'The download was cancelled.';
+    if (!downloading) encAnnounced = -1;
+    encLast = state;
+    encDownload.hidden = !(state === 'absent' || (state === 'error' && s.available));
+    encDownload.textContent = state === 'error' ? 'Try again' : s?.bytes ? `Download (about ${encMb(s.bytes)})` : 'Download';
+    encCancel.hidden = !downloading;
+    encRemove.hidden = !(ready || (state === 'error' && s.hasFile));
+    encDownload.disabled = none || !idle;
+    encRemove.disabled = none || !idle;
+    encImport.disabled = none || !idle || downloading;
+    encCancel.disabled = none || encPending;
+    encAttribution.hidden = none || !(ready || downloading);
+    encFirst.hidden = none || !ready;
+    encMsg.textContent = s?.error && state !== 'error' ? s.error : encNote; // (a file that was refused while another works: said beside it)
+  }
+  /** One change asked of the desktop app. The buttons wait for it; its outcome is said once. */
+  async function encAct(call, done = '') {
+    if (encPending) return;
+    encPending = true;
+    encNote = '';
+    paintEnc();
+    const r = await call();
+    encPending = false;
+    encNote = r.error ? r.error.message : r.cancelled || r.status?.error ? '' : done;
+    paintEnc(r.status ?? undefined);
+  }
+  async function refreshEnc() {
+    paintEnc();
+    const s = await app.encyclopedia.refresh();
+    if (!s) { encStatus.textContent = 'NIE could not ask the desktop app about the offline encyclopedia.'; encStatus.dataset.state = 'failed'; return; }
+    paintEnc(s);
+  }
+  function confirmRemoveEncyclopedia() {
+    const dlg = h('dialog', { class: 'dialog', role: 'alertdialog', id: 'enc-confirm' }, h('form', { method: 'dialog', class: 'dialog-body' },
+      h('h2', {}, 'Remove the offline encyclopedia?'),
+      h('p', {}, 'The file is deleted from this computer. Until you download it again or add a file, NIE looks things up the other ways it can: Wikipedia once you agree to it, or a search key of your own.'),
+      h('div', { class: 'dialog-actions end' }, h('button', { class: 'btn btn-danger', value: 'remove', id: 'confirm-enc-remove' }, 'Remove it'), h('button', { class: 'btn btn-quiet', value: 'cancel', autofocus: true }, 'Cancel'))));
+    dlg.addEventListener('close', () => { if (dlg.returnValue === 'remove') encAct(() => app.encyclopedia.remove(), 'The offline encyclopedia was removed.'); dlg.remove(); });
+    document.body.append(dlg);
+    dlg.showModal();
+  }
+  let encReady = false;
+  app.encyclopedia.onChange((s) => {
+    paintEnc(s);
+    if ((s.state === 'ready') !== encReady) { encReady = s.state === 'ready'; refreshWebState(); }
+  });
 
   async function refreshModel() {
     const st = app.engine.status();
@@ -313,7 +453,7 @@ export function mountSettings(root, app, { startTour }) {
   app.on('library', paintLibrary);
   paintLibrary();
   loadLibrary().then(paintLibrary);
-  app.on('view', (v) => { if (v === 'settings') { refreshModel(); refreshOnline(); refreshWeb(); syncPrefs(); } });
+  app.on('view', (v) => { if (v === 'settings') { refreshModel(); refreshOnline(); refreshWeb(); refreshEnc(); syncPrefs(); } });
   if (window.NIE_UPDATER) {
     window.NIE_UPDATER.onStatus(paintUpdate);
     window.NIE_UPDATER.status().then(paintUpdate);
@@ -321,6 +461,6 @@ export function mountSettings(root, app, { startTour }) {
     upMsg.textContent = 'Updates are available in the installed desktop app.';
     upCheck.disabled = true;
   }
-  syncPrefs(); refreshModel(); refreshOnline(); refreshWeb(); refreshAbout();
+  syncPrefs(); refreshModel(); refreshOnline(); refreshWeb(); refreshEnc(); refreshAbout();
   return { focus: () => {}, primaryInput: () => null };
 }

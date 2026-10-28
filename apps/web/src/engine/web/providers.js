@@ -8,6 +8,8 @@ import { parseWikipediaSearch, wikipediaSearchRequest } from './wikipedia.js';
  */
 
 export const SEARCH_LIMIT_MAX = 10;
+/** The sources that run on the writer's own computer and send nothing out. */
+export const isLocal = (id) => id === 'pack';
 const HEADER_NAME = /^[A-Za-z0-9-]{1,40}$/;
 const SAFE_VALUE = /^[^\r\n\0]{0,200}$/;
 
@@ -111,6 +113,17 @@ export const PROVIDERS = {
     build: ({ query, limit }) => wikipediaSearchRequest({ query, limit }),
     parse: (json) => parseWikipediaSearch(json),
   },
+  // The offline encyclopedia: an article pack on the writer's own computer (engine/encyclopedia). Nothing is sent anywhere, so it needs no key and no agreement; it exists only once downloaded.
+  pack: {
+    id: 'pack',
+    label: 'Offline encyclopedia',
+    needsKey: false,
+    local: true,
+    build: () => {
+      throw new WebError('not-configured', 'The offline encyclopedia answers on this computer; it makes no request.');
+    },
+    parse: () => [],
+  },
   custom: {
     id: 'custom',
     label: 'Custom search service',
@@ -167,11 +180,13 @@ export function detectProvider({ key = '', baseUrl = '' } = {}) {
 export function resolveProvider(cfg = {}) {
   const asked = String(cfg.provider ?? 'auto');
   const gateway = Boolean(serviceUrl(cfg.gatewayUrl));
+  const pack = Boolean(cfg.pack); // the service says whether an encyclopedia pack is installed and open
   let id = asked === 'auto' || !PROVIDERS[asked] ? detectProvider({ key: cfg.key, baseUrl: cfg.baseUrl }) : asked;
-  // with nothing of their own: the owner's gateway when this build has one, otherwise Wikipedia
-  if (!id && asked === 'auto' && !String(cfg.key ?? '').trim()) id = gateway ? 'nie' : 'wikipedia';
+  // with nothing of their own: the encyclopedia on this computer when it is installed (nothing leaves, so it comes first), then the owner's gateway when this build has one, otherwise Wikipedia
+  if (!id && asked === 'auto' && !String(cfg.key ?? '').trim()) id = pack ? 'pack' : gateway ? 'nie' : 'wikipedia';
   const spec = id ? PROVIDERS[id] : null;
   if (!spec) return { id: null, spec: null, ready: false, reason: 'NIE can not tell which search service this key is for. Choose the service in Settings.' };
+  if (id === 'pack') return pack ? { id, spec, ready: true, reason: '' } : { id, spec, ready: false, reason: 'The offline encyclopedia is not downloaded yet.' };
   if (id === 'nie') return gateway ? { id, spec, ready: true, reason: '' } : { id, spec, ready: false, reason: 'This copy of NIE has no built-in search.' };
   if (id === 'wikipedia') return { id, spec, ready: true, reason: '' };
   const key = String(cfg.key ?? '').trim();

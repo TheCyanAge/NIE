@@ -15,6 +15,10 @@ NIE's offline assistant runs **Qwen2.5-3B-Instruct** (quantised to Q4_K_M, in GG
 - If NIE is to be shared or sold, replace the model with one whose licence fits (for example a model under the Apache-2.0 or MIT
   licence). The model is one entry in `apps/desktop/src/runtime.js` (`DEFAULT_MODEL`, `MODEL_CATALOG`).
 
+## The offline encyclopedia (Wikipedia text)
+
+The optional offline encyclopedia is made of the opening paragraphs of Wikipedia articles. Wikipedia's text is available under the **Creative Commons Attribution-ShareAlike 4.0 licence** (https://creativecommons.org/licenses/by-sa/4.0/). NIE names and links the article in every reply that uses it; each article's authors are listed in its page history on Wikipedia. The pack is shortened (cut at a sentence end), never reworded, and it carries the licence and attribution in its header. The pack is not part of NIE's source code or installer; it is built by `scripts/build-encyclopedia.mjs` and downloaded by the writer. If you publish a pack, publish it under CC BY-SA 4.0 (see `docs/ENCYCLOPEDIA.md`).
+
 ## llama.cpp
 
 The offline runtime is [llama.cpp](https://github.com/ggml-org/llama.cpp) (MIT licence), downloaded as a prebuilt release at build time.

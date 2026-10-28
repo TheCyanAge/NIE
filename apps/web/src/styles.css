@@ -327,6 +327,11 @@ fieldset { border: 1px solid var(--line); border-radius: 20px; margin: 14px 0; p
 .web-read { margin-left: 6px; font-size: 0.68rem; }
 .web-custom { margin: 0.4rem 0; }
 #web-status, #web-detected, #web-unavailable { margin: 0.6rem 0; }
+/* the offline encyclopedia section in Settings */
+#enc-status, #enc-needs-desktop { margin: 0.6rem 0; }
+#enc-progress { display: block; width: 100%; max-width: 460px; height: 10px; margin: 0 0 0.8rem; accent-color: var(--accent); }
+#enc-msg:empty { display: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 .web-builtin { margin: 0.8rem 0; padding: 4px 16px 10px; background: var(--panel2); border-radius: 16px; border-left: 3px solid var(--accent); }
 .web-builtin h3 { margin-top: 0.6em; }
 #web-builtin-note { margin: 0.3rem 0 0; }

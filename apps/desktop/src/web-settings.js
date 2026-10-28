@@ -61,8 +61,9 @@ const redact = (message, key) => (key && key.length >= 8 ? String(message).split
  * @param {Function} deps.fetch
  * @param {string} [deps.gatewayUrl]                 the address of NIE's own search service (`readGatewayUrl`); '' when this build has none
  * @param {() => string} [deps.makeId]               a new random install code
+ * @param {() => (object|null)} [deps.getPack]       the open offline encyclopedia (engine/encyclopedia `Pack`), or null when none is installed
  */
-export function createWebSettings({ readPrefs, writePrefs, safeStorage, createService, fetch, gatewayUrl = '', makeId = randomUUID }) {
+export function createWebSettings({ readPrefs, writePrefs, safeStorage, createService, fetch, gatewayUrl = '', makeId = randomUUID, getPack = () => null }) {
   /** The random code sent with a built-in search so the service can limit abuse (not a name, not an account). Made the first time it is wanted and then kept; only a request carries it. */
   let made = null;
   function installId() {
@@ -102,7 +103,7 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
     };
   }
 
-  const service = createService({ fetch, getConfig: read });
+  const service = createService({ fetch, getConfig: read, getPack });
   const fail = (kind, message, key = '') => ({ error: { kind: KINDS.includes(kind) ? kind : 'network', message: redact(message, key) } });
   /** The agreement as it is stored after a save: the id of a built-in service this build can run, '' (or false) to take it back, and for anything else, including true, what was stored. */
   const agreement = (asked, stored) => (isBuiltin(asked) && (asked !== 'nie' || gatewayUrl) ? asked : asked === '' || asked === false ? '' : stored);
@@ -125,7 +126,7 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
     const builtinService = isBuiltin(d.provider) ? d.provider : null;
     return {
       enabled: c.enabled, provider: c.provider, detected: typeof d.detected === 'string' && d.detected ? d.detected : null, baseUrl: c.baseUrl, custom: c.custom, hasKey: Boolean(c.key), keyStoredSecurely: safeStorage.isEncryptionAvailable(),
-      gateway: Boolean(gatewayUrl), builtinService, builtin: c.builtin, usingBuiltin: builtinService !== null,
+      gateway: Boolean(gatewayUrl), builtinService, builtin: c.builtin, usingBuiltin: builtinService !== null, pack: Boolean(getPack()),
     };
   }
 
@@ -171,7 +172,7 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
       const limit = opts?.limit;
       try {
         const res = await service.search(String(query ?? ''), { limit: Number.isFinite(limit) ? Math.min(Math.max(Math.trunc(limit), 1), 10) : undefined });
-        return { provider: res.provider, results: res.results };
+        return { provider: res.provider, results: res.results, ...(res.pack ? { pack: res.pack } : {}) };
       } catch (err) {
         return fail(err?.kind, err?.message ?? String(err), read().key);
       }

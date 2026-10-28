@@ -36,6 +36,7 @@
       "package.json",
       "updater-config.json",
       "search-gateway.json",
+      "encyclopedia.json",
       "src/**/*",
       "!**/dist-desktop/**",
       "!**/*.gguf",

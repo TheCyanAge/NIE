@@ -1987,3 +1987,299 @@ test('the Web switch\'s dialog is not cut off in a narrow window', async () => {
     await page.click('#web-consent-later');
   });
 });
+
+// ── The offline encyclopedia: Settings in each state, and the Web switch and sources when it is what answers ──
+
+/**
+ * Pretend to be the desktop app with an offline encyclopedia (window.NIE_ENCYCLOPEDIA, and a window.NIE_WEB that follows it the way the main process does: with the encyclopedia ready,
+ * lookups use it, are on and need no agreement). `?enc={...}` is the status at the start; `window.__enc.push({...})` is the main process announcing a change, `__enc.calls` what the page asked.
+ */
+const ENC_BRIDGE = () => {
+  const q = new URLSearchParams(location.search);
+  const MB = 1048576;
+  const E = (window.__enc = {
+    s: { state: 'absent', available: true, name: 'wikipedia-top', docs: 50000, bytes: 450 * MB, builtAt: '2026-09-01', license: '', attribution: '', source: null, progress: null, error: '', busy: '', hasFile: false, ...JSON.parse(q.get('enc') ?? '{}') },
+    calls: [], listeners: [], opened: [], importAnswer: null, webSets: [], searches: [],
+  });
+  E.push = (patch) => { E.s = { ...E.s, ...patch }; E.listeners.forEach((cb) => cb(E.s)); return E.s; };
+  const ready = (extra = {}) => E.push({ state: 'ready', license: 'CC BY-SA 4.0', progress: null, error: '', hasFile: true, source: 'file', ...extra });
+  window.NIE_DESKTOP = { isDesktop: true, info: async () => ({ version: '0.1.0', platform: 'win32', electron: '44.0.0' }), openFile: async () => null, onMenu: () => () => {}, openExternal: async (u) => (E.opened.push(u), true) };
+  window.NIE_ENCYCLOPEDIA = {
+    status: async () => E.s,
+    download: async () => { E.calls.push('download'); return E.push({ state: 'downloading', progress: { received: 0, total: E.s.bytes }, error: '' }); },
+    cancel: async () => { E.calls.push('cancel'); return E.push({ state: 'absent', progress: null }); },
+    remove: async () => { E.calls.push('remove'); return E.push({ state: E.s.available ? 'absent' : 'unavailable', hasFile: false, error: '', source: null, license: '' }); },
+    importFile: async () => {
+      E.calls.push('import');
+      if (E.importAnswer === 'cancel') return { cancelled: true };
+      if (E.importAnswer === 'bad') return { error: { message: 'That file cannot be used: This is not an encyclopedia pack.' } };
+      return ready();
+    },
+    onChanged: (cb) => (E.listeners.push(cb), () => {}),
+  };
+  const packOn = () => E.s.state === 'ready';
+  const config = () => ({ enabled: false, provider: 'auto', detected: null, baseUrl: '', custom: { method: 'GET', url: '', headerName: 'Authorization', headerPrefix: 'Bearer ', bodyTemplate: '', resultsPath: 'results', titleKey: 'title', urlKey: 'url', snippetKey: 'snippet' }, hasKey: false, keyStoredSecurely: true, gateway: false, builtinService: packOn() ? null : 'wikipedia', builtin: '', usingBuiltin: !packOn(), pack: packOn() });
+  window.NIE_WEB = {
+    getConfig: async () => config(),
+    setConfig: async (cfg) => (E.webSets.push(cfg), config()),
+    status: async () => (packOn() ? { configured: true, enabled: true, provider: 'pack', label: 'Offline encyclopedia' } : { configured: true, enabled: false, provider: 'wikipedia', label: 'Wikipedia (switched off)' }),
+    test: async () => (packOn() ? { ok: true, provider: 'pack', message: 'The offline encyclopedia is ready: 50,000 articles, on this computer.' } : { ok: false, provider: 'wikipedia', message: 'Agree to look things up on Wikipedia first.' }),
+    search: async (query, opts) => {
+      E.searches.push([query, opts]);
+      return packOn()
+        ? { provider: 'pack', results: [{ title: 'Great Fire of London', url: 'https://en.wikipedia.org/wiki/Great_Fire_of_London', snippet: 'The Great Fire of London was a major conflagration that swept through the central parts of London in September 1666.' }], pack: { docs: 50000, builtAt: '2026-09-01', name: 'wikipedia-top' } }
+        : { error: { kind: 'not-configured', message: 'Web search is switched off in Settings.' } };
+    },
+    read: async (url) => ({ url, title: 'Great Fire of London', text: 'The Great Fire of London was a major conflagration that swept through the central parts of London in September 1666.' }),
+  };
+};
+const encQuery = (status) => `?enc=${encodeURIComponent(JSON.stringify(status))}`;
+const ENC_INTRO = 'A copy of the opening of tens of thousands of Wikipedia articles, stored on this computer. With it NIE can look things up with no internet and no account, and nothing you ask leaves your computer. It holds the introductions of the most-read articles only, not all of Wikipedia, and it is as old as the date shown.';
+const openSettings = (page) => page.click('.nav-btn[data-view=settings]');
+const encText = async (page, sel = '#enc-status') => (await page.textContent(sel)).trim();
+const encPush = (page, patch) => page.evaluate((p) => window.__enc.push(p), patch);
+const encCalls = (page) => page.evaluate(() => window.__enc.calls);
+const READY = { state: 'ready', license: 'CC BY-SA 4.0', hasFile: true, source: 'download' };
+const visible = (page, ids) => Promise.all(ids.map((id) => page.isVisible(id)));
+
+test('Settings → offline encyclopedia: a browser says it needs the desktop app and offers nothing to press', async () => {
+  await run({}, async ({ page }) => {
+    await openSettings(page);
+    assert.equal(await encText(page, '#enc-explain'), ENC_INTRO);
+    assert.equal(await encText(page, '#enc-needs-desktop'), 'The offline encyclopedia needs the desktop app.');
+    assert.equal(await page.isHidden('#enc-status'), true);
+    assert.deepEqual(await visible(page, ['#enc-download', '#enc-cancel', '#enc-remove', '#enc-attribution', '#enc-first']), [false, false, false, false, false]);
+    assert.equal(await page.isDisabled('#enc-import'), true);
+  });
+});
+
+test('Settings → offline encyclopedia: a build without a download address says so honestly, and still lets the writer add a file', async () => {
+  await run({ init: ENC_BRIDGE, query: encQuery({ state: 'unavailable', available: false, bytes: 0, docs: 0, builtAt: '' }) }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForFunction(() => document.querySelector('#enc-status').textContent !== 'Checking…');
+    assert.equal(await encText(page), 'The encyclopedia is not offered in this build yet. You can still add a file you already have.');
+    assert.equal(await absent(page, '#enc-needs-desktop'), true, 'the desktop app is there');
+    assert.deepEqual(await visible(page, ['#enc-download', '#enc-cancel', '#enc-remove', '#enc-attribution']), [false, false, false, false]);
+    assert.equal(await page.isEnabled('#enc-import'), true);
+    assert.equal(await page.textContent('#enc-import'), 'Use a file I already have…');
+  });
+});
+
+test('Settings → offline encyclopedia: not installed shows the size of the download; Download starts it and Cancel stops it, with progress read aloud and shown', async () => {
+  await run({ init: ENC_BRIDGE }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForFunction(() => document.querySelector('#enc-status').textContent !== 'Checking…');
+    assert.equal(await encText(page), 'Not installed. The download is about 450 MB and was built 2026-09-01.');
+    assert.equal(await encText(page, '#enc-download'), 'Download (about 450 MB)');
+    assert.deepEqual(await visible(page, ['#enc-cancel', '#enc-remove', '#enc-attribution', '#enc-first']), [false, false, false, false]);
+    await page.click('#enc-download');
+    await page.waitForFunction(() => /^Downloading/.test(document.querySelector('#enc-status').textContent));
+    assert.deepEqual(await encCalls(page), ['download']);
+    assert.equal(await encText(page), 'Downloading… 0% (0 MB of 450 MB)');
+    assert.equal(await page.getAttribute('#enc-status', 'aria-live'), 'off', 'a line that changes at every percent is not read out at every percent');
+
+    await encPush(page, { progress: { received: 180 * 1048576, total: 450 * 1048576 } });
+    assert.equal(await encText(page), 'Downloading… 40% (180 MB of 450 MB)');
+    assert.equal(await page.getAttribute('#enc-progress', 'value'), '40');
+    assert.equal(await page.getAttribute('#enc-progress', 'aria-label'), 'Encyclopedia download progress');
+    assert.equal(await encText(page, '#enc-announce'), 'Downloading the offline encyclopedia, 40 percent.');
+    assert.equal(await page.getAttribute('#enc-announce', 'aria-live'), 'polite');
+    assert.deepEqual(await visible(page, ['#enc-download', '#enc-cancel', '#enc-remove', '#enc-progress', '#enc-attribution']), [false, true, false, true, true], 'the licence is shown while it downloads');
+    assert.equal(await page.isDisabled('#enc-import'), true, 'a file cannot be added in the middle of a download');
+
+    await page.click('#enc-cancel');
+    await page.waitForFunction(() => /^Not installed/.test(document.querySelector('#enc-status').textContent));
+    assert.deepEqual(await encCalls(page), ['download', 'cancel']);
+    assert.equal(await page.isHidden('#enc-progress'), true);
+    assert.equal(await encText(page, '#enc-announce'), 'The download was cancelled.');
+    assert.equal(await page.getAttribute('#enc-status', 'aria-live'), 'polite');
+  });
+});
+
+test('Settings → offline encyclopedia: installed shows what it holds, the licence with a link that opens outside, and Remove asks first', async () => {
+  await run({ init: ENC_BRIDGE, query: encQuery(READY) }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForFunction(() => /^Installed/.test(document.querySelector('#enc-status').textContent));
+    assert.equal(await encText(page), 'Installed: 50,000 articles, built 2026-09-01, 450 MB.');
+    assert.equal(await page.getAttribute('#enc-status', 'data-state'), 'ready');
+    assert.equal(await encText(page, '#enc-attribution'), "Text from Wikipedia, available under CC BY-SA 4.0. Each article's authors are listed in its page history on Wikipedia.");
+    assert.equal(await encText(page, '#enc-first'), 'NIE uses it first when you have not added a search key of your own; a key you add still takes over.');
+    assert.deepEqual(await visible(page, ['#enc-download', '#enc-cancel', '#enc-remove', '#enc-import']), [false, false, true, true]);
+    const url = page.url();
+    await page.click('#enc-attribution a');
+    assert.deepEqual(await page.evaluate(() => window.__enc.opened), ['https://creativecommons.org/licenses/by-sa/4.0/']);
+    assert.equal(page.url(), url, 'the page itself does not navigate');
+    assert.equal(await page.getAttribute('#enc-attribution a', 'rel'), 'noopener noreferrer');
+
+    await page.click('#enc-remove');
+    await page.waitForSelector('#enc-confirm[open]');
+    assert.equal(await encText(page, '#enc-confirm h2'), 'Remove the offline encyclopedia?');
+    await page.click('#enc-confirm button[value=cancel]');
+    assert.equal(await absent(page, '#enc-confirm'), true);
+    assert.deepEqual(await encCalls(page), [], 'cancelled: nothing was removed');
+    await page.click('#enc-remove');
+    await page.waitForSelector('#confirm-enc-remove');
+    await page.click('#confirm-enc-remove');
+    await page.waitForFunction(() => /^Not installed/.test(document.querySelector('#enc-status').textContent));
+    assert.deepEqual(await encCalls(page), ['remove']);
+    assert.equal(await encText(page, '#enc-msg'), 'The offline encyclopedia was removed.');
+    assert.deepEqual(await visible(page, ['#enc-remove', '#enc-attribution', '#enc-first']), [false, false, false]);
+  });
+});
+
+test('Settings → offline encyclopedia: a failure is said in the writer\'s words with Try again, and a file that cannot be opened can be removed', async () => {
+  const message = 'The offline encyclopedia could not be downloaded: the disk is full. Free some space and try again.';
+  await run({ init: ENC_BRIDGE, query: encQuery({ state: 'error', error: message }) }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForFunction(() => document.querySelector('#enc-status').textContent !== 'Checking…');
+    assert.equal(await encText(page), message);
+    assert.equal(await page.getAttribute('#enc-status', 'data-state'), 'failed');
+    assert.equal(await encText(page, '#enc-download'), 'Try again');
+    assert.equal(await page.isHidden('#enc-remove'), true, 'there is no file to remove');
+    await page.click('#enc-download');
+    await page.waitForFunction(() => /^Downloading/.test(document.querySelector('#enc-status').textContent));
+    assert.deepEqual(await encCalls(page), ['download']);
+  });
+  const broken = 'The encyclopedia file on this computer cannot be used: This is not an encyclopedia pack. Remove it, then download it again or add a file.';
+  await run({ init: ENC_BRIDGE, query: encQuery({ state: 'error', error: broken, hasFile: true }) }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForFunction(() => document.querySelector('#enc-status').textContent !== 'Checking…');
+    assert.equal(await encText(page), broken);
+    assert.equal(await page.isVisible('#enc-remove'), true);
+    await page.click('#enc-remove');
+    await page.click('#confirm-enc-remove');
+    await page.waitForFunction(() => /^Not installed/.test(document.querySelector('#enc-status').textContent));
+  });
+});
+
+test('Settings → offline encyclopedia: "Use a file I already have" installs it, a cancelled dialog changes nothing, and a refused file is explained beside the one that works', async () => {
+  await run({ init: ENC_BRIDGE }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForFunction(() => document.querySelector('#enc-status').textContent !== 'Checking…');
+    await page.evaluate(() => { window.__enc.importAnswer = 'cancel'; });
+    await page.click('#enc-import');
+    await page.waitForFunction(() => window.__enc.calls.length === 1);
+    assert.match(await encText(page), /^Not installed/);
+    assert.equal(await encText(page, '#enc-msg'), '');
+    assert.equal(await page.isEnabled('#enc-import'), true, 'the button is back');
+
+    await page.evaluate(() => { window.__enc.importAnswer = 'bad'; });
+    await page.click('#enc-import');
+    await page.waitForFunction(() => document.querySelector('#enc-msg').textContent !== '');
+    assert.equal(await encText(page, '#enc-msg'), 'That file cannot be used: This is not an encyclopedia pack.');
+    assert.match(await encText(page), /^Not installed/);
+
+    await page.evaluate(() => { window.__enc.importAnswer = null; });
+    await page.click('#enc-import');
+    await page.waitForFunction(() => /^Installed/.test(document.querySelector('#enc-status').textContent));
+    assert.equal(await encText(page, '#enc-msg'), 'The file was added.');
+    assert.equal(await page.isVisible('#enc-attribution'), true);
+
+    // a file refused while another is working: the working one stays, and the reason is beside it
+    await encPush(page, { error: 'That file cannot be used: It is incomplete.' });
+    assert.match(await encText(page), /^Installed/);
+    assert.equal(await encText(page, '#enc-msg'), 'That file cannot be used: It is incomplete.');
+  });
+});
+
+test('Settings → offline encyclopedia: nothing can be pressed while the desktop app is busy with it, and the section fits a narrow window', async () => {
+  await run({ viewport: { width: 700, height: 900 }, init: ENC_BRIDGE, query: encQuery({ ...READY, busy: 'importing' }) }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForFunction(() => document.querySelector('#enc-status').textContent !== 'Checking…');
+    assert.equal(await encText(page), 'Adding the file…');
+    for (const id of ['#enc-remove', '#enc-import']) assert.equal(await page.isDisabled(id), true, `${id} waits`);
+    await encPush(page, { busy: '' });
+    for (const id of ['#enc-remove', '#enc-import']) assert.equal(await page.isEnabled(id), true);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    assert.ok(overflow <= 1, `settings overflows by ${overflow}px`);
+  });
+});
+
+test('Settings → web search: with the encyclopedia installed, no agreement is asked, nothing is called "the web", and it follows the install while Settings is open', async () => {
+  await run({ init: ENC_BRIDGE }, async ({ page }) => {
+    await openSettings(page);
+    await page.waitForSelector('#web-builtin-box:not([hidden])');
+    assert.equal(await encText(page, '#web-builtin-head'), 'Wikipedia (built in)');
+    assert.equal(await page.isVisible('#web-builtin'), true);
+    await encPush(page, READY); // the main process finished a download
+    await page.waitForFunction(() => document.querySelector('#web-builtin-head').textContent === 'Offline encyclopedia (installed)');
+    assert.equal(await page.isHidden('#web-builtin'), true, 'there is no agreement to tick');
+    assert.match(await encText(page, '#web-builtin-text'), /^The offline encyclopedia on this computer answers your lookups, so nothing you ask is sent anywhere and there is nothing to agree to\./);
+    assert.equal(await encText(page, '#web-status'), 'Lookups use the offline encyclopedia on this computer.');
+    assert.match(await encText(page, '#web-detected'), /With none of these it uses the offline encyclopedia on this computer\.$/);
+    assert.match(await encText(page, '#web-own-text'), /go to that service instead of the offline encyclopedia\./);
+    assert.match(await page.getAttribute('#web-test', 'title'), /Nothing is sent anywhere/);
+    await page.click('#web-test');
+    await page.waitForFunction(() => /ready: 50,000 articles/.test(document.querySelector('#web-msg').textContent));
+    await encPush(page, { state: 'absent', hasFile: false });
+    await page.waitForFunction(() => document.querySelector('#web-builtin-head').textContent === 'Wikipedia (built in)');
+    assert.equal(await page.isVisible('#web-builtin'), true, 'removed: the agreement to Wikipedia is asked for again');
+    assert.match(await page.getAttribute('#web-test', 'title'), /one search/);
+  });
+});
+
+test('the Web switch with the encyclopedia: it says nothing leaves the computer, never asks for an agreement, and follows the install without a reload', async () => {
+  await run({ init: ENC_BRIDGE }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
+    assert.match(await page.getAttribute('#web-toggle', 'title'), /^Look things up on Wikipedia\. You will be asked to agree/, 'before: the built-in search, which asks');
+    await encPush(page, READY);
+    await page.waitForFunction(() => /offline encyclopedia/.test(document.querySelector('#web-toggle').getAttribute('title')));
+    assert.equal(await page.getAttribute('#web-toggle', 'title'), 'Look things up in the offline encyclopedia on this computer. Nothing you ask leaves it.');
+    assert.equal(await page.isEnabled('#web-toggle'), true);
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false');
+    await page.click('#web-toggle');
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'true');
+    assert.equal(await absent(page, '#web-consent'), true, 'no dialog, ever');
+    assert.deepEqual(await page.evaluate(() => window.__enc.webSets), [], 'and nothing was saved: no agreement is made for it');
+    assert.equal(await page.getAttribute('#web-toggle', 'title'), 'Look things up in the offline encyclopedia on this computer. Nothing you ask leaves it.', 'on or off, the same plain words');
+    await encPush(page, { state: 'absent', hasFile: false });
+    await page.waitForFunction(() => /^Look things up on Wikipedia\. You will be asked/.test(document.querySelector('#web-toggle').getAttribute('title')));
+    assert.equal(await page.getAttribute('#web-toggle', 'aria-pressed'), 'false', 'removed: the switch is off again until the writer agrees to Wikipedia');
+  });
+});
+
+test('a lookup in the encyclopedia is shown as one: looked up in it, an opening read, the note as written, and a link that is only ever https', async () => {
+  await run({ init: ENC_BRIDGE, query: encQuery(READY) }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.waitForFunction(() => !document.querySelector('#web-toggle').disabled);
+    await page.click('#web-toggle');
+    await say(page, 'search the web for the great fire of london');
+    assert.equal(await page.evaluate(() => window.__enc.searches.length), 1);
+    const last = page.locator('.msg-assistant:not(.msg-pending) >> nth=-1').locator('.web-sources');
+    assert.match(await last.locator('.web-query').textContent(), /^Looked it up in the offline encyclopedia for: ".*great fire of london.*"$/i);
+    assert.ok(!/web/i.test(await last.locator('.web-query').textContent()), 'it was not the web');
+    assert.equal((await last.locator('.web-source a').first().getAttribute('href')), 'https://en.wikipedia.org/wiki/Great_Fire_of_London');
+    const record = await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-1).web);
+    assert.equal(record.provider, 'pack');
+    assert.ok(['answered', 'results-only'].includes(record.state), record.state);
+    if (record.answeredBy !== 'none') assert.equal(await last.locator('.web-read').first().textContent(), 'opening read');
+    assert.equal(await last.locator('.web-read:text-is("page read"), .web-read:text-is("snippet only")').count(), 0);
+    assert.ok((await last.locator('.web-note').textContent()).trim().length > 0);
+  });
+});
+
+test('records of a lookup in the encyclopedia, as stored, are shown honestly: quoted without a model, results only, failed, and found nothing', async () => {
+  await run({ init: ENC_BRIDGE, query: encQuery(READY) }, async ({ page }) => {
+    await openBrainstorm(page);
+    await page.evaluate(() => {
+      const base = { provider: 'pack', sources: [{ n: 1, title: 'Marlowe Bridge', url: 'https://en.wikipedia.org/wiki/Marlowe_Bridge', host: 'en.wikipedia.org', read: true }] };
+      const msgs = window.NIE_APP.project.conversation.messages;
+      msgs.push({ role: 'user', content: 'a', at: 1 }, { role: 'assistant', content: 'The Marlowe Bridge is a suspension bridge. [1]', at: 2, web: { ...base, query: 'marlowe bridge', state: 'answered', answeredBy: 'encyclopedia', note: 'Quoted from the offline encyclopedia article "Marlowe Bridge" (Wikipedia, CC BY-SA 4.0). No model wrote this, and nothing left your computer.' } });
+      msgs.push({ role: 'user', content: 'b', at: 3 }, { role: 'assistant', content: 'Here is what the encyclopedia holds [1].', at: 4, web: { ...base, query: 'bridge', state: 'results-only', answeredBy: 'none', note: 'No summary was written.' } });
+      msgs.push({ role: 'user', content: 'c', at: 5 }, { role: 'assistant', content: 'I could not look that up.', at: 6, web: { provider: 'pack', sources: [], answeredBy: 'none', query: 'c words', state: 'failed', note: 'The offline encyclopedia could not be read.' } });
+      msgs.push({ role: 'user', content: 'd', at: 7 }, { role: 'assistant', content: 'Nothing on that.', at: 8, web: { provider: 'pack', sources: [], answeredBy: 'none', query: 'd words', state: 'none-found', note: 'The offline encyclopedia has no article on this.' } });
+      window.NIE_APP.saveNow();
+    });
+    await page.reload();
+    await page.waitForSelector('#story-text');
+    await openBrainstorm(page);
+    const blocks = await page.$$eval('.web-sources', (b) => b.map((x) => ({ state: x.dataset.state, query: x.querySelector('.web-query')?.textContent ?? '', tags: [...x.querySelectorAll('.web-read')].map((t) => t.textContent), note: x.querySelector('.web-note')?.textContent ?? '' })));
+    assert.deepEqual(blocks.map((b) => b.state), ['answered', 'results-only', 'failed', 'none-found']);
+    assert.deepEqual(blocks.map((b) => b.query), ['Looked it up in the offline encyclopedia for: "marlowe bridge"', 'Looked it up in the offline encyclopedia for: "bridge"', 'Tried to look it up in the offline encyclopedia for: "c words"', 'Looked it up in the offline encyclopedia for: "d words"']);
+    assert.deepEqual(blocks.map((b) => b.tags), [['opening read'], [], [], []], 'a source is called read only when something read it');
+    assert.equal(blocks[0].note, 'Quoted from the offline encyclopedia article "Marlowe Bridge" (Wikipedia, CC BY-SA 4.0). No model wrote this, and nothing left your computer.', 'the note as written');
+    assert.equal(await page.evaluate(() => window.NIE_APP.project.conversation.messages.at(-7).web.answeredBy), 'encyclopedia', 'kept as a valid value');
+    assert.ok(!(await page.textContent('#chat-log')).includes('Searched the web'));
+  });
+});

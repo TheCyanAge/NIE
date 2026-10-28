@@ -47,9 +47,9 @@ const ABOUT_TOPICS = [
   { id: 'formats', re: /\b(?:pdf|docx?|word\s+file|epub|rtf|odt|html|markdown|file\s+types?|formats?|import|open\s+a\s+(?:file|document))\b/i, status: false,
     text: "Read mode opens TXT, Markdown, HTML, RTF, Word (DOCX), OpenDocument (ODT), EPUB and PDF files (PDFs that contain text; there is no scanning of images). The text becomes your project's Story Text, and the original file is never changed." },
   { id: 'internet', re: /\b(?:offline|off-?line|internet|wi-?fi|online|connection|connected)\b/i, status: true,
-    text: "NIE works with no internet. My built-in library and the checks in Full Scan run on this computer, and so does the offline language model once it has been downloaded (about 1.9 GB, one time). An online model, and looking things up with numbered sources (Wikipedia, or the web with a search key), are optional and only used when you turn them on." },
+    text: "NIE works with no internet. My built-in library and the checks in Full Scan run on this computer, and so does the offline language model once it has been downloaded (about 1.9 GB, one time). With the optional offline encyclopedia downloaded (Settings), I can also look things up with numbered sources with no internet at all. An online model, and looking things up on Wikipedia or the web, are optional and only used when you turn them on." },
   { id: 'privacy', re: /\b(?:store|stored|storing|save|saved|private|privacy|upload\w*|sent|share[ds]?|leave|keep)\b/i, status: false,
-    text: "Your projects are stored on this computer and kept separate from each other. What you write is not sent anywhere unless you set up an online model in Settings; then what I send for a reply (your message and, when your question is about your own text, the parts of it that matter for that question) goes to that provider. Looking things up is off until you turn it on. With nothing set up, it uses Wikipedia, which needs no key: when you ask me to look something up, only the words of that question go to Wikipedia (never your text or your project), I read the articles it returns, and I ask you once before using it. If this copy of NIE comes with its own search service, run by the NIE developers, the words go to that service instead, which asks a search provider for you and does not keep your questions. If you add your own search key in Settings, the words go to the service you chose." },
+    text: "Your projects are stored on this computer and kept separate from each other. What you write is not sent anywhere unless you set up an online model in Settings; then what I send for a reply (your message and, when your question is about your own text, the parts of it that matter for that question) goes to that provider. If you download the offline encyclopedia in Settings, looking things up happens on this computer and nothing you ask leaves it. Otherwise looking things up is off until you turn it on. With nothing set up, it uses Wikipedia, which needs no key: when you ask me to look something up, only the words of that question go to Wikipedia (never your text or your project), I read the articles it returns, and I ask you once before using it. If this copy of NIE comes with its own search service, run by the NIE developers, the words go to that service instead, which asks a search provider for you and does not keep your questions. If you add your own search key in Settings, the words go to the service you chose." },
   { id: 'scan', re: /\bscan\b/i, status: true,
     text: "Full Scan: you set the rules for your project in plain words, and I mark the exact places in your text where a rule is broken and say briefly why. Rules that need meaning are judged by the language model when one is running; with no model they are approximated by keywords and labelled as such. Nothing is rewritten." },
 ];
@@ -90,7 +90,7 @@ export function aboutNieReply(status, text = '') {
   if (topic) return [topic.text, ...(topic.status ? [describeStatus(status)] : [])].join('\n\n');
   return [
     "I'm NIE, a thinking partner for writers. I never write or edit your text; I help you think, and I show you where your own rules are broken.",
-    ['Here is what I can do:', '- Brainstorm with you: ideas, twists, complications and questions for a story, essay, poem or anything else. I follow your idea in your own words, ask one question now and then (never the same one twice; say "stop asking questions" whenever you like), and when I think I have it I offer to keep it on your Idea Board and in this project\'s memory. You can add details first.', '- Full Scan: you set the rules for your project, and I mark the exact places that break them and say why.', '- Read your document aloud.', '- Answer questions about craft, style, grammar, forms, genres and well-known works from my built-in library, which works with no internet.', '- Look things up and answer with numbered sources: on Wikipedia with nothing to set up, or on the wider web if you add a search key in Settings. Press the Web switch next to the message box; it is off until you agree to it.'].join('\n'),
+    ['Here is what I can do:', '- Brainstorm with you: ideas, twists, complications and questions for a story, essay, poem or anything else. I follow your idea in your own words, ask one question now and then (never the same one twice; say "stop asking questions" whenever you like), and when I think I have it I offer to keep it on your Idea Board and in this project\'s memory. You can add details first.', '- Full Scan: you set the rules for your project, and I mark the exact places that break them and say why.', '- Read your document aloud.', '- Answer questions about craft, style, grammar, forms, genres and well-known works from my built-in library, which works with no internet.', '- Look things up and answer with numbered sources: in the offline encyclopedia if you download it in Settings (no internet, nothing leaves this computer), otherwise on Wikipedia with nothing to set up, or on the wider web if you add a search key. Press the Web switch next to the message box; online lookups stay off until you agree to them.'].join('\n'),
     describeStatus(status),
   ].join('\n\n');
 }
@@ -299,21 +299,23 @@ export function libraryReply(answer, thread = {}) {
 }
 
 /** Honest "not in my library", used when nothing relevant was found. */
-export function libraryMissReply(answer) {
+export function libraryMissReply(answer, { encyclopedia = false } = {}) {
+  // (with the offline encyclopedia on this computer, "I can't look things up offline" would be false: say where to look instead)
+  const cant = encyclopedia ? ', but the offline encyclopedia on this computer may: press the Web switch next to the message box and ask again, or say "look up" and the topic' : ', because I can\'t look things up offline';
   const loading = !libraryStatus().loaded;
   const near = answer.near ?? [];
   if (!loading && near.length) {
     // Not an answer, but entries that share the question's words in their names: shown as the closest, never as the answer.
     const lines = near.map((e) => `- ${e.name}: ${firstSentence(e.summary)}`);
     return [
-      "I don't have an entry that answers that exactly, and I won't guess, because I can't look things up offline. The closest entries in my built-in library are:",
+      `I don't have an entry that answers that exactly, and I won't guess${cant}. The closest entries in my built-in library are:`,
       lines.join('\n'),
       "Ask about one of them by name, or name the form, genre, style guide or word you mean. If it is something you want kept consistent in your own text, add it as a rule in Full Scan and I'll mark every place that breaks it.",
     ].join('\n\n');
   }
   const nearNames = answer.related?.length ? ` The nearest entries I have are: ${answer.related.map((e) => e.name).join(', ')}.` : '';
   return [
-    loading ? "My full library is still loading, so I can only answer from my core craft notes right now. Try again in a moment." : "That isn't in my built-in library, and I won't guess, because I can't look things up offline.",
+    loading ? 'My full library is still loading, so I can only answer from my core craft notes right now. Try again in a moment.' : `That isn't in my built-in library, and I won't guess${cant}.`,
     `${nearNames} Try naming the form, genre, style guide or word you mean. If it is something you want kept consistent in your own text, add it as a rule in Full Scan and I'll mark every place that breaks it.`.trim(),
   ].join('\n\n');
 }

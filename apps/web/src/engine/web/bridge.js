@@ -7,7 +7,7 @@ import { WebError } from './errors.js';
 
 /** The choices in Settings: the id the engine knows, and the name the writer sees. */
 export const WEB_PROVIDER_CHOICES = [['auto', 'Automatic'], ['tavily', 'Tavily'], ['brave', 'Brave Search'], ['serper', 'Serper'], ['searxng', 'SearXNG'], ['custom', 'Custom']];
-const NAMES = { tavily: 'Tavily', brave: 'Brave Search', serper: 'Serper', searxng: 'SearXNG', custom: 'Custom search service', nie: 'NIE search', wikipedia: 'Wikipedia' };
+const NAMES = { tavily: 'Tavily', brave: 'Brave Search', serper: 'Serper', searxng: 'SearXNG', custom: 'Custom search service', nie: 'NIE search', wikipedia: 'Wikipedia', pack: 'Offline encyclopedia' };
 /** The name of a search service for the writer ("brave" → "Brave Search"); a name that is not a known id is shown as it is. */
 export const providerName = (id) => NAMES[id] ?? (typeof id === 'string' && id.trim() ? id.trim() : 'a search service');
 
@@ -27,7 +27,7 @@ const str = (v) => (typeof v === 'string' ? v : '');
 
 /** Desktop: the main process holds the key and makes every request (no CORS, the key never in the page). */
 export function createBridgeWeb(bridge) {
-  let cfg = { enabled: false, provider: 'auto', detected: null, baseUrl: '', custom: null, hasKey: false, keyStoredSecurely: true, gateway: false, builtinService: null, builtin: '', usingBuiltin: false };
+  let cfg = { enabled: false, provider: 'auto', detected: null, baseUrl: '', custom: null, hasKey: false, keyStoredSecurely: true, gateway: false, builtinService: null, builtin: '', usingBuiltin: false, pack: false };
   return {
     kind: 'bridge',
     config: () => cfg,
@@ -57,7 +57,8 @@ export function createBridgeWeb(bridge) {
       }
       if (res?.error) throw new WebError(KINDS.includes(res.error.kind) ? res.error.kind : 'network', str(res.error.message) || 'The search did not work.');
       if (!res || !Array.isArray(res.results)) throw new WebError('bad-response', 'The search service sent back something NIE could not read.');
-      return { provider: str(res.provider), results: res.results.filter((r) => r && typeof r.url === 'string').map((r) => ({ title: str(r.title), url: r.url, snippet: str(r.snippet) })) };
+      const p = res.pack && typeof res.pack === 'object' ? { docs: Number.isFinite(res.pack.docs) ? res.pack.docs : 0, builtAt: str(res.pack.builtAt), name: str(res.pack.name) } : null;
+      return { provider: str(res.provider), results: res.results.filter((r) => r && typeof r.url === 'string').map((r) => ({ title: str(r.title), url: r.url, snippet: str(r.snippet) })), ...(p ? { pack: p } : {}) };
     },
     async read(url, { signal } = {}) {
       if (signal?.aborted) return null;
@@ -86,7 +87,7 @@ export function createBridgeWeb(bridge) {
 
 /** The browser build has no main process to hold a key or make the request: web search is a desktop feature, and says so. */
 export function createNoWeb() {
-  const cfg = { enabled: false, provider: 'auto', detected: null, baseUrl: '', custom: null, hasKey: false, keyStoredSecurely: false, gateway: false, builtinService: null, builtin: '', usingBuiltin: false };
+  const cfg = { enabled: false, provider: 'auto', detected: null, baseUrl: '', custom: null, hasKey: false, keyStoredSecurely: false, gateway: false, builtinService: null, builtin: '', usingBuiltin: false, pack: false };
   return {
     kind: 'none',
     config: () => cfg,

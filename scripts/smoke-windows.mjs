@@ -199,6 +199,19 @@ try {
   }
   }
 
+  // 1b. a tiny offline encyclopedia (invented articles) placed in the profile before the first start: the packaged app must find it, open it and answer from it
+  // (a profile that is the real one, as in the installed run, is never written to)
+  let seededPack = false;
+  if (!realProfile) {
+    const { buildFromDump } = await import('../apps/web/src/engine/encyclopedia/build.js');
+    const { sampleDump } = await import('../tests/fixtures/cirrus-sample.mjs');
+    const { Readable } = await import('node:stream');
+    const built = await buildFromDump(Readable.from([sampleDump()]), { name: 'smoke', builtAt: '2026-01-01' });
+    fs.mkdirSync(path.join(userData, 'encyclopedia'), { recursive: true });
+    fs.writeFileSync(path.join(userData, 'encyclopedia', 'smoke.niepack'), built.bytes);
+    seededPack = true;
+  }
+
   // 2. start the app
   app = await launch(userData);
   const { page } = app;
@@ -209,6 +222,21 @@ try {
   step('window opens with the UI and the desktop bridges', probe.desktop && probe.local && probe.updater, JSON.stringify(probe.nav));
   step('the page has no Node.js access (secure renderer)', probe.nodeRequire === 'undefined' && probe.nodeProcess === 'undefined');
   await page.screenshot({ path: path.join(outDir, '1-started.png') });
+
+  if (seededPack) {
+    let enc = null;
+    for (let i = 0; i < 40 && enc?.web?.provider !== 'pack'; i++) {
+      enc = await page.evaluate(async () => ({ web: await window.NIE_WEB.status(), pack: await window.NIE_ENCYCLOPEDIA.status() }));
+      if (enc.web.provider !== 'pack') await sleep(500);
+    }
+    step('the offline encyclopedia placed in the profile is found and opened by the packaged app', enc.web.provider === 'pack' && enc.web.enabled && enc.pack.state === 'ready', JSON.stringify({ web: enc.web, state: enc.pack.state, docs: enc.pack.docs }));
+    const asked = await page.evaluate(async () => {
+      const found = await window.NIE_WEB.search('how long is the Marlowe Bridge', { limit: 3 });
+      const read = await window.NIE_WEB.read('https://en.wikipedia.org/wiki/Marlowe_Bridge');
+      return { provider: found.provider ?? null, first: found.results?.[0]?.title ?? null, error: found.error?.message ?? null, read: read?.text?.slice(0, 80) ?? null };
+    });
+    step('a question is answered from that file inside the packaged app, with no network', asked.provider === 'pack' && asked.first === 'Marlowe Bridge' && /suspension bridge/.test(asked.read ?? ''), JSON.stringify(asked));
+  }
 
   if (!skipModel) {
     // 3. honest status

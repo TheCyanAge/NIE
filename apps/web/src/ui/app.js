@@ -3,6 +3,7 @@ import { AIEngine } from '../engine/ai/engine.js';
 import { createDesktopLocal, createHttpLocal } from '../engine/ai/local.js';
 import { createBridgeOnline, createDirectOnline } from '../engine/ai/online.js';
 import { createBridgeWeb, createNoWeb } from '../engine/web/bridge.js';
+import { createBridgeEncyclopedia, createNoEncyclopedia } from './encyclopedia.js';
 import { Orchestrator } from '../engine/orchestrator/index.js';
 import { clearIndexes } from '../engine/orchestrator/prompt.js';
 import { createIngestClient } from '../engine/ingest/client.js';
@@ -63,6 +64,8 @@ export function createApp() {
   // Web search (optional, off until the writer turns it on in Settings): the desktop app's main process holds the key and makes the request; a browser has no web search.
   const web = window.NIE_WEB ? createBridgeWeb(window.NIE_WEB) : createNoWeb();
   const orchestrator = new Orchestrator({ engine, web });
+  // The offline encyclopedia (optional; a file on this computer that web search reads first): the desktop app holds it, a browser has none.
+  const encyclopedia = window.NIE_ENCYCLOPEDIA ? createBridgeEncyclopedia(window.NIE_ENCYCLOPEDIA) : createNoEncyclopedia();
   const ingest = createIngestClient();
 
   const listeners = new Map();
@@ -77,6 +80,7 @@ export function createApp() {
     store,
     engine,
     web,
+    encyclopedia,
     orchestrator,
     ingest,
     isDesktop,
@@ -87,6 +91,17 @@ export function createApp() {
     on,
     emit,
   };
+
+  // Installing or removing the encyclopedia changes what web search is (the main process answers from it, or no longer does), so whatever shows the web settings reads them again.
+  let packReady = false;
+  const followPack = (s) => {
+    const ready = s?.state === 'ready';
+    if (!s || ready === packReady) return;
+    packReady = ready;
+    web.refresh().then(() => emit('web')).catch(() => {});
+  };
+  encyclopedia.onChange(followPack);
+  encyclopedia.refresh().then(followPack);
 
   // The big offline library loads in the background after first paint, so startup never waits for it.
   const idle = window.requestIdleCallback ? (f) => window.requestIdleCallback(f, { timeout: 3000 }) : (f) => setTimeout(f, 800);

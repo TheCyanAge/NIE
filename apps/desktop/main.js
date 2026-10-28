@@ -6,6 +6,8 @@ import { resolveLayout, DEFAULT_MODEL } from './src/runtime.js';
 import { LocalModelManager } from './src/local-manager.js';
 import { createUpdater, readUpdaterConfig } from './src/updater.js';
 import { createWebSettings, readGatewayUrl } from './src/web-settings.js';
+import { createEncyclopediaManager, plainMessage, readEncyclopediaManifest } from './src/encyclopedia-manager.js';
+import { downloadModel } from './src/model-download.js';
 
 /**
  * NIE desktop shell. Responsibilities: the window, serving the web UI, the offline model service,
@@ -64,6 +66,7 @@ const writePrefs = (patch) => {
 const engineUrl = (rel) => pathToFileURL(path.join(layout.webRoot, 'src', 'engine', rel)).href;
 const { OpenAICompatClient } = await import(engineUrl('ai/openai-client.js'));
 const { createWebService } = await import(engineUrl('web/service.js'));
+const { Pack } = await import(engineUrl('encyclopedia/pack.js'));
 
 // ── offline model ────────────────────────────────────────────────────────────
 
@@ -163,13 +166,49 @@ ipcMain.handle('nie:online:test', async () => {
   }
 });
 
+// ── offline encyclopedia (optional; a file on this computer that web search reads before anything else) ──
+
+// The manager (src/encyclopedia-manager.js) finds, downloads, adds and removes the file and is tested without Electron. The page only ever receives its status; the pack's
+// contents are used through `getPack` (below, for web search) and never logged or sent to the page. A status or an error that reaches the page carries no path.
+const encyclopedia = createEncyclopediaManager({
+  dir: path.join(app.getPath('userData'), 'encyclopedia'),
+  readManifest: () => readEncyclopediaManifest(() => fs.readFileSync(path.join(here, 'encyclopedia.json'), 'utf8')),
+  download: downloadModel,
+  openPack: (file) => Pack.open(file),
+  onChange: (s) => {
+    for (const w of BrowserWindow.getAllWindows()) if (!w.isDestroyed()) w.webContents.send('nie:enc:changed', s);
+  },
+});
+/** An encyclopedia call never throws across the bridge: a failure is `{ error: { message } }`. */
+const encCall = (fn) => async (...args) => {
+  try {
+    return await fn(...args);
+  } catch (err) {
+    return { error: { message: plainMessage(err, 'The offline encyclopedia could not be changed.') } };
+  }
+};
+ipcMain.handle('nie:enc:status', encCall(() => encyclopedia.status()));
+// (a download takes minutes: the call returns at once with the status, and the page follows `nie:enc:changed`)
+ipcMain.handle('nie:enc:download', encCall(() => { encyclopedia.start().catch(() => {}); return encyclopedia.status(); }));
+ipcMain.handle('nie:enc:cancel', encCall(() => encyclopedia.cancel()));
+ipcMain.handle('nie:enc:remove', encCall(() => encyclopedia.remove()));
+ipcMain.handle('nie:enc:import', encCall(async () => {
+  const res = await dialog.showOpenDialog(win, {
+    title: 'Add an encyclopedia file',
+    properties: ['openFile'],
+    filters: [{ name: 'NIE encyclopedia', extensions: ['niepack'] }, { name: 'All files', extensions: ['*'] }],
+  });
+  if (res.canceled || !res.filePaths[0]) return { cancelled: true };
+  return encyclopedia.importFile(res.filePaths[0]);
+}));
+
 // ── web search (optional; off until the writer turns it on, with a key of their own or the built-in search they agree to) ──
 
 // The key is read, used and encrypted here, like the online key; the page only learns whether one is saved. The logic is in src/web-settings.js so it is tested without Electron.
 // Every build can look things up on Wikipedia, with no key. A build may also carry the address of NIE's own search service, which the NIE developers run (search-gateway.json,
 // empty in a build without one): only the address, never a search key.
 const gatewayUrl = readGatewayUrl(() => fs.readFileSync(path.join(here, 'search-gateway.json'), 'utf8'));
-const web = createWebSettings({ readPrefs, writePrefs, safeStorage, createService: createWebService, fetch: globalThis.fetch, gatewayUrl });
+const web = createWebSettings({ readPrefs, writePrefs, safeStorage, createService: createWebService, fetch: globalThis.fetch, gatewayUrl, getPack: () => encyclopedia.current() });
 ipcMain.handle('nie:web:get', () => web.get());
 ipcMain.handle('nie:web:set', (_e, cfg) => web.set(cfg));
 ipcMain.handle('nie:web:test', () => web.test());
@@ -286,6 +325,8 @@ app.whenReady().then(() => {
   createWindow();
   // UI first; the offline model initialises in the background (and downloads itself if it was not bundled).
   setImmediate(() => local.init().then((s) => log('local model:', s.state, s.detail ?? '')));
+  // ...and so does the encyclopedia: the window never waits for it, and it tells the page when it is open (the log says only the state, never what it holds)
+  setImmediate(() => encyclopedia.init().then((s) => log('encyclopedia:', s.state)));
   app.on('activate', () => BrowserWindow.getAllWindows().length === 0 && createWindow());
 });
 
@@ -298,5 +339,5 @@ app.on('before-quit', (e) => {
   if (quitting) return;
   quitting = true;
   e.preventDefault();
-  local.stop().finally(() => app.quit());
+  Promise.allSettled([local.stop(), encyclopedia.close()]).finally(() => app.quit());
 });

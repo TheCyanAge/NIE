@@ -1,0 +1,101 @@
+name: build-encyclopedia
+
+# Builds NIE's OFFLINE ENCYCLOPEDIA: one compact file holding the opening of the most-read articles of a Wikipedia, searched on the writer's own computer.
+# It is built from Wikipedia's own CirrusSearch content dump (the search index Wikipedia publishes for every article), with the build tool in scripts/build-encyclopedia.mjs.
+# Nothing is published automatically: the pack is an artifact of this run and, when asked, a DRAFT release that only repository writers can see until somebody presses "Publish release".
+# The text is Wikipedia's, CC BY-SA 4.0 (attribution and share-alike apply to the pack as a collection of that text); read docs/ENCYCLOPEDIA.md before publishing.
+on:
+  workflow_dispatch:
+    inputs:
+      wiki:
+        description: 'Which Wikipedia (the dump name). simplewiki is the smallest complete one; enwiki is the full English one.'
+        type: string
+        default: 'simplewiki'
+      name:
+        description: 'Pack name, used in the file name (for example simple-en)'
+        type: string
+        default: 'simple-en'
+      lang:
+        description: 'Language code of that Wikipedia (simple English uses en)'
+        type: string
+        default: 'en'
+      max_docs:
+        description: 'How many of the most-read articles to keep'
+        type: string
+        default: '120000'
+      max_lead:
+        description: 'Characters kept from the start of each article (cut at a sentence end)'
+        type: string
+        default: '1200'
+      dump_url:
+        description: 'Optional: an exact https address of a CirrusSearch content dump (.json.gz). Empty = find the newest.'
+        type: string
+        default: ''
+      draft_tag:
+        description: 'Optional: attach the pack to a DRAFT release with this tag (for example encyclopedia-simple-en-2026-10). Empty = artifact only.'
+        type: string
+        default: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write # only used to create the DRAFT release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Tests of the builder and the searcher
+        run: node --test tests/encyclopedia.test.js tests/encyclopedia-web.test.js
+
+      - name: Find the newest dump
+        id: dump
+        env:
+          WIKI: ${{ inputs.wiki }}
+          GIVEN: ${{ inputs.dump_url }}
+        run: |
+          if [ -n "$GIVEN" ]; then URL="$GIVEN"; else URL="$(node scripts/find-dump.mjs "$WIKI")"; fi
+          case "$URL" in https://*) ;; *) echo "::error::Not an https address: $URL"; exit 1;; esac
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Dump: $URL"
+
+      - name: Build the pack
+        env:
+          URL: ${{ steps.dump.outputs.url }}
+          NAME: ${{ inputs.name }}
+          LANGUAGE: ${{ inputs.lang }}
+          MAX_DOCS: ${{ inputs.max_docs }}
+          MAX_LEAD: ${{ inputs.max_lead }}
+        run: |
+          node --max-old-space-size=6144 scripts/build-encyclopedia.mjs --input "$URL" --out dist/encyclopedia --name "$NAME" --lang "$LANGUAGE" --max-docs "$MAX_DOCS" --max-lead "$MAX_LEAD"
+          cat dist/encyclopedia/manifest.json
+
+      - name: Keep the pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: encyclopedia-${{ inputs.name }}
+          path: dist/encyclopedia/
+          retention-days: 30
+
+      - name: Check the pack answers (the pack is kept above even if this fails, so it can be looked at) (common-knowledge questions)
+        env:
+          NAME: ${{ inputs.name }}
+        run: node scripts/encyclopedia-probe.mjs "dist/encyclopedia/$NAME.niepack" --canary "who was Ada Lovelace" "what is a metaphor" "how tall is Mount Everest"
+
+      - name: Attach to a DRAFT release (only when a tag was given; never published here)
+        if: ${{ inputs.draft_tag != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.draft_tag }}
+          NAME: ${{ inputs.name }}
+        run: |
+          STATE="$(gh release list --limit 100 --json tagName,isDraft --jq ".[] | select(.tagName==\"$TAG\") | .isDraft" || true)"
+          if [ "$STATE" = "false" ]; then echo "::error::$TAG is already a published release; pick another tag."; exit 1; fi
+          if [ -z "$STATE" ]; then
+            gh release create "$TAG" --draft --title "NIE offline encyclopedia ($NAME)" --notes "The offline encyclopedia pack for NIE: the opening of the most-read Wikipedia articles, searched on the writer's own computer. Text from Wikipedia, CC BY-SA 4.0; see docs/ENCYCLOPEDIA.md. The size, checksum and article count are in manifest.json." --target "$GITHUB_SHA"
+          fi
+          gh release upload "$TAG" "dist/encyclopedia/$NAME.niepack" dist/encyclopedia/manifest.json --clobber
+          echo "Draft release $TAG holds the pack. It is a DRAFT: nothing is public until someone presses Publish."

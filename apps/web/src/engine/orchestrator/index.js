@@ -33,7 +33,8 @@ import { profileCorpus } from '../profile/profile.js';
 import { AIError } from '../ai/openai-client.js';
 import { explicitWebAsk, joinFollowUp, looksFactual, needsContext, previousWebQuery, queryProblem } from '../web/ask.js';
 import { buildSources, resultsOnly, verifyAnswer, webMessages } from '../web/answer.js';
-import { isBuiltin } from '../web/providers.js';
+import { isBuiltin, isLocal } from '../web/providers.js';
+import { definitionalAnswer } from '../encyclopedia/define.js';
 
 export { STARTER };
 
@@ -974,7 +975,7 @@ export class Orchestrator {
         honesty = ungrounded === 'all' ? UNGROUNDED_NOTE : WITHHELD_NOTE;
       }
     } else {
-      reply = lib ? libraryReply(lib, follow ? { lead: follow.lead, after: follow.after, rest: follow.rest, compact: follow.compact } : {}) : libMiss ? libraryMissReply(answerFromLibrary(text)) : builtinReply({ intent, project, message: askText, report, modelReady: modelReady && Boolean(asked.failure), status });
+      reply = lib ? libraryReply(lib, follow ? { lead: follow.lead, after: follow.after, rest: follow.rest, compact: follow.compact } : {}) : libMiss ? libraryMissReply(answerFromLibrary(text), { encyclopedia: await this.#encyclopediaOn() }) : builtinReply({ intent, project, message: askText, report, modelReady: modelReady && Boolean(asked.failure), status });
       if (steer) reply = agentTurn.enforce(telling ? agentTurn.ack : withoutQuestionLists(reply)); // told something, no model: a short acknowledgement of what was recorded, and the planned question
       route = 'builtin';
       // Starting from nothing is where a few sparks help most: offer some to react to, never a draft.
@@ -1290,8 +1291,25 @@ export class Orchestrator {
     if (said && (said.strength === 'search' || usable)) return { query: said.query, explicit: true };
     if (!webOn || !usable || aboutText || follow) return null;
     // with the Web switch on, a factual question goes to the web; talk about the writer's own story, ideas, feedback and small talk never does
-    if (!['craft', 'unclear'].includes(reading?.task) || STORY_TALK.test(text) || !looksFactual(text, GENERAL_Q)) return null;
+    // (with no model the rules read a plain question as "discuss", which has no task: a question that starts like a general one is still a factual question)
+    const factualTask = ['craft', 'unclear'].includes(reading?.task) || (reading?.by === 'rules' && !reading?.task);
+    if (!factualTask || STORY_TALK.test(text) || !looksFactual(text, GENERAL_Q)) return null;
+    // A direct question the built-in library holds under its own name ("What is a villanelle?") is answered there: it is written for writers, it is quicker and nothing leaves the computer.
+    // The lookup is for what the library does not hold, or when the writer asks for it by name ("look up ...", which was settled above).
+    if (!libraryStatus().loaded) await Promise.race([loadLibrary(), new Promise((resolve) => setTimeout(resolve, 3000))]);
+    const held = answerFromLibrary(text);
+    if (held.strength === 'strong' && held.nameHit !== false && directLibraryAsk(text)) return null;
     return { query: text.replace(/[?!.\s]+$/, '').trim(), explicit: false };
+  }
+
+  /** Is the offline encyclopedia the source a lookup would use right now? (Only so NIE does not say it can't look things up when it can.) */
+  async #encyclopediaOn() {
+    try {
+      const st = await this.web?.status?.();
+      return Boolean(st?.configured && st.enabled && isLocal(st.provider));
+    } catch {
+      return false;
+    }
   }
 
   /** A short follow-up ("and when was it built?") made into a search of its own, using the last web question. A model rewrites it when one is running; otherwise the words are joined. */
@@ -1359,23 +1377,28 @@ export class Orchestrator {
     }
     meta.query = query;
 
-    onProgress?.({ stage: 'web', message: 'Searching the web…' });
+    const local = isLocal(st.provider); // the encyclopedia on this computer: nothing is sent anywhere
+    onProgress?.({ stage: 'web', message: local ? 'Looking in the offline encyclopedia…' : 'Searching the web…' });
     let found;
     try {
       found = await this.web.search(query, { signal, limit: 6 });
     } catch (err) {
       if (signal?.aborted || err?.kind === 'aborted') throw stop();
       const why = String(err?.message ?? 'The search did not work.');
-      return finish(`I couldn't search the web just now. ${why}`, 'builtin', { state: 'failed', note: why });
+      return finish(local ? `I couldn't look that up in the offline encyclopedia just now. ${why}` : `I couldn't search the web just now. ${why}`, 'builtin', { state: 'failed', note: why });
     }
     meta.provider = found.provider ?? meta.provider;
     if (!found.results.length) {
+      if (local) {
+        const size = found.pack?.docs ? `${found.pack.docs.toLocaleString('en-US')} articles` : 'a set of articles';
+        return finish(`The offline encyclopedia has nothing on "${query}". It holds the opening of ${size}, the most read ones, so a narrow or very recent subject may simply not be in it. Try other words, or turn the Web switch off and I'll answer from my library and my model, without sources.`, 'builtin', { state: 'none-found', note: 'The offline encyclopedia has no article on this.' });
+      }
       return finish(`The search found nothing for "${query}". Try other words, or turn the Web switch off and I'll answer from what I know, without sources.`, 'builtin', { state: 'none-found', note: 'The search service returned no results.' });
     }
 
     const online = this.engine.route?.() === 'online';
     const top = found.results.slice(0, 3);
-    onProgress?.({ stage: 'web', message: `Reading ${top.length} page${top.length === 1 ? '' : 's'}…` });
+    onProgress?.({ stage: 'web', message: local ? `Reading ${top.length} article${top.length === 1 ? '' : 's'}…` : `Reading ${top.length} page${top.length === 1 ? '' : 's'}…` });
     const pages = new Map();
     await Promise.all(
       top.map(async (r) => {
@@ -1391,10 +1414,19 @@ export class Orchestrator {
     const sources = buildSources(found.results, pages, online ? { totalChars: 14000, perSourceChars: 4000 } : {});
     meta.sources = sources.map(({ n, title, url, host, read }) => ({ n, title, url, host, read }));
     const readCount = sources.filter((s) => s.read).length;
-    const counted = `${sources.length} source${sources.length === 1 ? '' : 's'} (${readCount === 0 ? 'search snippets only' : `${readCount} page${readCount === 1 ? '' : 's'} read, the rest search snippets`})`;
+    const asOf = found.pack?.builtAt ? String(found.pack.builtAt).slice(0, 10) : '';
+    const counted = local
+      ? `${sources.length} article${sources.length === 1 ? '' : 's'} of the offline encyclopedia (Wikipedia, the opening of each${asOf ? `, as of ${asOf}` : ''})`
+      : `${sources.length} source${sources.length === 1 ? '' : 's'} (${readCount === 0 ? 'search snippets only' : `${readCount} page${readCount === 1 ? '' : 's'} read, the rest search snippets`})`;
 
-    onProgress?.({ stage: 'web', message: 'Writing the answer from the sources…' });
-    const messages = webMessages({ question: ask.explicit ? query : text, sources, history: past });
+    // "What is X?" with an article of exactly that name: the article's own opening sentences, quoted, no model (a small model's retelling only loses or adds to it)
+    const defined = local ? definitionalAnswer({ question: ask.explicit ? query : text, sources, bare: ask.explicit }) : null;
+    if (defined) {
+      return finish(defined.reply, 'builtin', { state: 'answered', answeredBy: 'encyclopedia', note: `Quoted from the offline encyclopedia article "${defined.title}" (Wikipedia, CC BY-SA 4.0). No model wrote this, and nothing left your computer.` });
+    }
+
+    onProgress?.({ stage: 'web', message: local ? 'Writing the answer from the articles…' : 'Writing the answer from the sources…' });
+    const messages = webMessages({ question: ask.explicit ? query : text, sources, history: past, local });
     let res = null;
     try {
       res = await this.engine.chat(messages, { signal, maxTokens: 420, temperature: 0.2 });
@@ -1402,14 +1434,15 @@ export class Orchestrator {
       if (err?.kind === 'abort') throw err;
     }
     const modelReady = this.engine.route?.() !== 'builtin';
-    const asResults = (intro, over) => finish(resultsOnly(sources, intro), 'builtin', { state: 'results-only', answeredBy: 'none', note: `No summary was written. These are ${counted} as the search returned them.`, ...over });
+    const asResults = (intro, over) => finish(resultsOnly(sources, intro, { full: local }), 'builtin', { state: 'results-only', answeredBy: 'none', note: `No summary was written. These are ${counted} as ${local ? 'the encyclopedia holds them' : 'the search returned them'}.`, ...over });
+    const returned = local ? 'the encyclopedia holds' : 'the search returned';
     if (!res?.text) {
-      return asResults(modelReady ? "My model couldn't answer from these just now. Here is what the search returned:" : "No language model is running, so I can't summarise. Here is what the search returned:");
+      return asResults(modelReady ? `My model couldn't answer from these just now. Here is what ${returned}:` : `No language model is running, so I can't summarise. Here is what ${returned}:`);
     }
     const guarded = guardReply(res.text, [text]);
     const checked = verifyAnswer(guarded.remaining, sources, { question: text });
     if (checked.emptied || words(checked.text).length < 6) {
-      return asResults("I left out what my model wrote because it named things the sources don't hold. Here is what the search returned:");
+      return asResults(`I left out what my model wrote because it named things the ${local ? 'articles' : 'sources'} don't hold. Here is what ${returned}:`);
     }
     const answeredBy = res.route === 'online' ? 'online model' : 'offline model';
     const sent = res.route === 'online' ? Math.max(50, Math.round(words(messages.map((m) => m.content).join(' ')).length / 50) * 50) : 0;
@@ -1417,7 +1450,7 @@ export class Orchestrator {
     const note =
       `Written by the ${answeredBy} from ${counted}.` +
       (uncited ? ' It did not say which source each statement came from, so check the list.' : '') +
-      (sent ? ` About ${sent} words (your question and the web text) were sent to your online provider.` : '');
+      (sent ? ` About ${sent} words (your question and the ${local ? 'encyclopedia' : 'web'} text) were sent to your online provider.` : local ? ' Nothing left your computer.' : '');
     let reply = checked.text;
     if (checked.removed) reply += `\n\n${LEFT_OUT_WEB}`;
     if (guarded.removed) reply += `\n\n${LEFT_OUT_NOTICE}`;
