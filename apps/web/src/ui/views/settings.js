@@ -1,12 +1,12 @@
 import { h, $, clear, toast, pageHead } from '../dom.js';
 import { KIND_LABELS, answerFromLibrary, libraryStats, libraryStatus, loadLibrary, searchScored } from '../../engine/knowledge/index.js';
 import { WEB_PROVIDER_CHOICES, providerName } from '../../engine/web/bridge.js';
-import { BUILTIN_DISCLOSURE } from '../web-consent.js';
+import { BUILTIN_SEARCH } from '../web-consent.js';
 
-// What Web search is, in two parts: with no built-in search (every build without one) they are one paragraph; with it, the second part is worded for "Or use your own search key" instead.
+// What Web search is, in two parts: in the browser build, which has no built-in search, they are one paragraph; in the desktop app the second part is worded for "Or use your own search key" instead.
 const WEB_HOW = "Web search is off until you turn it on. When it is on and you ask NIE to look something up (the Web switch next to the message box, or 'search the web for ...'), the words of that question are sent to the search service you chose, and NIE fetches some of the pages it finds. Your manuscript, your project and your earlier messages are never sent. NIE's offline model, or your online model, reads what comes back and answers with numbered sources.";
 const WEB_KEYS = 'You need a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or any JSON search API you describe under Custom. The key is stored only on this computer.';
-const WEB_OWN = 'If you have a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or a JSON search API you describe under Custom, use it here: the words of your question then go to that service, and NIE\'s built-in search is not used. The key is stored only on this computer.';
+const WEB_OWN = 'If you have a key for a search service (Tavily, Brave Search, Serper), the address of a SearXNG instance, or a JSON search API you describe under Custom, use it here: the words of your question then go to that service, and the built-in search above is not used. The key is stored only on this computer.';
 
 /**
  * Settings: where the writer chooses NIE's model, checks for updates, controls the tour and manages data.
@@ -32,12 +32,15 @@ export function mountSettings(root, app, { startTour }) {
   // ── Web search (optional; off until the writer turns it on) ────────────────
   const webExplain = h('p', { class: 'muted', id: 'web-explain' }, `${WEB_HOW} ${WEB_KEYS}`);
   const webOn = h('input', { type: 'checkbox', id: 'web-enabled' });
-  // NIE's built-in search: shown only in a build that has one. Ticking the box is the writer's agreement to the text above it, and is saved at once (taking it back too).
+  // The built-in search (Wikipedia, or NIE's own service in a build that carries one): shown in the desktop app, with the text the writer is agreeing to. Ticking the box is
+  // the agreement to that service, and is saved at once (taking it back too). Which service it is, is set in paintBuiltin.
   const webBuiltin = h('input', { type: 'checkbox', id: 'web-builtin', onchange: (e) => agreeBuiltin(e.target.checked) });
+  const webBuiltinHead = h('h3', { id: 'web-builtin-head' });
+  const webBuiltinText = h('p', { id: 'web-builtin-text' });
+  const webBuiltinLabel = h('span', { id: 'web-builtin-label' });
   const webBuiltinNote = h('p', { class: 'muted small', id: 'web-builtin-note', 'aria-live': 'polite' });
-  const webBuiltinBox = h('div', { class: 'web-builtin', id: 'web-builtin-box', hidden: true },
-    h('h3', {}, "NIE's built-in search"), h('p', { id: 'web-builtin-text' }, BUILTIN_DISCLOSURE),
-    h('label', { class: 'check' }, webBuiltin, " Use NIE's built-in search"), webBuiltinNote);
+  const webBuiltinBox = h('div', { class: 'web-builtin', id: 'web-builtin-box', hidden: true }, webBuiltinHead, webBuiltinText, h('label', { class: 'check' }, webBuiltin, webBuiltinLabel), webBuiltinNote);
+  let builtinShown = 'wikipedia'; // the built-in service the block is about
   const webOwn = h('div', { id: 'web-own', hidden: true }, h('h3', {}, 'Or use your own search key (optional)'), h('p', { class: 'muted' }, WEB_OWN));
   const webProvider = h('select', { class: 'select', id: 'web-provider', 'aria-label': 'Search service', onchange: () => paintWebFields() }, ...WEB_PROVIDER_CHOICES.map(([id, label]) => h('option', { value: id }, label)));
   const webKey = h('input', { class: 'input', id: 'web-key', type: 'password', placeholder: 'Search key (stored only on this computer)', autocomplete: 'off', 'aria-label': 'Search service key' });
@@ -209,24 +212,33 @@ export function mountSettings(root, app, { startTour }) {
     // What Automatic made of what was saved (it can not know about a key that is only typed, not saved yet), and what is ready.
     webDetected.textContent = c.detected ? `Automatic detected ${providerName(c.detected)}.`
       : c.hasKey || c.baseUrl ? 'Automatic could not tell which service this is. Choose it from the list.'
-      : `Automatic picks the service from what you give it: a Tavily key (starts with tvly-), a Brave Search key (starts with BSA), a Serper key (40 letters and digits) or a SearXNG address (https://...).${c.gateway ? " With none of these it uses NIE's built-in search." : ''}`;
+      : `Automatic picks the service from what you give it: a Tavily key (starts with tvly-), a Brave Search key (starts with BSA), a Serper key (40 letters and digits) or a SearXNG address (https://...).${shownService(c) ? ` With none of these it uses ${BUILTIN_SEARCH[shownService(c)].name}.` : ''}`;
     const reason = String(st?.label ?? '').trim();
     webStatus.dataset.state = st?.configured && st.enabled ? 'ready' : st?.configured ? 'starting' : 'failed';
     webStatus.textContent = st?.configured && st.enabled ? `Web search is on, using ${providerName(st.provider)}.`
-      : st?.configured && c.usingBuiltin && !c.builtin ? "Web search is off. NIE's built-in search is ready once you agree to it below."
+      : st?.configured && c.usingBuiltin && c.builtin !== c.builtinService ? `Web search is off. ${BUILTIN_SEARCH[c.builtinService].ready}`
       : st?.configured ? `Web search is off. ${providerName(st.provider)} is set up.`
       : `Web search is not set up yet.${reason ? ` ${/[.!?]$/.test(reason) ? reason : `${reason}.`}` : ''}`;
   }
-  // The built-in search block exists only in a build that has one. It shows the agreement as saved, and which service runs: the writer's own, when they have set one up, always wins.
+  // The built-in search that would run with no key of the writer's own (they may have chosen their own service, and then it is the one they would get back): the desktop app has
+  // one in every build, the browser build none.
+  const shownService = (c) => (window.NIE_WEB ? c.builtinService || (c.gateway ? 'nie' : 'wikipedia') : null);
+  // The block shows the agreement as saved, and which service runs: the writer's own, when they have set one up, always wins. An agreement is to one service: Wikipedia's is not NIE's.
   function paintBuiltin(c) {
-    const shown = Boolean(c.gateway);
-    webBuiltinBox.hidden = !shown;
-    webOwn.hidden = !shown;
-    webExplain.textContent = shown ? WEB_HOW : `${WEB_HOW} ${WEB_KEYS}`;
-    webBuiltin.checked = Boolean(c.builtin);
-    webBuiltinNote.textContent = !shown ? ''
-      : !c.usingBuiltin ? "You have your own search service set up below, so that is what runs and NIE's built-in search is not used. To use the built-in search instead, remove your key and choose Automatic."
-      : !c.builtin ? 'Web search stays off until you agree here.'
+    const service = shownService(c);
+    const words = BUILTIN_SEARCH[service];
+    webBuiltinBox.hidden = !words;
+    webOwn.hidden = !words;
+    webExplain.textContent = words ? WEB_HOW : `${WEB_HOW} ${WEB_KEYS}`;
+    if (!words) return;
+    builtinShown = service;
+    const agreed = c.builtin === service;
+    webBuiltinHead.textContent = words.heading;
+    webBuiltinText.textContent = words.disclosure;
+    webBuiltinLabel.textContent = ` ${words.checkbox}`;
+    webBuiltin.checked = agreed;
+    webBuiltinNote.textContent = !c.usingBuiltin ? `You have your own search service set up below, so that is what runs and ${words.name} is not used. To use the built-in search instead, remove your key and choose Automatic.`
+      : !agreed ? 'Web search stays off until you agree here.'
       : c.enabled ? 'You agreed. Untick the box to take it back; web search then stops.'
       : 'You agreed. Web search is switched off.';
   }
@@ -241,13 +253,15 @@ export function mountSettings(root, app, { startTour }) {
     }
     await refreshWeb();
     const c = app.web.config();
-    if (wanted && extra.builtin !== false && !c.enabled && c.usingBuiltin && !c.builtin) webMsg.textContent = `${done} Web search stays off until you agree to NIE's built-in search.`; // the main process will not run it before that
+    // the main process will not run a built-in search before the writer has agreed to it
+    if (wanted && extra.builtin !== '' && !c.enabled && c.usingBuiltin && c.builtin !== c.builtinService) webMsg.textContent = `${done} Web search stays off until you agree to ${BUILTIN_SEARCH[c.builtinService].agreeTo}.`;
     app.emit('web'); // the Web switch next to the message box follows what was saved
   }
-  // Agreeing also turns web search on when the built-in search is what would run; taking the agreement back is saved at once, and the main process then switches that search off.
+  // Agreeing also turns web search on when that built-in search is what would run; taking the agreement back is saved at once, and the main process then switches that search off.
   function agreeBuiltin(on) {
+    const words = BUILTIN_SEARCH[builtinShown];
     if (on && app.web.config().usingBuiltin && !webKey.value.trim()) webOn.checked = true;
-    return saveWeb({ builtin: on }, on ? "You agreed to NIE's built-in search." : "You took back your agreement to NIE's built-in search.");
+    return saveWeb({ builtin: on ? builtinShown : '' }, on ? `You agreed to ${words.agreeTo}.` : `You took back your agreement to ${words.agreeTo}.`);
   }
   async function testWeb() {
     webMsg.textContent = 'Testing…';

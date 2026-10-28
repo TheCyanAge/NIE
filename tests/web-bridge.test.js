@@ -4,7 +4,7 @@ import { createBridgeWeb, createNoWeb, providerName, WEB_PROVIDER_CHOICES } from
 import { WebError } from '../apps/web/src/engine/web/errors.js';
 import * as service from '../apps/web/src/engine/web/service.js';
 import { sanitizeWebRecord, WEB_STATES, MAX_WEB_SOURCES } from '../apps/web/src/engine/web/record.js';
-import { BUILTIN_DISCLOSURE } from '../apps/web/src/ui/web-consent.js';
+import { BUILTIN_DISCLOSURE, BUILTIN_SEARCH, WIKIPEDIA_DISCLOSURE } from '../apps/web/src/ui/web-consent.js';
 import { ProjectStore, memoryStorage } from '../apps/web/src/engine/project/store.js';
 import { appendMessage } from '../apps/web/src/engine/project/memory.js';
 
@@ -128,30 +128,46 @@ test('providers have the names a writer sees', () => {
   assert.equal(providerName(''), 'a search service');
 });
 
-test('NIE\'s built-in search has a name a writer sees, is not a choice in the list, and the page starts with it unavailable', async () => {
+test('the built-in searches have names a writer sees, are not choices in the list, and the page starts with none known', async () => {
   assert.equal(providerName('nie'), 'NIE search');
-  assert.ok(!WEB_PROVIDER_CHOICES.some(([id]) => id === 'nie'), 'it is used when the writer has no key of their own, not picked from the list');
+  assert.equal(providerName('wikipedia'), 'Wikipedia');
+  assert.ok(!WEB_PROVIDER_CHOICES.some(([id]) => id === 'nie' || id === 'wikipedia'), 'they are used when the writer has no key of their own, not picked from the list');
   for (const web of [createBridgeWeb(fakeBridge().bridge), createNoWeb()]) {
     const c = web.config();
-    assert.deepEqual([c.gateway, c.builtin, c.usingBuiltin], [false, false, false]);
+    assert.deepEqual([c.gateway, c.builtinService, c.builtin, c.usingBuiltin], [false, null, '', false]);
   }
 });
 
-test('the page reads where the built-in search stands from the main process, and sends the writer\'s agreement back with the rest', async () => {
-  const { bridge, calls } = fakeBridge({ getConfig: async () => ({ enabled: false, provider: 'auto', detected: null, baseUrl: '', custom: {}, hasKey: false, keyStoredSecurely: true, gateway: true, builtin: false, usingBuiltin: true }) });
-  const web = createBridgeWeb(bridge);
-  const cfg = await web.refresh();
-  assert.deepEqual([cfg.gateway, cfg.builtin, cfg.usingBuiltin], [true, false, true]);
-  assert.deepEqual(web.describe(), { provider: 'nie', detected: null, label: 'NIE search' }, 'with nothing of their own, Automatic means the built-in search');
-  await web.save({ ...cfg, enabled: true, builtin: true });
-  assert.deepEqual(calls.at(-1)[1].builtin, true);
-  assert.equal(calls.at(-1)[1].enabled, true);
+test('the page reads which built-in search would run, and which one was agreed to, from the main process, and sends the writer\'s agreement back with the rest', async () => {
+  for (const service of ['wikipedia', 'nie']) {
+    const { bridge, calls } = fakeBridge({ getConfig: async () => ({ enabled: false, provider: 'auto', detected: null, baseUrl: '', custom: {}, hasKey: false, keyStoredSecurely: true, gateway: service === 'nie', builtinService: service, builtin: '', usingBuiltin: true }) });
+    const web = createBridgeWeb(bridge);
+    const cfg = await web.refresh();
+    assert.deepEqual([cfg.builtinService, cfg.builtin, cfg.usingBuiltin], [service, '', true]);
+    assert.deepEqual(web.describe(), { provider: service, detected: null, label: providerName(service) }, 'with nothing of their own, Automatic means the built-in search');
+    await web.save({ ...cfg, enabled: true, builtin: service });
+    assert.equal(calls.at(-1)[1].builtin, service);
+    assert.equal(calls.at(-1)[1].enabled, true);
+  }
+  // their own key chosen: no built-in search would run
+  const own = createBridgeWeb(fakeBridge({ getConfig: async () => ({ enabled: true, provider: 'auto', detected: 'brave', baseUrl: '', custom: {}, hasKey: true, keyStoredSecurely: true, gateway: false, builtinService: null, builtin: '', usingBuiltin: false }) }).bridge);
+  await own.refresh();
+  assert.deepEqual(own.describe(), { provider: 'brave', detected: 'brave', label: 'Brave Search' });
 });
 
 // ── what the writer is told before the built-in search is used ───────────────
 
-test('the disclosure is the promise to the writer, word for word', () => {
+test('each built-in search has its disclosure, word for word, and the words that go with it', () => {
   assert.equal(BUILTIN_DISCLOSURE, 'Ready to use: NIE can look things up for you without any setup. When you use it, the words of your question are sent to a search service run by the NIE developers, which asks a search provider for them and sends the results back. Your manuscript, your project and your earlier messages are never sent. A random install code (not your name, not an account) is sent so the service can limit abuse. The service is built not to keep your questions.');
+  assert.equal(WIKIPEDIA_DISCLOSURE, "Ready to use: NIE can look things up on Wikipedia for you without any setup and without a key. When you use it, the words of your question are sent to Wikipedia (run by the Wikimedia Foundation), which sends back matching articles that NIE reads. Your manuscript, your project and your earlier messages are never sent. Wikipedia's servers see the request as they would from any visitor, including your internet address. Wikipedia covers facts, history, people, places and terms well; it is not the whole web, so news, prices and recent events may be missing.");
+  assert.deepEqual(Object.keys(BUILTIN_SEARCH).sort(), ['nie', 'wikipedia'], 'one entry for each built-in search the engine has');
+  assert.equal(BUILTIN_SEARCH.nie.disclosure, BUILTIN_DISCLOSURE);
+  assert.equal(BUILTIN_SEARCH.wikipedia.disclosure, WIKIPEDIA_DISCLOSURE);
+  const w = BUILTIN_SEARCH.wikipedia;
+  assert.deepEqual([w.heading, w.checkbox, w.question, w.agree], ['Wikipedia (built in)', 'Look things up on Wikipedia', 'Look things up on Wikipedia?', 'Use Wikipedia']);
+  const n = BUILTIN_SEARCH.nie;
+  assert.deepEqual([n.heading, n.checkbox, n.question, n.agree], ["NIE's built-in search", "Use NIE's built-in search", "Use NIE's built-in search?", "Use NIE's search"]);
+  for (const x of Object.values(BUILTIN_SEARCH)) assert.match(x.disclosure, /Your manuscript, your project and your earlier messages are never sent\./, 'what is never sent is said for both');
 });
 
 // ── what a reply keeps of a search ───────────────────────────────────────────

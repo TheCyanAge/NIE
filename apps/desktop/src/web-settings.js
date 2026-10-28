@@ -6,14 +6,18 @@ import { randomUUID } from 'node:crypto';
  * whether one is saved. Everything the outside world provides (preferences, safeStorage, the search service, fetch) is passed in, so this is tested
  * without Electron, and the preload bridge, `main.js` and the tests all use the same code.
  *
- * Without a key of their own, a writer can use NIE's built-in search (a small service the NIE developers run; this build knows only its address).
- * That is used only after the writer agreed to how it works (`builtin`), and their own key, when there is one, always runs instead.
+ * Without a key of their own, a writer can use a built-in search: Wikipedia in every build, and NIE's own search service (run by the NIE developers; a build knows only its address)
+ * in a build that carries one. A built-in search is used only after the writer agreed to how THAT service works (`builtin` holds the id of the one agreed to), and their own key,
+ * when there is one, always runs instead.
  */
 
 export const WEB_PROVIDERS = ['auto', 'tavily', 'brave', 'serper', 'searxng', 'custom'];
 const KINDS = ['not-configured', 'auth', 'rate', 'network', 'bad-response', 'aborted']; // the only ways a search can fail, as the page is told
 const CUSTOM_DEFAULTS = Object.freeze({ method: 'GET', url: '', headerName: 'Authorization', headerPrefix: 'Bearer ', bodyTemplate: '', resultsPath: 'results', titleKey: 'title', urlKey: 'url', snippetKey: 'snippet' });
 
+/** The services that need nothing from the writer (the engine's `BUILTIN`; a test keeps the two lists the same, because this file is packed apart from the engine). */
+export const BUILTIN_SERVICES = Object.freeze(['nie', 'wikipedia']);
+const isBuiltin = (id) => BUILTIN_SERVICES.includes(id);
 const INSTALL_ID = /^[A-Za-z0-9-]{8,64}$/; // the shape the built-in search accepts
 
 const text = (v, fallback, max, trim = true) => (typeof v === 'string' ? (trim ? v.trim() : v).slice(0, max) : fallback);
@@ -55,7 +59,7 @@ const redact = (message, key) => (key && key.length >= 8 ? String(message).split
  * @param {{ isEncryptionAvailable(): boolean, encryptString(s: string): Buffer, decryptString(b: Buffer): string }} deps.safeStorage
  * @param {(opts: { fetch: Function, getConfig: () => object }) => object} deps.createService   `createWebService` from the engine
  * @param {Function} deps.fetch
- * @param {string} [deps.gatewayUrl]                 the built-in search service's address (`readGatewayUrl`); '' when this build has none
+ * @param {string} [deps.gatewayUrl]                 the address of NIE's own search service (`readGatewayUrl`); '' when this build has none
  * @param {() => string} [deps.makeId]               a new random install code
  */
 export function createWebSettings({ readPrefs, writePrefs, safeStorage, createService, fetch, gatewayUrl = '', makeId = randomUUID }) {
@@ -92,7 +96,7 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
       key,
       baseUrl: typeof p.baseUrl === 'string' ? p.baseUrl : '',
       custom: cleanCustom(p.custom, CUSTOM_DEFAULTS),
-      builtin: Boolean(p.builtin),
+      builtin: isBuiltin(p.builtin) ? p.builtin : '', // an id; the old yes/no "true" agreed to nothing in particular, so it counts as no agreement
       gatewayUrl,
       installId: installId(),
     };
@@ -100,6 +104,8 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
 
   const service = createService({ fetch, getConfig: read });
   const fail = (kind, message, key = '') => ({ error: { kind: KINDS.includes(kind) ? kind : 'network', message: redact(message, key) } });
+  /** The agreement as it is stored after a save: the id of a built-in service this build can run, '' (or false) to take it back, and for anything else, including true, what was stored. */
+  const agreement = (asked, stored) => (isBuiltin(asked) && (asked !== 'nie' || gatewayUrl) ? asked : asked === '' || asked === false ? '' : stored);
   /** Which service these settings stand for. The engine decides: a key or address of the writer's own first, the built-in search only when there is none. */
   const describe = (c) => {
     try {
@@ -109,13 +115,17 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
     }
   };
 
-  /** What the page may know: the settings without the key, which service Automatic would pick, and where the built-in search stands (never its address or the install code). */
+  /**
+   * What the page may know: the settings without the key, which service Automatic would pick, and where the built-in search stands: which one would run with no key of the
+   * writer's own (`builtinService`, null when they chose their own service), the one they agreed to (`builtin`, '' for none). Never the address of NIE's service or the install code.
+   */
   function get() {
     const c = read();
     const d = describe(c);
+    const builtinService = isBuiltin(d.provider) ? d.provider : null;
     return {
       enabled: c.enabled, provider: c.provider, detected: typeof d.detected === 'string' && d.detected ? d.detected : null, baseUrl: c.baseUrl, custom: c.custom, hasKey: Boolean(c.key), keyStoredSecurely: safeStorage.isEncryptionAvailable(),
-      gateway: Boolean(gatewayUrl), builtin: c.builtin, usingBuiltin: Boolean(gatewayUrl) && d.provider === 'nie',
+      gateway: Boolean(gatewayUrl), builtinService, builtin: c.builtin, usingBuiltin: builtinService !== null,
     };
   }
 
@@ -133,16 +143,17 @@ export function createWebSettings({ readPrefs, writePrefs, safeStorage, createSe
         key: old.key,
         encrypted: old.encrypted,
         installId: cur.installId,
-        builtin: typeof cfg.builtin === 'boolean' ? cfg.builtin : cur.builtin,
+        builtin: agreement(cfg.builtin, cur.builtin),
       };
       if (typeof cfg.apiKey === 'string' && cfg.apiKey) {
         if (safeStorage.isEncryptionAvailable()) Object.assign(next, { key: safeStorage.encryptString(cfg.apiKey).toString('base64'), encrypted: true });
         else Object.assign(next, { key: cfg.apiKey, encrypted: false });
       }
       if (cfg.clearKey) Object.assign(next, { key: undefined, encrypted: undefined });
-      // The built-in search runs only for a writer who agreed to it: with no key or address of their own, "on" without that agreement (or after withdrawing it) is stored as off.
+      // A built-in search runs only for a writer who agreed to THAT service: with no key or address of their own, "on" without that agreement (or after withdrawing it) is stored as off.
       const key = cfg.clearKey ? '' : typeof cfg.apiKey === 'string' && cfg.apiKey ? cfg.apiKey : cur.key;
-      if (next.enabled && !next.builtin && Boolean(gatewayUrl) && describe({ ...cur, provider: next.provider, baseUrl: next.baseUrl, custom: next.custom, key }).provider === 'nie') next.enabled = false;
+      const runs = describe({ ...cur, provider: next.provider, baseUrl: next.baseUrl, custom: next.custom, key }).provider;
+      if (next.enabled && isBuiltin(runs) && next.builtin !== runs) next.enabled = false;
       writePrefs({ web: next });
       return get();
     },

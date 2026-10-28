@@ -8,6 +8,7 @@ import { mountBoard } from './board.js';
 import { askBuiltinConsent } from '../web-consent.js';
 import { sanitizeWebRecord } from '../../engine/web/record.js';
 import { providerName } from '../../engine/web/bridge.js';
+import { isBuiltin } from '../../engine/web/providers.js';
 
 /**
  * Brainstorm: NIE as an idea partner for any literary project (stories, characters, worlds, articles, essays, poems, scripts).
@@ -23,7 +24,7 @@ export function mountBrainstorm(root, app) {
   const send = h('button', { class: 'btn btn-primary', id: 'brainstorm-send', type: 'submit' }, 'Send');
   const stop = h('button', { class: 'btn', id: 'brainstorm-stop', type: 'button', hidden: true, onclick: () => app.session.chatAbort?.abort() }, 'Stop');
   // The Web switch: on, a factual question is looked up on the web and answered with numbered sources. It stays off unless the writer turned web search on in Settings,
-  // or agrees to NIE's built-in search right here (the switch asks first; a writer with a search key of their own is never asked).
+  // or agrees to the built-in search right here (the switch asks first; a writer with a search key of their own is never asked).
   const webBtn = h('button', { class: 'btn btn-sm web-toggle', id: 'web-toggle', type: 'button', 'aria-pressed': 'false', disabled: true, title: 'Checking web search…', onclick: () => { if (needsAgreement()) return agreeToBuiltin(); setWebWanted(!webWanted()); paintWeb(); } }, 'Web');
   const form = h('form', { class: 'chat-form', onsubmit: (e) => { e.preventDefault(); submit(); } }, input, h('div', { class: 'chat-buttons' }, webBtn, send, stop));
   const board = mountBoard(app, { onDevelop: (text) => ask({ ask: `Let's develop this idea: ${text}`, lens: 'develop' }), onChange: () => refreshStars(), onAsk: (text) => ask({ ask: text }) });
@@ -59,35 +60,38 @@ export function mountBrainstorm(root, app) {
   let webState = null; // what web.status() last said
   const webUsable = () => Boolean(webState?.configured && webState.enabled);
   const webOn = () => webUsable() && webWanted();
-  // NIE's built-in search is there but the writer has not turned it on, which for it means has not agreed to how it works.
-  const needsAgreement = () => Boolean(webState?.configured && !webState.enabled && webState.provider === 'nie');
+  // A built-in search (Wikipedia, or NIE's own service) is what would run but the writer has not turned it on, which for it means has not agreed to how that service works.
+  const needsAgreement = () => Boolean(webState?.configured && !webState.enabled && isBuiltin(webState.provider));
   function paintWeb() {
     const on = webOn();
     webBtn.disabled = !webUsable() && !needsAgreement();
     webBtn.setAttribute('aria-pressed', String(on));
     const where = webState?.provider === 'nie' ? "NIE's search service, which asks a search provider for them" : providerName(webState?.provider);
+    const wiki = webState?.provider === 'wikipedia'; // Wikipedia is an encyclopedia, not the web: the switch says what it does
     webBtn.title = app.web.kind === 'none' ? 'Web search needs the desktop app.'
       : !webState ? 'Checking web search…'
-      : needsAgreement() ? "Search the web with NIE's built-in search. You will be asked to agree to how it works first."
+      : needsAgreement() ? (wiki ? 'Look things up on Wikipedia. You will be asked to agree to how it works first.' : "Search the web with NIE's built-in search. You will be asked to agree to how it works first.")
       : !webState.configured && !webState.enabled ? 'Add a key in Settings and turn web search on there to search the web.'
       : !webState.configured ? 'Add a key in Settings to search the web.'
       : !webState.enabled ? 'Turn web search on in Settings to search the web.'
-      : on ? `Web search is on: the words of your question are sent to ${where}. Tap to turn it off.`
+      : on ? (wiki ? 'Looking things up on Wikipedia is on: the words of your question are sent to Wikipedia. Tap to turn it off.' : `Web search is on: the words of your question are sent to ${where}. Tap to turn it off.`)
+      : wiki ? 'Look things up on Wikipedia, with numbered sources (the words of your question are sent to Wikipedia). Tap to turn it on.'
       : `Search the web, with numbered sources (the words of your question are sent to ${where}). Tap to turn it on.`;
   }
   async function refreshWeb() {
     webState = await app.web.status().catch(() => null);
     paintWeb();
   }
-  /** The writer clicked the switch while the built-in search waits for their agreement: ask, and only on a yes save it (web search on, agreed) and turn the switch on. */
+  /** The writer clicked the switch while a built-in search waits for their agreement: ask about that service, and only on a yes save it (web search on, that service agreed) and turn the switch on. */
   let asking = false;
   async function agreeToBuiltin() {
     if (asking) return;
     asking = true;
+    const service = webState.provider;
     try {
-      if (!(await askBuiltinConsent())) return;
+      if (!(await askBuiltinConsent(service))) return;
       const current = await app.web.refresh();
-      await app.web.save({ ...current, enabled: true, builtin: true });
+      await app.web.save({ ...current, enabled: true, builtin: service });
       await refreshWeb();
       if (webUsable()) setWebWanted(true);
       paintWeb();
@@ -150,7 +154,9 @@ export function mountBrainstorm(root, app) {
     const w = sanitizeWebRecord(raw); // the record is checked again here, so a link is only ever an https one
     if (!w) return null;
     const searched = w.state === 'answered' || w.state === 'results-only' || w.state === 'none-found';
-    const query = w.query && (searched || w.state === 'failed') ? h('p', { class: 'web-query muted' }, `${searched ? 'Searched' : 'Tried to search'} the web with ${providerName(w.provider)} for: "${w.query}"`) : null;
+    // (Wikipedia is not "the web": a reply from it says what was done)
+    const did = w.provider === 'wikipedia' ? `${searched ? 'Looked it up' : 'Tried to look it up'} on Wikipedia` : `${searched ? 'Searched' : 'Tried to search'} the web with ${providerName(w.provider)}`;
+    const query = w.query && (searched || w.state === 'failed') ? h('p', { class: 'web-query muted' }, `${did} for: "${w.query}"`) : null;
     const open = (url) => (e) => {
       if (!window.NIE_DESKTOP?.openExternal) return; // a browser follows the link itself
       e.preventDefault();

@@ -166,7 +166,8 @@ ipcMain.handle('nie:online:test', async () => {
 // ── web search (optional; off until the writer turns it on, with a key of their own or the built-in search they agree to) ──
 
 // The key is read, used and encrypted here, like the online key; the page only learns whether one is saved. The logic is in src/web-settings.js so it is tested without Electron.
-// The built-in search is a service the NIE developers run: the build carries only its address (search-gateway.json, empty in a build without one), never a search key.
+// Every build can look things up on Wikipedia, with no key. A build may also carry the address of NIE's own search service, which the NIE developers run (search-gateway.json,
+// empty in a build without one): only the address, never a search key.
 const gatewayUrl = readGatewayUrl(() => fs.readFileSync(path.join(here, 'search-gateway.json'), 'utf8'));
 const web = createWebSettings({ readPrefs, writePrefs, safeStorage, createService: createWebService, fetch: globalThis.fetch, gatewayUrl });
 ipcMain.handle('nie:web:get', () => web.get());
