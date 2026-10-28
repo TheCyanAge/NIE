@@ -76,8 +76,15 @@ test('the manifest of a build is read tolerantly: only a complete one with an ht
     [], null, 'not json', '{"url":',
   ]) assert.equal(read(bad), null, JSON.stringify(bad));
   assert.equal(readEncyclopediaManifest(() => { throw new Error('no such file'); }), null, 'a missing file is no download');
-  assert.deepEqual(JSON.parse(fs.readFileSync(new URL('../apps/desktop/encyclopedia.json', import.meta.url), 'utf8')).url, '', 'this repository ships it empty: not offered until a build fills it');
-  assert.equal(readEncyclopediaManifest(() => fs.readFileSync(new URL('../apps/desktop/encyclopedia.json', import.meta.url), 'utf8')), null);
+  // the manifest this repository ships is either empty (not offered) or complete: never half-filled, and never pointing anywhere but this project's own releases
+  const shipped = JSON.parse(fs.readFileSync(new URL('../apps/desktop/encyclopedia.json', import.meta.url), 'utf8'));
+  const read1 = readEncyclopediaManifest(() => JSON.stringify(shipped));
+  if (shipped.url === '') assert.equal(read1, null, 'empty means the download is not offered');
+  else {
+    assert.ok(read1, 'a filled manifest must be one the app accepts (https address, 64-digit SHA-256, size)');
+    assert.match(read1.url, /^https:\/\/github\.com\/TheCyanAge\/NIE\/releases\/download\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+\.niepack$/);
+    assert.ok(read1.docs > 0 && read1.builtAt, 'and says what it holds and when it was built');
+  }
   assert.match(fs.readFileSync(new URL('../apps/desktop/package.json', import.meta.url), 'utf8'), /"encyclopedia\.json"/, 'and it is packed into the app');
 });
 
