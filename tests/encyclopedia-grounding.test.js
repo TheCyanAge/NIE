@@ -129,3 +129,28 @@ test('and none is found when the articles really do not say, so a true "the arti
   none('What was the Colosseum used for?', [art(1, 'Colosseum', 'The Colosseum is a large structure in Rome. It had seating for 50,000 people.')]);
   none('Rome?', [art(1, 'Rome', 'Rome is the capital of Italy.')]);
 });
+
+test('the line above an article that points to another is not what the article says (measured: "What is the capital of Japan?" was answered with "This article is about ... For the current capital, see Tokyo.")', () => {
+  assert.equal(tidyLead('This article is about the Japanese national capital in general. For the current capital, see Tokyo. The capital of Japan is Tokyo. It has moved before.'), 'The capital of Japan is Tokyo. It has moved before.');
+  assert.equal(tidyLead('For other uses, see Mercury (disambiguation). Mercury is the smallest planet.'), 'Mercury is the smallest planet.');
+  assert.equal(tidyLead('Everyone is about this article. It is about Tokyo.'), 'Everyone is about this article. It is about Tokyo.', 'only at the start, only as a pointer');
+});
+
+test('a reason in a reply must be one an article gives for the same thing: "because" somewhere else in the article is not enough (measured: the sky)', () => {
+  const sky = [{ title: 'Sky', text: 'We see the Sun, the Moon, and stars because they are in the sky. On a clear day the sky appears blue.' }, { title: 'Blue', text: "Blue is the color of the Earth's sky and sea." }];
+  assert.equal(supportCheck("The sky appears blue because it is the color of the Earth's sky and sea.", sky).removed[0]?.why, 'reason');
+  assert.equal(supportCheck('We see the stars because they are in the sky.', sky).removed.length, 0, 'the article does say that');
+});
+
+test('a sentence of four or more words with a fifth of them nowhere in the articles goes (measured: the real model\'s supported sentences were all at 100%, the invented one at 71%)', () => {
+  const colosseum = [{ title: 'Colosseum', text: 'The Colosseum is a large structure in Rome. A forum was a place to meet, hold big parties and community meetings.' }];
+  const r = supportCheck('The Colosseum was used for large parties, community meetings, and entertainment.', colosseum);
+  assert.equal(r.emptied, true);
+  assert.deepEqual(r.removed[0].missing, ['used', 'entertainment']);
+});
+
+test('"who" needs a sentence that names someone, and "how many" accepts a number in words (measured: penicillin got "The first antibiotic discovered was Penicillin"; the spider\'s eight legs were missed)', () => {
+  assert.equal(answerSentence('Who discovered penicillin?', [art(1, 'Penicillin', 'Penicillin is a group of antibiotics.'), art(2, 'Antibiotics', 'The first antibiotic discovered was Penicillin, a natural antibiotic produced by a fungus.')]), null);
+  assert.equal(answerSentence('Who discovered penicillin?', [art(1, 'Alexander Fleming', 'Alexander Fleming was a Scottish doctor. In 1928 he discovered penicillin.')]).sentence, 'In 1928 he discovered penicillin.', 'a sentence that names no one new but is about the person the article is');
+  assert.equal(answerSentence('How many legs does a spider have?', [art(1, 'Spider', 'Spiders are air-breathing arthropods. They have eight legs, and mouthparts with fangs.')]).sentence, 'They have eight legs, and mouthparts with fangs.');
+});

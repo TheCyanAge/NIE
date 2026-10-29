@@ -72,7 +72,7 @@ export const LAB_QUESTIONS = [
   { id: 'f-pompeii', kind: 'fresh', say: 'What happened at Pompeii?' },
   { id: 'f-rainbow', kind: 'fresh', say: 'How does a rainbow form?' },
 
-  // a second batch, written after the fixes made for the first twelve and used for nothing else: do those fixes carry over to questions they were not made on?
+  // a second batch, written after the fixes made for the first twelve and used for nothing else until run 4: do those fixes carry over to questions they were not made on?
   { id: 'g-japan', kind: 'fresh', say: 'What is the capital of Japan?' },
   { id: 'g-moon', kind: 'fresh', say: 'How far is the Moon from the Earth?' },
   { id: 'g-darwin', kind: 'fresh', say: 'Who was Charles Darwin?' },
@@ -85,4 +85,19 @@ export const LAB_QUESTIONS = [
   { id: 'g-shakespeare', kind: 'fresh', say: 'When did William Shakespeare die?' },
   { id: 'g-spider', kind: 'fresh', say: 'How many legs does a spider have?' },
   { id: 'g-gold', kind: 'fresh', say: 'What is gold used for?' },
+
+  // a third batch (run 5 onward): the second batch led to fixes (a hatnote quoted as the answer, a "who" answered with a sentence that names no one, a spelled-out number), so it is no longer untouched;
+  // these twelve were written before the fixes to it were tested
+  { id: 'h-everest-first', kind: 'fresh', say: 'Who first climbed Mount Everest?' },
+  { id: 'h-mars', kind: 'fresh', say: 'How many moons does Mars have?' },
+  { id: 'h-pyramids', kind: 'fresh', say: 'Why were the pyramids of Egypt built?' },
+  { id: 'h-leonardo', kind: 'fresh', say: 'Who was Leonardo da Vinci?' },
+  { id: 'h-oxygen', kind: 'fresh', say: 'What is oxygen?' },
+  { id: 'h-sahara', kind: 'fresh', say: 'Where is the Sahara Desert?' },
+  { id: 'h-lincoln', kind: 'fresh', say: 'When was Abraham Lincoln born?' },
+  { id: 'h-bees', kind: 'fresh', say: 'How do bees make honey?' },
+  { id: 'h-earthquake', kind: 'fresh', say: 'What causes an earthquake?' },
+  { id: 'h-nile', kind: 'fresh', say: 'How long is the River Nile?' },
+  { id: 'h-telescope', kind: 'fresh', say: 'Who invented the telescope?' },
+  { id: 'h-mozart', kind: 'fresh', say: 'What is Mozart known for?' },
 ];

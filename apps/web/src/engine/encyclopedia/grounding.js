@@ -42,6 +42,9 @@ const NOTICES = [
   /Wikimedia Commons has media related to [^.]{1,120}\.?/gi,
   /The Simple English Wiktionary has a definition for:? [^.]{1,60}\.?/gi,
   /\[(?:source|citation|who|when|clarification|dubious)\?\]/gi,
+  // the line above an article that points to another ("This article is about the Japanese national capital in general. For the current capital, see Tokyo.") is not what the article says
+  /^\s*This (?:article|page) is about [^.]{1,200}\.\s*(?:For [^.]{1,200}?, see [^.]{1,120}\.\s*)?/i,
+  /^\s*For (?:other uses|more information)[^.]{0,100}, see [^.]{1,120}\.\s*/i,
 ];
 export function tidyLead(text) {
   let t = stripMath(String(text ?? ''));
@@ -164,7 +167,7 @@ const numbersOfText = (t) => [...String(t).matchAll(NUM)].map((m) => Number(m[0]
  * @param {{ title: string, text: string, full?: string }[]} sources   (`full` when `text` is only the focused part)
  * @returns {{ text: string, removed: { sentence: string, why: 'words' | 'numbers' | 'reason', missing: string[] }[], emptied: boolean }}
  */
-export function supportCheck(reply, sources, { minCoverage = 0.6, minTerms = 4 } = {}) {
+export function supportCheck(reply, sources, { minCoverage = 0.8, minTerms = 4 } = {}) {
   const src = String(reply ?? '');
   const have = new Set();
   const nums = [];
@@ -174,7 +177,7 @@ export function supportCheck(reply, sources, { minCoverage = 0.6, minTerms = 4 }
     nums.push(...numbersOfText(body));
   }
   const heldNumber = (n) => nums.some((x) => x === n || (x > 0 && Math.abs(x - n) <= 0.005 * x));
-  const whyHeld = sources.some((s) => GIVES_WHY.test(String(s.full ?? s.text ?? '')));
+  const whySentences = sources.flatMap((s) => splitProse(String(s.full ?? s.text ?? '')).filter((x) => GIVES_WHY.test(x)).map((x) => new Set(terms(x))));
   const removed = [];
   const keep = [];
   for (const sentence of splitProse(src)) {
@@ -184,7 +187,8 @@ export function supportCheck(reply, sources, { minCoverage = 0.6, minTerms = 4 }
       keep.push(sentence);
       continue;
     }
-    if (!whyHeld && SAYS_WHY.test(plain)) {
+    // (an article that says "because" about something else does not back this reason: its sentence has to share at least three of this one's words)
+    if (SAYS_WHY.test(plain) && !whySentences.some((set) => contentTerms(plain).filter((t) => set.has(t)).length >= 3)) {
       removed.push({ sentence: sp.text, why: 'reason', missing: [] });
       continue;
     }
@@ -216,6 +220,15 @@ const IRREGULAR = Object.fromEntries(
 const lemma = (t) => IRREGULAR[t] ?? t;
 const FILLER = new Set(['known', 'used', 'called', 'named', 'many', 'much']); // asking words that no sentence needs to repeat
 const lemmas = (s) => [...new Set(contentTerms(s).map(lemma))];
+const A_FIGURE = /\d|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|hundred|thousand|million|billion|dozen)\b/i; // "They have eight legs"
+const WHO = /^\s*(?:and\s+)?who(?:m|se)?\b/i;
+const PRONOUN_SUBJECT = /\b(?:he|she|they)\b/i;
+/** "Who discovered penicillin?" is not answered by "The first antibiotic discovered was Penicillin": the sentence names someone the question did not, or it is about the person whose article it is. */
+function namesSomeone(sentence, asked, named) {
+  if (PRONOUN_SUBJECT.test(sentence) && !named) return true; // "She was the first woman to fly...", "In 1928 he discovered...": the article's own subject, who is not named in the question
+  const heldBack = new Set(asked);
+  return (sentence.slice(1).match(/\b[A-Z][\p{L}'’-]{2,}/gu) ?? []).some((w) => !heldBack.has(lemma(terms(w)[0] ?? '')));
+}
 const WITHOUT_BRACKET = (title) => String(title ?? '').replace(/\s*\([^)]*\)\s*$/, '');
 
 /**
@@ -237,7 +250,8 @@ export function answerSentence(question, sources) {
     const named = own.size > 0 && [...own].every((t) => asked.includes(t)); // the question names this article
     splitProse(s.full ?? s.text).forEach((sentence, i) => {
       const words = wordsOf(sentence);
-      if (words < 4 || words > 60 || (numeric && !/\d/.test(sentence))) return;
+      if (words < 4 || words > 60 || (numeric && !A_FIGURE.test(sentence))) return;
+      if (WHO.test(String(question)) && !namesSomeone(sentence, asked, named)) return;
       const have = new Set(lemmas(sentence));
       const lit = asked.filter((t) => have.has(t));
       if (!lit.some((t) => !own.has(t))) return;
