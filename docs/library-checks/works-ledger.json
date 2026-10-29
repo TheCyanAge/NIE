@@ -1981,5 +1981,665 @@
   "sourceYear": "1928",
   "note": "Encyclopedic/biographical results: first edition of 75 poems, Madrid, Revista de Occidente, 1928; expanded in 1936, 1945, 1950 (334 poems).",
   "checked": "web search summaries, 2026-10-27 (round 2)"
+ },
+ {
+  "title": "As You Like It",
+  "author": "William Shakespeare",
+  "libraryYear": "1599, c. 1599",
+  "status": "confirmed",
+  "sourceYear": "1599 (composition / probable first performance); first printed 1623 (First Folio)",
+  "note": "Search summaries (Internet Shakespeare Editions, Wikipedia): generally dated 1599, evidence indirect; first performance probably 1599 but uncertain; first printed in the 1623 First Folio. The library gives the composition / first-performance date.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "At Swim-Two-Birds",
+  "author": "Flann O'Brien",
+  "libraryYear": "1939",
+  "status": "confirmed",
+  "sourceYear": "1939 (Longmans, Green; 13 March 1939 per one source)",
+  "note": "Wikipedia, Rare Books and a bookseller agree on 1939 (London, Longmans); 'Flann O'Brien' is a pseudonym of Brian O'Nolan. A US edition followed in 1951.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Bad Blood",
+  "author": "John Carreyrou",
+  "libraryYear": "2018",
+  "status": "confirmed",
+  "sourceYear": "2018 (Knopf, 21 May 2018)",
+  "note": "Wikipedia and library records: Alfred A. Knopf, 21 May 2018; investigation of Theranos.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Beauty",
+  "author": "Robin McKinley",
+  "libraryYear": "1978",
+  "status": "confirmed",
+  "sourceYear": "1978 (25 October 1978)",
+  "note": "Wikipedia and Goodreads: first published 1978; McKinley's debut novel.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Because of Winn-Dixie",
+  "author": "Kate DiCamillo",
+  "libraryYear": "2000",
+  "status": "confirmed",
+  "sourceYear": "2000 (Candlewick, 2000)",
+  "note": "Library catalogue and Goodreads: first published 2000; Newbery Honor 2001.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Binti",
+  "author": "Nnedi Okorafor",
+  "libraryYear": "2015",
+  "status": "confirmed",
+  "sourceYear": "2015 (Tor.com, 22 September 2015)",
+  "note": "Wikipedia and listings: 2015 novella from Tor.com; first of the Binti trilogy.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Black Beauty",
+  "author": "Anna Sewell",
+  "libraryYear": "1877",
+  "status": "confirmed",
+  "sourceYear": "1877 (24 November 1877, Jarrold and Sons)",
+  "note": "Wikipedia / Britannica-type sources: first published 24 November 1877 by Jarrold and Sons, London.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Blankets",
+  "author": "Craig Thompson",
+  "libraryYear": "2003",
+  "status": "confirmed",
+  "sourceYear": "2003 (Top Shelf; 23 July or 5 August 2003 depending on source)",
+  "note": "Wikipedia and Bookreporter agree on 2003 (Top Shelf Productions); the exact day differs between sources.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Blindsight",
+  "author": "Peter Watts",
+  "libraryYear": "2006",
+  "status": "confirmed",
+  "sourceYear": "2006 (Tor Books, 3 October 2006)",
+  "note": "Wikipedia: first print edition 3 October 2006, Tor Books; first of the Firefall series.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Bluets",
+  "author": "Maggie Nelson",
+  "libraryYear": "2009",
+  "status": "confirmed",
+  "sourceYear": "2009 (Wave Books, 1 October 2009)",
+  "note": "Retail and library records: Seattle, Wave Books, 2009; page counts differ between records.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Books of Blood",
+  "author": "Clive Barker",
+  "libraryYear": "1984",
+  "status": "confirmed",
+  "sourceYear": "1984 (volumes 1-3, Sphere, 1984; volumes 4-6 in 1985)",
+  "note": "Wikipedia and reviews: first volume 1984 in the UK (Sphere); the six volumes appeared 1984-1985.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Brown Bear, Brown Bear, What Do You See?",
+  "author": "Bill Martin Jr.",
+  "libraryYear": "1967",
+  "status": "confirmed",
+  "sourceYear": "1967",
+  "note": "Wikipedia, publisher and reading-organisation pages: 1967, text by Bill Martin Jr., illustrations by Eric Carle. Publisher named inconsistently (Holt, Rinehart and Winston in library records).",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "More Than Human",
+  "author": "Theodore Sturgeon",
+  "libraryYear": "1953",
+  "status": "confirmed",
+  "sourceYear": "1953 (Farrar, Straus & Young, 16 November 1953)",
+  "note": "Wikipedia and bookseller listings: 1953 fix-up expanded from a 1952 Galaxy novella; won the 1954 International Fantasy Award.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Analects",
+  "author": "Confucius (sayings recorded by his followers)",
+  "libraryYear": "c. 400 BCE",
+  "status": "confirmed",
+  "sourceYear": "compiled over roughly 476-221 BCE (Warring States); earliest physical evidence c. 300 BCE; final form mid-Han",
+  "note": "Wikipedia and Standard Ebooks summaries: traditional account has the disciples compiling it after Confucius's death in 479 BCE; modern scholars see about two centuries of compilation in the Warring States period. The library's c. 400 BCE sits inside that range; it is a range, not a single year.",
+  "resolution": "Left as is: the library marks it circa.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Osuofia in London",
+  "author": "Kingsley Ogoro",
+  "libraryYear": "2003",
+  "status": "confirmed",
+  "sourceYear": "2003",
+  "note": "Wikipedia and festival listings: 2003 Nigerian comedy film directed and produced by Kingsley Ogoro, Nkem Owoh in the lead; running time given as 105 or 71 minutes.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Pearl",
+  "author": "Anonymous",
+  "libraryYear": "c. 1400 CE",
+  "status": "year_differs",
+  "sourceYear": "late 14th century (one proposal: early 1390s)",
+  "note": "Wikipedia and a 2014 article summary: Middle English poem of the late 14th century, author unidentified, single manuscript (Cotton Nero A.x). The library's c. 1400 is looser than the sources' 'late 14th century'.",
+  "resolution": "The library says c. 1400 (circa); sources say late 14th century. Left as is because it is marked circa; 'late 14th century' would be closer.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Tristes Tropiques",
+  "author": "Claude Lévi-Strauss",
+  "libraryYear": "1955",
+  "status": "confirmed",
+  "sourceYear": "1955 (Plon); English translations from 1961",
+  "note": "Wikipedia and Open University: first published in France in 1955 by Plon.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Jamaica Inn",
+  "author": "Daphne du Maurier",
+  "libraryYear": "1936",
+  "status": "confirmed",
+  "sourceYear": "1936 (January 1936, Gollancz)",
+  "note": "Wikipedia and rare-book listings: first published January 1936 by Gollancz (UK) and Doubleday Doran (US).",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Life Before Us",
+  "author": "Romain Gary",
+  "libraryYear": "1975",
+  "status": "confirmed",
+  "sourceYear": "1975 (as La Vie devant soi, under the pseudonym Emile Ajar)",
+  "note": "Wikipedia: 1975 novel by Romain Gary under the pseudonym Emile Ajar; Prix Goncourt 1975. First English translation was titled Momo (1978), reissued as The Life Before Us (1986).",
+  "sourceAuthor": "Romain Gary (published as Emile Ajar)",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Baluta",
+  "author": "Daya Pawar",
+  "libraryYear": "1978",
+  "status": "confirmed",
+  "sourceYear": "1978 (Marathi; Granthali, Bombay)",
+  "note": "Wikipedia and reviews: 1978 Marathi autobiography; first Dalit autobiography published in Marathi; English translation by Jerry Pinto, 2015. Daya Pawar is the pen name of Dagdu Maruti Pawar.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Weep Not, Child",
+  "author": "Ngũgĩ wa Thiong’o",
+  "libraryYear": "1964",
+  "status": "confirmed",
+  "sourceYear": "1964 (May 1964, Heinemann; under the name James Ngugi)",
+  "note": "Wikipedia and Goodreads: first published May 1964 by Heinemann, London, under the name James Ngugi; his first published novel.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Adventures of Augie March",
+  "author": "Saul Bellow",
+  "libraryYear": "1953",
+  "status": "confirmed",
+  "sourceYear": "1953 (Viking, 18 September 1953)",
+  "note": "Wikipedia: Viking Press, 18 September 1953; National Book Award 1954.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "House Made of Dawn",
+  "author": "N. Scott Momaday",
+  "libraryYear": "1968",
+  "status": "confirmed",
+  "sourceYear": "1968 (Harper & Row); Pulitzer Prize 1969",
+  "note": "Pulitzer.org, Britannica and obituaries: published 1968, won the 1969 Pulitzer Prize for Fiction.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Join, or Die",
+  "author": "Benjamin Franklin",
+  "libraryYear": "1754",
+  "status": "confirmed",
+  "sourceYear": "9 May 1754, The Pennsylvania Gazette",
+  "note": "Wikipedia and several museum/history pages: woodcut printed 9 May 1754. Attribution is probable rather than settled: most likely drawn and engraved by Franklin; some sources say Franklin or the engraver James Turner.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Brown Girl Dreaming",
+  "author": "Jacqueline Woodson",
+  "libraryYear": "2014",
+  "status": "confirmed",
+  "sourceYear": "2014 (Nancy Paulsen Books)",
+  "note": "Wikipedia and publisher pages: 2014 memoir in verse; National Book Award for Young People's Literature, Coretta Scott King Author Award, Newbery Honor.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Chernobyl",
+  "author": "Craig Mazin",
+  "libraryYear": "2019",
+  "status": "confirmed",
+  "sourceYear": "2019 (premiered 6 May 2019 on HBO)",
+  "note": "Wikipedia: five-part HBO miniseries, created and written by Craig Mazin, directed by Johan Renck; UK premiere 7 May 2019.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Circe",
+  "author": "Madeline Miller",
+  "libraryYear": "2018",
+  "status": "confirmed",
+  "sourceYear": "2018 (US 10 April 2018, Little, Brown; international 19 April 2018, Bloomsbury)",
+  "note": "Wikipedia and Kirkus: published April 2018.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Coraline",
+  "author": "Neil Gaiman",
+  "libraryYear": "2002",
+  "status": "confirmed",
+  "sourceYear": "2002 (2 July 2002, Bloomsbury / HarperCollins)",
+  "note": "Wikipedia: first published 2 July 2002; Gaiman began writing it in 1990; Hugo and Nebula for Best Novella 2003.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Counter-Attack and Other Poems",
+  "author": "Siegfried Sassoon",
+  "libraryYear": "1918",
+  "status": "confirmed",
+  "sourceYear": "1918 (William Heinemann, London; May 1918 per one catalogue)",
+  "note": "Library and rare-book catalogues: first edition 1918, introduction by Robert Nichols.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Cranford",
+  "author": "Elizabeth Gaskell",
+  "libraryYear": "1853",
+  "status": "year_differs",
+  "sourceYear": "1851-1853 (serial in Household Words, eight instalments, Dec 1851 to May 1853); book 1853",
+  "note": "Wikipedia: serialised irregularly in Dickens's Household Words from December 1851 to May 1853, then published as a book (Chapman & Hall) in 1853, with minor revision. The library's 1853 is the book edition.",
+  "resolution": "The library gives the book edition (1853); the first instalment appeared in December 1851. Left as is; see the README note on serials.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Dawn",
+  "author": "Octavia E. Butler",
+  "libraryYear": "1987",
+  "status": "confirmed",
+  "sourceYear": "1987 (Warner)",
+  "note": "Wikibooks, Goodreads and rare-book listings: first of the Xenogenesis trilogy, 1987; the trilogy was collected as Lilith's Brood in 2000.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Dead Souls",
+  "author": "Nikolai Gogol",
+  "libraryYear": "1842",
+  "status": "confirmed",
+  "sourceYear": "1842 (Moscow; first edition under the censor's title The Adventures of Chichikov per one source)",
+  "note": "Wikipedia and Project Gutenberg: first published in 1842; Gogol later burned the manuscript of the second part.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Divan-e-Ghalib",
+  "author": "Mirza Ghalib",
+  "libraryYear": "1841",
+  "status": "confirmed",
+  "sourceYear": "1841 (first printed edition of the Urdu divan, Delhi); later printings 1847, 1861, 1862",
+  "note": "Rekhta's chronology and Frances Pritchett's site: first edition of the Urdu diwan printed in Delhi in 1841; the contents were largely composed by 1821. One site gives 1828, which the other sources contradict.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Divina Commedia (The Divine Comedy)",
+  "author": "Dante Alighieri",
+  "libraryYear": "c. 1320, c. 1320 CE",
+  "status": "confirmed",
+  "sourceYear": "begun c. 1308; completed c. 1320-1321 (sources differ: Wikipedia c. 1321, several listings 1320)",
+  "note": "Wikipedia and listings: composed in Dante's last years, Dante died in 1321. The library's c. 1320 is within what the sources give.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Doctor Faustus",
+  "author": "Christopher Marlowe",
+  "libraryYear": "c. 1592, 1592",
+  "status": "confirmed",
+  "sourceYear": "written c. 1588-1593 (sources differ: 1592-93, 1589-92, performance 1590-91); first printed 1604 (A-text); B-text 1616",
+  "note": "Several search summaries disagree on the composition date, so c. 1592 is within the range but not firmly established. A-text 1604, B-text 1616.",
+  "resolution": "Left as is: the library marks it circa.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Doctor Zhivago",
+  "author": "Boris Pasternak",
+  "libraryYear": "1957",
+  "status": "confirmed",
+  "sourceYear": "1957 (Italy, Feltrinelli, in Italian; 15 November 1957 per one source, October per another)",
+  "note": "Wikipedia-type summaries and Feltrinelli's own pages: first published in Milan in 1957; first Russian-language edition from Mouton (Brussels) in 1958.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Upstairs, Downstairs",
+  "author": "Jean Marsh and Eileen Atkins",
+  "libraryYear": "1971",
+  "status": "confirmed",
+  "sourceYear": "1971-1975 (ITV, London Weekend Television; 5 series, 68 episodes)",
+  "note": "Wikipedia and Variety: the idea was developed by Jean Marsh and Eileen Atkins (first as 'Behind the Green Baize Door'); both are credited as creators. The Wikipedia infobox also lists John Hawkesworth and John Whitney as creators and Alfred Shaughnessy as developer.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Imaginary Invalid",
+  "author": "Molière",
+  "libraryYear": "1673",
+  "status": "confirmed",
+  "sourceYear": "1673 (premiere 10 February 1673, Théâtre du Palais-Royal)",
+  "note": "Wikipedia and Encyclopedia.com: comédie-ballet, Molière's last play; he collapsed during the fourth performance on 17 February 1673 and died that day.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Second Shepherds' Play",
+  "author": "The Wakefield Master",
+  "libraryYear": "(none given)",
+  "status": "confirmed",
+  "sourceYear": "date unknown; late 15th century (sources: c. 1450, c. 1475-1500, c. 1500); survives in the Towneley (Wakefield) manuscript",
+  "note": "Wikipedia, LitCharts and others: the author is anonymous; 'the Wakefield Master' is a scholarly label, and some scholars doubt a single author. The library gives no year.",
+  "resolution": "The library gives no year; sources put it in the later 15th century and call the author anonymous.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Sin Xay",
+  "author": "Attributed to Pangkham",
+  "libraryYear": "(none given)",
+  "status": "confirmed",
+  "sourceYear": "c. 1600 (sources: late 16th to early 17th century; range mid-16th to end of the 17th century)",
+  "note": "Wikipedia (Sang Sinxay), Britannica and a 2025 review: Lao epic attributed to Pang Kham, of whom nothing else is known; spelled Sang Sinxay or Sin Xay. The library gives no year.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Wandering Earth",
+  "author": "Liu Cixin",
+  "libraryYear": "2000",
+  "status": "confirmed",
+  "sourceYear": "2000 (Science Fiction World, July 2000)",
+  "note": "Goodreads/BookBrainz: first appeared in Science Fiction World in July 2000; Wikipedia credits Beijing Guomi, 2000; won the 2000 China Galaxy SF Award; English edition 2017. Adapted as the 2019 film.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Martin Eden",
+  "author": "Jack London",
+  "libraryYear": "1909",
+  "status": "year_differs",
+  "sourceYear": "1908-1909 (serial in The Pacific Monthly, Sept 1908 to Sept 1909); book, Macmillan, September 1909",
+  "note": "Wikipedia: serialised before the Macmillan book edition of September 1909. The library's 1909 is the book edition.",
+  "resolution": "The library gives the book edition (1909); the serial began in September 1908. Left as is; see the README note on serials.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Hazarski rečnik",
+  "author": "Milorad Pavić",
+  "libraryYear": "1984",
+  "status": "confirmed",
+  "sourceYear": "1984 (Prosveta, Belgrade, two volumes); English 1988 (Knopf)",
+  "note": "Wikipedia and Britannica: Pavić's lexicon novel, Belgrade 1984; NIN award given as 1984 or 1985 depending on source.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Irish Thoroughbred",
+  "author": "Nora Roberts",
+  "libraryYear": "1981",
+  "status": "confirmed",
+  "sourceYear": "1981 (Silhouette Romance no. 81; January or May 1981 depending on source)",
+  "note": "Wikipedia and Goodreads: Nora Roberts's debut novel, published by Silhouette in 1981.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Cheese and the Worms",
+  "author": "Carlo Ginzburg",
+  "libraryYear": "1976",
+  "status": "confirmed",
+  "sourceYear": "1976 (Einaudi, in Italian); English translation 1980 (Routledge & Kegan Paul), 1992 (Johns Hopkins)",
+  "note": "Wikipedia and MIT Press Reader: Ginzburg's microhistory of the miller Menocchio. The library's 1976 is the Italian first edition, Il formaggio e i vermi.",
+  "resolution": "The year is the Italian first edition; English editions followed in 1980 and 1992.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Gunslinger",
+  "author": "Stephen King",
+  "libraryYear": "1982",
+  "status": "confirmed",
+  "sourceYear": "1982 (Donald M. Grant, limited edition; Wikipedia gives 10 June 1982); revised 2003",
+  "note": "Wikipedia and stephenking.com: a fix-up of five stories first printed in F&SF 1978-1981; the first book edition is 1982.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Ramona the Pest",
+  "author": "Beverly Cleary",
+  "libraryYear": "1968",
+  "status": "confirmed",
+  "sourceYear": "1968 (William Morrow; illustrated by Louis Darling)",
+  "note": "Wikipedia and library records: second book in the Ramona series, first centred on Ramona; Morrow 1968.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Marinero en tierra",
+  "author": "Rafael Alberti",
+  "libraryYear": "1925",
+  "status": "confirmed",
+  "sourceYear": "1925 (Biblioteca Nueva, Madrid, per a library catalogue; some dealers and biographies say 1924); won the Premio Nacional de Literatura in 1925",
+  "note": "First search: prize 1925, written 1924. Second search: a library record gives the first edition as Biblioteca Nueva, Madrid, 1925; one rare-book dealer lists it as 1924. Sources disagree between 1924 and 1925; the library's 1925 is the better supported.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Don Juan",
+  "author": "Lord Byron",
+  "libraryYear": "1819",
+  "status": "confirmed",
+  "sourceYear": "1819-1824 (cantos I-II July 1819; III-V Aug 1821; VI-XVI 1823-24); unfinished at Byron's death",
+  "note": "Wikipedia, Keats-Shelley blog and rare-book listings: published in instalments; the library's 1819 is the year of the first cantos.",
+  "resolution": "The library gives the year publication began (1819); the poem ran to 1824 and is unfinished.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Doomsday Book",
+  "author": "Connie Willis",
+  "libraryYear": "1992",
+  "status": "confirmed",
+  "sourceYear": "1992 (Bantam Spectra; 15 June 1992 per Kirkus)",
+  "note": "Wikipedia, Kirkus and EBSCO: published 1992; won the Hugo and Nebula awards.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Dyskolos",
+  "author": "Menander",
+  "libraryYear": "c. 316 BCE",
+  "status": "confirmed",
+  "sourceYear": "316 BCE (Lenaia, first prize); some sources 317/316",
+  "note": "Wikipedia and a Cambridge article summary: first presented at the Lenaia in Athens in 316 BCE; the exact date relies on a plausible emendation in the Bodmer papyrus. The manuscript was recovered in 1952 and published in 1958.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Ecclesiastical History of the English People",
+  "author": "Bede",
+  "libraryYear": "731",
+  "status": "confirmed",
+  "sourceYear": "c. 731",
+  "note": "Wikipedia and EBSCO: completed in about 731, in five books, dedicated to King Ceolwulf of Northumbria.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "El Deafo",
+  "author": "Cece Bell",
+  "libraryYear": "2014",
+  "status": "confirmed",
+  "sourceYear": "2014 (Amulet Books, 2 September 2014)",
+  "note": "Wikipedia and library records: graphic-novel memoir; Newbery Honor 2015.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Ender's Game",
+  "author": "Orson Scott Card",
+  "libraryYear": "1985",
+  "status": "confirmed",
+  "sourceYear": "1985 (Tor, 15 January 1985); the short story in Analog, August 1977",
+  "note": "Wikipedia and Encyclopedia.com: novel developed from the 1977 novelette; Nebula 1985, Hugo 1986; revised in 1991.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Endgame",
+  "author": "Samuel Beckett",
+  "libraryYear": "1957",
+  "status": "year_differs",
+  "sourceYear": "1957 (French original, Fin de partie: Royal Court premiere 3 April 1957, text published 1957); English Endgame 1958 (some sources 1957)",
+  "note": "Wikipedia, Britannica and catalogues: Beckett wrote it in French and translated it himself; the English edition (A Play in One Act) is dated 1958 by booksellers and catalogues.",
+  "resolution": "The library's 1957 is the French original and its first production; Beckett's English text is 1958.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Essais",
+  "author": "Michel de Montaigne",
+  "libraryYear": "1580",
+  "status": "confirmed",
+  "sourceYear": "1580 (Books I and II, Bordeaux, Simon Millanges); expanded 1588 (adds Book III); posthumous edition 1595",
+  "note": "Cambridge University Library exhibition and encyclopedia entries.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Fences",
+  "author": "August Wilson",
+  "libraryYear": "1985",
+  "status": "confirmed",
+  "sourceYear": "1985 (premiere at Yale Repertory Theatre, directed by Lloyd Richards; 30 April or May 1985 by source); Broadway 1987",
+  "note": "Yale news, Wikipedia-type summaries and theatre sites; the Broadway production won the 1987 Pulitzer Prize for Drama.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Fires in the Mirror",
+  "author": "Anna Deavere Smith",
+  "libraryYear": "1992",
+  "status": "confirmed",
+  "sourceYear": "1992 (premiere 1 May 1992, The Public Theater, New York)",
+  "note": "Encyclopedia.com, Wikipedia and Britannica summaries: solo play about the 1991 Crown Heights riots; Pulitzer nominee and Obie winner.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Georgics",
+  "author": "Virgil",
+  "libraryYear": "c. 29 BCE",
+  "status": "confirmed",
+  "sourceYear": "c. 29 BCE (composed about 37-29 BCE)",
+  "note": "Wikipedia and literature sites: likely published in 29 BCE; four books, about 2,188 lines.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Ghosts",
+  "author": "Henrik Ibsen",
+  "libraryYear": "1881",
+  "status": "confirmed",
+  "sourceYear": "1881 (written in Sorrento in 1881, published December 1881); first staged 1882 (Chicago, by a Danish touring company, per short secondary summaries)",
+  "note": "Project Gutenberg introduction by William Archer and encyclopedia summaries. The 1882 first staging was not checked against a theatre history.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Üvercinka",
+  "author": "Cemal Süreya",
+  "libraryYear": "1958",
+  "status": "confirmed",
+  "sourceYear": "1958 (Yeditepe, February 1958); Cemal Süreya's first poetry collection",
+  "note": "Wikipedia-type and Turkish sources: first collection, 1958; shared the Yeditepe Poetry Prize with Arif Damar; a key work of the Second New movement.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Moral Letters to Lucilius",
+  "author": "Seneca",
+  "libraryYear": "c. 65 CE",
+  "status": "confirmed",
+  "sourceYear": "c. 65 CE (written in the last two or three years of Seneca's life, about 62-65)",
+  "note": "Wikipedia and an Italian exam-prep article: 124 letters in 20 books addressed to Lucilius, circulated just before Seneca's death in 65.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Tomorrow, When the War Began",
+  "author": "John Marsden",
+  "libraryYear": "1993",
+  "status": "confirmed",
+  "sourceYear": "1993 (Pan Macmillan, Australia)",
+  "note": "Wikipedia: first of the seven-book Tomorrow series (1993-1999).",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Tourist Season",
+  "author": "Carl Hiaasen",
+  "libraryYear": "1986",
+  "status": "confirmed",
+  "sourceYear": "1986 (G. P. Putnam's Sons)",
+  "note": "Wikipedia and catalogues: Hiaasen's first solo novel; his three earlier novels were co-written with William Montalbano.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Ross Poldark",
+  "author": "Winston Graham",
+  "libraryYear": "1945",
+  "status": "confirmed",
+  "sourceYear": "1945 (Ward, Lock & Co.)",
+  "note": "Wikipedia and rare-book listings: first of the Poldark novels; the sequel Demelza followed in 1946.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Rulin Waishi (The Scholars)",
+  "author": "Wu Jingzi",
+  "libraryYear": "c. 1750 CE",
+  "status": "confirmed",
+  "sourceYear": "c. 1750 (composition; sources 1749-1750); first printed 1768-69",
+  "note": "Britannica, a rare-book dealer and a Columbia University Press review: Wu Jingzi (1701-1754) did not publish it in his lifetime; it circulated in manuscript until the first printing in 1768-69. The library's c. 1750 is the composition date.",
+  "resolution": "The library's c. 1750 is when it was written; it was first printed in 1768-69.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Arsène Lupin, gentleman-cambrioleur",
+  "author": "Maurice Leblanc",
+  "libraryYear": "1907",
+  "status": "confirmed",
+  "sourceYear": "1907 (10 June 1907 per Wikipedia); the stories first ran in Je sais tout from July 1905",
+  "note": "Wikipedia and Project Gutenberg: first Arsène Lupin collection; the number of stories is eight or nine depending on the source and edition.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Amoretti and Epithalamion",
+  "author": "Edmund Spenser",
+  "libraryYear": "1595",
+  "status": "confirmed",
+  "sourceYear": "1595 (London, William Ponsonby); entered in the Stationers' Register 19 November 1594",
+  "note": "Folger Shakespeare Library catalogue record and other catalogues.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "The Wedding",
+  "author": "Stanisław Wyspiański",
+  "libraryYear": "1901",
+  "status": "confirmed",
+  "sourceYear": "1901 (premiere 16 March 1901, Kraków city theatre, now the Słowacki Theatre)",
+  "note": "Polish sources agree on 16 March 1901; one machine-generated encyclopedia gave 16 November and was disregarded.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Oedipus at Colonus",
+  "author": "Sophocles",
+  "libraryYear": "c. 401 BCE",
+  "status": "confirmed",
+  "sourceYear": "401 BCE (produced posthumously at the City Dionysia by Sophocles the Younger); written shortly before Sophocles's death in 406/405 BCE",
+  "note": "Duke University play summaries, Greekmythology.com and others.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Turtle Island",
+  "author": "Gary Snyder",
+  "libraryYear": "1974",
+  "status": "confirmed",
+  "sourceYear": "1974 (New Directions); Pulitzer Prize for Poetry 1975",
+  "note": "Wikipedia and Britannica: collection of poems and essays; publication month varies by listing.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
+ },
+ {
+  "title": "Khamsa",
+  "author": "Nizami Ganjavi",
+  "libraryYear": "c. 1200 CE",
+  "status": "confirmed",
+  "sourceYear": "composed over decades, roughly 1166/1180 to c. 1202 (first poem Makhzan al-asrar c. 1166-1180, Layla o Majnun 1188, Haft Paykar 1202; dates disputed); Nizami died between 1203 and 1217",
+  "note": "Encyclopaedia Iranica (de Blois), Golha and the 1911 Britannica disagree on individual dates, and Iranica says the traditional order of the poems is questioned. The library's c. 1200 is roughly when the last poems were finished; it is a span, not a year.",
+  "resolution": "Left as is: circa, for a work composed across the later twelfth century and the first years of the thirteenth.",
+  "checked": "web search summaries, 2026-10-29 (round 3)"
  }
 ]
