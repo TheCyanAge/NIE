@@ -281,3 +281,65 @@ test('"Who was Ilse Quarrel?" and "Tell me about Veldhaven." are looked up whate
   const mine = await o.brainstorm({ project, message: 'Tell me about Mara.', web: true });
   assert.equal(mine.web, null, 'not sent to a lookup');
 });
+
+// ── a refusal that one sentence of the articles contradicts ──────────────────
+
+test('when the model says the articles do not answer but one sentence holds every word asked, that sentence is quoted instead (measured: it refused "What is the capital of Italy?")', async () => {
+  const { o } = setup({ reply: () => 'The passages do not say.' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search for where the River Tamsin rises' });
+  assert.match(r.reply, /^The Karr Hills are a range of low hills in northern Orsland where the River Tamsin rises\. \[\d\]$/);
+  assert.equal(r.web.answeredBy, 'encyclopedia');
+  assert.equal(r.web.state, 'answered');
+  assert.match(r.web.note, /My model said the articles do not answer this\. This sentence of the article "Karr Hills" .* holds every word of your question, so it is quoted as it is written\. No model wrote this/);
+});
+
+test('a sentence that does not name its subject is quoted with the article it comes from, and a question no sentence answers keeps its honest refusal', async () => {
+  const { o } = setup({ reply: () => 'The passages do not say.' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search for where the River Tamsin flows' });
+  assert.match(r.reply, /^River Tamsin: It rises in the Karr Hills and flows south for 180 kilometres before reaching the sea at Veldhaven\. \[\d\]$/);
+  const none = await o.brainstorm({ project: projectWith(), message: 'search for who designed the Marlowe Bridge' });
+  assert.match(none.reply, /^The articles I found don't answer that\./);
+});
+
+test('what the model wrote with no backing is replaced by the sentence that does answer, when there is one', async () => {
+  const { o } = setup({ reply: () => 'The River Tamsin was dredged by monks and the monks built a thousand locks along every mile of the river, so that boats could sail it.' });
+  const r = await o.brainstorm({ project: projectWith(), message: 'search for where the River Tamsin rises' });
+  assert.match(r.reply, /^The Karr Hills are a range of low hills in northern Orsland where the River Tamsin rises\./);
+  assert.match(r.web.note, /I left out what my model wrote because/);
+});
+
+// ── a follow-up is about the thing just asked about ──────────────────────────
+
+test('"and how tall is it?" is answered from the article just asked about, not from another tower\'s (measured: it gave the Jeddah Tower\'s height for the Eiffel Tower)', async () => {
+  const tower = (id, title, lead) => [JSON.stringify({ index: { _id: String(id) } }), JSON.stringify({ title, namespace: 0, opening_text: lead, popularity_score: 0.001 })].join('\n');
+  const dump = [
+    tower(1, 'Marlowe Tower', 'The Marlowe Tower is a lookout tower in Veldhaven. It opened in 1931 and has an open top floor for visitors to see the harbour.'),
+    tower(2, 'Karr Tower', 'The Karr Tower is a radio tower in the Karr Hills. It is 612 metres tall, which makes it a very tall tower and the tallest tower in Orsland.'),
+  ].join('\n');
+  const towers = await Pack.open((await buildFromDump(Readable.from([dump]), { name: 'towers', builtAt: '2026-03-04T00:00:00Z' })).bytes);
+  const calls = [];
+  const chat = modelWithReading(
+    (messages) => (/^Rewrite the follow-up/.test(messages[0].content) ? 'How tall is the Marlowe Tower' : 'The passages do not say.'),
+    { calls, reading: () => ({ task: 'craft', topic: '' }) },
+  );
+  const engine = new AIEngine({ local: { status: () => ({ state: 'ready' }), onStatus: () => () => {}, chat }, online: null, isOnline: () => false });
+  const o = new Orchestrator({ engine, web: createWebService({ fetch: noNetwork().fetch, getConfig: () => ({}), getPack: () => towers }) });
+  const project = projectWith();
+  const first = await o.brainstorm({ project, message: 'search for the Marlowe Tower', web: true });
+  assert.equal(first.web.sources[0].title, 'Marlowe Tower');
+  const r = await o.brainstorm({ project, message: 'and how tall is it?', web: true });
+  assert.deepEqual(r.web.sources.map((s) => s.title), ['Marlowe Tower'], 'the other tower is not shown');
+  const prompt = calls.at(-1).messages.at(-1).content;
+  assert.doesNotMatch(prompt, /Karr Tower|612/);
+  assert.match(r.reply, /^The articles I found don't answer that\./, 'and the Karr Tower\'s height was not given for it');
+});
+
+// ── a craft comparison the library has a whole profile for ───────────────────
+
+test('"How is an epic poem different from a novel?" is answered by the library\'s profile of epic poetry, not by two encyclopedia openings', async () => {
+  const { o, calls } = setup({ local: false });
+  const r = await o.brainstorm({ project: projectWith(), message: 'How is an epic poem different from a novel?', web: true });
+  assert.equal(r.web, null, 'not a lookup');
+  assert.match(r.reply, /^From NIE's built-in library:[\s\S]*Epic poetry: how it differs/);
+  assert.equal(calls.length, 0);
+});

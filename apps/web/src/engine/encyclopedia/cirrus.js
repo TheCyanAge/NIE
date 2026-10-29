@@ -27,7 +27,8 @@ export function clipLead(text, max = MAX_LEAD_DEFAULT) {
   const t = String(text ?? '');
   if (t.length <= max) return t;
   const head = t.slice(0, max);
-  const ends = [...head.matchAll(/[.!?]["')\]]?(?=\s+[A-Z0-9"'(])/g)];
+  // (a single capital before the full stop is a name's initial, "Joseph L. Mankiewicz": not an end)
+  const ends = [...head.matchAll(/[.!?]["')\]]?(?=\s+[A-Z0-9"'(])/g)].filter((m) => !(m[0][0] === '.' && /(?:^|[\s(])[A-Z]$/.test(head.slice(0, m.index))));
   const last = ends.length ? ends[ends.length - 1] : null;
   if (last && last.index + last[0].length >= max * 0.5) return head.slice(0, last.index + last[0].length).trim();
   return `${head.replace(/\s+\S*$/, '')}…`;

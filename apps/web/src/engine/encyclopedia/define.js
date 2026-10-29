@@ -8,6 +8,7 @@ import { terms, titleKeys } from './tokens.js';
  */
 
 const OPENERS = [
+  /^(?:what|who)(?:'s|’s| is| was| are| were)\s+(?:an?\s+|the\s+)?(.+?)\s+(?:best\s+|most\s+)?(?:known|famous|remembered)\s+for$/i,
   /^(?:what(?:'s|’s| is| are)\s+the\s+)?(?:definition|meaning) of\s+(?:an?\s+|the\s+)?(.+)$/i,
   /^(?:what|who)(?:'s|’s| is| was| are| were)\s+(?:an?\s+|the\s+)?(.+)$/i,
   /^(?:please\s+)?(?:tell me about|tell me what|explain|define|describe)\s+(?:what\s+(?:an?\s+|the\s+)?)?(?:an?\s+|the\s+)?(.+?)(?:\s+(?:is|are|means?))?$/i,
@@ -31,6 +32,7 @@ export function definitionSubject(question, { bare = false } = {}) {
   return null;
 }
 
+const WORK = /\((?:[^)]*\b)?(?:movie|film|song|album|book|novel|tv|television|series|game|video game|musical|play|poem|painting|band)\)\s*$/i;
 const sameName = (a, b) => terms(a).join(' ') === terms(b).join(' ') && terms(a).length > 0;
 
 /** Does this article title name exactly the thing asked about ("Sonnet" for "sonnets"; "Veldhaven (city)" for "Veldhaven")? */
@@ -44,14 +46,16 @@ export function definitionalAnswer({ question, sources, maxChars = 520, bare = f
   const subject = definitionSubject(question, { bare });
   if (!subject) return null;
   const hits = (Array.isArray(sources) ? sources : []).filter((s) => s?.text && titleNames(s.title, subject));
-  // an article with exactly the name, not a bracketed one, comes first
-  const source = hits.find((s) => !/\(/.test(s.title)) ?? hits[0];
+  // an article with exactly the name, not a bracketed one, comes first; and "Who was Cleopatra?" is not answered with the film of that name
+  const source = hits.find((s) => !/\(/.test(s.title)) ?? hits.find((s) => !(WORK.test(s.title) && /^\s*who\b/i.test(question)));
   if (!source) return null;
   let text = '';
+  let count = 0;
   for (const sentence of splitProse(source.text)) {
     const next = text ? `${text} ${sentence}` : sentence;
-    if (text && (next.length > maxChars || text.split(/(?<=[.!?])\s/).length >= 2)) break;
+    if (count >= 2 || (text && next.length > maxChars)) break;
     text = next;
+    count++;
   }
   text = text.trim();
   if (text.length < 30) return null;

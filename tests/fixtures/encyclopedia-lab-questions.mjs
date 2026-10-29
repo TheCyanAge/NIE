@@ -71,4 +71,18 @@ export const LAB_QUESTIONS = [
   { id: 'f-frankenstein', kind: 'fresh', say: 'Who wrote Frankenstein?' },
   { id: 'f-pompeii', kind: 'fresh', say: 'What happened at Pompeii?' },
   { id: 'f-rainbow', kind: 'fresh', say: 'How does a rainbow form?' },
+
+  // a second batch, written after the fixes made for the first twelve and used for nothing else: do those fixes carry over to questions they were not made on?
+  { id: 'g-japan', kind: 'fresh', say: 'What is the capital of Japan?' },
+  { id: 'g-moon', kind: 'fresh', say: 'How far is the Moon from the Earth?' },
+  { id: 'g-darwin', kind: 'fresh', say: 'Who was Charles Darwin?' },
+  { id: 'g-penicillin', kind: 'fresh', say: 'Who discovered penicillin?' },
+  { id: 'g-amazon', kind: 'fresh', say: 'Where is the Amazon rainforest?' },
+  { id: 'g-press', kind: 'fresh', say: 'Who invented the printing press?' },
+  { id: 'g-landing', kind: 'fresh', say: 'When did humans first land on the Moon?' },
+  { id: 'g-dna', kind: 'fresh', say: 'What is DNA?' },
+  { id: 'g-tsunami', kind: 'fresh', say: 'What causes a tsunami?' },
+  { id: 'g-shakespeare', kind: 'fresh', say: 'When did William Shakespeare die?' },
+  { id: 'g-spider', kind: 'fresh', say: 'How many legs does a spider have?' },
+  { id: 'g-gold', kind: 'fresh', say: 'What is gold used for?' },
 ];

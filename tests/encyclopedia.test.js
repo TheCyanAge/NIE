@@ -68,6 +68,13 @@ test('a lead is cut at a sentence end, never mid-sentence, and brackets left emp
   assert.equal(cleanLead('A thing ( EYE-fəl ) here'), 'A thing (EYE-fəl) here');
 });
 
+test('a lead is not cut after a name\'s initial ("Joseph L. Mankiewicz"), measured on the real dump: "...Gary Ungar, Scott Stuber, and J."', () => {
+  const lead = `${'Filler words that make this long enough to need a cut here. '.repeat(2)}It was written by Joseph L. Mankiewicz and produced by J. Miles Dale. More words follow that are cut away entirely.`;
+  const cut = clipLead(lead, 190);
+  assert.doesNotMatch(cut, /\b[A-Z]\.$/);
+  assert.match(cut, /^Filler words/);
+});
+
 test('the top N of a long stream are kept, in order, with ties going to the earlier one', () => {
   const t = new TopN(3);
   for (const [i, r] of [5, 1, 9, 3, 7, 9, 2].entries()) t.add({ rank: r, i });
@@ -181,6 +188,8 @@ test('only a plain "what or who is X" is a definition question, and X is the thi
   assert.equal(subject('Tell me about Veldhaven'), 'Veldhaven');
   assert.equal(subject('explain the salt trade'), 'salt trade');
   assert.equal(subject('what is the definition of irony'), 'irony');
+  assert.equal(subject('What is Edgar Allan Poe known for?'), 'Edgar Allan Poe', '"known for" asks what the article opens with');
+  assert.equal(subject('what is Mary Shelley best known for'), 'Mary Shelley');
   assert.equal(subject('what is my story about'), null);
   assert.equal(subject('what is this chapter missing'), null);
   assert.equal(subject('how long is the Marlowe Bridge'), null);
@@ -200,6 +209,11 @@ test('an article of exactly that name is quoted, numbered, and nothing is added;
   assert.equal(definitionalAnswer({ question: 'What is the Veldhaven Cup', sources }).n, 3);
   assert.equal(definitionalAnswer({ question: 'What is a football', sources }), null, 'no article of that name');
   assert.equal(definitionalAnswer({ question: 'how old is Veldhaven', sources }), null);
+  // "Who was Cleopatra?" is not answered with the film of that name, which is a different thing (measured on the real pack: the film ranked first)
+  const cleo = [{ n: 1, title: 'Cleopatra (1963 movie)', text: 'Cleopatra (1963) is an epic movie starring Elizabeth Taylor. It was directed by Joseph L. Mankiewicz. It had a very large budget.' }, { n: 2, title: 'Cleopatra VII', text: 'Cleopatra VII was the last active ruler of Ptolemaic Egypt.' }];
+  assert.equal(definitionalAnswer({ question: 'Who was Cleopatra?', sources: cleo }), null, 'left to the model, which sees the other article');
+  assert.equal(definitionalAnswer({ question: 'What is Cleopatra?', sources: cleo }).n, 1, 'but a bracketed article is still an article for "what is"');
+  assert.match(definitionalAnswer({ question: 'What is Cleopatra?', sources: cleo }).reply, /Joseph L\. Mankiewicz\. \[1\]$/, 'and the quote keeps a name\'s initial');
   assert.ok(titleNames('Veldhaven (city)', 'veldhaven'));
   assert.ok(!titleNames('Veldhaven Cup', 'Veldhaven'));
 });

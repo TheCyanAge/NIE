@@ -9,6 +9,7 @@ import { terms } from './tokens.js';
  *   tidyReply      a reply that repeats itself said once, a run of citation marks at the start moved to the end of the first sentence, a runaway reply cut at a sentence
  *   supportCheck   a sentence whose words (or whose figures) the articles do not hold goes: what a model says from its own memory, however likely
  *   absentReply    did the model say the passages do not answer the question?
+ *   answerSentence a sentence of the articles that holds every word the question asks about (quoted when the model said the articles do not answer and one plainly does)
  *   splitProse     sentences of plain prose (a full stop inside 1,776.05 or after St. or c. does not end one)
  */
 
@@ -51,6 +52,7 @@ export function tidyLead(text) {
 // ── sentences ────────────────────────────────────────────────────────────────
 
 const ABBREV = /(?:^|\s)(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|Mt|Ft|vs|etc|No|Inc|Ltd|Co|Gen|Col|Sgt|Capt|Lt|Rev|Fig|c|ca|approx|e\.g|i\.e|U\.S|U\.K|a\.m|p\.m|B\.C|A\.D)\.$/i;
+const INITIAL = /(?:^|[\s(])[A-Z]\.$/; // "Joseph L. Mankiewicz", "J. Miles Dale": a single capital before a full stop is a name's initial
 /**
  * Sentences of plain prose as strings. A full stop inside a number (1,776.05), after an abbreviation (St., c., U.S.) or inside a bracket does not end one: a sentence ends at . ! or ?
  * followed by a space and the start of another (a capital, a digit, a quote or a bracket).
@@ -64,7 +66,8 @@ export function splitProse(text) {
   while ((m = re.exec(t))) {
     const end = m.index + m[0].length;
     const piece = t.slice(start, end);
-    if (end < t.length && ABBREV.test(piece.replace(/["'”’)\]]+$/, ''))) continue;
+    const bare = piece.replace(/["'”’)\]]+$/, '');
+    if (end < t.length && (ABBREV.test(bare) || INITIAL.test(bare))) continue;
     out.push(piece.trim());
     start = end;
   }
@@ -150,13 +153,16 @@ export const absentReply = (text) => ABSENT.test(String(text ?? ''));
 
 // "The articles do not mention X" says what is missing: it is honest and is never judged by its words
 const SAYS_ABSENT = /\b(?:do(?:es)?\s+not|don't|doesn't|did\s+not|cannot|can't|nor\s+do|nor\s+does)\s+(?:\w+\s+){0,2}(?:say|says|mention|mentions|state|states|provide|provides|explain|explains|cover|covers|hold|holds|have|contain|contains|give|gives|describe|describes|specify|specifies|tell|answer)\b|\bnot\s+(?:stated|mentioned|given|known|said)\b|\bit\s+is\s+not\s+known\b/i;
+// a reply that says why ("because", "due to") says something the articles must say too: measured on the real model, "The sky appears blue because it is the colour of the sky and sea" was made of words that were all in the articles
+const SAYS_WHY = /\b(?:because|since|due to|owing to|thanks to|as a result|therefore|so that|that is why|this is why|which is why|caused by|results? from|is the reason)\b/i;
+const GIVES_WHY = /\b(?:because|caus(?:e|es|ed|ing)|due to|owing to|thanks to|result(?:s|ed|ing)?|reasons?|why|therefore|so that|led to|leads? to|leading to|in order to|since)\b/i;
 const NUM = /\d[\d,]*(?:\.\d+)?/g;
 const numbersOfText = (t) => [...String(t).matchAll(NUM)].map((m) => Number(m[0].replace(/,/g, ''))).filter(Number.isFinite);
 
 /**
  * @param {string} reply
  * @param {{ title: string, text: string, full?: string }[]} sources   (`full` when `text` is only the focused part)
- * @returns {{ text: string, removed: { sentence: string, why: 'words' | 'numbers', missing: string[] }[], emptied: boolean }}
+ * @returns {{ text: string, removed: { sentence: string, why: 'words' | 'numbers' | 'reason', missing: string[] }[], emptied: boolean }}
  */
 export function supportCheck(reply, sources, { minCoverage = 0.6, minTerms = 4 } = {}) {
   const src = String(reply ?? '');
@@ -168,6 +174,7 @@ export function supportCheck(reply, sources, { minCoverage = 0.6, minTerms = 4 }
     nums.push(...numbersOfText(body));
   }
   const heldNumber = (n) => nums.some((x) => x === n || (x > 0 && Math.abs(x - n) <= 0.005 * x));
+  const whyHeld = sources.some((s) => GIVES_WHY.test(String(s.full ?? s.text ?? '')));
   const removed = [];
   const keep = [];
   for (const sentence of splitProse(src)) {
@@ -175,6 +182,10 @@ export function supportCheck(reply, sources, { minCoverage = 0.6, minTerms = 4 }
     const plain = sentence.replace(/\[\d{1,2}\]/g, ' ');
     if (SAYS_ABSENT.test(plain)) {
       keep.push(sentence);
+      continue;
+    }
+    if (!whyHeld && SAYS_WHY.test(plain)) {
+      removed.push({ sentence: sp.text, why: 'reason', missing: [] });
       continue;
     }
     const lacking = numbersOfText(plain).filter((n) => (n >= 10 || /[,.]\d/.test(plain)) && !heldNumber(n));
@@ -194,4 +205,46 @@ export function supportCheck(reply, sources, { minCoverage = 0.6, minTerms = 4 }
   }
   const text = keep.join(' ').replace(/\s+([.,;:!?])/g, '$1').trim();
   return { text, removed, emptied: !/[\p{L}\p{N}]/u.test(text) };
+}
+
+// ── a sentence that answers ──────────────────────────────────────────────────
+
+// (verbs that change their stem: "Who wrote Frankenstein?" meets "best known for writing the novel")
+const IRREGULAR = Object.fromEntries(
+  Object.entries({ wrote: 'write', written: 'write', built: 'build', flew: 'fly', flown: 'fly', won: 'win', began: 'begin', begun: 'begin', led: 'lead', took: 'take', taken: 'take', gave: 'give', given: 'give', sold: 'sell', spoke: 'speak', spoken: 'speak', ran: 'run', fought: 'fight', sank: 'sink', sunk: 'sink', drew: 'draw', drawn: 'draw', found: 'find', made: 'make', came: 'come', saw: 'see', seen: 'see', died: 'die' }).map(([a, b]) => [terms(a)[0], terms(b)[0]]),
+);
+const lemma = (t) => IRREGULAR[t] ?? t;
+const FILLER = new Set(['known', 'used', 'called', 'named', 'many', 'much']); // asking words that no sentence needs to repeat
+const lemmas = (s) => [...new Set(contentTerms(s).map(lemma))];
+const WITHOUT_BRACKET = (title) => String(title ?? '').replace(/\s*\([^)]*\)\s*$/, '');
+
+/**
+ * The one sentence of the articles that holds every word the question asks about, for when a small model said the articles do not answer it and one plainly does ("What is the capital of
+ * Italy?" next to "The country's capital, Rome, is one of the most famous cities in the world."). A word of the question can be met by the article's own title (every sentence of "Italy"
+ * is about Italy) only when the question names that article; at least one word must be in the sentence itself; "how many / when" needs a figure. Quoted whole, never reworded. Null when
+ * no sentence does, so a real "the articles don't say" stays one.
+ * @param {string} question
+ * @param {{ n: number, title: string, text: string, full?: string }[]} sources
+ * @returns {{ n: number, title: string, sentence: string } | null}
+ */
+export function answerSentence(question, sources) {
+  const asked = lemmas(question).filter((t) => !FILLER.has(t));
+  if (asked.length < 2) return null;
+  const numeric = WANTS_A_NUMBER.test(String(question));
+  let best = null;
+  sources.forEach((s, rank) => {
+    const own = new Set(lemmas(WITHOUT_BRACKET(s.title)));
+    const named = own.size > 0 && [...own].every((t) => asked.includes(t)); // the question names this article
+    splitProse(s.full ?? s.text).forEach((sentence, i) => {
+      const words = wordsOf(sentence);
+      if (words < 4 || words > 60 || (numeric && !/\d/.test(sentence))) return;
+      const have = new Set(lemmas(sentence));
+      const lit = asked.filter((t) => have.has(t));
+      if (!lit.some((t) => !own.has(t))) return;
+      if (asked.some((t) => !have.has(t) && !(named && own.has(t)))) return;
+      const score = lit.length * 10 - rank - i / 100;
+      if (!best || score > best.score) best = { score, n: s.n, title: s.title, sentence };
+    });
+  });
+  return best ? { n: best.n, title: best.title, sentence: best.sentence } : null;
 }

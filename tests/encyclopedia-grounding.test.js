@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { absentReply, focusSources, splitProse, supportCheck, tidyLead, tidyReply } from '../apps/web/src/engine/encyclopedia/grounding.js';
+import { absentReply, answerSentence, focusSources, splitProse, supportCheck, tidyLead, tidyReply } from '../apps/web/src/engine/encyclopedia/grounding.js';
 
 test('Wikipedia\'s leftovers are taken out of an opening, and its words are not touched', () => {
   assert.equal(tidyLead('The speed of light, usually denoted by c {\\displaystyle c}, is a constant. It is 299,792,458 metres per second.'), 'The speed of light, usually denoted by c, is a constant. It is 299,792,458 metres per second.');
@@ -92,4 +92,40 @@ test('the check is made against the whole article, not the part the model was sh
 test('the model saying the passages do not answer is recognised', () => {
   for (const yes of ['The passages do not say.', 'The articles do not say what caused it.', "The passages don't say.", '[1] The sources do not tell us.']) assert.equal(absentReply(yes), true, yes);
   for (const no of ['The passages say the fire began in a bakery.', 'The Eiffel Tower is tall.', '']) assert.equal(absentReply(no), false, no);
+});
+
+test('a name\'s initial does not end a sentence', () => {
+  assert.deepEqual(splitProse('It was directed by Joseph L. Mankiewicz. He also wrote it with J. Miles Dale and others. Another one.'), ['It was directed by Joseph L. Mankiewicz.', 'He also wrote it with J. Miles Dale and others.', 'Another one.']);
+});
+
+test('a reply that says why needs an article that says why: "because" over words that are all there is not enough', () => {
+  const sky = [{ title: 'Sky', text: 'On a clear day the sky appears blue.' }, { title: 'Blue', text: "Blue is the color of the Earth's sky and sea." }];
+  const r = supportCheck('The sky appears blue because it is the color of the Earth\'s sky and sea. On a clear day the sky appears blue.', sky);
+  assert.equal(r.text, 'On a clear day the sky appears blue.');
+  assert.equal(r.removed[0].why, 'reason');
+  const why = [{ title: 'Sky', text: 'The sky looks blue because air scatters blue light more than red light.' }];
+  assert.equal(supportCheck('The sky looks blue because air scatters blue light.', why).removed.length, 0);
+  assert.equal(supportCheck('The Titanic sank after hitting an iceberg.', [{ title: 'Titanic', text: 'The Titanic sank after hitting an iceberg on her first trip.' }]).removed.length, 0, 'no reason claimed, none needed');
+});
+
+const art = (n, title, text) => ({ n, title, text });
+test('a sentence that holds every word asked is found for a question a small model refused (measured: capital of Italy, Marie Curie, Amelia Earhart, the Great Wall)', () => {
+  const found = (q, sources) => answerSentence(q, sources);
+  assert.deepEqual(found('What is the capital of Italy?', [art(1, 'Capital', 'Capital can mean: capital city, a city that contains the government of a country.'), art(2, 'Italy', 'Italy (Italian: Italia) is a country in Southern Europe. The country\'s capital, Rome, is one of the most famous cities in the world. It was the capital of the Roman Empire.')]), { n: 2, title: 'Italy', sentence: 'The country\'s capital, Rome, is one of the most famous cities in the world.' }, 'the title stands in for the word "Italy" because the question names that article');
+  assert.equal(found('What did Marie Curie discover?', [art(1, 'Marie Curie', 'Marie Curie was a Polish physicist. She did research on radioactivity.'), art(2, 'Polonium', 'Polonium is a rare radioactive metalloid. It was discovered in 1898 by Marie and Pierre Curie.')]).sentence, 'It was discovered in 1898 by Marie and Pierre Curie.', 'a sentence of another article that holds every word of the question itself');
+  assert.equal(found('Who was the first woman to fly across the Atlantic?', [art(1, 'The Atlantic', 'The Atlantic is an American magazine.'), art(2, 'Amelia Earhart', 'Amelia Earhart was an American aviator. She was the first woman to fly a plane by herself across the Atlantic Ocean.')]).sentence, 'She was the first woman to fly a plane by herself across the Atlantic Ocean.');
+  const wall = [art(1, 'Great Wall of China', 'The Great Wall of China is a series of fortifications in China. Chinese emperors built the wall to protect the north. The first walls were built in the 7th century BCE. The Ming dynasty built the best-known sections.')];
+  assert.equal(found('When was the Great Wall of China built?', wall).sentence, 'The first walls were built in the 7th century BCE.', '"when" needs a figure, and the sentence with more of the question\'s words wins');
+  assert.equal(found('Who wrote Frankenstein?', [art(1, 'Frankenstein', 'Frankenstein is a 2025 movie. He also wrote and co-produced the movie with others.'), art(2, 'Mary Shelley', 'Mary Shelley was an English writer. She is best known for writing the novel Frankenstein.')]).sentence, 'She is best known for writing the novel Frankenstein.', 'wrote and writing meet; the sentence that has the word itself beats the one that has it through a title');
+});
+
+test('and none is found when the articles really do not say, so a true "the articles don\'t answer" stays one', () => {
+  const none = (q, sources) => assert.equal(answerSentence(q, sources), null, q);
+  none('What caused the Great Fire of London?', [art(1, 'Great Fire of London', 'The Great Fire of London happened in 1666. It lasted for just under five days. It destroyed the homes of 70,000 people.'), art(2, 'Wildfire', 'Wildfire is a general term. Many are caused by humans.')]);
+  none('Who invented the telephone?', [art(1, 'Telephone', 'A telephone is a communication tool. People use it to talk with people far away.'), art(2, 'Nikola Tesla', 'Nikola Tesla was an inventor. He is best known for alternating current.')]);
+  none('How many bones are in the human body?', [art(1, 'Human body', 'The human body is the body of a person.'), art(2, 'Bone', 'Bones are parts of the skeleton. The bones are the framework of the body.')]);
+  none('Why do cats purr?', [art(1, 'Purr by Katy Perry', 'Purr is a fragrance created by Katy Perry. Her love for cats gave her the idea.'), art(2, 'Cat', 'Cats are small mammals. Cats have been tamed for nearly 10,000 years.')]);
+  none('What is the population of Veldhaven?', [art(1, 'Population', 'A population is the number of living people in a place.'), art(2, 'Chicago', 'Chicago is a city. As of 2020 the population is 2,746,388.')]);
+  none('What was the Colosseum used for?', [art(1, 'Colosseum', 'The Colosseum is a large structure in Rome. It had seating for 50,000 people.')]);
+  none('Rome?', [art(1, 'Rome', 'Rome is the capital of Italy.')]);
 });

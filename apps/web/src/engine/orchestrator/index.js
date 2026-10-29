@@ -35,7 +35,7 @@ import { explicitWebAsk, joinFollowUp, looksFactual, needsContext, previousWebQu
 import { buildSources, resultsOnly, shownSources, verifyAnswer, webMessages } from '../web/answer.js';
 import { isBuiltin, isLocal } from '../web/providers.js';
 import { definitionalAnswer, definitionSubject } from '../encyclopedia/define.js';
-import { absentReply, supportCheck, tidyReply } from '../encyclopedia/grounding.js';
+import { absentReply, answerSentence, supportCheck, tidyReply } from '../encyclopedia/grounding.js';
 import { terms as encTerms } from '../encyclopedia/tokens.js';
 
 export { STARTER };
@@ -239,6 +239,17 @@ function echoesRecentStory(text, past) {
   return earlier.some((m) => [...stemSet(plain(m.content.slice(0, 800)))].some((st) => mine.has(st)));
 }
 const UNGROUNDED_NOTE = "My offline model answered, but everything it said named something I could not find in your text, so I've left it out. Here is built-in guidance instead.";
+// a question that sets two forms side by side
+const COMPARES = /\b(?:different(?:ly)? from|differs? from|difference(?:s)? between|compare[sd]? (?:to|with)|versus|vs\.?)\b/i;
+/** Of encyclopedia results, those whose own title the question names ("Eiffel Tower" in "How tall is the Eiffel Tower?"); all of them when none is named. */
+function onlyNamed(results, query) {
+  const asked = new Set(encTerms(query, { question: true }));
+  const named = results.filter((r) => {
+    const t = encTerms(String(r.title ?? '').replace(/\s*\([^)]*\)\s*$/, ''));
+    return t.length > 0 && t.every((x) => asked.has(x));
+  });
+  return named.length ? named : results;
+}
 const LEFT_OUT_UNBACKED = "(I left out part of that reply because the articles don't back it up.)";
 const LEFT_OUT_WEB = "(I left out part of that reply because it named something the sources don't hold.)";
 const LEFT_OUT_UNGROUNDED = "(I left out part of that reply because it named something I couldn't find in your text.)";
@@ -1310,6 +1321,10 @@ export class Orchestrator {
     const asked = encTerms(definitionSubject(text) ?? '').join(' ');
     const sameName = Boolean(asked) && [entry?.name, ...(entry?.aka ?? [])].some((n) => n && encTerms(String(n).replace(/\s*\([^)]*\)\s*$/, '')).join(' ') === asked);
     if (held.strength === 'strong' && held.nameHit !== false && directLibraryAsk(text) && sameName) return null;
+    // ("How is an epic poem different from a novel?" has a whole-subject profile written for writers: that, not two encyclopedia openings side by side; a profile only when the question holds half of its name)
+    const askedTerms = new Set(encTerms(text, { question: true }));
+    const nameTerms = encTerms(String(entry?.name ?? '').split(':')[0], { question: true });
+    if (held.strength === 'strong' && held.nameHit !== false && entry?.kind === 'profile' && COMPARES.test(text) && nameTerms.length && nameTerms.filter((t) => askedTerms.has(t)).length / nameTerms.length >= 0.5) return null;
     return { query: text.replace(/[?!.\s]+$/, '').trim(), explicit: false };
   }
 
@@ -1380,7 +1395,11 @@ export class Orchestrator {
 
     let query = ask.query;
     const prior = previousWebQuery(past);
-    if (needsContext(query) && prior) query = await this.#standaloneQuery(query, prior, signal);
+    let followed = false;
+    if (needsContext(query) && prior) {
+      query = await this.#standaloneQuery(query, prior, signal);
+      followed = true;
+    }
     const problem = queryProblem(query);
     if (problem) {
       const reply = problem === 'long' ? "That's more than I should send to a search service. Ask it in a sentence or two (the search words are the only thing that leaves your computer) and I'll look it up." : 'What should I look up?';
@@ -1408,7 +1427,9 @@ export class Orchestrator {
     }
 
     const online = this.engine.route?.() === 'online';
-    const top = found.results.slice(0, 3);
+    // ("and how tall is it?" is about the thing just asked about: measured on the real model, with other towers beside the Eiffel Tower's own article it answered with another tower's height)
+    const results = followed && local ? onlyNamed(found.results, query) : found.results;
+    const top = results.slice(0, 3);
     onProgress?.({ stage: 'web', message: local ? `Reading ${top.length} article${top.length === 1 ? '' : 's'}…` : `Reading ${top.length} page${top.length === 1 ? '' : 's'}…` });
     const pages = new Map();
     await Promise.all(
@@ -1423,7 +1444,7 @@ export class Orchestrator {
     );
     if (signal?.aborted) throw stop();
     // (from the encyclopedia: three articles, the best whole and the others cut to what bears on the question: measured on the real model, five whole openings gave it distractors to write about)
-    const { whole: wholeSources, shown: sources } = shownSources({ results: found.results, pages, question: ask.explicit ? query : text, online, local });
+    const { whole: wholeSources, shown: sources } = shownSources({ results, pages, question: ask.explicit ? query : text, online, local });
     meta.sources = sources.map(({ n, title, url, host, read }) => ({ n, title, url, host, read }));
     const readCount = sources.filter((s) => s.read).length;
     const asOf = found.pack?.builtAt ? String(found.pack.builtAt).slice(0, 10) : '';
@@ -1452,7 +1473,18 @@ export class Orchestrator {
       return asResults(modelReady ? `My model couldn't answer from these just now. Here is what ${returned}:` : `No language model is running, so I can't summarise. Here is what ${returned}:`);
     }
     const written = local ? tidyReply(res.text).text : res.text;
+    // (a small model often says the articles do not answer when one sentence of them plainly does: that sentence, quoted, is better than a refusal, and a real "they don't say" has no such sentence)
+    const quoted = (why) => {
+      const hit = local ? answerSentence(ask.explicit ? query : text, sources) : null;
+      if (!hit) return null;
+      const bare = String(hit.title).replace(/\s*\([^)]*\)\s*$/, '');
+      const inSentence = new Set(encTerms(hit.sentence));
+      const line = `${encTerms(bare).every((t) => inSentence.has(t)) ? '' : `${bare}: `}${hit.sentence} [${hit.n}]`;
+      return finish(line, 'builtin', { state: 'answered', answeredBy: 'encyclopedia', note: `${why} This sentence of the article "${hit.title}" (Wikipedia, CC BY-SA 4.0) holds every word of your question, so it is quoted as it is written. No model wrote this, and nothing left your computer.` });
+    };
     if (local && absentReply(written)) {
+      const rescued = quoted('My model said the articles do not answer this.');
+      if (rescued) return rescued;
       // the model said the articles do not answer it: said plainly, with the articles it looked at, instead of a guess or a dump
       const titles = sources.map((s) => s.title);
       const list = titles.length > 1 ? `${titles.slice(0, -1).join(', ')} and ${titles.at(-1)}` : titles[0];
@@ -1464,6 +1496,8 @@ export class Orchestrator {
     const supported = local && !checked.emptied ? supportCheck(checked.text, sources) : null;
     const shown = supported ? supported.text : checked.text;
     if (checked.emptied || supported?.emptied || words(shown).length < (local ? 4 : 6)) {
+      const rescued = quoted(supported?.emptied ? "I left out what my model wrote because the articles don't back it up." : 'I left out what my model wrote because it named things the articles do not hold.');
+      if (rescued) return rescued;
       return asResults(local && supported?.emptied ? "I left out what my model wrote because the articles don't back it up. Here is what the closest ones start with:" : `I left out what my model wrote because it named things the ${local ? 'articles' : 'sources'} don't hold. Here is what ${returned}:`);
     }
     const answeredBy = res.route === 'online' ? 'online model' : 'offline model';
