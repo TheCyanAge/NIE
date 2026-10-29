@@ -16,7 +16,7 @@ import { Orchestrator } from '../apps/web/src/engine/orchestrator/index.js';
 import { createProjectData } from '../apps/web/src/engine/project/store.js';
 import { loadLibrary } from '../apps/web/src/engine/knowledge/index.js';
 import { createWebService } from '../apps/web/src/engine/web/service.js';
-import { buildSources } from '../apps/web/src/engine/web/answer.js';
+import { shownSources } from '../apps/web/src/engine/web/answer.js';
 import { Pack } from '../apps/web/src/engine/encyclopedia/pack.js';
 import { LAB_QUESTIONS } from '../tests/fixtures/encyclopedia-lab-questions.mjs';
 
@@ -69,14 +69,15 @@ const orchestrator = new Orchestrator({ engine, web, variety: 'full' });
 const results = [];
 
 /** The articles the model was shown for a question: the same calls the orchestrator makes (search, read the top three, number them). */
-async function sourcesFor(query) {
+async function sourcesFor(query, question) {
   const found = await web.search(query, { limit: 6 });
   const pages = new Map();
   for (const r of found.results.slice(0, 3)) {
     const page = await web.read(r.url, { maxChars: 2600 });
     if (page?.text) pages.set(r.url, page);
   }
-  return buildSources(found.results, pages).map((s) => ({ n: s.n, title: s.title, text: s.text }));
+  // the same helper the orchestrator uses: what the model was shown, not what the search found
+  return shownSources({ results: found.results, pages, question, local: true }).shown.map((s) => ({ n: s.n, title: s.title, text: s.text, whole: s.full }));
 }
 
 try {
@@ -94,7 +95,7 @@ try {
     }
     const ms = Date.now() - t0;
     const w = r.web ?? null;
-    const sources = w?.query ? await sourcesFor(w.query).catch(() => []) : [];
+    const sources = w?.query ? await sourcesFor(w.query, q.say).catch(() => []) : [];
     const row = {
       id: q.id, kind: q.kind, say: q.say, ms, route: r.route, declined: Boolean(r.declined), web: w ? { state: w.state, answeredBy: w.answeredBy, query: w.query, provider: w.provider, note: w.note } : null,
       modelCalls: calls.slice(from).map((c) => c.purpose), genTokens: calls.slice(from).reduce((a, c) => a + c.genN, 0), sources, reply: r.reply,

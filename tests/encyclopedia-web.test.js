@@ -125,10 +125,12 @@ test('a question that is not a plain definition goes to the model, which sees ar
   assert.match(r.web.note, /of the offline encyclopedia \(Wikipedia, the opening of each, as of 2026-03-04\)/);
   assert.match(r.web.note, /Nothing left your computer\./);
   const prompt = calls.at(-1).messages;
-  assert.match(prompt[0].content, /ONLY the numbered passages below, which come from an encyclopedia/);
-  assert.match(prompt[0].content, /reply with exactly: The passages do not say\./);
+  assert.match(prompt[0].content, /ONLY the numbered passages, which come from an encyclopedia/);
+  assert.match(prompt[0].content, /Reply "The passages do not say\." only when no passage holds the answer/);
+  assert.match(prompt[0].content, /Example one:[\s\S]*Example two:/, 'it is shown one answer and one refusal');
   assert.doesNotMatch(prompt[0].content, /untrusted web/);
-  assert.match(prompt.at(-1).content, /PASSAGES \(offline encyclopedia\)/);
+  assert.match(prompt.at(-1).content, /^PASSAGES\n\[1\] /);
+  assert.match(prompt.at(-1).content, /\n\nQuestion: .*\nAnswer:$/, 'the question comes last');
   assert.equal((prompt.at(-1).content.match(/^\[\d\] /gm) ?? []).length <= 3, true, 'at most three articles are shown to the model');
   assert.equal(calls.at(-1).opts.maxTokens, 220, 'a short answer');
   assert.equal(net.calls.length, 0);

@@ -26,10 +26,10 @@ const MAGIC = 'NIEPACK1';
 export const PACK_VERSION = 1;
 // How a question is scored. Chosen on the real Simple English pack (120,000 articles) with scripts/encyclopedia-eval.mjs: 60 tuning questions and 39 never tuned on.
 // Before (b 0.75, prior 0.2^1): right article in the top 3 for 83% of the tuning questions (average rank 0.804) and 90% of the others (0.905).
-// Now: 90% (0.851) and 92% (0.906). Length normalisation is almost off because every lead is clipped to one window, so a long lead is not a wordier article;
+// Now: 90% (0.851) and 92% (0.906); asking for the names in the question too (`titles`) makes it 92% (0.858) and 95% (0.919), better in all eight pairs compared. Length normalisation is almost off because every lead is clipped to one window, so a long lead is not a wordier article;
 // the prominence boost is concentrated on the most-read articles (a power of 8), which is where a short question about a famous thing most likely points.
 // What it cannot do: a question whose answer is not named in it ("capital of Italy") finds articles about Italy, not Rome.
-export const TUNING = Object.freeze({ k1: 1.2, b: 0.15, priorWeight: 1, priorPower: 8, titles: false });
+export const TUNING = Object.freeze({ k1: 1.2, b: 0.15, priorWeight: 1, priorPower: 8, titles: true });
 const TITLE_WEIGHT = 3;
 
 const u32 = (arr) => Buffer.from(Uint32Array.from(arr).buffer);

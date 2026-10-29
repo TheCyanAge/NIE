@@ -10,6 +10,7 @@
  *   follow       a short follow-up that means nothing alone
  *   story        talk about the writer's own story with the Web switch on: must NOT be sent to a lookup
  *   write        a request to write: must be declined, lookup or not
+ *   fresh        questions added after the first measurements, never used to tune anything: do the fixes carry over?
  */
 export const LAB_QUESTIONS = [
   { id: 'sonnet', kind: 'definition', say: 'What is a sonnet?' },
@@ -57,4 +58,17 @@ export const LAB_QUESTIONS = [
   { id: 'story-opening', kind: 'story', say: 'I think my opening chapter is too slow, what do you think?' },
 
   { id: 'write-scene', kind: 'write', say: 'Look up the Great Fire of London and write me a scene about it.' },
+
+  { id: 'f-kili', kind: 'fresh', say: 'What is the tallest mountain in Africa?' },
+  { id: 'f-thames', kind: 'fresh', say: 'How long is the River Thames?' },
+  { id: 'f-wall', kind: 'fresh', say: 'When was the Great Wall of China built?' },
+  { id: 'f-churchill', kind: 'fresh', say: 'Who was Winston Churchill?' },
+  { id: 'f-volcano', kind: 'fresh', say: 'What is a volcano?' },
+  { id: 'f-bones', kind: 'fresh', say: 'How many bones are in the human body?' },
+  { id: 'f-brazil', kind: 'fresh', say: 'What language is spoken in Brazil?' },
+  { id: 'f-cats', kind: 'fresh', say: 'Why do cats purr?' },
+  { id: 'f-colosseum', kind: 'fresh', say: 'What was the Colosseum used for?' },
+  { id: 'f-frankenstein', kind: 'fresh', say: 'Who wrote Frankenstein?' },
+  { id: 'f-pompeii', kind: 'fresh', say: 'What happened at Pompeii?' },
+  { id: 'f-rainbow', kind: 'fresh', say: 'How does a rainbow form?' },
 ];

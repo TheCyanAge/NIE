@@ -1,4 +1,4 @@
-import { splitSentences } from '../util/text.js';
+import { splitProse } from './grounding.js';
 import { terms, titleKeys } from './tokens.js';
 
 /**
@@ -48,8 +48,8 @@ export function definitionalAnswer({ question, sources, maxChars = 520, bare = f
   const source = hits.find((s) => !/\(/.test(s.title)) ?? hits[0];
   if (!source) return null;
   let text = '';
-  for (const s of splitSentences(source.text)) {
-    const next = text ? `${text} ${s.text}` : s.text;
+  for (const sentence of splitProse(source.text)) {
+    const next = text ? `${text} ${sentence}` : sentence;
     if (text && (next.length > maxChars || text.split(/(?<=[.!?])\s/).length >= 2)) break;
     text = next;
   }

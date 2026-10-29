@@ -32,10 +32,11 @@ import { analyseText, analysisKey, clearGroundingCache, editorialEvidence, findT
 import { profileCorpus } from '../profile/profile.js';
 import { AIError } from '../ai/openai-client.js';
 import { explicitWebAsk, joinFollowUp, looksFactual, needsContext, previousWebQuery, queryProblem } from '../web/ask.js';
-import { buildSources, resultsOnly, verifyAnswer, webMessages } from '../web/answer.js';
+import { buildSources, resultsOnly, shownSources, verifyAnswer, webMessages } from '../web/answer.js';
 import { isBuiltin, isLocal } from '../web/providers.js';
 import { definitionalAnswer, definitionSubject } from '../encyclopedia/define.js';
-import { absentReply, focusSources, supportCheck, tidyReply } from '../encyclopedia/grounding.js';
+import { absentReply, supportCheck, tidyReply } from '../encyclopedia/grounding.js';
+import { terms as encTerms } from '../encyclopedia/tokens.js';
 
 export { STARTER };
 
@@ -1303,8 +1304,12 @@ export class Orchestrator {
     // A direct question the built-in library holds under its own name ("What is a villanelle?") is answered there: it is written for writers, it is quicker and nothing leaves the computer.
     // The lookup is for what the library does not hold, or when the writer asks for it by name ("look up ...", which was settled above).
     if (!libraryStatus().loaded) await Promise.race([loadLibrary(), new Promise((resolve) => setTimeout(resolve, 3000))]);
+    // (by the entry's own name: "What is a villanelle?" is the entry Villanelle; "Who was Cleopatra?" is not the biography "Cleopatra: A Life", and "World War II" is not the AP rule about Roman numerals)
     const held = answerFromLibrary(text);
-    if (held.strength === 'strong' && held.nameHit !== false && directLibraryAsk(text)) return null;
+    const entry = held.entries?.[0];
+    const asked = encTerms(definitionSubject(text) ?? '').join(' ');
+    const sameName = Boolean(asked) && [entry?.name, ...(entry?.aka ?? [])].some((n) => n && encTerms(String(n).replace(/\s*\([^)]*\)\s*$/, '')).join(' ') === asked);
+    if (held.strength === 'strong' && held.nameHit !== false && directLibraryAsk(text) && sameName) return null;
     return { query: text.replace(/[?!.\s]+$/, '').trim(), explicit: false };
   }
 
@@ -1417,9 +1422,8 @@ export class Orchestrator {
       }),
     );
     if (signal?.aborted) throw stop();
-    // (from the encyclopedia: three articles, each cut to the sentences that bear on the question: measured on the real model, five whole openings gave it distractors to write about)
-    const wholeSources = buildSources(found.results, pages, online ? { totalChars: 14000, perSourceChars: 4000 } : local ? { maxSources: 3 } : {});
-    const sources = local ? focusSources(wholeSources, ask.explicit ? query : text) : wholeSources;
+    // (from the encyclopedia: three articles, the best whole and the others cut to what bears on the question: measured on the real model, five whole openings gave it distractors to write about)
+    const { whole: wholeSources, shown: sources } = shownSources({ results: found.results, pages, question: ask.explicit ? query : text, online, local });
     meta.sources = sources.map(({ n, title, url, host, read }) => ({ n, title, url, host, read }));
     const readCount = sources.filter((s) => s.read).length;
     const asOf = found.pack?.builtAt ? String(found.pack.builtAt).slice(0, 10) : '';

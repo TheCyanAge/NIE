@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { absentReply, focusSources, supportCheck, tidyLead, tidyReply } from '../apps/web/src/engine/encyclopedia/grounding.js';
+import { absentReply, focusSources, splitProse, supportCheck, tidyLead, tidyReply } from '../apps/web/src/engine/encyclopedia/grounding.js';
 
 test('Wikipedia\'s leftovers are taken out of an opening, and its words are not touched', () => {
   assert.equal(tidyLead('The speed of light, usually denoted by c {\\displaystyle c}, is a constant. It is 299,792,458 metres per second.'), 'The speed of light, usually denoted by c, is a constant. It is 299,792,458 metres per second.');
@@ -14,15 +14,31 @@ test('Wikipedia\'s leftovers are taken out of an opening, and its words are not 
 
 const LONG = 'Mount Everest is the highest mountain on Earth. It is in the Himalayas. People climb it every year. The first people to reach the top were Edmund Hillary and Tenzing Norgay in 1953. Many have died trying. It is 8,849 metres tall. The weather is cold. There is little oxygen.';
 
-test('of a long article the model sees its first sentence and those that share words with the question, in order; a short one whole', () => {
-  const [a, b] = focusSources([{ n: 1, title: 'Mount Everest', text: LONG }, { n: 2, title: 'Short', text: 'A short article.' }], 'how tall is Mount Everest', { maxChars: 200, perSource: 3 });
+test('the best article is shown whole; of the others the model sees the first sentence and those that bear on the question, in order', () => {
+  const [best, a, b] = focusSources([{ n: 1, title: 'Everest climbing', text: LONG }, { n: 2, title: 'Mount Everest', text: LONG }, { n: 3, title: 'Short', text: 'A short article.' }], 'how tall is Mount Everest', { maxChars: 200, perSource: 3 });
+  assert.equal(best.text, LONG, 'the best match is not cut');
   assert.equal(a.full, LONG);
   assert.match(a.text, /^Mount Everest is the highest mountain on Earth\./);
   assert.match(a.text, /8,849 metres tall/, 'the sentence that has the answer is there');
   assert.ok(a.text.length < LONG.length);
   assert.equal(b.text, 'A short article.');
-  const [c] = focusSources([{ n: 1, title: 'x', text: LONG }], 'zebra migration', { maxChars: 200, perSource: 3 });
+  const [, c] = focusSources([{ n: 1, title: 'x', text: LONG }, { n: 2, title: 'y', text: LONG }], 'zebra migration', { maxChars: 200, perSource: 3 });
   assert.match(c.text, /^Mount Everest is the highest mountain on Earth\. It is in the Himalayas\./, 'nothing matches: the first two sentences');
+});
+
+test('"how tall" keeps the sentence with the figure even when it shares no word with the question, and the words of the article\'s own title do not count', () => {
+  const text = 'Mount Everest is the highest mountain on Earth. Mount Everest is in the Himalayas, a tall mountain range in Asia. It is about 8,848 metres (29,029 feet) high and one of the Seven Summits. Mount Everest is on the line between Nepal and China. Mount Everest is cold. Mount Everest is windy and Mount Everest is dangerous to climb.';
+  const [, f] = focusSources([{ n: 1, title: 'Other', text: 'x' }, { n: 2, title: 'Mount Everest', text }], 'How tall is Mount Everest?', { maxChars: 260, perSource: 3 });
+  assert.match(f.text, /8,848 metres/);
+  const [, g] = focusSources([{ n: 1, title: 'Other', text: 'x' }, { n: 2, title: 'Italy', text: 'Italy is a country in Southern Europe. Italy is a democratic republic. Italy has famous food and wine and Italy is old. Its capital, Rome, is one of the most famous cities in the world. Italy has many regions and Italy has many cities.' }], 'What is the capital of Italy?', { maxChars: 230, perSource: 3 });
+  assert.match(g.text, /Rome/);
+});
+
+test('sentences of prose: a full stop inside a figure, after an abbreviation or in a bracket does not end one', () => {
+  assert.deepEqual(splitProse('The building is 1,776.05 feet (541.34 m) tall. It opened in late 2014. St. Paul visited c. 50 AD. He left.'), ['The building is 1,776.05 feet (541.34 m) tall.', 'It opened in late 2014.', 'St. Paul visited c. 50 AD.', 'He left.']);
+  assert.deepEqual(splitProse('Is it? Yes! It is. [1] Next.'), ['Is it?', 'Yes!', 'It is.', '[1] Next.']);
+  assert.deepEqual(splitProse(''), []);
+  assert.deepEqual(splitProse('No end'), ['No end']);
 });
 
 test('a reply that repeats itself is said once, marks at the start move to the end of the first sentence, and a runaway reply is cut at a sentence', () => {
