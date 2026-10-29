@@ -1,9 +1,9 @@
 {
   "url": "https://github.com/TheCyanAge/NIE/releases/download/encyclopedia-simple-en-2026-10/simple-en.niepack",
-  "sha256": "e7815d1892665fbd7d1c884f0c6e837c729aa6f67d0548db6cd23fc9eea69234",
-  "bytes": 41137602,
+  "sha256": "4128f2df78a45738980c472ce35265e79441a22e3914bdc71d0c1a4a853ac8bf",
+  "bytes": 40892809,
   "name": "simple-en",
   "title": "Simple English Wikipedia",
-  "builtAt": "2026-10-28T14:46:51.567Z",
+  "builtAt": "2026-10-29T01:42:28.995Z",
   "docs": 120000
 }
